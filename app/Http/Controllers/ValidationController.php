@@ -4,10 +4,12 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Models\User;
 use App\Models\Khs;
 use App\Models\SuratBalasan;
 use App\Models\LaporanPkl;
 use App\Models\HistoryAktivitas;
+use App\Services\FonnteService;
 
 class ValidationController extends Controller
 {
@@ -58,7 +60,7 @@ class ValidationController extends Controller
             'catatan' => 'nullable|string|max:500',
         ]);
 
-        $khs = Khs::findOrFail($id);
+        $khs = Khs::with('mahasiswa.profilMahasiswa')->findOrFail($id);
         $oldStatus = $khs->status_validasi;
         
         $khs->update([
@@ -67,6 +69,16 @@ class ValidationController extends Controller
 
         // Log activity
         $this->logValidationActivity('khs', $khs->mahasiswa_id, $oldStatus, $request->status_validasi, $request->catatan);
+
+        // Send WhatsApp notification
+        \Illuminate\Support\Facades\Log::info('About to send validation notification for KHS', [
+            'khs_id' => $khs->id,
+            'mahasiswa_id' => $khs->mahasiswa_id,
+            'mahasiswa_name' => $khs->mahasiswa->name ?? 'N/A',
+            'whatsapp_number' => $khs->mahasiswa->profilMahasiswa->no_wa ?? 'N/A',
+            'status' => $request->status_validasi
+        ]);
+        $this->sendValidationNotification($khs->mahasiswa, 'KHS', $request->status_validasi, $request->catatan);
 
         return redirect()->back()->with('success', 'Status KHS berhasil diupdate!');
     }
@@ -78,7 +90,7 @@ class ValidationController extends Controller
             'catatan' => 'nullable|string|max:500',
         ]);
 
-        $surat = SuratBalasan::findOrFail($id);
+        $surat = SuratBalasan::with('mahasiswa.profilMahasiswa')->findOrFail($id);
         $oldStatus = $surat->status_validasi;
         
         $surat->update([
@@ -87,6 +99,16 @@ class ValidationController extends Controller
 
         // Log activity
         $this->logValidationActivity('surat_balasan', $surat->mahasiswa_id, $oldStatus, $request->status_validasi, $request->catatan);
+
+        // Send WhatsApp notification
+        \Illuminate\Support\Facades\Log::info('About to send validation notification for Surat Balasan', [
+            'surat_id' => $surat->id,
+            'mahasiswa_id' => $surat->mahasiswa_id,
+            'mahasiswa_name' => $surat->mahasiswa->name ?? 'N/A',
+            'whatsapp_number' => $surat->mahasiswa->profilMahasiswa->no_wa ?? 'N/A',
+            'status' => $request->status_validasi
+        ]);
+        $this->sendValidationNotification($surat->mahasiswa, 'Surat Balasan', $request->status_validasi, $request->catatan);
 
         return redirect()->back()->with('success', 'Status Surat Balasan berhasil diupdate!');
     }
@@ -98,7 +120,7 @@ class ValidationController extends Controller
             'catatan' => 'nullable|string|max:500',
         ]);
 
-        $laporan = LaporanPkl::findOrFail($id);
+        $laporan = LaporanPkl::with('mahasiswa.profilMahasiswa')->findOrFail($id);
         $oldStatus = $laporan->status_validasi;
         
         $laporan->update([
@@ -107,6 +129,16 @@ class ValidationController extends Controller
 
         // Log activity
         $this->logValidationActivity('laporan_pkl', $laporan->mahasiswa_id, $oldStatus, $request->status_validasi, $request->catatan);
+
+        // Send WhatsApp notification
+        \Illuminate\Support\Facades\Log::info('About to send validation notification for Laporan PKL', [
+            'laporan_id' => $laporan->id,
+            'mahasiswa_id' => $laporan->mahasiswa_id,
+            'mahasiswa_name' => $laporan->mahasiswa->name ?? 'N/A',
+            'whatsapp_number' => $laporan->mahasiswa->profilMahasiswa->no_wa ?? 'N/A',
+            'status' => $request->status_validasi
+        ]);
+        $this->sendValidationNotification($laporan->mahasiswa, 'Laporan PKL', $request->status_validasi, $request->catatan);
 
         return redirect()->back()->with('success', 'Status Laporan PKL berhasil diupdate!');
     }
@@ -183,5 +215,63 @@ class ValidationController extends Controller
         ];
         
         return response()->json(['success' => true, 'biodata' => $biodata]);
+    }
+
+    private function sendValidationNotification($mahasiswa, $documentType, $status, $notes = null)
+    {
+        try {
+            \Illuminate\Support\Facades\Log::info('sendValidationNotification called', [
+                'mahasiswa_id' => $mahasiswa->id,
+                'mahasiswa_name' => $mahasiswa->name,
+                'document_type' => $documentType,
+                'status' => $status,
+                'notes' => $notes
+            ]);
+            
+            // Get WhatsApp number from mahasiswa profile
+            $whatsappNumber = $mahasiswa->profilMahasiswa->no_wa ?? null;
+            
+            \Illuminate\Support\Facades\Log::info('WhatsApp number check', [
+                'mahasiswa_id' => $mahasiswa->id,
+                'whatsapp_number' => $whatsappNumber,
+                'has_profil' => $mahasiswa->profilMahasiswa ? 'yes' : 'no'
+            ]);
+            
+            if ($whatsappNumber) {
+                $fonnte = new FonnteService();
+                $phone = '+62' . $whatsappNumber;
+                
+                // Create validation message
+                $statusText = $status === 'tervalidasi' ? '✅ Tervalidasi' : 
+                             ($status === 'belum_valid' ? '❌ Belum Valid' : '⚠️ Perlu Revisi');
+                
+                $message = "📄 *Notifikasi Validasi Dokumen*\n\n";
+                $message .= "Halo *{$mahasiswa->name}*,\n\n";
+                $message .= "Dokumen *{$documentType}* Anda telah divalidasi dengan status: *{$statusText}*\n\n";
+                
+                if ($notes) {
+                    $message .= "📝 *Catatan:*\n";
+                    $message .= "{$notes}\n\n";
+                }
+                
+                $message .= "Silakan cek dashboard untuk detail lebih lanjut.\n\n";
+                $message .= "Terima kasih! 🙏";
+                
+                $result = $fonnte->sendMessage($phone, $message);
+                
+                \Illuminate\Support\Facades\Log::info('WhatsApp validation notification sent', [
+                    'mahasiswa_id' => $mahasiswa->id,
+                    'phone' => $phone,
+                    'document_type' => $documentType,
+                    'status' => $status,
+                    'result' => $result
+                ]);
+            }
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Failed to send WhatsApp validation notification', [
+                'mahasiswa_id' => $mahasiswa->id,
+                'error' => $e->getMessage()
+            ]);
+        }
     }
 }

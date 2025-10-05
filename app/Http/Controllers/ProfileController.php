@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
+use App\Services\FonnteService;
 use App\Models\User;
 use App\Models\ProfilMahasiswa;
 
@@ -38,10 +39,10 @@ class ProfileController extends Controller
 
     public function update(Request $request)
     {
-        \Log::info('ProfileController@update method called');
+        Log::info('ProfileController@update method called');
         $user = Auth::user();
         
-        \Log::info('Profile update request received:', [
+        Log::info('Profile update request received:', [
             'user_id' => $user->id,
             'request_data' => $request->all(),
             'method' => $request->method(),
@@ -65,7 +66,7 @@ class ProfileController extends Controller
                 'cek_valid_biodata' => 'boolean',
             ]);
         } catch (\Illuminate\Validation\ValidationException $e) {
-            \Log::error('Validation failed:', ['errors' => $e->errors()]);
+            Log::error('Validation failed:', ['errors' => $e->errors()]);
             return back()->withErrors($e->errors())->withInput();
         }
 
@@ -96,7 +97,7 @@ class ProfileController extends Controller
         ];
 
         // Debug logging
-        \Log::info('Profile Update Debug:', [
+        Log::info('Profile Update Debug:', [
             'user_id' => $user->id,
             'profil_exists' => $user->profilMahasiswa ? 'yes' : 'no',
             'profil_data' => $profilData,
@@ -121,16 +122,45 @@ class ProfileController extends Controller
                 $profil->cek_valid_biodata = $profilData['cek_valid_biodata'];
                 
                 $result = $profil->save();
-                \Log::info('Profile updated successfully:', ['result' => $result, 'profil_id' => $profil->id_mahasiswa]);
+                Log::info('Profile updated successfully:', ['result' => $result, 'profil_id' => $profil->id_mahasiswa]);
             } else {
                 // Create new profile
                 $profilData['id_mahasiswa'] = $user->id;
                 $profil = ProfilMahasiswa::create($profilData);
-                \Log::info('Profile created successfully:', ['profil' => $profil]);
+                Log::info('Profile created successfully:', ['profil' => $profil]);
             }
         } catch (\Exception $e) {
-            \Log::error('Profile update error:', ['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
+            Log::error('Profile update error:', ['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
             return back()->withErrors(['error' => 'Terjadi kesalahan saat menyimpan data: ' . $e->getMessage()]);
+        }
+
+        // Send WhatsApp notification for profile changes
+        if ($user->role === 'mahasiswa' && $user->profilMahasiswa && $user->profilMahasiswa->no_whatsapp) {
+            try {
+                $fonnte = new FonnteService();
+                $phone = '+62' . $user->profilMahasiswa->no_whatsapp;
+                
+                $message = "📝 *Notifikasi Perubahan Profil*\n\n";
+                $message .= "Halo *{$user->name}*,\n\n";
+                $message .= "Profil Anda telah berhasil diperbarui di *SIPP PKL*.\n\n";
+                $message .= "🔗 *Akses Profil:*\n";
+                $message .= "http://localhost:8000/profile\n\n";
+                $message .= "Jika ini bukan Anda, segera hubungi admin.\n\n";
+                $message .= "Terima kasih! 🙏";
+                
+                $fonnte->sendMessage($phone, $message);
+                
+                Log::info('WhatsApp profile update notification sent', [
+                    'user_id' => $user->id,
+                    'phone' => $phone,
+                    'name' => $user->name
+                ]);
+            } catch (\Exception $e) {
+                Log::error('Failed to send WhatsApp profile update notification', [
+                    'user_id' => $user->id,
+                    'error' => $e->getMessage()
+                ]);
+            }
         }
 
         return redirect()->route('profile.index')->with('success', 'Biodata berhasil diperbaharui!');

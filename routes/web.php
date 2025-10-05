@@ -76,6 +76,10 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/kelola-mitra', [\App\Http\Controllers\AdminController::class, 'createMitra'])->name('create-mitra');
         Route::put('/kelola-mitra/{id}', [\App\Http\Controllers\AdminController::class, 'updateMitra'])->name('update-mitra');
         Route::delete('/kelola-mitra/{id}', [\App\Http\Controllers\AdminController::class, 'deleteMitra'])->name('delete-mitra');
+        
+        // System settings routes
+        Route::get('/system-settings', [\App\Http\Controllers\Admin\SystemSettingsController::class, 'index'])->name('system-settings');
+        Route::put('/system-settings', [\App\Http\Controllers\Admin\SystemSettingsController::class, 'update'])->name('system-settings.update');
         Route::get('/validation', [\App\Http\Controllers\ValidationController::class, 'index'])->name('validation');
         Route::put('/validation/khs/{id}', [\App\Http\Controllers\ValidationController::class, 'validateKhs'])->name('validation.khs');
         Route::put('/validation/surat-balasan/{id}', [\App\Http\Controllers\ValidationController::class, 'validateSuratBalasan'])->name('validation.surat');

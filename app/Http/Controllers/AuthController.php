@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
+use App\Services\FonnteService;
 use Laravel\Socialite\Facades\Socialite;
 use App\Models\User;
 
@@ -93,7 +94,7 @@ class AuthController extends Controller
             'prodi' => 'required_if:role,mahasiswa|string|max:100',
             'semester' => 'required_if:role,mahasiswa|integer|min:1|max:8',
             'jenis_kelamin' => 'required_if:role,mahasiswa|string|in:L,P',
-            'no_wa' => 'required_if:role,mahasiswa|string|max:20',
+            'no_wa' => 'required_if:role,mahasiswa|string|regex:/^8\d{8,11}$/',
         ]);
 
         $user = User::create([
@@ -147,6 +148,25 @@ class AuthController extends Controller
                 'message' => $user->name . ' telah melakukan registrasi sebagai ' . ucfirst($user->role),
             ],
         ]);
+
+        // Send WhatsApp notification for mahasiswa
+        if ($user->role === 'mahasiswa' && $request->no_wa) {
+            try {
+                $fonnte = new FonnteService();
+                $phone = '+62' . $request->no_wa;
+                $fonnte->sendRegistrationSuccess($phone, $user->name, 'Mahasiswa');
+                Log::info('WhatsApp notification sent for registration', [
+                    'user_id' => $user->id,
+                    'phone' => $phone,
+                    'name' => $user->name
+                ]);
+            } catch (\Exception $e) {
+                Log::error('Failed to send WhatsApp notification', [
+                    'user_id' => $user->id,
+                    'error' => $e->getMessage()
+                ]);
+            }
+        }
 
         // Redirect to dashboard for all roles
         return redirect()->route('dashboard')->with('success', 'Akun berhasil dibuat! Selamat datang di SIPP PKL.');
@@ -294,45 +314,68 @@ class AuthController extends Controller
                 ]);
                 
                 return redirect()->route('dashboard')->with('success', 'Login berhasil!');
-            } else {
-                // User doesn't exist, create new account
-                Log::info('Creating new user via Google OAuth');
-                
-                $user = User::create([
-                    'name' => $googleUser->getName(),
-                    'email' => 'google_' . time() . '@google.oauth', // Unique email for local account
-                    'password' => Hash::make('google_oauth_' . time()),
-                    'role' => 'mahasiswa', // Default role for Google OAuth
-                    'google_linked' => true,
-                    'google_email' => $googleUser->getEmail(), // Store actual Google email here
-                    'photo' => $googleUser->getAvatar(),
-                ]);
-                
-                Log::info('New user created', ['user_id' => $user->id]);
-                Auth::login($user);
-                
-                // Log registration activity
-                \App\Models\HistoryAktivitas::create([
-                    'id_user' => $user->id,
-                    'id_mahasiswa' => $user->id,
-                    'tipe' => 'register',
-                    'pesan' => [
-                        'action' => 'register',
-                        'user' => $user->name,
-                        'role' => $user->role,
-                        'message' => $user->name . ' telah melakukan registrasi via Google sebagai ' . ucfirst($user->role),
-                    ],
-                ]);
-                
-                // Redirect to complete profile
-                return redirect()->route('complete-profile')->with('info', 'Silakan lengkapi biodata Anda terlebih dahulu.');
-            }
+                } else {
+                    // User doesn't exist, create new account
+                    Log::info('Creating new user via Google OAuth');
+                    
+                    $user = User::create([
+                        'name' => $googleUser->getName(),
+                        'email' => 'google_' . time() . '@google.oauth', // Unique email for local account
+                        'password' => Hash::make('google_oauth_' . time()),
+                        'role' => 'mahasiswa', // Default role for Google OAuth
+                        'google_linked' => true,
+                        'google_email' => $googleUser->getEmail(), // Store actual Google email here
+                        'photo' => $googleUser->getAvatar(),
+                    ]);
+                    
+                    // Create basic profile for Google users
+                    \App\Models\ProfilMahasiswa::create([
+                        'id_mahasiswa' => $user->id,
+                        'nim' => 'GOOGLE_' . time(), // Temporary NIM for Google users
+                        'prodi' => 'Teknologi Informasi', // Default prodi
+                        'semester' => 5, // Default semester
+                        'jenis_kelamin' => 'L', // Default gender
+                        'cek_min_semester' => false,
+                        'cek_ipk_nilaisks' => false,
+                        'cek_valid_biodata' => false,
+                    ]);
+                    
+                    Log::info('New user created with profile', ['user_id' => $user->id]);
+                    Auth::login($user);
+                    
+                    // Log registration activity
+                    \App\Models\HistoryAktivitas::create([
+                        'id_user' => $user->id,
+                        'id_mahasiswa' => $user->id,
+                        'tipe' => 'register',
+                        'pesan' => [
+                            'action' => 'register',
+                            'user' => $user->name,
+                            'role' => $user->role,
+                            'message' => $user->name . ' telah melakukan registrasi via Google sebagai ' . ucfirst($user->role),
+                        ],
+                    ]);
+                    
+                    // Redirect to complete profile
+                    return redirect()->route('complete-profile')->with('info', 'Silakan lengkapi biodata Anda terlebih dahulu.');
+                }
         } catch (\Exception $e) {
             Log::error('Google OAuth Error: ' . $e->getMessage(), [
                 'exception' => $e,
                 'trace' => $e->getTraceAsString()
             ]);
-            return redirect()->route('login')->withErrors(['error' => 'Terjadi kesalahan saat login dengan Google. Silakan coba lagi. Error: ' . $e->getMessage()]);
+            $errorMessage = 'Terjadi kesalahan saat login dengan Google. ';
+            if (strpos($e->getMessage(), 'SSL') !== false) {
+                $errorMessage .= 'Masalah SSL Certificate. Silakan hubungi admin.';
+            } elseif (strpos($e->getMessage(), 'cURL') !== false) {
+                $errorMessage .= 'Masalah koneksi internet. Silakan coba lagi.';
+            } elseif (strpos($e->getMessage(), 'token') !== false) {
+                $errorMessage .= 'Token Google tidak valid. Silakan hubungi admin.';
+            } else {
+                $errorMessage .= 'Error: ' . $e->getMessage();
+            }
+            
+            return redirect()->route('login')->withErrors(['error' => $errorMessage]);
         }
     }
 }

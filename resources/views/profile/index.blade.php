@@ -22,7 +22,7 @@
         <!-- Basic Information -->
         <div class="bg-white shadow rounded-lg p-6">
             <div class="flex items-center mb-6">
-                @if($user->photo && $user->google_linked)
+                @if($user->photo && $user->google_linked && $user->photo !== 'https://lh3.googleusercontent.com/a/default-user')
                     <img src="{{ $user->photo }}" alt="Profile" class="h-16 w-16 rounded-full object-cover">
                 @else
                     <div class="h-16 w-16 rounded-full bg-gray-500 flex items-center justify-center">

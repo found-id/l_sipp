@@ -71,11 +71,6 @@
                            class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500">
                 </div>
                 
-                <div>
-                    <label for="no_whatsapp" class="block text-sm font-medium text-gray-700">No. WhatsApp</label>
-                    <input type="text" id="no_whatsapp" name="no_whatsapp" value="{{ old('no_whatsapp', $profil->no_whatsapp ?? '') }}"
-                           class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500">
-                </div>
                 
                 <div>
                     <label for="jenis_kelamin" class="block text-sm font-medium text-gray-700">Jenis Kelamin</label>
@@ -85,6 +80,25 @@
                         <option value="L" {{ old('jenis_kelamin', $profil->jenis_kelamin ?? '') === 'L' ? 'selected' : '' }}>Laki-laki</option>
                         <option value="P" {{ old('jenis_kelamin', $profil->jenis_kelamin ?? '') === 'P' ? 'selected' : '' }}>Perempuan</option>
                     </select>
+                </div>
+                
+                <div>
+                    <label for="no_whatsapp" class="block text-sm font-medium text-gray-700">Nomor WhatsApp</label>
+                    <div class="mt-1 relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <span class="text-gray-700 font-medium">+62</span>
+                        </div>
+                        <input type="text" id="no_whatsapp" name="no_whatsapp" 
+                               value="{{ old('no_whatsapp', $profil->no_whatsapp ?? '') }}"
+                               class="block w-full pl-12 border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500" 
+                               placeholder="8xxxxxxxxxx"
+                               oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+                               maxlength="13">
+                    </div>
+                    <p class="mt-1 text-xs text-gray-500">Format: +62 8xxxxxxxxxx (tanpa 0 di depan, maksimal 13 digit)</p>
+                    @error('no_whatsapp')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
                 </div>
                 
                 <div>

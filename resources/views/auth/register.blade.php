@@ -128,10 +128,18 @@
 
                     <div>
                         <label for="no_wa" class="block text-sm font-medium text-gray-700">Nomor WhatsApp</label>
-                        <input id="no_wa" name="no_wa" type="text" required 
-                               class="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm" 
-                               placeholder="Masukkan nomor WhatsApp (contoh: 081234567890)"
-                               value="{{ old('no_wa') }}">
+                        <div class="mt-1 relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <span class="text-gray-700 font-medium">+62</span>
+                            </div>
+                            <input id="no_wa" name="no_wa" type="text" required 
+                                   class="block w-full pl-12 border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" 
+                                   placeholder="8xxxxxxxxxx"
+                                   value="{{ old('no_wa') }}"
+                                   oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+                                   maxlength="13">
+                        </div>
+                        <p class="mt-1 text-xs text-gray-500">Format: +62 8xxxxxxxxxx (tanpa 0 di depan, maksimal 13 digit)</p>
                         @error('no_wa')
                             <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                         @enderror

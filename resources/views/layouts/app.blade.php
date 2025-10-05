@@ -10,6 +10,7 @@
         .nav-link {
             color: #6b7280;
             transition: all 0.2s;
+            position: relative;
         }
         .nav-link:hover {
             color: #2563eb;
@@ -18,6 +19,16 @@
             color: #1f2937;
             background-color: #f3f4f6;
             font-weight: 600;
+        }
+        .nav-link.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background-color: #2563eb;
+            border-radius: 0;
         }
     </style>
 </head>
@@ -30,7 +41,7 @@
                 <div class="flex items-center">
                     <div class="flex-shrink-0">
                         <a href="{{ route('dashboard') }}" class="text-xl font-bold text-gray-900 hover:text-blue-600 transition-colors">
-                            SIPP PKL
+                            SIP PKL
                         </a>
                     </div>
                     
@@ -38,17 +49,38 @@
                     <div class="hidden md:block ml-10">
                         <div class="flex items-baseline space-x-4">
                             @if(auth()->user()->role === 'mahasiswa')
-                                <a href="{{ route('dashboard') }}" class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }} px-3 py-2 rounded-md text-sm font-medium">Dashboard</a>
-                                <a href="{{ route('documents.index') }}" class="nav-link {{ request()->routeIs('documents.*') ? 'active' : '' }} px-3 py-2 rounded-md text-sm font-medium">Pemberkasan</a>
-                                <a href="{{ route('mitra') }}" class="nav-link {{ request()->routeIs('mitra') ? 'active' : '' }} px-3 py-2 rounded-md text-sm font-medium">Instansi Mitra</a>
-                                <a href="{{ route('jadwal-seminar') }}" class="nav-link {{ request()->routeIs('jadwal-seminar') ? 'active' : '' }} px-3 py-2 rounded-md text-sm font-medium">Jadwal Seminar</a>
+                                <a href="{{ route('dashboard') }}" class="nav-link flex items-center px-3 py-2 rounded-md text-sm font-medium {{ request()->routeIs('dashboard') ? 'active' : 'text-gray-700 hover:text-blue-600 hover:bg-gray-50' }}">
+                                    <i class="fas fa-home mr-2"></i>Dashboard
+                                </a>
+                                <a href="{{ route('documents.index') }}" class="nav-link flex items-center px-3 py-2 rounded-md text-sm font-medium {{ request()->routeIs('documents.*') ? 'active' : 'text-gray-700 hover:text-blue-600 hover:bg-gray-50' }}">
+                                    <i class="fas fa-file-upload mr-2"></i>Pemberkasan
+                                </a>
+                                <a href="{{ route('mitra') }}" class="nav-link flex items-center px-3 py-2 rounded-md text-sm font-medium {{ request()->routeIs('mitra') ? 'active' : 'text-gray-700 hover:text-blue-600 hover:bg-gray-50' }}">
+                                    <i class="fas fa-building mr-2"></i>Instansi Mitra
+                                </a>
+                                <a href="{{ route('jadwal-seminar') }}" class="nav-link flex items-center px-3 py-2 rounded-md text-sm font-medium {{ request()->routeIs('jadwal-seminar') ? 'active' : 'text-gray-700 hover:text-blue-600 hover:bg-gray-50' }}">
+                                    <i class="fas fa-calendar-alt mr-2"></i>Jadwal Seminar
+                                </a>
                             @elseif(auth()->user()->role === 'dospem')
-                                <a href="{{ route('dashboard') }}" class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }} px-3 py-2 rounded-md text-sm font-medium">Dashboard</a>
-                                <a href="{{ route('dospem.validation') }}" class="nav-link {{ request()->routeIs('dospem.validation') ? 'active' : '' }} px-3 py-2 rounded-md text-sm font-medium">Berkas Mahasiswa</a>
-                                <a href="{{ route('jadwal-seminar') }}" class="nav-link {{ request()->routeIs('jadwal-seminar') ? 'active' : '' }} px-3 py-2 rounded-md text-sm font-medium">Jadwal Seminar</a>
+                                <a href="{{ route('dashboard') }}" class="nav-link flex items-center px-3 py-2 rounded-md text-sm font-medium {{ request()->routeIs('dashboard') ? 'active' : 'text-gray-700 hover:text-blue-600 hover:bg-gray-50' }}">
+                                    <i class="fas fa-home mr-2"></i>Dashboard
+                                </a>
+                                <a href="{{ route('dospem.validation') }}" class="nav-link flex items-center px-3 py-2 rounded-md text-sm font-medium {{ request()->routeIs('dospem.validation') ? 'active' : 'text-gray-700 hover:text-blue-600 hover:bg-gray-50' }}">
+                                    <i class="fas fa-file-check mr-2"></i>Berkas Mahasiswa
+                                </a>
+                                <a href="{{ route('jadwal-seminar') }}" class="nav-link flex items-center px-3 py-2 rounded-md text-sm font-medium {{ request()->routeIs('jadwal-seminar') ? 'active' : 'text-gray-700 hover:text-blue-600 hover:bg-gray-50' }}">
+                                    <i class="fas fa-calendar-alt mr-2"></i>Jadwal Seminar
+                                </a>
                             @elseif(auth()->user()->role === 'admin')
-                                <a href="{{ route('dashboard') }}" class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }} px-3 py-2 rounded-md text-sm font-medium">Dashboard</a>
-                                <a href="{{ route('admin.kelola-data') }}" class="nav-link {{ request()->routeIs('admin.kelola-data') ? 'active' : '' }} px-3 py-2 rounded-md text-sm font-medium">Kelola Data</a>
+                                <a href="{{ route('dashboard') }}" class="nav-link flex items-center px-3 py-2 rounded-md text-sm font-medium {{ request()->routeIs('dashboard') ? 'active' : 'text-gray-700 hover:text-blue-600 hover:bg-gray-50' }}">
+                                    <i class="fas fa-home mr-2"></i>Dashboard
+                                </a>
+                                <a href="{{ route('admin.kelola-data') }}" class="nav-link flex items-center px-3 py-2 rounded-md text-sm font-medium {{ request()->routeIs('admin.kelola-data') ? 'active' : 'text-gray-700 hover:text-blue-600 hover:bg-gray-50' }}">
+                                    <i class="fas fa-cogs mr-2"></i>Kelola Data
+                                </a>
+                                <a href="{{ route('admin.system-settings') }}" class="nav-link flex items-center px-3 py-2 rounded-md text-sm font-medium {{ request()->routeIs('admin.system-settings') ? 'active' : 'text-gray-700 hover:text-blue-600 hover:bg-gray-50' }}">
+                                    <i class="fas fa-sliders-h mr-2"></i>Menu Sistem
+                                </a>
                             @endif
                         </div>
                     </div>

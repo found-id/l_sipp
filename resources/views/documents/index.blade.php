@@ -3,6 +3,9 @@
 @section('title', 'Pemberkasan Dokumen - SIPP PKL')
 
 @section('content')
+@php
+    $laporanPklEnabled = \App\Models\SystemSetting::isEnabled('laporan_pkl_enabled');
+@endphp
 <div class="space-y-6">
     <!-- Header -->
     <div class="bg-gradient-to-r from-blue-600 to-indigo-700 rounded-lg shadow-lg p-6 text-white">
@@ -126,8 +129,12 @@
                 <button onclick="showTab('pemberkasan')" id="tab-pemberkasan" class="tab-button active py-4 px-6 border-b-2 font-medium text-sm border-blue-500 text-blue-600 transition-colors duration-200">
                     <i class="fas fa-file-alt mr-2"></i>Dokumen Pemberkasan
                 </button>
-                <button onclick="showTab('laporan')" id="tab-laporan" class="tab-button py-4 px-6 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 transition-colors duration-200">
+                <button onclick="showTab('laporan')" id="tab-laporan" class="tab-button py-4 px-6 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 transition-colors duration-200 {{ !$laporanPklEnabled ? 'opacity-50 cursor-not-allowed' : '' }}" 
+                        {{ !$laporanPklEnabled ? 'disabled' : '' }}>
                     <i class="fas fa-book mr-2"></i>Laporan PKL
+                    @if(!$laporanPklEnabled)
+                        <i class="fas fa-lock ml-2 text-gray-400"></i>
+                    @endif
                 </button>
             </nav>
         </div>
@@ -302,8 +309,43 @@
     </div>
 
     <div id="content-laporan" class="tab-content hidden">
-        <!-- Laporan PKL Upload -->
-        <div class="bg-white shadow-lg rounded-xl border border-gray-100 overflow-hidden">
+        @if(!$laporanPklEnabled)
+            <!-- Disabled State -->
+            <div class="bg-white shadow-lg rounded-xl border border-gray-100 overflow-hidden">
+                <div class="bg-gradient-to-r from-gray-400 to-gray-500 px-6 py-4">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-ban text-2xl text-white"></i>
+                        </div>
+                        <div class="ml-3">
+                            <h3 class="text-lg font-semibold text-white">Laporan PKL Dinonaktifkan</h3>
+                            <p class="text-gray-100 text-sm">Fitur ini sedang dinonaktifkan oleh admin</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="p-6 text-center">
+                    <div class="mb-4">
+                        <i class="fas fa-lock text-4xl text-gray-400"></i>
+                    </div>
+                    <h4 class="text-lg font-medium text-gray-900 mb-2">Laporan PKL Tidak Tersedia</h4>
+                    <p class="text-gray-600 mb-4">Admin telah menonaktifkan fitur upload Laporan PKL. Silakan hubungi admin jika Anda memerlukan akses.</p>
+                    <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                        <div class="flex">
+                            <div class="flex-shrink-0">
+                                <i class="fas fa-exclamation-triangle text-yellow-400"></i>
+                            </div>
+                            <div class="ml-3">
+                                <p class="text-sm text-yellow-800">
+                                    <strong>Informasi:</strong> Fitur ini dapat diaktifkan kembali oleh admin melalui Menu Sistem.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @else
+            <!-- Laporan PKL Upload -->
+            <div class="bg-white shadow-lg rounded-xl border border-gray-100 overflow-hidden">
             <div class="bg-gradient-to-r from-purple-500 to-purple-600 px-6 py-4">
                 <div class="flex items-center">
                     <div class="flex-shrink-0">
@@ -405,12 +447,20 @@
                     </div>
                 </div>
             </div>
-        </div>
+        @endif
     </div>
 </div>
 
 <script>
 function showTab(tabName) {
+    // Check if Laporan PKL is disabled
+    @if(!$laporanPklEnabled)
+    if (tabName === 'laporan') {
+        alert('Fitur Laporan PKL sedang dinonaktifkan oleh admin.');
+        return;
+    }
+    @endif
+    
     // Hide all tab contents with smooth transition
     document.querySelectorAll('.tab-content').forEach(content => {
         content.style.opacity = '0';

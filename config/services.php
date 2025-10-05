@@ -38,4 +38,9 @@ return [
         'verify' => false,
     ],
 
+    'fonnte' => [
+        'token' => env('FONNTE_TOKEN'),
+        'device' => env('FONNTE_DEVICE', 'default'),
+    ],
+
 ];
