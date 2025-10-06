@@ -79,6 +79,11 @@ class AuthController extends Controller
             return redirect()->route('dashboard');
         }
         
+        // Check if registration is enabled
+        if (!\App\Models\SystemSetting::isEnabled('registration_enabled')) {
+            return redirect()->route('login')->with('error', 'Pendaftaran sedang ditutup. Silakan hubungi administrator.');
+        }
+        
         return view('auth.register');
     }
 
@@ -221,14 +226,20 @@ class AuthController extends Controller
         }
 
         $request->validate([
+            'name' => 'required|string|max:100',
             'nim' => 'required|string|max:20|unique:profil_mahasiswa,nim',
             'prodi' => 'required|string|max:100',
             'semester' => 'required|integer|min:1|max:14',
             'jenis_kelamin' => 'required|string|in:L,P',
-            'no_whatsapp' => 'required|string|max:30',
-            'ipk' => 'nullable|numeric|min:0|max:4.0',
+            'no_whatsapp' => 'required|string|regex:/^8\d{8,11}$/',
+            'ipk' => 'required|numeric|min:0|max:4.0',
             'id_dospem' => 'nullable|exists:users,id',
         ]);
+
+        // Update user name if provided
+        if ($request->name) {
+            $user->update(['name' => $request->name]);
+        }
 
         // Create profil mahasiswa
         \App\Models\ProfilMahasiswa::create([
@@ -245,11 +256,26 @@ class AuthController extends Controller
             'cek_valid_biodata' => false,
         ]);
 
+        // Send WhatsApp notification
+        try {
+            $fonnteService = new \App\Services\FonnteService();
+            $phoneNumber = '+62' . $request->no_whatsapp;
+            $message = "Halo {$request->name}! Biodata Anda telah berhasil dilengkapi. Selamat datang di Sistem Informasi Pengelolaan PKL!";
+            $fonnteService->sendMessage($phoneNumber, $message);
+        } catch (\Exception $e) {
+            Log::error('WhatsApp notification failed: ' . $e->getMessage());
+        }
+
         return redirect()->route('dashboard')->with('success', 'Biodata berhasil dilengkapi!');
     }
 
     public function redirectToGoogle()
     {
+        // Check if registration is enabled
+        if (!\App\Models\SystemSetting::isEnabled('registration_enabled')) {
+            return redirect()->route('login')->with('error', 'Pendaftaran sedang ditutup. Silakan hubungi administrator.');
+        }
+        
         try {
             // Create custom HTTP client with SSL disabled
             $client = new \GuzzleHttp\Client([

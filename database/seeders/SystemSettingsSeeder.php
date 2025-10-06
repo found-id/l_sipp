@@ -18,5 +18,35 @@ class SystemSettingsSeeder extends Seeder
             '1', // Default enabled
             'Toggle untuk mengaktifkan/menonaktifkan fitur upload Laporan PKL untuk mahasiswa'
         );
+        
+        SystemSetting::setValue(
+            'penilaian_enabled',
+            '1', // Default enabled
+            'Toggle untuk mengaktifkan/menonaktifkan fitur Penilaian untuk dosen pembimbing'
+        );
+        
+        SystemSetting::setValue(
+            'jadwal_seminar_enabled',
+            '1', // Default enabled
+            'Toggle untuk mengaktifkan/menonaktifkan fitur Jadwal Seminar'
+        );
+        
+        SystemSetting::setValue(
+            'instansi_mitra_enabled',
+            '1', // Default enabled
+            'Toggle untuk mengaktifkan/menonaktifkan fitur Instansi Mitra'
+        );
+        
+        SystemSetting::setValue(
+            'dokumen_pemberkasan_enabled',
+            '1', // Default enabled
+            'Toggle untuk mengaktifkan/menonaktifkan fitur upload dokumen pemberkasan (KHS, Surat Balasan)'
+        );
+        
+        SystemSetting::setValue(
+            'registration_enabled',
+            '1', // Default enabled
+            'Toggle untuk mengaktifkan/menonaktifkan pendaftaran akun baru (termasuk Google OAuth)'
+        );
     }
 }

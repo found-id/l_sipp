@@ -27,6 +27,16 @@
                 
                 <div class="space-y-4">
                     <div>
+                        <label for="name" class="block text-sm font-medium text-gray-700">Nama Lengkap</label>
+                        <input type="text" id="name" name="name" required
+                               class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                               value="{{ old('name', auth()->user()->name ?? '') }}">
+                        @error('name')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+                    
+                    <div>
                         <label for="nim" class="block text-sm font-medium text-gray-700">NIM</label>
                         <input type="text" id="nim" name="nim" required
                                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
@@ -74,19 +84,27 @@
                     </div>
                     
                     <div>
-                        <label for="no_whatsapp" class="block text-sm font-medium text-gray-700">Nomor WhatsApp</label>
-                        <input type="text" id="no_whatsapp" name="no_whatsapp" required
-                               class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-                               placeholder="08xxxxxxxxxx"
-                               value="{{ old('no_whatsapp') }}">
+                        <label for="no_whatsapp" class="block text-sm font-medium text-gray-700">Nomor WhatsApp <span class="text-red-500">*</span></label>
+                        <div class="mt-1 flex rounded-md shadow-sm">
+                            <span class="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">
+                                +62
+                            </span>
+                            <input type="text" id="no_whatsapp" name="no_whatsapp" required
+                                   class="flex-1 min-w-0 block w-full px-3 py-2 border border-gray-300 rounded-r-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                                   placeholder="8xxxxxxxxxx"
+                                   value="{{ old('no_whatsapp') }}"
+                                   pattern="^8[0-9]{10,13}$"
+                                   title="Nomor WhatsApp harus dimulai dengan 8 dan minimal 11 digit">
+                        </div>
+                        <p class="mt-1 text-xs text-gray-500">Format: +628xxxxxxxxxx (minimal 11 digit)</p>
                         @error('no_whatsapp')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
                     </div>
                     
                     <div>
-                        <label for="ipk" class="block text-sm font-medium text-gray-700">IPK (Opsional)</label>
-                        <input type="number" id="ipk" name="ipk" step="0.01" min="0" max="4.0"
+                        <label for="ipk" class="block text-sm font-medium text-gray-700">IPK Terakhir <span class="text-red-500">*</span></label>
+                        <input type="number" id="ipk" name="ipk" required step="0.01" min="0" max="4.0"
                                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                                placeholder="3.50"
                                value="{{ old('ipk') }}">

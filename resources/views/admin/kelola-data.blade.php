@@ -8,7 +8,7 @@
     <div class="bg-white shadow rounded-lg p-6">
         <div class="flex justify-between items-center">
             <div>
-                <h1 class="text-2xl font-bold text-gray-900">Kelola Data</h1>
+                <h1 class="text-2xl font-bold text-gray-900">Menu Kelola</h1>
                 <p class="text-gray-600 mt-2">Kelola semua data dalam sistem</p>
             </div>
             <a href="{{ route('dashboard') }}" class="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700">
@@ -43,7 +43,7 @@
         </a>
 
         <!-- Kelola Jadwal Seminar -->
-        <a href="#" class="bg-white p-6 rounded-lg shadow hover:shadow-md transition-shadow">
+        <a href="{{ route('admin.jadwal-seminar.manage') }}" class="bg-white p-6 rounded-lg shadow hover:shadow-md transition-shadow">
             <div class="flex items-center">
                 <i class="fas fa-calendar-alt text-3xl text-purple-600 mr-4"></i>
                 <div>
@@ -54,7 +54,7 @@
         </a>
 
         <!-- Kelola Rubrik Penilaian -->
-        <a href="#" class="bg-white p-6 rounded-lg shadow hover:shadow-md transition-shadow">
+        <a href="{{ route('admin.rubrik.index') }}" class="bg-white p-6 rounded-lg shadow hover:shadow-md transition-shadow">
             <div class="flex items-center">
                 <i class="fas fa-clipboard-list text-3xl text-orange-600 mr-4"></i>
                 <div>
@@ -76,23 +76,23 @@
         </a>
 
         <!-- Penilaian Dosen Pembimbing -->
-        <a href="#" class="bg-white p-6 rounded-lg shadow hover:shadow-md transition-shadow">
+        <a href="{{ route('admin.penilaian-dosen') }}" class="bg-white p-6 rounded-lg shadow hover:shadow-md transition-shadow">
             <div class="flex items-center">
                 <i class="fas fa-chalkboard-teacher text-3xl text-red-600 mr-4"></i>
                 <div>
                     <h3 class="text-lg font-medium text-gray-900">Penilaian Dosen Pembimbing</h3>
-                    <p class="text-sm text-gray-600">Kelola penilaian dosen pembimbing</p>
+                    <p class="text-sm text-gray-600">Lihat hasil penilaian oleh dosen pembimbing</p>
                 </div>
             </div>
         </a>
 
         <!-- Nilai Akhir Mahasiswa -->
-        <a href="#" class="bg-white p-6 rounded-lg shadow hover:shadow-md transition-shadow">
+        <a href="{{ route('admin.nilai-akhir') }}" class="bg-white p-6 rounded-lg shadow hover:shadow-md transition-shadow">
             <div class="flex items-center">
                 <i class="fas fa-graduation-cap text-3xl text-yellow-600 mr-4"></i>
                 <div>
                     <h3 class="text-lg font-medium text-gray-900">Nilai Akhir Mahasiswa</h3>
-                    <p class="text-sm text-gray-600">Kelola nilai akhir mahasiswa</p>
+                    <p class="text-sm text-gray-600">Lihat seluruh data nilai akhir mahasiswa</p>
                 </div>
             </div>
         </a>

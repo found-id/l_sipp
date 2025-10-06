@@ -10,6 +10,42 @@
         <p class="text-gray-600 mt-2">Riwayat aktivitas dalam sistem</p>
     </div>
 
+    <!-- Search and Sort -->
+    <div class="bg-white shadow rounded-lg p-6">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <!-- Search -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Cari Aktivitas</label>
+                <form method="GET" class="flex">
+                    <input type="text" name="search" value="{{ request('search') }}" 
+                           placeholder="Cari nama user, mahasiswa, atau tipe..."
+                           class="flex-1 px-3 py-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                    <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded-r-md hover:bg-indigo-700">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </form>
+            </div>
+            
+            <!-- Sort By -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Urutkan Berdasarkan</label>
+                <select name="sort_by" onchange="updateSort()" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                    <option value="tanggal_dibuat" {{ request('sort_by') == 'tanggal_dibuat' ? 'selected' : '' }}>Tanggal</option>
+                    <option value="tipe" {{ request('sort_by') == 'tipe' ? 'selected' : '' }}>Tipe Aktivitas</option>
+                </select>
+            </div>
+            
+            <!-- Sort Order -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Urutan</label>
+                <select name="sort_order" onchange="updateSort()" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                    <option value="desc" {{ request('sort_order') == 'desc' ? 'selected' : '' }}>Terbaru</option>
+                    <option value="asc" {{ request('sort_order') == 'asc' ? 'selected' : '' }}>Terlama</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
     <!-- Activities List -->
     <div class="bg-white shadow rounded-lg overflow-hidden">
         <div class="px-6 py-4 border-b border-gray-200">
@@ -99,9 +135,24 @@
         </div>
         
         <!-- Pagination -->
+        @if($activities instanceof \Illuminate\Pagination\LengthAwarePaginator)
         <div class="px-6 py-3 border-t border-gray-200">
             {{ $activities->links() }}
         </div>
+        @endif
     </div>
 </div>
+
+<script>
+function updateSort() {
+    const sortBy = document.querySelector('select[name="sort_by"]').value;
+    const sortOrder = document.querySelector('select[name="sort_order"]').value;
+    const search = new URLSearchParams(window.location.search);
+    
+    search.set('sort_by', sortBy);
+    search.set('sort_order', sortOrder);
+    
+    window.location.href = window.location.pathname + '?' + search.toString();
+}
+</script>
 @endsection

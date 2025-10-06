@@ -16,6 +16,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             SystemSettingsSeeder::class,
             DemoDataSeeder::class,
+            RubrikSampleSeeder::class,
         ]);
     }
 }
