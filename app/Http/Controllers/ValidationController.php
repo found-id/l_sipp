@@ -18,7 +18,9 @@ class ValidationController extends Controller
         $user = Auth::user();
         
         // Get mahasiswa bimbingan
-        $mahasiswaIds = $user->mahasiswaBimbingan()->pluck('id_mahasiswa');
+        $mahasiswaIds = \App\Models\ProfilMahasiswa::where('id_dospem', $user->id)
+            ->pluck('id_mahasiswa')
+            ->toArray();
         
         // Get documents that need validation
         $documents = [
@@ -154,7 +156,9 @@ class ValidationController extends Controller
         ]);
 
         $user = Auth::user();
-        $mahasiswaIds = $user->mahasiswaBimbingan()->pluck('id_mahasiswa');
+        $mahasiswaIds = \App\Models\ProfilMahasiswa::where('id_dospem', $user->id)
+            ->pluck('id_mahasiswa')
+            ->toArray();
         
         $updated = 0;
         
@@ -183,7 +187,7 @@ class ValidationController extends Controller
     private function logValidationActivity($documentType, $mahasiswaId, $oldStatus, $newStatus, $catatan = null)
     {
         $user = Auth::user();
-        $mahasiswa = \App\Models\User::find($mahasiswaId);
+        $mahasiswa = User::find($mahasiswaId);
         
         $pesan = [
             'action' => 'validasi_dokumen',

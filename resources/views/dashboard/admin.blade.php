@@ -127,10 +127,19 @@
                         <h4 class="font-medium text-gray-900">{{ $student->name }}</h4>
                         <p class="text-sm text-gray-600">NIM: {{ $student->profilMahasiswa->nim ?? 'Belum diisi' }} | Email: {{ $student->email }}</p>
                     </div>
-                    <a href="{{ route('admin.kelola-akun') }}?edit={{ $student->id }}&focus=dospem" 
-                       class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 text-sm">
-                        <i class="fas fa-user-plus mr-1"></i>Tetapkan Dospem
-                    </a>
+                    <div class="flex items-center space-x-2">
+                        <select onchange="assignDospem({{ $student->id }}, this.value)" 
+                                class="text-sm border border-gray-300 rounded-md px-3 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="">Pilih Dospem</option>
+                            @foreach(\App\Models\User::where('role', 'dospem')->get() as $dospem)
+                                <option value="{{ $dospem->id }}">{{ $dospem->name }}</option>
+                            @endforeach
+                        </select>
+                        <button onclick="assignDospem({{ $student->id }}, this.previousElementSibling.value)" 
+                                class="bg-blue-600 text-white px-3 py-1 rounded-md hover:bg-blue-700 text-sm">
+                            <i class="fas fa-check"></i>
+                        </button>
+                    </div>
                 </div>
             </div>
             @endforeach
@@ -188,8 +197,10 @@
                                                     {{ $activity->pesan['user'] }} ({{ ucfirst($activity->pesan['role']) }}) melakukan login
                                                 @elseif($activity->pesan['action'] === 'logout')
                                                     {{ $activity->pesan['user'] }} ({{ ucfirst($activity->pesan['role']) }}) melakukan logout
+                                                @elseif($activity->pesan['action'] === 'register_google')
+                                                    {{ $activity->pesan['user'] }} telah registrasi via Google sebagai {{ ucfirst($activity->pesan['role']) }}
                                                 @else
-                                                    {{ json_encode($activity->pesan) }}
+                                                    {{ $activity->pesan['message'] ?? json_encode($activity->pesan) }}
                                                 @endif
                                             @else
                                                 {{ $activity->pesan }}
@@ -233,9 +244,9 @@
 
 <!-- Management Actions -->
 <div class="mt-8">
-    <h3 class="text-lg font-medium text-gray-900 mb-4">Kelola Sistem</h3>
+    <h3 class="text-lg font-medium text-gray-900 mb-4">Menu Kelola</h3>
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <a href="#" class="bg-white p-6 rounded-lg shadow hover:shadow-md transition-shadow">
+        <a href="{{ route('admin.kelola-akun') }}" class="bg-white p-6 rounded-lg shadow hover:shadow-md transition-shadow">
             <div class="flex items-center">
                 <i class="fas fa-users-cog text-2xl text-blue-600 mr-4"></i>
                 <div>
@@ -245,7 +256,7 @@
             </div>
         </a>
 
-        <a href="#" class="bg-white p-6 rounded-lg shadow hover:shadow-md transition-shadow">
+        <a href="{{ route('admin.kelola-mitra') }}" class="bg-white p-6 rounded-lg shadow hover:shadow-md transition-shadow">
             <div class="flex items-center">
                 <i class="fas fa-building text-2xl text-green-600 mr-4"></i>
                 <div>
@@ -255,17 +266,17 @@
             </div>
         </a>
 
-        <a href="#" class="bg-white p-6 rounded-lg shadow hover:shadow-md transition-shadow">
+        <a href="{{ route('admin.validation') }}" class="bg-white p-6 rounded-lg shadow hover:shadow-md transition-shadow">
             <div class="flex items-center">
-                <i class="fas fa-clipboard-list text-2xl text-purple-600 mr-4"></i>
+                <i class="fas fa-file-alt text-2xl text-purple-600 mr-4"></i>
                 <div>
-                    <h4 class="font-medium text-gray-900">Kelola Rubrik</h4>
-                    <p class="text-sm text-gray-600">Kelola rubrik penilaian</p>
+                    <h4 class="font-medium text-gray-900">Berkas Mahasiswa</h4>
+                    <p class="text-sm text-gray-600">Validasi dokumen mahasiswa</p>
                 </div>
             </div>
         </a>
 
-        <a href="#" class="bg-white p-6 rounded-lg shadow hover:shadow-md transition-shadow">
+        <a href="{{ route('admin.jadwal-seminar.manage') }}" class="bg-white p-6 rounded-lg shadow hover:shadow-md transition-shadow">
             <div class="flex items-center">
                 <i class="fas fa-calendar-alt text-2xl text-yellow-600 mr-4"></i>
                 <div>
@@ -274,5 +285,50 @@
                 </div>
             </div>
         </a>
+
+        <a href="{{ route('admin.rubrik.index') }}" class="bg-white p-6 rounded-lg shadow hover:shadow-md transition-shadow">
+            <div class="flex items-center">
+                <i class="fas fa-clipboard-list text-2xl text-indigo-600 mr-4"></i>
+                <div>
+                    <h4 class="font-medium text-gray-900">Kelola Rubrik</h4>
+                    <p class="text-sm text-gray-600">Kelola rubrik penilaian</p>
+                </div>
+            </div>
+        </a>
     </div>
 </div>
+
+<script>
+function assignDospem(studentId, dospemId) {
+    if (!dospemId) {
+        alert('Pilih dospem terlebih dahulu!');
+        return;
+    }
+    
+    if (confirm('Yakin ingin menetapkan dospem untuk mahasiswa ini?')) {
+        fetch(`/admin/assign-dospem`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            },
+            body: JSON.stringify({
+                student_id: studentId,
+                dospem_id: dospemId
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Gagal menetapkan dospem: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Terjadi kesalahan saat menetapkan dospem');
+        });
+    }
+}
+</script>

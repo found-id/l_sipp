@@ -5,6 +5,7 @@
 @section('content')
 @php
     $laporanPklEnabled = \App\Models\SystemSetting::isEnabled('laporan_pkl_enabled');
+    $dokumenPemberkasanEnabled = \App\Models\SystemSetting::isEnabled('dokumen_pemberkasan_enabled');
 @endphp
 <div class="space-y-6">
     <!-- Header -->
@@ -167,9 +168,26 @@
                         <div class="mb-6 p-4 bg-gray-50 rounded-lg border">
                             <div class="flex items-start justify-between">
                                 <div class="flex-1">
-                                    <div class="flex items-center mb-2">
-                                        <i class="fas fa-file-pdf text-red-500 mr-2"></i>
-                                        <p class="text-sm font-medium text-gray-900">{{ basename($khs->file_path) }}</p>
+                                    <div class="flex items-center justify-between mb-2">
+                                        <div class="flex items-center">
+                                            <i class="fas fa-file-pdf text-red-500 mr-2"></i>
+                                            <p class="text-sm font-medium text-gray-900">{{ basename($khs->file_path) }}</p>
+                                        </div>
+                                        <button onclick="previewFile('{{ $khs->file_path }}')" class="text-blue-600 hover:text-blue-800 text-sm">
+                                            <i class="fas fa-eye mr-1"></i>Lihat
+                                        </button>
+                                        <!-- Alternative direct link -->
+                                        <a href="/storage/{{ $khs->file_path }}" target="_blank" class="text-green-600 hover:text-green-800 text-sm ml-2">
+                                            <i class="fas fa-external-link-alt mr-1"></i>Direct
+                                        </a>
+                                        <!-- Debug info -->
+                                        <div class="text-xs text-gray-400 mt-1">
+                                            Debug: {{ $khs->file_path }}
+                                        </div>
+                                        <!-- Test button -->
+                                        <button onclick="testFileAccess('{{ $khs->file_path }}')" class="text-purple-600 hover:text-purple-800 text-xs mt-1">
+                                            <i class="fas fa-bug mr-1"></i>Test
+                                        </button>
                                     </div>
                                     <p class="text-xs text-gray-500 mb-3">Uploaded: {{ $khs->created_at->format('d M Y H:i') }}</p>
                                     
@@ -195,24 +213,31 @@
                         </div>
                     @endif
 
-                    <form action="{{ route('documents.khs.upload') }}" method="POST" enctype="multipart/form-data" class="space-y-4">
-                        @csrf
-                        <div>
-                            <label for="khs_file" class="block text-sm font-medium text-gray-700 mb-2">Pilih File KHS</label>
-                            <div class="relative">
-                                <input type="file" id="khs_file" name="file" accept=".pdf" required
-                                       class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 border border-gray-300 rounded-lg cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    @if($dokumenPemberkasanEnabled)
+                        <form action="{{ route('documents.khs.upload') }}" method="POST" enctype="multipart/form-data" class="space-y-4">
+                            @csrf
+                            <div>
+                                <label for="khs_file" class="block text-sm font-medium text-gray-700 mb-2">Pilih File KHS</label>
+                                <div class="relative">
+                                    <input type="file" id="khs_file" name="file" accept=".pdf" required
+                                           class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 border border-gray-300 rounded-lg cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                </div>
+                                <p class="mt-2 text-xs text-gray-500 flex items-center">
+                                    <i class="fas fa-info-circle mr-1"></i>
+                                    Format: PDF, Maksimal: 10MB
+                                </p>
                             </div>
-                            <p class="mt-2 text-xs text-gray-500 flex items-center">
-                                <i class="fas fa-info-circle mr-1"></i>
-                                Format: PDF, Maksimal: 10MB
-                            </p>
+                            
+                            <button type="submit" class="w-full bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors duration-200 font-medium">
+                                <i class="fas fa-upload mr-2"></i>Upload KHS
+                            </button>
+                        </form>
+                    @else
+                        <div class="text-center py-8 text-gray-500">
+                            <i class="fas fa-lock text-3xl mb-2"></i>
+                            <p class="text-sm">Fitur upload dokumen pemberkasan sedang dinonaktifkan oleh admin</p>
                         </div>
-                        
-                        <button type="submit" class="w-full bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors duration-200 font-medium">
-                            <i class="fas fa-upload mr-2"></i>Upload KHS
-                        </button>
-                    </form>
+                    @endif
                 </div>
             </div>
 
@@ -239,11 +264,46 @@
                         <div class="mb-6 p-4 bg-gray-50 rounded-lg border">
                             <div class="flex items-start justify-between">
                                 <div class="flex-1">
-                                    <div class="flex items-center mb-2">
-                                        <i class="fas fa-file-pdf text-red-500 mr-2"></i>
-                                        <p class="text-sm font-medium text-gray-900">{{ basename($surat->file_path) }}</p>
+                                    <div class="flex items-center justify-between mb-2">
+                                        <div class="flex items-center">
+                                            <i class="fas fa-file-pdf text-red-500 mr-2"></i>
+                                            <p class="text-sm font-medium text-gray-900">{{ basename($surat->file_path) }}</p>
+                                        </div>
+                                        <button onclick="previewFile('{{ $surat->file_path }}')" class="text-blue-600 hover:text-blue-800 text-sm">
+                                            <i class="fas fa-eye mr-1"></i>Lihat
+                                        </button>
+                                        <!-- Alternative direct link -->
+                                        <a href="/storage/{{ $surat->file_path }}" target="_blank" class="text-green-600 hover:text-green-800 text-sm ml-2">
+                                            <i class="fas fa-external-link-alt mr-1"></i>Direct
+                                        </a>
+                                        <!-- Debug info -->
+                                        <div class="text-xs text-gray-400 mt-1">
+                                            Debug: {{ $surat->file_path }}
+                                        </div>
                                     </div>
-                                    <p class="text-xs text-gray-500 mb-3">Uploaded: {{ $surat->created_at->format('d M Y H:i') }}</p>
+                                    <p class="text-xs text-gray-500 mb-2">Uploaded: {{ $surat->created_at->format('d M Y H:i') }}</p>
+                                    
+                                    @if($surat->mitra)
+                                        <div class="mb-3 p-2 bg-blue-50 rounded border-l-4 border-blue-400">
+                                            <div class="flex items-center">
+                                                <i class="fas fa-building text-blue-600 mr-2"></i>
+                                                <div>
+                                                    <p class="text-sm font-medium text-blue-900">Mitra PKL</p>
+                                                    <p class="text-xs text-blue-700">{{ $surat->mitra->nama }}</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @elseif($surat->mitra_nama_custom)
+                                        <div class="mb-3 p-2 bg-green-50 rounded border-l-4 border-green-400">
+                                            <div class="flex items-center">
+                                                <i class="fas fa-building text-green-600 mr-2"></i>
+                                                <div>
+                                                    <p class="text-sm font-medium text-green-900">Mitra PKL (Custom)</p>
+                                                    <p class="text-xs text-green-700">{{ $surat->mitra_nama_custom }}</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @endif
                                     
                                     <div class="flex items-center">
                                         <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium
@@ -267,18 +327,19 @@
                         </div>
                     @endif
 
-                    <form action="{{ route('documents.surat.upload') }}" method="POST" enctype="multipart/form-data" class="space-y-4">
-                        @csrf
-                        <div>
-                            <label for="mitra_id" class="block text-sm font-medium text-gray-700 mb-2">Mitra PKL</label>
-                            <select id="mitra_id" name="mitra_id" 
-                                    class="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500">
-                                <option value="">-- Pilih Mitra --</option>
-                                @foreach(\App\Models\Mitra::all() as $mitra)
-                                    <option value="{{ $mitra->id }}">{{ $mitra->nama }}</option>
-                                @endforeach
-                            </select>
-                        </div>
+                    @if($dokumenPemberkasanEnabled)
+                        <form action="{{ route('documents.surat.upload') }}" method="POST" enctype="multipart/form-data" class="space-y-4">
+                            @csrf
+                            <div>
+                                <label for="mitra_id" class="block text-sm font-medium text-gray-700 mb-2">Mitra PKL</label>
+                                <select id="mitra_id" name="mitra_id" 
+                                        class="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                                    <option value="">-- Pilih Mitra --</option>
+                                    @foreach(\App\Models\Mitra::all() as $mitra)
+                                        <option value="{{ $mitra->id }}">{{ $mitra->nama }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
                         
                         <div>
                             <label for="mitra_custom" class="block text-sm font-medium text-gray-700 mb-2">Atau Tulis Nama Mitra</label>
@@ -299,10 +360,16 @@
                             </p>
                         </div>
                         
-                        <button type="submit" class="w-full bg-green-600 text-white py-3 px-4 rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors duration-200 font-medium">
-                            <i class="fas fa-upload mr-2"></i>Upload Surat Balasan
-                        </button>
-                    </form>
+                            <button type="submit" class="w-full bg-green-600 text-white py-3 px-4 rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors duration-200 font-medium">
+                                <i class="fas fa-upload mr-2"></i>Upload Surat Balasan
+                            </button>
+                        </form>
+                    @else
+                        <div class="text-center py-8 text-gray-500">
+                            <i class="fas fa-lock text-3xl mb-2"></i>
+                            <p class="text-sm">Fitur upload dokumen pemberkasan sedang dinonaktifkan oleh admin</p>
+                        </div>
+                    @endif
                 </div>
             </div>
         </div>
@@ -500,3 +567,113 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 @endsection
+
+@push('scripts')
+<script>
+function previewFile(filePath) {
+    console.log('=== FILE PREVIEW DEBUG ===');
+    console.log('Original filePath:', filePath);
+    console.log('Type of filePath:', typeof filePath);
+    
+    // Handle null/undefined
+    if (!filePath) {
+        console.error('File path is null or undefined');
+        alert('File path tidak ditemukan');
+        return;
+    }
+    
+    // Convert to string and clean the path
+    let cleanPath = filePath.toString().trim();
+    
+    // Remove any leading slashes or storage prefixes
+    cleanPath = cleanPath.replace(/^\/+/, ''); // Remove leading slashes
+    cleanPath = cleanPath.replace(/^storage\//, ''); // Remove storage/ prefix
+    cleanPath = cleanPath.replace(/^\/storage\//, ''); // Remove /storage/ prefix
+    
+    console.log('Clean path:', cleanPath);
+    
+    // Test if URL is valid
+    if (!cleanPath || cleanPath.trim() === '') {
+        console.error('Clean path is empty');
+        alert('Path file tidak valid');
+        return;
+    }
+    
+    // Build final URL - files are stored in documents/khs/ or documents/surat_balasan/
+    const url = '/storage/' + cleanPath;
+    console.log('Final URL:', url);
+    
+    // Open file in new tab
+    console.log('Attempting to open:', url);
+    
+    // Create a test link to check if file exists
+    const testLink = document.createElement('a');
+    testLink.href = url;
+    testLink.target = '_blank';
+    testLink.style.display = 'none';
+    document.body.appendChild(testLink);
+    
+    // Try to open the file
+    try {
+        testLink.click();
+        console.log('File opened successfully');
+        
+        // Clean up test link
+        setTimeout(() => {
+            document.body.removeChild(testLink);
+        }, 1000);
+        
+    } catch (error) {
+        console.error('Error opening file:', error);
+        alert('Gagal membuka file: ' + error.message);
+        
+        // Clean up test link
+        document.body.removeChild(testLink);
+    }
+}
+
+function testFileAccess(filePath) {
+    console.log('=== TEST FILE ACCESS ===');
+    console.log('File path:', filePath);
+    
+    // Test different URL formats
+    const urls = [
+        '/storage/' + filePath,
+        '/storage/documents/khs/' + filePath,
+        '/storage/documents/surat_balasan/' + filePath,
+        '/storage/' + filePath.replace('documents/', ''),
+        filePath.startsWith('documents/') ? '/storage/' + filePath : '/storage/documents/' + filePath
+    ];
+    
+    console.log('Testing URLs:', urls);
+    
+    // Test each URL
+    urls.forEach((url, index) => {
+        console.log(`Testing URL ${index + 1}: ${url}`);
+        
+        // Create test link
+        const testLink = document.createElement('a');
+        testLink.href = url;
+        testLink.target = '_blank';
+        testLink.style.display = 'none';
+        testLink.textContent = `Test ${index + 1}`;
+        document.body.appendChild(testLink);
+        
+        // Try to click
+        try {
+            testLink.click();
+            console.log(`URL ${index + 1} clicked successfully`);
+        } catch (error) {
+            console.error(`URL ${index + 1} failed:`, error);
+        }
+        
+        // Clean up
+        setTimeout(() => {
+            if (document.body.contains(testLink)) {
+                document.body.removeChild(testLink);
+            }
+        }, 1000);
+    });
+}
+</script>
+@endpush

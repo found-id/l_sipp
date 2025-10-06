@@ -62,9 +62,9 @@
                 </div>
 
                 <div class="text-center">
-                    <p class="text-sm text-gray-600">
+                    <p class="text-sm text-gray-600" id="registration-text">
                         Belum punya akun? 
-                        <a href="{{ route('register') }}" class="font-medium text-indigo-600 hover:text-indigo-500">
+                        <a href="{{ route('register') }}" class="font-medium text-indigo-600 hover:text-indigo-500" id="registration-link">
                             Daftar di sini
                         </a>
                     </p>
@@ -74,10 +74,10 @@
                 <div class="mt-6">
                     <div class="relative">
                         <div class="absolute inset-0 flex items-center">
-                            <div class="w-full border-t border-gray-300" />
+                            <div class="w-full border-t border-gray-300"></div>
                         </div>
                         <div class="relative flex justify-center text-sm">
-                            <span class="px-2 bg-white text-gray-500">Atau</span>
+                            <span class="px-3 bg-gray-50 text-gray-500 font-medium">Atau</span>
                         </div>
                     </div>
                 </div>
@@ -99,5 +99,27 @@
         </div>
         </div>
     </div>
+
+    <script>
+        // Check if registration is enabled
+        const registrationEnabled = {{ \App\Models\SystemSetting::isEnabled('registration_enabled') ? 'true' : 'false' }};
+        
+        // Handle registration link click
+        document.getElementById('registration-link').addEventListener('click', function(e) {
+            if (!registrationEnabled) {
+                e.preventDefault(); // Prevent default link behavior
+                
+                // Change the text content
+                const registrationText = document.getElementById('registration-text');
+                registrationText.innerHTML = `
+                    <div class="p-3 bg-yellow-50 border border-yellow-200 rounded-md">
+                        <i class="fas fa-lock text-yellow-600 mr-2"></i>
+                        <span class="text-sm text-yellow-800">Registrasi telah ditutup. Silakan hubungi Koordinator.</span>
+                    </div>
+                `;
+                
+            }
+        });
+    </script>
 </body>
 </html>

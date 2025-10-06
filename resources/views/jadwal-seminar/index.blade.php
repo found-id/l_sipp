@@ -7,58 +7,72 @@
     <!-- Header -->
     <div class="bg-white shadow rounded-lg p-6">
         <h1 class="text-2xl font-bold text-gray-900">Jadwal Seminar</h1>
-        <p class="text-gray-600 mt-2">Jadwal seminar PKL mahasiswa</p>
+        <p class="text-gray-600 mt-2">Jadwal seminar PKL yang telah dipublikasikan</p>
     </div>
 
     <!-- Jadwal List -->
-    <div class="bg-white shadow rounded-lg overflow-hidden">
-        <div class="px-6 py-4 border-b border-gray-200">
-            <h3 class="text-lg font-medium text-gray-900">Daftar Jadwal Seminar</h3>
+    @if($jadwal->count() > 0)
+        <div class="space-y-4">
+            @foreach($jadwal as $j)
+            <div class="bg-white shadow rounded-lg p-6">
+                <div class="flex justify-between items-start mb-4">
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-900">{{ $j->judul }}</h3>
+                        @if($j->subjudul)
+                            <p class="text-sm text-gray-600 mt-1">{{ $j->subjudul }}</p>
+                        @endif
+                        <p class="text-xs text-gray-500 mt-2">
+                            Dipublikasikan: {{ $j->tanggal_publikasi->format('d M Y H:i') }} 
+                            oleh {{ $j->pembuat->name }}
+                        </p>
+                    </div>
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                        Aktif
+                    </span>
+                </div>
+                
+                @if($j->jenis === 'file' && $j->lokasi_file)
+                    @php
+                        $ext = strtolower(pathinfo($j->lokasi_file, PATHINFO_EXTENSION));
+                        $url = Storage::url($j->lokasi_file);
+                    @endphp
+                    
+                    @if(in_array($ext, ['jpg', 'jpeg', 'png']))
+                        <img src="{{ $url }}" alt="Jadwal" class="max-w-full h-auto border border-gray-200 rounded-lg">
+                    @elseif($ext === 'pdf')
+                        <embed src="{{ $url }}" type="application/pdf" class="w-full h-96 border border-gray-200 rounded-lg">
+                    @else
+                        <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                            <a href="{{ $url }}" target="_blank" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+                                <i class="fas fa-download mr-2"></i>
+                                Unduh Berkas ({{ strtoupper($ext) }})
+                            </a>
+                            <p class="text-sm text-gray-500 mt-2">Pratinjau Excel tidak didukung di browser. Silakan unduh.</p>
+                        </div>
+                    @endif
+                @elseif($j->jenis === 'link' && $j->url_eksternal)
+                    <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                        <a href="{{ $j->url_eksternal }}" target="_blank" class="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700">
+                            <i class="fas fa-external-link-alt mr-2"></i>
+                            Buka Tautan Jadwal
+                        </a>
+                        <p class="text-sm text-gray-500 mt-2">Konten dihosting di layanan eksternal.</p>
+                    </div>
+                @endif
+            </div>
+            @endforeach
         </div>
         
-        <div class="divide-y divide-gray-200">
-            @forelse($jadwal as $j)
-            <div class="px-6 py-4">
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center">
-                        <div class="flex-shrink-0">
-                            <div class="h-12 w-12 rounded-full bg-blue-100 flex items-center justify-center">
-                                <i class="fas fa-calendar-alt text-blue-600"></i>
-                            </div>
-                        </div>
-                        <div class="ml-4">
-                        <div class="text-sm font-medium text-gray-900">
-                            {{ $j->judul ?? 'N/A' }}
-                        </div>
-                        <div class="text-sm text-gray-500">
-                            Subjudul: {{ $j->subjudul ?? 'N/A' }}
-                        </div>
-                        <div class="text-sm text-gray-500">
-                            Dibuat oleh: {{ $j->pembuat->name ?? 'N/A' }}
-                        </div>
-                        </div>
-                    </div>
-                    
-                    <div class="text-right">
-                        <div class="text-sm font-medium text-gray-900">
-                            {{ $j->tanggal_dibuat->format('d M Y') }}
-                        </div>
-                        <div class="text-sm text-gray-500">
-                            {{ $j->tanggal_dibuat->format('H:i') }}
-                        </div>
-                        <div class="text-sm text-gray-500">
-                            {{ $j->judul ?? 'Judul belum ditentukan' }}
-                        </div>
-                    </div>
-                </div>
-            </div>
-            @empty
-            <div class="px-6 py-8 text-center text-gray-500">
-                <i class="fas fa-calendar-times text-4xl text-gray-300 mb-4"></i>
-                <p>Belum ada jadwal seminar</p>
-            </div>
-            @endforelse
+        <!-- Pagination -->
+        <div class="mt-6">
+            {{ $jadwal->links() }}
         </div>
-    </div>
+    @else
+        <div class="bg-white shadow rounded-lg p-8 text-center">
+            <i class="fas fa-calendar-times text-4xl text-gray-300 mb-4"></i>
+            <h3 class="text-lg font-medium text-gray-900 mb-2">Belum Ada Jadwal</h3>
+            <p class="text-gray-600">Belum ada jadwal seminar yang dipublikasikan.</p>
+        </div>
+    @endif
 </div>
 @endsection

@@ -39,8 +39,8 @@ class AdminController extends Controller
         }
         
         // Sort functionality
-        $sortBy = $request->get('sort_by', 'name');
-        $sortOrder = $request->get('sort_order', 'asc');
+        $sortBy = $request->get('sort_by', 'created_at');
+        $sortOrder = $request->get('sort_order', 'desc');
         
         if ($sortBy === 'role') {
             $query->orderBy('role', $sortOrder);
@@ -146,9 +146,75 @@ class AdminController extends Controller
         return redirect()->back()->with('success', 'User berhasil dihapus!');
     }
 
-    public function kelolaMitra()
+    public function assignDospem(Request $request)
     {
-        $mitra = Mitra::paginate(15);
+        $request->validate([
+            'student_id' => 'required|exists:users,id',
+            'dospem_id' => 'required|exists:users,id',
+        ]);
+
+        try {
+            $student = User::findOrFail($request->student_id);
+            $dospem = User::findOrFail($request->dospem_id);
+
+            if ($student->role !== 'mahasiswa') {
+                return response()->json(['success' => false, 'message' => 'User bukan mahasiswa']);
+            }
+
+            if ($dospem->role !== 'dospem') {
+                return response()->json(['success' => false, 'message' => 'User bukan dosen pembimbing']);
+            }
+
+            // Update or create profil mahasiswa
+            $profil = $student->profilMahasiswa;
+            if ($profil) {
+                $profil->update(['id_dospem' => $dospem->id]);
+            } else {
+                ProfilMahasiswa::create([
+                    'id_mahasiswa' => $student->id,
+                    'id_dospem' => $dospem->id,
+                    'nim' => 'TEMP_' . $student->id,
+                    'prodi' => 'Teknologi Informasi',
+                    'semester' => 1,
+                    'jenis_kelamin' => 'L',
+                    'no_whatsapp' => '081234567890',
+                    'ipk' => 3.0,
+                    'cek_min_semester' => false,
+                    'cek_ipk_nilaisks' => false,
+                    'cek_valid_biodata' => false,
+                ]);
+            }
+
+            return response()->json(['success' => true, 'message' => 'Dospem berhasil ditetapkan']);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => 'Terjadi kesalahan: ' . $e->getMessage()]);
+        }
+    }
+
+    public function kelolaMitra(Request $request)
+    {
+        $query = Mitra::query();
+        
+        // Search functionality
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('nama', 'like', "%{$search}%")
+                  ->orWhere('alamat', 'like', "%{$search}%")
+                  ->orWhere('kontak', 'like', "%{$search}%");
+            });
+        }
+        
+        // Sort functionality
+        $sortBy = $request->get('sort_by', 'nama');
+        $sortOrder = $request->get('sort_order', 'asc');
+        
+        if (in_array($sortBy, ['nama', 'alamat', 'kontak', 'created_at'])) {
+            $query->orderBy($sortBy, $sortOrder);
+        }
+        
+        $mitra = $query->paginate(15)->withQueryString();
+        
         return view('admin.kelola-mitra', compact('mitra'));
     }
 
@@ -207,6 +273,13 @@ class AdminController extends Controller
         $suratBalasan = \App\Models\SuratBalasan::with(['mahasiswa.profilMahasiswa.dosenPembimbing'])->get();
         $laporanPkl = \App\Models\LaporanPkl::with(['mahasiswa.profilMahasiswa.dosenPembimbing'])->get();
         
+        // Debug: Log the counts
+        \Log::info('Admin Validation Data:', [
+            'khs_count' => $khs->count(),
+            'surat_count' => $suratBalasan->count(),
+            'laporan_count' => $laporanPkl->count()
+        ]);
+        
         return view('admin.validation', compact('khs', 'suratBalasan', 'laporanPkl'));
     }
 
@@ -242,5 +315,27 @@ class AdminController extends Controller
         return \App\Models\Khs::menunggu()->count() + 
                \App\Models\SuratBalasan::menunggu()->count() + 
                \App\Models\LaporanPkl::menunggu()->count();
+    }
+
+    public function penilaianDosen()
+    {
+        // Get all assessment results with dospem info
+        $results = \App\Models\AssessmentResult::with([
+            'mahasiswa.profilMahasiswa.dosenPembimbing',
+            'form'
+        ])->orderBy('created_at', 'desc')->get();
+
+        return view('admin.penilaian-dosen', compact('results'));
+    }
+
+    public function nilaiAkhir()
+    {
+        // Get all assessment results for all students
+        $results = \App\Models\AssessmentResult::with([
+            'mahasiswa.profilMahasiswa.dosenPembimbing',
+            'form'
+        ])->orderBy('created_at', 'desc')->get();
+
+        return view('admin.nilai-akhir', compact('results'));
     }
 }

@@ -17,6 +17,44 @@
         </div>
     </div>
 
+    <!-- Search and Sort -->
+    <div class="bg-white shadow rounded-lg p-6">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <!-- Search -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Cari Mitra</label>
+                <form method="GET" class="flex">
+                    <input type="text" name="search" value="{{ request('search') }}" 
+                           placeholder="Cari nama, alamat, atau kontak..."
+                           class="flex-1 px-3 py-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                    <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded-r-md hover:bg-indigo-700">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </form>
+            </div>
+            
+            <!-- Sort By -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Urutkan Berdasarkan</label>
+                <select name="sort_by" onchange="updateSort()" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                    <option value="nama" {{ request('sort_by') == 'nama' ? 'selected' : '' }}>Nama</option>
+                    <option value="alamat" {{ request('sort_by') == 'alamat' ? 'selected' : '' }}>Alamat</option>
+                    <option value="kontak" {{ request('sort_by') == 'kontak' ? 'selected' : '' }}>Kontak</option>
+                    <option value="created_at" {{ request('sort_by') == 'created_at' ? 'selected' : '' }}>Tanggal Dibuat</option>
+                </select>
+            </div>
+            
+            <!-- Sort Order -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Urutan</label>
+                <select name="sort_order" onchange="updateSort()" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                    <option value="asc" {{ request('sort_order') == 'asc' ? 'selected' : '' }}>A-Z</option>
+                    <option value="desc" {{ request('sort_order') == 'desc' ? 'selected' : '' }}>Z-A</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
     <!-- Mitra Table -->
     <div class="bg-white shadow rounded-lg overflow-hidden">
         <div class="overflow-x-auto">
@@ -210,6 +248,17 @@ function deleteMitra(id) {
         document.body.appendChild(form);
         form.submit();
     }
+}
+
+function updateSort() {
+    const sortBy = document.querySelector('select[name="sort_by"]').value;
+    const sortOrder = document.querySelector('select[name="sort_order"]').value;
+    const search = new URLSearchParams(window.location.search);
+    
+    search.set('sort_by', sortBy);
+    search.set('sort_order', sortOrder);
+    
+    window.location.href = window.location.pathname + '?' + search.toString();
 }
 </script>
 @endsection

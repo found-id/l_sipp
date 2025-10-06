@@ -84,16 +84,16 @@
                             </div>
                         </div>
                         <div class="ml-4">
-                            <div class="text-sm font-medium text-gray-900">{{ $profil->user->name }}</div>
-                            <div class="text-sm text-gray-500">NIM: {{ $profil->nim ?? 'N/A' }} • Prodi: {{ $profil->prodi }}</div>
+                            <div class="text-sm font-medium text-gray-900">{{ $profil->user->name ?? 'N/A' }}</div>
+                            <div class="text-sm text-gray-500">NIM: {{ $profil->nim ?? 'N/A' }} • Prodi: {{ $profil->prodi ?? 'N/A' }}</div>
                         </div>
                     </div>
                     <div class="flex items-center space-x-2">
                         @php
                             $completed = 0;
-                            if($profil->user->khs()->tervalidasi()->exists()) $completed++;
-                            if($profil->user->suratBalasan()->tervalidasi()->exists()) $completed++;
-                            if($profil->user->laporanPkl()->tervalidasi()->exists()) $completed++;
+                            if($profil->user && $profil->user->khs()->tervalidasi()->exists()) $completed++;
+                            if($profil->user && $profil->user->suratBalasan()->tervalidasi()->exists()) $completed++;
+                            if($profil->user && $profil->user->laporanPkl()->tervalidasi()->exists()) $completed++;
                         @endphp
                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
                             @if($completed == 3) bg-green-100 text-green-800 @else bg-yellow-100 text-yellow-800 @endif">

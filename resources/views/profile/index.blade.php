@@ -22,8 +22,10 @@
         <!-- Basic Information -->
         <div class="bg-white shadow rounded-lg p-6">
             <div class="flex items-center mb-6">
-                @if($user->photo && $user->google_linked && $user->photo !== 'https://lh3.googleusercontent.com/a/default-user')
+                @if($user->photo && $user->google_linked)
                     <img src="{{ $user->photo }}" alt="Profile" class="h-16 w-16 rounded-full object-cover">
+                @elseif($user->photo && !$user->google_linked)
+                    <img src="{{ asset('storage/' . $user->photo) }}" alt="Profile" class="h-16 w-16 rounded-full object-cover">
                 @else
                     <div class="h-16 w-16 rounded-full bg-gray-500 flex items-center justify-center">
                         <i class="fas fa-user text-white text-2xl"></i>
@@ -164,12 +166,12 @@
     <div class="bg-white shadow rounded-lg p-6">
         <h3 class="text-lg font-medium text-gray-900 mb-4">Aksi Cepat</h3>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <a href="#" class="bg-blue-50 p-4 rounded-lg hover:bg-blue-100 transition-colors">
+            <a href="{{ route('mahasiswa.hasil-penilaian') }}" class="bg-blue-50 p-4 rounded-lg hover:bg-blue-100 transition-colors">
                 <div class="flex items-center">
                     <i class="fas fa-graduation-cap text-blue-600 mr-3"></i>
                     <div>
-                        <h4 class="font-medium text-gray-900">Transkrip Nilai Akhir</h4>
-                        <p class="text-sm text-gray-600">Lihat transkrip nilai</p>
+                        <h4 class="font-medium text-gray-900">Hasil Penilaian</h4>
+                        <p class="text-sm text-gray-600">Lihat hasil penilaian PKL</p>
                     </div>
                 </div>
             </a>
