@@ -1,4 +1,10 @@
 {
+    "config": {
+    "platform": {
+        "php": "8.3.0"
+    }
+},
+
     "$schema": "https://getcomposer.org/schema.json",
     "name": "laravel/laravel",
     "type": "project",
