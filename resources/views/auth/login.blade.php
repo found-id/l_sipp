@@ -7,8 +7,8 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
-<body class="bg-gray-50">
-    <div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+<body class="bg-gray-50 flex flex-col min-h-screen">
+    <div class="flex-1 flex items-center justify-center py-8 px-4 sm:px-6 lg:px-8">
         <div class="max-w-md w-full space-y-8">
             <div>
                 <div class="mx-auto h-12 w-12 flex items-center justify-center">
@@ -99,6 +99,23 @@
         </div>
         </div>
     </div>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-gray-200 mt-8">
+        <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <p class="text-sm text-gray-500">
+                    © {{ date('Y') }} SIPP PKL. All rights reserved.
+                </p>
+                <div class="flex space-x-4 mt-2 md:mt-0">
+                    <a href="{{ route('faq') }}" class="text-sm text-gray-500 hover:text-indigo-600 transition-colors">
+                        <i class="fas fa-question-circle mr-1"></i>
+                        FAQ
+                    </a>
+                </div>
+            </div>
+        </div>
+    </footer>
 
     <script>
         // Check if registration is enabled

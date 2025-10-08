@@ -84,7 +84,10 @@ class AuthController extends Controller
             return redirect()->route('login')->with('error', 'Pendaftaran sedang ditutup. Silakan hubungi administrator.');
         }
         
-        return view('auth.register');
+        // Get dosen pembimbing list
+        $dosenPembimbingList = User::where('role', 'dospem')->orderBy('name')->get();
+        
+        return view('auth.register', compact('dosenPembimbingList'));
     }
 
     public function register(Request $request)
@@ -100,6 +103,8 @@ class AuthController extends Controller
             'semester' => 'required_if:role,mahasiswa|integer|min:1|max:8',
             'jenis_kelamin' => 'required_if:role,mahasiswa|string|in:L,P',
             'no_wa' => 'required_if:role,mahasiswa|string|regex:/^8\d{8,11}$/',
+            'ipk' => 'required_if:role,mahasiswa|numeric|min:0|max:4.0',
+            'id_dospem' => 'required_if:role,mahasiswa|exists:users,id',
         ]);
 
         $user = User::create([
@@ -119,6 +124,8 @@ class AuthController extends Controller
                     'semester' => $request->semester,
                     'jenis_kelamin' => $request->jenis_kelamin,
                     'no_whatsapp' => $request->no_wa,
+                    'ipk' => $request->ipk,
+                    'id_dospem' => $request->id_dospem,
                     'cek_min_semester' => false,
                     'cek_ipk_nilaisks' => false,
                     'cek_valid_biodata' => false,
@@ -203,6 +210,54 @@ class AuthController extends Controller
         return redirect()->route('login');
     }
 
+    public function cancelRegistration(Request $request)
+    {
+        try {
+            $user = Auth::user();
+            
+            if ($user && $user->google_linked) {
+                // Log cancellation activity
+                \App\Models\HistoryAktivitas::create([
+                    'id_user' => $user->id,
+                    'id_mahasiswa' => $user->role === 'mahasiswa' ? $user->id : null,
+                    'tipe' => 'cancel_registration',
+                    'pesan' => [
+                        'action' => 'cancel_registration',
+                        'user' => $user->name,
+                        'role' => $user->role,
+                        'message' => $user->name . ' membatalkan registrasi Google OAuth',
+                    ],
+                ]);
+                
+                // Delete the user account since they cancelled registration
+                $user->delete();
+                
+                Auth::logout();
+                $request->session()->invalidate();
+                $request->session()->regenerateToken();
+                
+                return redirect()->route('login')->with('info', 'Registrasi dibatalkan. Akun Google telah dihapus.');
+            }
+            
+            // If not Google user, just logout normally
+            Auth::logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+            
+            return redirect()->route('login')->with('info', 'Registrasi dibatalkan.');
+            
+        } catch (\Exception $e) {
+            Log::error('Error cancelling registration: ' . $e->getMessage());
+            
+            // Fallback: just logout
+            Auth::logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+            
+            return redirect()->route('login')->with('error', 'Terjadi kesalahan saat membatalkan registrasi.');
+        }
+    }
+
     public function showCompleteProfile()
     {
         if (!Auth::check() || Auth::user()->role !== 'mahasiswa') {
@@ -233,7 +288,7 @@ class AuthController extends Controller
             'jenis_kelamin' => 'required|string|in:L,P',
             'no_whatsapp' => 'required|string|regex:/^8\d{8,11}$/',
             'ipk' => 'required|numeric|min:0|max:4.0',
-            'id_dospem' => 'nullable|exists:users,id',
+            'id_dospem' => 'required|exists:users,id',
         ]);
 
         // Update user name if provided

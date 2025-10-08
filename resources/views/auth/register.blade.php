@@ -6,10 +6,20 @@
     <title>Register - SIPP PKL</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        #step2Buttons:not(.hidden) {
+            display: flex !important;
+            flex-direction: row !important;
+            gap: 1rem;
+        }
+        #step2Buttons:not(.hidden) button {
+            flex: 1;
+        }
+    </style>
 </head>
-<body class="bg-gray-50">
+<body class="bg-gray-50 flex flex-col min-h-screen">
 
-    <div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div class="flex-1 flex items-center justify-center py-8 px-4 sm:px-6 lg:px-8">
         <div class="max-w-md w-full space-y-8">
             <div>
                 <div class="mx-auto h-12 w-12 flex items-center justify-center">
@@ -145,6 +155,33 @@
                             <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                         @enderror
                     </div>
+
+                    <div>
+                        <label for="ipk" class="block text-sm font-medium text-gray-700">IPK Terakhir</label>
+                        <input id="ipk" name="ipk" type="number" required step="0.01" min="0" max="4.0"
+                               class="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm" 
+                               placeholder="3.50"
+                               value="{{ old('ipk') }}">
+                        @error('ipk')
+                            <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div>
+                        <label for="id_dospem" class="block text-sm font-medium text-gray-700">Dosen Pembimbing</label>
+                        <select id="id_dospem" name="id_dospem" required 
+                                class="mt-1 block w-full px-3 py-2 border border-gray-300 bg-white rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                            <option value="">Pilih Dosen Pembimbing</option>
+                            @foreach($dosenPembimbingList as $dosen)
+                                <option value="{{ $dosen->id }}" {{ old('id_dospem') == $dosen->id ? 'selected' : '' }}>
+                                    {{ $dosen->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                        @error('id_dospem')
+                            <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                        @enderror
+                    </div>
                 </div>
 
                 <input type="hidden" name="role" value="mahasiswa">
@@ -168,18 +205,16 @@
                         Daftar
                     </button>
                     
-                    <div id="step2Buttons" style="display: none;" class="space-y-3">
+                    <div id="step2Buttons" class="hidden flex flex-row space-x-4">
                         <button type="button" id="backBtn" 
-                                class="w-full flex justify-center py-2 px-4 text-sm font-medium rounded-md text-gray-600 hover:text-gray-800 transition-colors duration-200">
+                                class="flex-1 flex justify-center items-center px-4 py-2 border border-gray-300 rounded-md text-gray-700 bg-white hover:bg-gray-50 text-sm font-medium">
                             <i class="fas fa-arrow-left mr-2"></i>
                             Kembali
                         </button>
                         
                         <button type="submit" id="submitBtn"
-                                class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                            <span class="absolute left-0 inset-y-0 flex items-center pl-3">
-                                <i class="fas fa-user-plus text-indigo-500 group-hover:text-indigo-400"></i>
-                            </span>
+                                class="flex-1 flex justify-center items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                            <i class="fas fa-check mr-2"></i>
                             Daftar Sekarang
                         </button>
                     </div>
@@ -223,6 +258,23 @@
         </div>
         </div>
     </div>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-gray-200 mt-8">
+        <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <p class="text-sm text-gray-500">
+                    © {{ date('Y') }} SIPP PKL. All rights reserved.
+                </p>
+                <div class="flex space-x-4 mt-2 md:mt-0">
+                    <a href="{{ route('faq') }}" class="text-sm text-gray-500 hover:text-indigo-600 transition-colors">
+                        <i class="fas fa-question-circle mr-1"></i>
+                        FAQ
+                    </a>
+                </div>
+            </div>
+        </div>
+    </footer>
 
     <script>
         // Form validation function
@@ -273,11 +325,80 @@
             // Hide step 2
             document.getElementById('step2').style.display = 'none';
             // Show next button, hide step 2 buttons
-            document.getElementById('nextBtn').style.display = 'block';
-            document.getElementById('step2Buttons').style.display = 'none';
+            document.getElementById('nextBtn').classList.remove('hidden');
+            document.getElementById('step2Buttons').classList.add('hidden');
             // Update title
             document.querySelector('h2').textContent = 'Daftar Akun Baru';
             document.querySelector('p').textContent = 'Buat akun untuk mengakses sistem';
+        });
+        
+        // Enter key handler for field navigation
+        document.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                const step1 = document.getElementById('step1');
+                const step2 = document.getElementById('step2');
+                
+                // If step 1 is visible, handle field navigation
+                if (step1.style.display !== 'none' && step2.style.display === 'none') {
+                    const activeElement = document.activeElement;
+                    
+                    // Field navigation order for step 1
+                    const fieldOrder = ['name', 'email', 'password', 'password_confirmation'];
+                    const currentIndex = fieldOrder.indexOf(activeElement.id);
+                    
+                    if (currentIndex !== -1) {
+                        e.preventDefault();
+                        
+                        // If on last field (password_confirmation), validate and proceed
+                        if (currentIndex === fieldOrder.length - 1) {
+                            if (validateStep1()) {
+                                // Hide step 1
+                                document.getElementById('step1').style.display = 'none';
+                                // Show step 2
+                                document.getElementById('step2').style.display = 'block';
+                                // Hide next button, show step 2 buttons
+                                document.getElementById('nextBtn').classList.add('hidden');
+                                document.getElementById('step2Buttons').classList.remove('hidden');
+                                // Update title
+                                document.querySelector('h2').textContent = 'Lengkapi Biodata';
+                                document.querySelector('p').textContent = 'Lengkapi data diri untuk menyelesaikan pendaftaran';
+                                // Focus on first field of step 2
+                                document.getElementById('nim').focus();
+                            }
+                        } else {
+                            // Move to next field
+                            const nextField = document.getElementById(fieldOrder[currentIndex + 1]);
+                            if (nextField) {
+                                nextField.focus();
+                            }
+                        }
+                    }
+                }
+                
+                // If step 2 is visible, handle field navigation
+                if (step1.style.display === 'none' && step2.style.display !== 'none') {
+                    const activeElement = document.activeElement;
+                    
+                    // Field navigation order for step 2
+                    const fieldOrder = ['nim', 'prodi', 'semester', 'jenis_kelamin', 'no_wa', 'ipk', 'id_dospem'];
+                    const currentIndex = fieldOrder.indexOf(activeElement.id);
+                    
+                    if (currentIndex !== -1) {
+                        e.preventDefault();
+                        
+                        // If on last field (id_dospem), submit form
+                        if (currentIndex === fieldOrder.length - 1) {
+                            document.getElementById('registerForm').submit();
+                        } else {
+                            // Move to next field
+                            const nextField = document.getElementById(fieldOrder[currentIndex + 1]);
+                            if (nextField) {
+                                nextField.focus();
+                            }
+                        }
+                    }
+                }
+            }
         });
     </script>
 </body>

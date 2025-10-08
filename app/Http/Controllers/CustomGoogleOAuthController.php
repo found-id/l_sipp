@@ -41,8 +41,19 @@ class CustomGoogleOAuthController extends Controller
             $user = User::where('email', $googleUser->getEmail())->first();
             
             if ($user) {
-                // User exists, log them in
+                // User exists, update photo if needed and log them in
                 Log::info('Existing user found, logging in', ['user_id' => $user->id]);
+                
+                // Update photo from Google if user doesn't have one or if Google photo is different
+                if (!$user->photo || $user->photo !== $googleUser->getAvatar()) {
+                    $user->update([
+                        'photo' => $googleUser->getAvatar(),
+                        'google_linked' => true,
+                        'google_email' => $googleUser->getEmail(),
+                    ]);
+                    Log::info('Updated user photo from Google', ['user_id' => $user->id]);
+                }
+                
                 Auth::login($user);
                 
                 // Log login activity

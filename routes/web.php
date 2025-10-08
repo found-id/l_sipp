@@ -5,11 +5,12 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\FAQController;
 
 // Public routes
 Route::get('/', function () {
-    return redirect()->route('login');
-});
+    return view('welcome');
+})->name('welcome');
 
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
@@ -17,7 +18,11 @@ Route::get('/register', [AuthController::class, 'showRegister'])->name('register
 Route::post('/register', [AuthController::class, 'register']);
 Route::get('/complete-profile', [AuthController::class, 'showCompleteProfile'])->name('complete-profile');
 Route::post('/complete-profile', [AuthController::class, 'completeProfile']);
+Route::post('/cancel-registration', [AuthController::class, 'cancelRegistration'])->name('cancel-registration');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+
+// FAQ route
+Route::get('/faq', [FAQController::class, 'index'])->name('faq');
 
 // Google OAuth routes - Try custom controller first
 Route::get('/auth/google', [\App\Http\Controllers\CustomGoogleOAuthController::class, 'redirectToGoogle'])->name('auth.google');

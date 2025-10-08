@@ -140,10 +140,59 @@ class AdminController extends Controller
 
     public function deleteUser($id)
     {
-        $user = User::findOrFail($id);
-        $user->delete();
+        try {
+            $user = User::findOrFail($id);
+            
+            // If user is mahasiswa, delete related data first
+            if ($user->role === 'mahasiswa') {
+                // Delete profil mahasiswa
+                if ($user->profilMahasiswa) {
+                    $user->profilMahasiswa->delete();
+                }
+                
+                // Delete related documents
+                $user->khs()->delete();
+                $user->suratBalasan()->delete();
+                $user->laporanPkl()->delete();
+                
+                // Delete assessment results if any
+                if (class_exists('\App\Models\AssessmentResult')) {
+                    \App\Models\AssessmentResult::where('mahasiswa_user_id', $user->id)->delete();
+                }
+                
+                // Delete assessment responses if any
+                if (class_exists('\App\Models\AssessmentResponse')) {
+                    \App\Models\AssessmentResponse::where('mahasiswa_user_id', $user->id)->delete();
+                }
+            }
+            
+            // If user is dospem, update mahasiswa bimbingan
+            if ($user->role === 'dospem') {
+                // Remove dospem assignment from mahasiswa
+                ProfilMahasiswa::where('id_dospem', $user->id)->update(['id_dospem' => null]);
+                
+                // Delete assessment responses where this dospem was the evaluator
+                if (class_exists('\App\Models\AssessmentResponse')) {
+                    \App\Models\AssessmentResponse::where('dosen_user_id', $user->id)->delete();
+                }
+                
+                // Delete assessment results where this dospem was the decider
+                if (class_exists('\App\Models\AssessmentResult')) {
+                    \App\Models\AssessmentResult::where('decided_by', $user->id)->delete();
+                }
+            }
+            
+            // Delete user activity history
+            $user->historyAktivitas()->delete();
+            
+            // Finally delete the user
+            $user->delete();
 
-        return redirect()->back()->with('success', 'User berhasil dihapus!');
+            return redirect()->back()->with('success', 'User dan semua data terkait berhasil dihapus!');
+        } catch (\Exception $e) {
+            \Log::error('Error deleting user: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Gagal menghapus user: ' . $e->getMessage());
+        }
     }
 
     public function assignDospem(Request $request)
