@@ -18,31 +18,18 @@
             text-decoration: none;
             font-weight: 500;
         }
-        .nav-link:hover {
-            color: #2563eb;
-            background-color: #f8fafc;
-        }
+        .nav-link:hover { color: #2563eb; background-color: #f8fafc; }
         .nav-link.active {
-            color: #1e40af;
-            background-color: #eff6ff;
-            font-weight: 600;
+            color: #1e40af; background-color: #eff6ff; font-weight: 600;
         }
         .nav-link.active::after {
             content: '';
-            position: absolute;
-            bottom: -2px;
-            left: 50%;
+            position: absolute; bottom: -2px; left: 50%;
             transform: translateX(-50%);
-            width: calc(100% - 24px);
-            height: 3px;
-            background-color: #2563eb;
-            border-radius: 2px;
+            width: calc(100% - 24px); height: 3px;
+            background-color: #2563eb; border-radius: 2px;
         }
-        .nav-container {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
+        .nav-container { display: flex; align-items: center; gap: 8px; }
     </style>
 </head>
 <body class="bg-gray-50">
@@ -179,5 +166,8 @@
             </p>
         </div>
     </footer>
+
+    {{-- ====== tambahkan baris ini agar @push('scripts') dari view lain ikut dirender ====== --}}
+    @stack('scripts')
 </body>
 </html>

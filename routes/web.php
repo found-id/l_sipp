@@ -6,6 +6,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\FAQController;
+use App\Http\Controllers\PemberkasanController;
 
 // Public routes
 Route::get('/', function () {
@@ -27,10 +28,6 @@ Route::get('/faq', [FAQController::class, 'index'])->name('faq');
 // Google OAuth routes - Try custom controller first
 Route::get('/auth/google', [\App\Http\Controllers\CustomGoogleOAuthController::class, 'redirectToGoogle'])->name('auth.google');
 Route::get('/auth/google/callback', [\App\Http\Controllers\CustomGoogleOAuthController::class, 'handleGoogleCallback'])->name('auth.google.callback');
-
-// Fallback Google OAuth routes (if custom doesn't work)
-// Route::get('/auth/google', [AuthController::class, 'redirectToGoogle'])->name('auth.google');
-// Route::get('/auth/google/callback', [AuthController::class, 'handleGoogleCallback'])->name('auth.google.callback');
 
 // Protected routes
 Route::middleware(['auth'])->group(function () {
@@ -108,11 +105,8 @@ Route::middleware(['auth'])->group(function () {
         // System settings routes
         Route::get('/system-settings', [\App\Http\Controllers\Admin\SystemSettingsController::class, 'index'])->name('system-settings');
         Route::put('/system-settings', [\App\Http\Controllers\Admin\SystemSettingsController::class, 'update'])->name('system-settings.update');
-        Route::get('/validation', [\App\Http\Controllers\ValidationController::class, 'index'])->name('validation');
-        Route::put('/validation/khs/{id}', [\App\Http\Controllers\ValidationController::class, 'validateKhs'])->name('validation.khs');
-        Route::put('/validation/surat-balasan/{id}', [\App\Http\Controllers\ValidationController::class, 'validateSuratBalasan'])->name('validation.surat');
-        Route::put('/validation/laporan/{id}', [\App\Http\Controllers\ValidationController::class, 'validateLaporan'])->name('validation.laporan');
-        Route::post('/validation/bulk', [\App\Http\Controllers\ValidationController::class, 'bulkValidate'])->name('validation.bulk');
+
+        // (catatan: kamu punya dua set /validation di admin sebelumnya — aku biarkan yang di atas saja agar tidak ganda)
     });
     
     // Dosen Pembimbing routes
@@ -132,5 +126,21 @@ Route::middleware(['auth'])->group(function () {
     // Mahasiswa routes
     Route::middleware(['role:mahasiswa'])->prefix('mahasiswa')->name('mahasiswa.')->group(function () {
         Route::get('/hasil-penilaian', [\App\Http\Controllers\MahasiswaHasilPenilaianController::class, 'index'])->name('hasil-penilaian');
+    });
+
+    // ===========================
+    // Pemberkasan (STEP 1 UI + Upload KHS per semester)
+    // ===========================
+    Route::prefix('pemberkasan')->name('pemberkasan.')->group(function () {
+        Route::get('/', fn() => redirect()->route('pemberkasan.cek'))->name('index');
+        Route::get('/cek-kelayakan', [PemberkasanController::class, 'cekKelayakan'])->name('cek');
+
+        // Upload KHS per semester (1..4) untuk cek kelayakan
+        Route::post('/cek-kelayakan/khs/{semester}', [PemberkasanController::class, 'uploadKhsSemester'])
+            ->whereNumber('semester')
+            ->name('khs.semester');
+
+        // (opsional) kalau masih ada form lama yang submit ke 'khs.multi', kamu bisa aktifkan alias ini:
+        // Route::post('/khs-multi', [DocumentController::class, 'uploadKhs'])->name('khs.multi');
     });
 });
