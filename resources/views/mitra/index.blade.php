@@ -8,6 +8,37 @@
     <div class="bg-white shadow rounded-lg p-6">
         <h1 class="text-2xl font-bold text-gray-900">Instansi Mitra</h1>
         <p class="text-gray-600 mt-2">Daftar instansi mitra PKL</p>
+        
+        <!-- Search Box -->
+        <div class="mt-4">
+            <form method="GET" action="{{ route('mitra') }}" class="flex gap-2">
+                <div class="flex-1">
+                    <input type="text" 
+                           name="search" 
+                           value="{{ request('search') }}"
+                           placeholder="Cari berdasarkan nama, alamat, atau kontak..."
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                </div>
+                <button type="submit" 
+                        class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors">
+                    <i class="fas fa-search mr-2"></i>Cari
+                </button>
+                @if(request('search'))
+                <a href="{{ route('mitra') }}" 
+                   class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors">
+                    <i class="fas fa-times mr-2"></i>Reset
+                </a>
+                @endif
+            </form>
+        </div>
+        
+        @if(request('search'))
+        <div class="mt-3">
+            <p class="text-sm text-gray-600">
+                Hasil pencarian untuk: <span class="font-medium">"{{ request('search') }}"</span>
+            </p>
+        </div>
+        @endif
     </div>
 
     <!-- Mitra List -->
@@ -41,11 +72,17 @@
                     </div>
                     @endif
                     
-                    <div class="mt-3">
+                    <div class="mt-3 flex items-center justify-between">
                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
                             <i class="fas fa-check mr-1"></i>
                             Mitra Aktif
                         </span>
+                        
+                        <div class="flex items-center text-sm text-gray-600">
+                            <i class="fas fa-users mr-1"></i>
+                            <span class="font-medium">{{ $m->total_applications }}</span>
+                            <span class="ml-1">mahasiswa</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -53,9 +90,18 @@
         @empty
         <div class="col-span-full">
             <div class="bg-white shadow rounded-lg p-8 text-center">
-                <i class="fas fa-building text-4xl text-gray-300 mb-4"></i>
-                <h3 class="text-lg font-medium text-gray-900 mb-2">Belum Ada Mitra</h3>
-                <p class="text-gray-600">Belum ada instansi mitra yang terdaftar.</p>
+                @if(request('search'))
+                    <i class="fas fa-search text-4xl text-gray-300 mb-4"></i>
+                    <h3 class="text-lg font-medium text-gray-900 mb-2">Tidak Ditemukan</h3>
+                    <p class="text-gray-600">Tidak ada instansi mitra yang sesuai dengan pencarian "<span class="font-medium">{{ request('search') }}</span>".</p>
+                    <a href="{{ route('mitra') }}" class="mt-4 inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                        <i class="fas fa-arrow-left mr-2"></i>Lihat Semua Mitra
+                    </a>
+                @else
+                    <i class="fas fa-building text-4xl text-gray-300 mb-4"></i>
+                    <h3 class="text-lg font-medium text-gray-900 mb-2">Belum Ada Mitra</h3>
+                    <p class="text-gray-600">Belum ada instansi mitra yang terdaftar.</p>
+                @endif
             </div>
         </div>
         @endforelse

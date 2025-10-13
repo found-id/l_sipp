@@ -67,6 +67,11 @@ class User extends Authenticatable
         return $this->hasMany(Khs::class, 'mahasiswa_id');
     }
 
+    public function khsManualTranskrip()
+    {
+        return $this->hasMany(KhsManualTranskrip::class, 'mahasiswa_id');
+    }
+
     public function suratBalasan()
     {
         return $this->hasMany(SuratBalasan::class, 'mahasiswa_id');
