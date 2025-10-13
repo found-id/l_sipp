@@ -21,6 +21,9 @@ class ProfilMahasiswa extends Model
         'cek_ipk_nilaisks',
         'cek_valid_biodata',
         'id_dospem',
+        'gdrive_pkkmb',
+        'gdrive_ecourse',
+        'gdrive_more',
     ];
 
     protected function casts(): array

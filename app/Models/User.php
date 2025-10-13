@@ -54,7 +54,7 @@ class User extends Authenticatable
     // Relationships
     public function profilMahasiswa()
     {
-        return $this->hasOne(ProfilMahasiswa::class, 'id_mahasiswa');
+        return $this->hasOne(ProfilMahasiswa::class, 'id_mahasiswa', 'id');
     }
 
     public function mahasiswaBimbingan()

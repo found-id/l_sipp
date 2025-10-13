@@ -135,7 +135,7 @@
                         <div class="text-center text-gray-500 py-2">
                             <i class="fas fa-info-circle text-lg mb-1"></i>
                             <p class="text-sm">Data TPK sekarang tersimpan di tabel KHS</p>
-                            <p class="text-xs">Gunakan fitur "Analisis Transkrip Multi Semester" di bawah</p>
+                            <p class="text-xs">Gunakan fitur "Data Tabel KHS Transkrip dari Sipadu" di bawah</p>
                         </div>
                     </div>
                 </div>
@@ -198,18 +198,21 @@
         <div class="border-b border-gray-200">
             <nav class="-mb-px flex space-x-8" aria-label="Tabs">
                 <button onclick="showTab('pemberkasan')" id="tab-pemberkasan" class="tab-button active py-4 px-6 border-b-2 font-medium text-sm border-blue-500 text-blue-600 transition-colors duration-200">
-                    <i class="fas fa-file-alt mr-2"></i>Dokumen Pemberkasan
+                    <i class="fas fa-file-alt mr-2"></i>Pemberkasan Kelayakan
+                </button>
+                <button onclick="showTab('dokumen-pendukung')" id="tab-dokumen-pendukung" class="tab-button py-4 px-6 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 transition-colors duration-200">
+                    <i class="fab fa-google-drive mr-2"></i>Pemberkasan Dokumen Pendukung
                 </button>
                 <button onclick="showTab('surat-balasan')" id="tab-surat-balasan" class="tab-button py-4 px-6 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 transition-colors duration-200 {{ !$instansiMitraEnabled ? 'opacity-50 cursor-not-allowed' : '' }}" 
                         {{ !$instansiMitraEnabled ? 'disabled' : '' }}>
-                    <i class="fas fa-envelope mr-2"></i>Surat Balasan
+                    <i class="fas fa-envelope mr-2"></i>Pemberkasan Instansi Mitra
                     @if(!$instansiMitraEnabled)
                         <i class="fas fa-lock ml-2 text-gray-400"></i>
                     @endif
                 </button>
                 <button onclick="showTab('laporan')" id="tab-laporan" class="tab-button py-4 px-6 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 transition-colors duration-200 {{ !$laporanPklEnabled ? 'opacity-50 cursor-not-allowed' : '' }}" 
                         {{ !$laporanPklEnabled ? 'disabled' : '' }}>
-                    <i class="fas fa-book mr-2"></i>Laporan PKL
+                    <i class="fas fa-book mr-2"></i>Pemberkasan Akhir
                     @if(!$laporanPklEnabled)
                         <i class="fas fa-lock ml-2 text-gray-400"></i>
                     @endif
@@ -220,7 +223,59 @@
 
     <!-- Tab Content -->
     <div id="content-pemberkasan" class="tab-content">
-        <div class="grid grid-cols-1 gap-6">
+        <div class="grid grid-cols-1 gap-6 mt-6">
+            <!-- Final IPK Calculation -->
+            <div class="bg-gradient-to-r from-green-50 to-blue-50 rounded-lg p-6 border border-green-200">
+                <h4 class="font-semibold text-gray-900 mb-4 flex items-center">
+                    <i class="fas fa-calculator mr-2 text-green-600"></i>
+                    Hasil Analisa Kelayakan
+                </h4>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                    <div class="bg-white rounded-lg p-4 border border-gray-200">
+                        <div class="text-center">
+                            <div id="finalIpk" class="text-3xl font-bold text-green-600 mb-1">-</div>
+                            <div class="text-sm text-gray-600">IPK Akhir</div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-lg p-4 border border-gray-200">
+                        <div class="text-center">
+                            <div id="totalSemester" class="text-3xl font-bold text-blue-600 mb-1">0/5</div>
+                            <div class="text-sm text-gray-600">Kelengkapan Transkrip</div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-lg p-4 border border-gray-200">
+                        <div class="text-center">
+                            <div id="pklStatus" class="text-3xl font-bold text-gray-600 mb-1">-</div>
+                            <div class="text-sm text-gray-600">Status PKL</div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-lg p-4 border border-gray-200">
+                        <div class="text-center">
+                            <div id="totalSksD" class="text-3xl font-bold text-yellow-600 mb-1">0</div>
+                            <div class="text-sm text-gray-600">Total SKS D</div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-lg p-4 border border-gray-200">
+                        <div class="text-center">
+                            <div id="totalE" class="text-3xl font-bold text-red-600 mb-1">0</div>
+                            <div class="text-sm text-gray-600">Jumlah E</div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-lg p-4 border border-gray-200">
+                        <div class="text-center">
+                            <div id="uploadKhs" class="text-3xl font-bold text-purple-600 mb-1">0/5</div>
+                            <div class="text-sm text-gray-600">Upload Berkas KHS</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center text-sm text-gray-600">
+                    <i class="fas fa-info-circle mr-1"></i>
+                    Data yang dimasukkan dapat dipertanggung jawabkan keaslianya dan menerima konsekuensi jika data dan berkas yang dimasukkan tidak tepat
+                </div>
+            </div>
+
             <!-- Multiple Semester KHS Upload System -->
             <div class="bg-white shadow-lg rounded-xl border border-gray-100 overflow-hidden">
                 <div class="bg-gradient-to-r from-blue-500 to-blue-600 px-6 py-4">
@@ -229,7 +284,7 @@
                             <i class="fas fa-graduation-cap text-2xl text-white"></i>
                         </div>
                         <div class="ml-3">
-                            <h3 class="text-lg font-semibold text-white">Kartu Hasil Studi (KHS) Multi Semester</h3>
+                            <h3 class="text-lg font-semibold text-white">Upload Berkas Kartu Hasil Studi (KHS)</h3>
                             <p class="text-blue-100 text-sm">Upload KHS untuk setiap semester (1-5)</p>
                         </div>
                     </div>
@@ -318,7 +373,7 @@
                             <i class="fas fa-chart-line text-2xl text-white"></i>
                         </div>
                         <div class="ml-3">
-                            <h3 class="text-lg font-semibold text-white">Analisis Transkrip Multi Semester</h3>
+                            <h3 class="text-lg font-semibold text-white">Data Tabel KHS Transkrip dari Sipadu</h3>
                             <p class="text-purple-100 text-sm">Paste data transkrip untuk setiap semester</p>
                         </div>
                     </div>
@@ -335,9 +390,9 @@
                                     <h4 class="text-lg font-semibold text-gray-900">Semester {{ $semester }}</h4>
                                 </div>
                                 
-                                <!-- Layout 2 Kolom: Textfield Kiri, Tabel Kanan -->
-                                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                                    <!-- Kolom Kiri: Textfield untuk Paste -->
+                                <!-- Layout Vertikal: Textfield di atas, Tabel di bawah -->
+                                <div class="space-y-6">
+                                    <!-- Textfield untuk Paste -->
                                     <div class="space-y-3">
                                         <label class="block text-sm font-medium text-gray-700 mb-2">
                                             <i class="fas fa-paste mr-2 text-purple-600"></i>
@@ -345,20 +400,20 @@
                                         </label>
                                         <textarea id="pasteArea{{ $semester }}" 
                                                   class="w-full p-3 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500" 
-                                                  rows="12" 
+                                                  rows="6" 
                                                   placeholder="Paste data transkrip semester {{ $semester }} di sini...&#10;&#10;Contoh format:&#10;Kode Mata Kuliah&#9;Nama Mata Kuliah&#9;SKS&#9;Nilai&#10;All231203&#9;Pemrograman Web&#9;3&#9;A"></textarea>
                                         
-                                <div class="flex space-x-2">
-                                    <button onclick="saveSemester({{ $semester }})" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded text-sm font-medium transition-colors duration-200">
-                                        <i class="fas fa-save mr-1"></i>Simpan
-                                    </button>
-                                    <button onclick="clearSemester({{ $semester }})" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded text-sm font-medium transition-colors duration-200">
-                                        <i class="fas fa-trash mr-1"></i>Clear
-                                    </button>
-                                </div>
+                                        <div class="flex space-x-2">
+                                            <button onclick="saveSemester({{ $semester }})" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded text-sm font-medium transition-colors duration-200">
+                                                <i class="fas fa-save mr-1"></i>Simpan
+                                            </button>
+                                            <button onclick="clearSemester({{ $semester }})" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded text-sm font-medium transition-colors duration-200">
+                                                <i class="fas fa-trash mr-1"></i>Clear
+                                            </button>
+                                        </div>
                                     </div>
                                     
-                                    <!-- Kolom Kanan: Tabel Hasil -->
+                                    <!-- Tabel Hasil -->
                                     <div class="space-y-3">
                                         <label class="block text-sm font-medium text-gray-700 mb-2">
                                             <i class="fas fa-table mr-2 text-green-600"></i>
@@ -366,7 +421,7 @@
                                         </label>
                                         
                                         <!-- Preview Tabel -->
-                                        <div id="preview{{ $semester }}" class="min-h-[200px] border border-gray-200 rounded-lg bg-white p-3 text-sm">
+                                        <div id="preview{{ $semester }}" class="min-h-[300px] border border-gray-200 rounded-lg bg-white p-3 text-sm">
                                             <div class="flex items-center justify-center h-full text-gray-400">
                                                 <div class="text-center">
                                                     <i class="fas fa-table text-2xl mb-2"></i>
@@ -418,40 +473,6 @@
                                 </div>
                             </div>
                         @endfor
-                    </div>
-                    
-                    <!-- Final IPK Calculation -->
-                    <div class="mt-8 bg-gradient-to-r from-green-50 to-blue-50 rounded-lg p-6 border border-green-200">
-                        <h4 class="font-semibold text-gray-900 mb-4 flex items-center">
-                            <i class="fas fa-calculator mr-2 text-green-600"></i>
-                            Hasil Akhir - Indeks Prestasi Kumulatif (IPK)
-                        </h4>
-                        
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                            <div class="bg-white rounded-lg p-4 border border-gray-200">
-                                <div class="text-center">
-                                    <div id="finalIpk" class="text-3xl font-bold text-green-600 mb-1">-</div>
-                                    <div class="text-sm text-gray-600">IPK Akhir</div>
-                                </div>
-                            </div>
-                    <div class="bg-white rounded-lg p-4 border border-gray-200">
-                        <div class="text-center">
-                            <div id="totalSemester" class="text-3xl font-bold text-blue-600 mb-1">0/5</div>
-                            <div class="text-sm text-gray-600">Kelengkapan Transkrip</div>
-                        </div>
-                    </div>
-                            <div class="bg-white rounded-lg p-4 border border-gray-200">
-                                <div class="text-center">
-                                    <div id="pklStatus" class="text-3xl font-bold text-gray-600 mb-1">-</div>
-                                    <div class="text-sm text-gray-600">Status PKL</div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                <div class="text-center text-sm text-gray-600">
-                    <i class="fas fa-info-circle mr-1"></i>
-                    IPK dan data akan dihitung dan disimpan otomatis
-                </div>
                     </div>
                 </div>
             </div>
@@ -691,6 +712,89 @@
                             </div>
                         </div>
 
+    <!-- Tab Content: Dokumen Pendukung -->
+    <div id="content-dokumen-pendukung" class="tab-content hidden">
+        <div class="bg-white shadow-lg rounded-xl border border-gray-100 overflow-hidden mt-6">
+            <div class="bg-gradient-to-r from-green-500 to-green-600 px-6 py-4">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <i class="fab fa-google-drive text-2xl text-white"></i>
+                    </div>
+                    <div class="ml-3">
+                        <h3 class="text-lg font-semibold text-white">Dokumen Pendukung</h3>
+                        <p class="text-green-100 text-sm">Masukkan link Google Drive untuk dokumen pendukung</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="p-6 space-y-6">
+                <!-- Sertifikat PKKMB -->
+                <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                    <div class="flex items-center mb-3">
+                        <i class="fab fa-google-drive text-blue-500 mr-2"></i>
+                        <h4 class="text-lg font-medium text-gray-900">Sertifikat PKKMB</h4>
+                    </div>
+                    <div class="space-y-3">
+                        <div>
+                            <label for="link_pkkmb" class="block text-sm font-medium text-gray-700 mb-2">Link Google Drive Sertifikat PKKMB</label>
+                            <input type="url" id="link_pkkmb" name="link_pkkmb" placeholder="https://drive.google.com/file/d/..." 
+                                   class="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                        <p class="text-xs text-gray-500 flex items-center">
+                            <i class="fas fa-info-circle mr-1"></i>
+                            Paste link Google Drive yang dapat diakses publik
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Sertifikat English Course -->
+                <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                    <div class="flex items-center mb-3">
+                        <i class="fab fa-google-drive text-blue-500 mr-2"></i>
+                        <h4 class="text-lg font-medium text-gray-900">Sertifikat English Course</h4>
+                    </div>
+                    <div class="space-y-3">
+                        <div>
+                            <label for="link_english" class="block text-sm font-medium text-gray-700 mb-2">Link Google Drive Sertifikat English Course</label>
+                            <input type="url" id="link_english" name="link_english" placeholder="https://drive.google.com/file/d/..." 
+                                   class="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                        <p class="text-xs text-gray-500 flex items-center">
+                            <i class="fas fa-info-circle mr-1"></i>
+                            Paste link Google Drive yang dapat diakses publik
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Sertifikat Semasa Berkuliah -->
+                <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                    <div class="flex items-center mb-3">
+                        <i class="fab fa-google-drive text-blue-500 mr-2"></i>
+                        <h4 class="text-lg font-medium text-gray-900">Sertifikat Semasa Berkuliah di Politeknik Negeri Tanah Laut</h4>
+                    </div>
+                    <div class="space-y-3">
+                        <div>
+                            <label for="link_semasa" class="block text-sm font-medium text-gray-700 mb-2">Link Google Drive Sertifikat Semasa Berkuliah</label>
+                            <input type="url" id="link_semasa" name="link_semasa" placeholder="https://drive.google.com/file/d/..." 
+                                   class="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                        <p class="text-xs text-gray-500 flex items-center">
+                            <i class="fas fa-info-circle mr-1"></i>
+                            Paste link Google Drive yang dapat diakses publik
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Save Button -->
+                <div class="pt-4 border-t border-gray-200">
+                    <button type="button" onclick="saveDokumenPendukung()" class="w-full bg-green-600 text-white py-3 px-4 rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors duration-200 font-medium">
+                        <i class="fas fa-save mr-2"></i>Simpan Link Dokumen Pendukung
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 <script>
 // Tab switching functionality
 function showTab(tabName) {
@@ -747,6 +851,24 @@ function showTab(tabName) {
 
 // Initialize first tab as active
 document.addEventListener('DOMContentLoaded', function() {
+    // Initialize KHS file count display immediately
+    const khsFileCount = @json($khsFileCount ?? 0);
+    console.log('Initializing KHS file count:', khsFileCount);
+    document.getElementById('uploadKhs').textContent = `${khsFileCount}/5`;
+    
+    // Initialize PKL status based on both transcript and KHS file count
+    const pklStatusElement = document.getElementById('pklStatus');
+    const isTranscriptComplete = false; // Will be updated by calculateFinalIpk
+    const isKhsComplete = khsFileCount >= 5;
+    
+    if (!isTranscriptComplete || !isKhsComplete) {
+        pklStatusElement.textContent = 'Belum Lengkap';
+        pklStatusElement.className = 'text-3xl font-bold text-yellow-600 mb-1';
+    } else {
+        pklStatusElement.textContent = 'Tidak Layak';
+        pklStatusElement.className = 'text-3xl font-bold text-red-600 mb-1';
+    }
+    
     showTab('pemberkasan');
 });
 
@@ -895,8 +1017,11 @@ let semesterData = {};
         
         // Data KHS Manual Transkrip dari PHP (passed from controller)
         const khsManualTranskrip = @json($khsManualTranskrip ?? []);
+        const khsFileCount = @json($khsFileCount ?? 0);
         console.log('KHS Manual Transkrip from database:', khsManualTranskrip);
         console.log('Number of records:', khsManualTranskrip.length);
+        console.log('KHS Files in storage count:', khsFileCount);
+        console.log('Type of khsFileCount:', typeof khsFileCount);
         
         // Debug: Check if data is being passed correctly
         if (khsManualTranskrip.length === 0) {
@@ -1115,6 +1240,9 @@ function autoAnalyzeSemester(semester) {
             
             if (analysis && !analysis.error) {
                 semesterData[semester] = analysis;
+                
+                // Auto-save to database
+                autoSaveSemester(semester, text);
                 
                 // Tunggu sebentar agar tabel selesai di-render, lalu update result table
                 setTimeout(() => {
@@ -1400,13 +1528,29 @@ function saveSemester(semester) {
         }
         
         if (sksDElement) {
-            sksDElement.textContent = analysis.total_sks_d || 0;
-            console.log(`Set SKS D for semester ${semester} to:`, analysis.total_sks_d || 0);
+            const sksDValue = analysis.total_sks_d || 0;
+            sksDElement.textContent = sksDValue;
+            // Styling: hijau jika 0, kuning jika 1-9, merah jika 10+
+            if (sksDValue === 0) {
+                sksDElement.className = 'text-green-600 font-semibold';
+            } else if (sksDValue >= 1 && sksDValue <= 9) {
+                sksDElement.className = 'text-yellow-600 font-semibold';
+            } else {
+                sksDElement.className = 'text-red-600 font-semibold';
+            }
+            console.log(`Set SKS D for semester ${semester} to:`, sksDValue);
         }
         
         if (hasEElement) {
-            hasEElement.textContent = analysis.has_e ? 'Ya' : 'Tidak';
-            console.log(`Set Has E for semester ${semester} to:`, analysis.has_e ? 'Ya' : 'Tidak');
+            const hasEValue = analysis.has_e ? 'Ya' : 'Tidak';
+            hasEElement.textContent = hasEValue;
+            // Styling: merah jika Ya, biru jika Tidak
+            if (analysis.has_e) {
+                hasEElement.className = 'text-red-600 font-semibold';
+            } else {
+                hasEElement.className = 'text-blue-600 font-semibold';
+            }
+            console.log(`Set Has E for semester ${semester} to:`, hasEValue);
         }
         
         if (totalSksElement) {
@@ -1543,6 +1687,9 @@ function calculateFinalIpk() {
     const activeSemesters = Object.keys(semesterData).filter(sem => semesterData[sem]);
     const totalSemester = activeSemesters.length;
     
+    // Get khsFileCount from global scope
+    const khsFileCount = @json($khsFileCount ?? 0);
+    
     console.log('Active semesters:', activeSemesters);
     console.log('Total semesters with data:', totalSemester);
     
@@ -1550,32 +1697,226 @@ function calculateFinalIpk() {
         console.log('No active semesters found, setting default values');
         document.getElementById('finalIpk').textContent = '-';
         document.getElementById('totalSemester').textContent = '0/5';
-        document.getElementById('pklStatus').textContent = '-';
+        document.getElementById('totalSksD').textContent = '0';
+        document.getElementById('totalE').textContent = '0';
+        document.getElementById('uploadKhs').textContent = `${khsFileCount}/5`;
+        
+        // Set PKL status based on both transcript and KHS file count
+        const pklStatusElement = document.getElementById('pklStatus');
+        const isTranscriptComplete = false; // No transcript data
+        const isKhsComplete = khsFileCount >= 5;
+        
+        if (!isTranscriptComplete || !isKhsComplete) {
+            pklStatusElement.textContent = 'Belum Lengkap';
+            pklStatusElement.className = 'text-3xl font-bold text-yellow-600 mb-1';
+        } else {
+            pklStatusElement.textContent = 'Tidak Layak';
+            pklStatusElement.className = 'text-3xl font-bold text-red-600 mb-1';
+        }
         return;
     }
     
     // Calculate total IPS and show detailed breakdown
     let totalIps = 0;
+    let totalSksD = 0;
+    let totalE = 0;
     console.log('IPS breakdown:');
     activeSemesters.forEach(sem => {
         const ips = semesterData[sem].ips || 0;
+        const sksD = semesterData[sem].total_sks_d || 0;
+        const hasE = semesterData[sem].has_e || false;
+        
         totalIps += ips;
-        console.log(`  Semester ${sem}: IPS = ${ips}`);
+        totalSksD += sksD;
+        if (hasE) totalE += 1;
+        
+        console.log(`  Semester ${sem}: IPS = ${ips}, SKS D = ${sksD}, Has E = ${hasE}`);
     });
     
     const finalIpk = totalIps / totalSemester;
     const isEligible = finalIpk >= 2.5;
     
     console.log(`Total IPS: ${totalIps}`);
+    console.log(`Total SKS D: ${totalSksD}`);
+    console.log(`Total E: ${totalE}`);
     console.log(`Final IPK: ${finalIpk.toFixed(2)} (${totalIps} / ${totalSemester})`);
-    console.log(`PKL Eligible: ${isEligible} (IPK >= 2.5)`);
     
+    // Update display values
     document.getElementById('finalIpk').textContent = finalIpk.toFixed(2);
     document.getElementById('totalSemester').textContent = `${totalSemester}/5`;
-    document.getElementById('pklStatus').textContent = isEligible ? 'Layak' : 'Tidak Layak';
-    document.getElementById('pklStatus').className = isEligible ? 'text-3xl font-bold text-green-600 mb-1' : 'text-3xl font-bold text-red-600 mb-1';
+    document.getElementById('totalSksD').textContent = totalSksD;
+    document.getElementById('totalE').textContent = totalE;
+    document.getElementById('uploadKhs').textContent = `${khsFileCount}/5`;
+    
+    // Update PKL status with new logic
+    const pklStatusElement = document.getElementById('pklStatus');
+    
+    // Check if both Kelengkapan Transkrip and Upload Berkas KHS are complete
+    const isTranscriptComplete = totalSemester >= 5;
+    const isKhsComplete = khsFileCount >= 5;
+    
+    console.log('PKL Status Logic Check:');
+    console.log(`- totalSemester: ${totalSemester}, isTranscriptComplete: ${isTranscriptComplete}`);
+    console.log(`- khsFileCount: ${khsFileCount}, isKhsComplete: ${isKhsComplete}`);
+    console.log(`- finalIpk: ${finalIpk}, totalSksD: ${totalSksD}, totalE: ${totalE}`);
+    
+    if (!isTranscriptComplete || !isKhsComplete) {
+        // Belum Lengkap if either is incomplete
+        pklStatusElement.textContent = 'Belum Lengkap';
+        pklStatusElement.className = 'text-3xl font-bold text-yellow-600 mb-1';
+        console.log('Status: Belum Lengkap (incomplete data)');
+        
+        // Update Kelayakan PKL in the header section
+        updateKelayakanPklStatus('TIDAK LAYAK', false);
+    } else {
+        // Both are complete, check eligibility criteria
+        console.log('Both transcript and KHS are complete, checking eligibility...');
+        
+        if (totalSksD > 9) {
+            pklStatusElement.textContent = 'Tidak Layak';
+            pklStatusElement.className = 'text-3xl font-bold text-red-600 mb-1';
+            console.log('Status: Tidak Layak (SKS D > 9)');
+            
+            // Update Kelayakan PKL in the header section
+            updateKelayakanPklStatus('TIDAK LAYAK', false);
+        } else if (totalE > 0) {
+            pklStatusElement.textContent = 'Tidak Layak';
+            pklStatusElement.className = 'text-3xl font-bold text-red-600 mb-1';
+            console.log('Status: Tidak Layak (has E grades)');
+            
+            // Update Kelayakan PKL in the header section
+            updateKelayakanPklStatus('TIDAK LAYAK', false);
+        } else if (finalIpk >= 2.5) {
+            pklStatusElement.textContent = 'Layak PKL';
+            pklStatusElement.className = 'text-3xl font-bold text-green-600 mb-1';
+            console.log('Status: Layak PKL (all criteria met)');
+            
+            // Update Kelayakan PKL in the header section
+            updateKelayakanPklStatus('LAYAK', true);
+        } else {
+            pklStatusElement.textContent = 'Tidak Layak';
+            pklStatusElement.className = 'text-3xl font-bold text-red-600 mb-1';
+            console.log('Status: Tidak Layak (IPK < 2.5)');
+            
+            // Update Kelayakan PKL in the header section
+            updateKelayakanPklStatus('TIDAK LAYAK', false);
+        }
+    }
     
     console.log('=== FINAL IPK CALCULATION COMPLETED ===');
+}
+
+// Function to update Kelayakan PKL status in the header section
+function updateKelayakanPklStatus(statusText, isEligible) {
+    console.log(`Updating Kelayakan PKL to: ${statusText} (${isEligible ? 'eligible' : 'not eligible'})`);
+    
+    // Find all h4 elements and look for "Kelayakan PKL"
+    const allH4Elements = document.querySelectorAll('h4');
+    let kelayakanSection = null;
+    
+    allH4Elements.forEach(h4 => {
+        if (h4.textContent.includes('Kelayakan PKL')) {
+            kelayakanSection = h4;
+            console.log('Found Kelayakan PKL section:', h4);
+        }
+    });
+    
+    if (kelayakanSection) {
+        // Update the text content
+        const statusElement = kelayakanSection.nextElementSibling;
+        if (statusElement) {
+            statusElement.textContent = statusText;
+            statusElement.className = `text-${isEligible ? 'green' : 'red'}-700 font-medium`;
+            console.log('Updated status text:', statusElement.textContent);
+        }
+        
+        // Update the icon
+        const iconElement = kelayakanSection.closest('.flex')?.querySelector('i');
+        if (iconElement) {
+            iconElement.className = `fas fa-${isEligible ? 'check-circle' : 'times-circle'} text-3xl text-${isEligible ? 'green' : 'red'}-600`;
+            console.log('Updated icon:', iconElement.className);
+        }
+        
+        // Update the header color
+        kelayakanSection.className = `text-lg font-semibold text-${isEligible ? 'green' : 'red'}-800`;
+        console.log('Updated header color:', kelayakanSection.className);
+        
+        console.log(`✅ Updated Kelayakan PKL to: ${statusText} (${isEligible ? 'eligible' : 'not eligible'})`);
+    } else {
+        console.log('❌ Kelayakan PKL section not found in header');
+        console.log('Available h4 elements:', Array.from(allH4Elements).map(el => el.textContent));
+    }
+}
+
+// Function to auto-save semester data
+function autoSaveSemester(semester, transcriptData) {
+    console.log(`Auto-saving semester ${semester} data...`);
+    
+    // Debounce auto-save to avoid too many requests
+    if (window.autoSaveTimeout) {
+        clearTimeout(window.autoSaveTimeout);
+    }
+    
+    window.autoSaveTimeout = setTimeout(() => {
+        fetch('/documents/save-semester-data', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            },
+            body: JSON.stringify({
+                semester: semester,
+                transcript_data: transcriptData
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                console.log(`✅ Auto-saved semester ${semester} data successfully`);
+                
+                // Show auto-save indicator
+                showAutoSaveIndicator(semester, true);
+            } else {
+                console.error(`❌ Auto-save failed for semester ${semester}:`, data.message);
+                showAutoSaveIndicator(semester, false);
+            }
+        })
+        .catch(error => {
+            console.error(`❌ Auto-save error for semester ${semester}:`, error);
+            showAutoSaveIndicator(semester, false);
+        });
+    }, 1000); // 1 second debounce
+}
+
+// Function to show auto-save indicator
+function showAutoSaveIndicator(semester, success) {
+    const textarea = document.getElementById(`pasteArea${semester}`);
+    if (!textarea) return;
+    
+    // Remove existing indicator
+    const existingIndicator = textarea.parentNode.querySelector('.auto-save-indicator');
+    if (existingIndicator) {
+        existingIndicator.remove();
+    }
+    
+    // Create new indicator
+    const indicator = document.createElement('div');
+    indicator.className = 'auto-save-indicator text-xs mt-1';
+    indicator.innerHTML = `
+        <span class="inline-flex items-center ${success ? 'text-green-600' : 'text-red-600'}">
+            <i class="fas fa-${success ? 'check' : 'times'} mr-1"></i>
+            ${success ? 'Tersimpan otomatis' : 'Gagal menyimpan'}
+        </span>
+    `;
+    
+    textarea.parentNode.appendChild(indicator);
+    
+    // Remove indicator after 3 seconds
+    setTimeout(() => {
+        if (indicator.parentNode) {
+            indicator.remove();
+        }
+    }, 3000);
 }
 
 // saveAllTranscripts function removed - data is now auto-saved
@@ -1882,7 +2223,7 @@ function renderTable(rows, container) {
         const header = rows[0];
         
         for (let h of header) {
-            html += `<th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-200" contenteditable="true">${h}</th>`;
+            html += `<th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-200">${h}</th>`;
         }
         
         html += '</tr></thead><tbody class="bg-white divide-y divide-gray-200">';
@@ -1900,7 +2241,7 @@ function renderTable(rows, container) {
             
             html += `<tr class="${rowClass}">`;
             for (let c of row) {
-                html += `<td class="${cellClass}" contenteditable="true">${c}</td>`;
+                html += `<td class="${cellClass}">${c}</td>`;
             }
             html += '</tr>';
         }
@@ -1908,37 +2249,7 @@ function renderTable(rows, container) {
         html += '</tbody></table></div>';
         container.innerHTML = html;
         
-        // Add event listeners to table cells for real-time analysis
-        const tableCells = container.querySelectorAll('td[contenteditable="true"], th[contenteditable="true"]');
-        tableCells.forEach(cell => {
-            cell.addEventListener('input', function() {
-                console.log('Table cell edited, triggering re-analysis...');
-                // Find which semester this table belongs to
-                const semester = findSemesterFromContainer(container);
-                if (semester) {
-                    setTimeout(() => {
-                        console.log(`Re-analyzing semester ${semester} after table edit`);
-                        // Update textarea with current table data
-                        updateTextareaFromTable(semester);
-                        autoAnalyzeSemester(semester);
-                    }, 500);
-                }
-            });
-            
-            cell.addEventListener('blur', function() {
-                console.log('Table cell lost focus, triggering re-analysis...');
-                // Find which semester this table belongs to
-                const semester = findSemesterFromContainer(container);
-                if (semester) {
-                    setTimeout(() => {
-                        console.log(`Re-analyzing semester ${semester} after table cell blur`);
-                        // Update textarea with current table data
-                        updateTextareaFromTable(semester);
-                        autoAnalyzeSemester(semester);
-                    }, 300);
-                }
-            });
-        });
+        // Table is now read-only, no event listeners needed
     }
     
     // Helper function to find semester from container
@@ -2008,7 +2319,7 @@ function renderTable(rows, container) {
             </div>
         @else
             <!-- Surat Balasan Upload -->
-            <div class="bg-white shadow-lg rounded-xl border border-gray-100 overflow-hidden">
+            <div class="bg-white shadow-lg rounded-xl border border-gray-100 overflow-hidden mt-6">
                 <div class="bg-gradient-to-r from-green-500 to-green-600 px-6 py-4">
                     <div class="flex items-center">
                         <div class="flex-shrink-0">
@@ -2138,7 +2449,7 @@ function renderTable(rows, container) {
             </div>
         @else
             <!-- Laporan PKL Upload -->
-            <div class="bg-white shadow-lg rounded-xl border border-gray-100 overflow-hidden">
+            <div class="bg-white shadow-lg rounded-xl border border-gray-100 overflow-hidden mt-6">
                 <div class="bg-gradient-to-r from-purple-500 to-purple-600 px-6 py-4">
                     <div class="flex items-center">
                         <div class="flex-shrink-0">
@@ -2513,6 +2824,78 @@ document.addEventListener('DOMContentLoaded', function() {
         preview.innerHTML = '';
         result.innerHTML = '';
         saveForm.style.display = 'none';
+    });
+});
+
+// Function to save dokumen pendukung links
+function saveDokumenPendukung() {
+    const linkPkkmb = document.getElementById('link_pkkmb').value;
+    const linkEnglish = document.getElementById('link_english').value;
+    const linkSemasa = document.getElementById('link_semasa').value;
+    
+    // Simple validation
+    if (!linkPkkmb && !linkEnglish && !linkSemasa) {
+        alert('Minimal satu link harus diisi!');
+        return;
+    }
+    
+    // Show loading state
+    const saveButton = document.querySelector('button[onclick="saveDokumenPendukung()"]');
+    const originalText = saveButton.innerHTML;
+    saveButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Menyimpan...';
+    saveButton.disabled = true;
+    
+    // Save to database
+    fetch('{{ route("documents.save-gdrive-links") }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+        },
+        body: JSON.stringify({
+            gdrive_pkkmb: linkPkkmb,
+            gdrive_ecourse: linkEnglish,
+            gdrive_more: linkSemasa
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Link dokumen pendukung berhasil disimpan!');
+        } else {
+            alert('Error: ' + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Terjadi kesalahan saat menyimpan data.');
+    })
+    .finally(() => {
+        // Restore button state
+        saveButton.innerHTML = originalText;
+        saveButton.disabled = false;
+    });
+}
+
+// Load saved dokumen pendukung links on page load
+document.addEventListener('DOMContentLoaded', function() {
+    // Load from database via AJAX
+    fetch('{{ route("documents.load-gdrive-links") }}', {
+        method: 'GET',
+        headers: {
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success && data.profile) {
+            if (data.profile.gdrive_pkkmb) document.getElementById('link_pkkmb').value = data.profile.gdrive_pkkmb;
+            if (data.profile.gdrive_ecourse) document.getElementById('link_english').value = data.profile.gdrive_ecourse;
+            if (data.profile.gdrive_more) document.getElementById('link_semasa').value = data.profile.gdrive_more;
+        }
+    })
+    .catch(error => {
+        console.error('Error loading saved links:', error);
     });
 });
 

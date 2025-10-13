@@ -11,6 +11,7 @@ use App\Models\KhsManualTranskrip;
 use App\Models\SuratBalasan;
 use App\Models\LaporanPkl;
 use App\Models\Mitra;
+use App\Models\ProfilMahasiswa;
 use App\Services\PdfExtractionService;
 
 class DocumentController extends Controller
@@ -26,14 +27,55 @@ class DocumentController extends Controller
             $laporanPkl = $user->laporanPkl()->latest()->first();
             $mitra = Mitra::all();
             
+            // Count actual KHS files in storage (check physical files)
+            $khsFileCount = 0;
+            $khsFilesInStorage = [];
+            
+            // Get all KHS files for this user
+            $allKhsFiles = $user->khs()->get();
+            
+            // Check each semester (1-5) for uploaded KHS files
+            for ($semester = 1; $semester <= 5; $semester++) {
+                $semesterKhsFiles = $allKhsFiles->where('semester', $semester);
+                
+                if ($semesterKhsFiles->count() > 0) {
+                    // Check if physical file exists in storage AND is a PDF file
+                    $hasPhysicalFile = false;
+                    foreach ($semesterKhsFiles as $khs) {
+                        if (Storage::disk('public')->exists($khs->file_path) && 
+                            pathinfo($khs->file_path, PATHINFO_EXTENSION) === 'pdf') {
+                            $hasPhysicalFile = true;
+                            \Log::info("Found physical PDF file for semester {$semester}: {$khs->file_path}");
+                            break;
+                        } else {
+                            \Log::info("Physical PDF file not found for semester {$semester}: {$khs->file_path}");
+                        }
+                    }
+                    
+                    if ($hasPhysicalFile) {
+                        $khsFileCount++;
+                        $khsFilesInStorage[] = $semester;
+                    }
+                }
+            }
+            
+            // Also check if there are any orphaned files in storage directory
+            $storagePath = 'documents/khs';
+            if (Storage::disk('public')->exists($storagePath)) {
+                $files = Storage::disk('public')->files($storagePath);
+                \Log::info("Files in storage directory: " . implode(', ', $files));
+            }
+            
             // Debug: Log the data being passed
             \Log::info('DocumentController index - User: ' . $user->id . ' (' . $user->name . ')');
             \Log::info('KHS Manual Transkrip count: ' . $khsManualTranskrip->count());
+            \Log::info('KHS Files in storage count: ' . $khsFileCount . '/5');
+            \Log::info('KHS Files in storage semesters: ' . implode(', ', $khsFilesInStorage));
             foreach ($khsManualTranskrip as $khs) {
                 \Log::info('KHS Manual Transkrip - ID: ' . $khs->id . ', Semester: ' . $khs->semester . ', Data length: ' . strlen($khs->transcript_data));
             }
             
-            return view('documents.index', compact('khsFiles', 'khsManualTranskrip', 'suratBalasan', 'laporanPkl', 'mitra'));
+            return view('documents.index', compact('khsFiles', 'khsManualTranskrip', 'suratBalasan', 'laporanPkl', 'mitra', 'khsFileCount'));
         }
         
         // For dospem and admin - show documents from their students
@@ -692,4 +734,79 @@ class DocumentController extends Controller
             ], 500);
         }
     }
+
+    public function loadGdriveLinks(Request $request)
+    {
+        try {
+            $user = Auth::user();
+            $profile = $user->profilMahasiswa;
+            return response()->json([
+                'success' => true,
+                'profile' => $profile ? [
+                    'gdrive_pkkmb' => $profile->gdrive_pkkmb,
+                    'gdrive_ecourse' => $profile->gdrive_ecourse,
+                    'gdrive_more' => $profile->gdrive_more,
+                ] : null
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error loading Google Drive links: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal memuat link: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function saveGdriveLinks(Request $request)
+    {
+        try {
+            $user = Auth::user();
+            
+            $request->validate([
+                'gdrive_pkkmb' => 'nullable|url',
+                'gdrive_ecourse' => 'nullable|url',
+                'gdrive_more' => 'nullable|url',
+            ]);
+
+            // Update or create profil mahasiswa
+            $profile = ProfilMahasiswa::updateOrCreate(
+                ['id_mahasiswa' => $user->id],
+                [
+                    'gdrive_pkkmb' => $request->gdrive_pkkmb,
+                    'gdrive_ecourse' => $request->gdrive_ecourse,
+                    'gdrive_more' => $request->gdrive_more,
+                ]
+            );
+
+            // Log activity
+            \App\Models\HistoryAktivitas::create([
+                'id_user' => $user->id,
+                'id_mahasiswa' => $user->id,
+                'tipe' => 'save_gdrive_links',
+                'pesan' => [
+                    'action' => 'save_gdrive_links',
+                    'mahasiswa' => $user->name,
+                    'links_saved' => [
+                        'pkkmb' => !empty($request->gdrive_pkkmb),
+                        'ecourse' => !empty($request->gdrive_ecourse),
+                        'more' => !empty($request->gdrive_more),
+                    ],
+                ],
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Link Google Drive berhasil disimpan!',
+                'profile_id' => $profile->id,
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Error saving Google Drive links: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal menyimpan link: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
 }

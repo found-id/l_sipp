@@ -56,6 +56,8 @@ Route::get('/download/{type}/{filename}', [DocumentController::class, 'downloadF
 Route::post('/save-semester-data', [DocumentController::class, 'saveSemesterData'])->name('save-semester-data');
 Route::post('/delete-semester-data', [DocumentController::class, 'deleteSemesterData'])->name('delete-semester-data');
 Route::delete('/khs/{id}', [DocumentController::class, 'deleteKhs'])->name('khs.delete');
+Route::get('/load-gdrive-links', [DocumentController::class, 'loadGdriveLinks'])->name('load-gdrive-links');
+Route::post('/save-gdrive-links', [DocumentController::class, 'saveGdriveLinks'])->name('save-gdrive-links');
         Route::delete('/surat-balasan/{id}', [DocumentController::class, 'deleteSuratBalasan'])->name('surat-balasan.delete');
         Route::delete('/laporan/{id}', [DocumentController::class, 'deleteLaporan'])->name('laporan.delete');
     });
