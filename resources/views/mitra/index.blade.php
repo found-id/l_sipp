@@ -23,6 +23,19 @@
                         class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors">
                     <i class="fas fa-search mr-2"></i>Cari
                 </button>
+
+                @if(request('sort') === 'ranking')
+                    <a href="{{ request()->fullUrlWithQuery(['sort' => null]) }}" 
+                       class="px-6 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors">
+                        <i class="fas fa-font mr-2"></i>Urutkan Abjad
+                    </a>
+                @else
+                    <a href="{{ request()->fullUrlWithQuery(['sort' => 'ranking']) }}" 
+                       class="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors">
+                        <i class="fas fa-star mr-2"></i>Urutkan Peringkat
+                    </a>
+                @endif
+
                 @if(request('search'))
                 <a href="{{ route('mitra') }}" 
                    class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors">
@@ -71,8 +84,35 @@
                         </div>
                     </div>
                     @endif
+
+                    <!-- Kriteria Penilaian -->
+                    <div class="mt-4 pt-4 border-t border-gray-200">
+                        <h4 class="text-sm font-medium text-gray-500 mb-2">Kriteria Penilaian</h4>
+                        <div class="space-y-2">
+                            <div class="flex items-center">
+                                <i class="fas fa-road text-gray-400 mr-2 w-4 text-center"></i>
+                                <p class="text-sm text-gray-600">Jarak: <span class="font-semibold">{{ $m->jarak }} km</span></p>
+                            </div>
+                            <div class="flex items-center">
+                                <i class="fas fa-money-bill-wave text-gray-400 mr-2 w-4 text-center"></i>
+                                <p class="text-sm text-gray-600">Honor: <span class="font-semibold">Rp {{ number_format($m->honor, 0, ',', '.') }}</span></p>
+                            </div>
+                            <div class="flex items-center">
+                                <i class="fas fa-couch text-gray-400 mr-2 w-4 text-center"></i>
+                                <p class="text-sm text-gray-600">Fasilitas: <span class="font-semibold">{{ $m->fasilitas }}</span></p>
+                            </div>
+                            <div class="flex items-center">
+                                <i class="fas fa-graduation-cap text-gray-400 mr-2 w-4 text-center"></i>
+                                <p class="text-sm text-gray-600">Kesesuaian Jurusan: <span class="font-semibold">{{ $m->kesesuaian_jurusan }}</span></p>
+                            </div>
+                            <div class="flex items-center">
+                                <i class="fas fa-broom text-gray-400 mr-2 w-4 text-center"></i>
+                                <p class="text-sm text-gray-600">Tingkat Kebersihan: <span class="font-semibold">{{ $m->tingkat_kebersihan }}</span></p>
+                            </div>
+                        </div>
+                    </div>
                     
-                    <div class="mt-3 flex items-center justify-between">
+                    <div class="mt-4 flex items-center justify-between">
                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
                             <i class="fas fa-check mr-1"></i>
                             Mitra Aktif

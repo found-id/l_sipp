@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use App\Models\Mitra;
 use App\Models\SuratBalasan;
 
+use App\Services\SawCalculationService;
+
 class MitraController extends Controller
 {
     public function index(Request $request)
@@ -21,11 +23,22 @@ class MitraController extends Controller
                   ->orWhere('kontak', 'like', "%{$search}%");
             });
         }
-        
-        // Get mitra with count of applications
-        $mitra = $query->withCount(['suratBalasan as total_applications'])
-                      ->orderBy('nama')
-                      ->get();
+
+        if ($request->query('sort') === 'ranking') {
+            $mitrasToRank = $query->get();
+            if ($mitrasToRank->isNotEmpty()) {
+                $saw = new SawCalculationService($mitrasToRank);
+                $mitra = $saw->calculate(); // This is a sorted collection
+                // Manually load the count of applications for the ranked collection
+                $mitra->loadCount('suratBalasan as total_applications');
+            } else {
+                $mitra = $mitrasToRank; // Empty collection
+            }
+        } else {
+            $mitra = $query->withCount(['suratBalasan as total_applications'])
+                          ->orderBy('nama')
+                          ->get();
+        }
         
         return view('mitra.index', compact('mitra'));
     }

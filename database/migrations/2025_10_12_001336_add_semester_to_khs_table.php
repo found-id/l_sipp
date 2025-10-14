@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('khs', function (Blueprint $table) {
-            //
+            $table->integer('semester')->nullable()->after('file_path');
         });
     }
 
@@ -22,7 +22,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('khs', function (Blueprint $table) {
-            //
+            $table->dropColumn('semester');
         });
     }
 };

@@ -273,13 +273,14 @@ class AdminController extends Controller
             'nama' => 'required|string|max:150',
             'alamat' => 'nullable|string',
             'kontak' => 'nullable|string|max:100',
+            'jarak' => 'required|integer|min:0',
+            'honor' => 'required|integer|min:0',
+            'fasilitas' => 'required|integer|min:1|max:5',
+            'kesesuaian_jurusan' => 'required|integer|min:1|max:5',
+            'tingkat_kebersihan' => 'required|integer|min:1|max:5',
         ]);
 
-        Mitra::create([
-            'nama' => $request->nama,
-            'alamat' => $request->alamat,
-            'kontak' => $request->kontak,
-        ]);
+        Mitra::create($request->all());
 
         return redirect()->back()->with('success', 'Mitra berhasil ditambahkan!');
     }
@@ -292,13 +293,14 @@ class AdminController extends Controller
             'nama' => 'required|string|max:150',
             'alamat' => 'nullable|string',
             'kontak' => 'nullable|string|max:100',
+            'jarak' => 'required|integer|min:0',
+            'honor' => 'required|integer|min:0',
+            'fasilitas' => 'required|integer|min:1|max:5',
+            'kesesuaian_jurusan' => 'required|integer|min:1|max:5',
+            'tingkat_kebersihan' => 'required|integer|min:1|max:5',
         ]);
 
-        $mitra->update([
-            'nama' => $request->nama,
-            'alamat' => $request->alamat,
-            'kontak' => $request->kontak,
-        ]);
+        $mitra->update($request->all());
 
         return redirect()->back()->with('success', 'Mitra berhasil diupdate!');
     }

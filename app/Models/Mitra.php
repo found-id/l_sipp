@@ -12,6 +12,11 @@ class Mitra extends Model
         'nama',
         'alamat',
         'kontak',
+        'jarak',
+        'honor',
+        'fasilitas',
+        'kesesuaian_jurusan',
+        'tingkat_kebersihan',
     ];
 
     // Relationships

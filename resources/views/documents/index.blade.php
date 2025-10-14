@@ -4,24 +4,9 @@
 
 @section('content')
 @php
-    // Feature flags
     $laporanPklEnabled = \App\Models\SystemSetting::isEnabled('laporan_pkl_enabled');
     $instansiMitraEnabled = \App\Models\SystemSetting::isEnabled('instansi_mitra_enabled');
     $dokumenPemberkasanEnabled = \App\Models\SystemSetting::isEnabled('dokumen_pemberkasan_enabled');
-
-    // Dokumen terakhir per user (sekali ambil di awal)
-    $user    = Auth::user();
-    $khs     = optional($user->khs())->latest()->first();
-    $surat   = optional($user->suratBalasan())->latest()->first();
-    $laporan = optional($user->laporanPkl())->latest()->first();
-
-    // Step header "Langkah 1: Cek Kelayakan"
-    $stepBadgeOk   = ($khs && $khs->status_validasi === 'tervalidasi');
-    $stepBadgeCls  = $stepBadgeOk ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-800';
-    $stepBadgeText = $stepBadgeOk ? 'KHS tervalidasi' : 'Menunggu unggah/validasi KHS';
-
-    // Gate: Ajukan Pemberkasan baru dibuka kalau KHS tervalidasi
-    $canAjukan = $stepBadgeOk;
 @endphp
 
 <div class="space-y-6">
@@ -38,104 +23,172 @@
         </div>
     </div>
 
-    <!-- Progress Status -->
+    <!-- PKL Status & Eligibility -->
     <div class="bg-white shadow rounded-lg p-6">
         <div class="flex items-center justify-between mb-4">
-            <h3 class="text-lg font-semibold text-gray-900">Status Pemberkasan</h3>
+            <h3 class="text-lg font-semibold text-gray-900">Status Keaktifan & Kelayakan PKL</h3>
             <div class="flex items-center text-sm text-gray-500">
                 <i class="fas fa-info-circle mr-1"></i>
                 <span>Terakhir diperbarui: {{ now()->format('d M Y H:i') }}</span>
             </div>
         </div>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        
             @php
-                $khs = Auth::user()->khs()->latest()->first();
-                $surat = Auth::user()->suratBalasan()->latest()->first();
-                $laporan = Auth::user()->laporanPkl()->latest()->first();
+                $laporan = $laporanPkl;
+                $khs = $khs ?? null;
+                $suratBalasan = $suratBalasan ?? null;
+                $laporanPkl = $laporanPkl ?? null;
+                $laporan = $laporan ?? null;
+                $tpkData = null;
+                $mitra = $mitra ?? collect();
+            
+            // Check PKL eligibility
+            $isEligibleForPkl = false; // Default to false since we removed TpkData
+            $hasValidKhs = $khs && is_object($khs) && $khs->status_validasi === 'tervalidasi';
+            $hasValidSuratBalasan = $suratBalasan && is_object($suratBalasan) && $suratBalasan->status_validasi === 'tervalidasi';
+            $hasValidLaporan = $laporan && is_object($laporan) && $laporan->status_validasi === 'tervalidasi';
+            
+            // Determine PKL status
+            $pklStatus = 'belum_mulai';
+            $pklStatusText = 'Belum Memulai PKL';
+            $pklStatusColor = 'gray';
+            
+            if ($isEligibleForPkl && $hasValidKhs && $hasValidSuratBalasan) {
+                if ($hasValidLaporan) {
+                    $pklStatus = 'selesai';
+                    $pklStatusText = 'PKL Selesai';
+                    $pklStatusColor = 'green';
+                } else {
+                    $pklStatus = 'sedang_berlangsung';
+                    $pklStatusText = 'PKL Sedang Berlangsung';
+                    $pklStatusColor = 'blue';
+                }
+            } elseif ($isEligibleForPkl && $hasValidKhs) {
+                $pklStatus = 'siap_mulai';
+                $pklStatusText = 'Siap Memulai PKL';
+                $pklStatusColor = 'yellow';
+            } elseif (!$isEligibleForPkl) {
+                $pklStatus = 'tidak_layak';
+                $pklStatusText = 'Tidak Layak PKL';
+                $pklStatusColor = 'red';
+            }
             @endphp
             
-            <!-- KHS Status -->
-            <div class="flex items-center p-4 border rounded-lg {{ $khs && $khs->status_validasi === 'tervalidasi' ? 'bg-green-50 border-green-200' : 'bg-gray-50 border-gray-200' }}">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- PKL Eligibility Status -->
+            <div class="bg-gradient-to-r from-{{ $isEligibleForPkl ? 'green' : 'red' }}-50 to-{{ $isEligibleForPkl ? 'green' : 'red' }}-100 border border-{{ $isEligibleForPkl ? 'green' : 'red' }}-200 rounded-lg p-6">
+                <div class="flex items-center">
                 <div class="flex-shrink-0">
-                    <i class="fas fa-file-alt text-2xl {{ $khs && $khs->status_validasi === 'tervalidasi' ? 'text-green-600' : 'text-gray-400' }}"></i>
+                        <i class="fas fa-{{ $isEligibleForPkl ? 'check-circle' : 'times-circle' }} text-3xl text-{{ $isEligibleForPkl ? 'green' : 'red' }}-600"></i>
                 </div>
-                <div class="ml-3">
-                    <p class="text-sm font-medium text-gray-900">KHS</p>
-                    <p class="text-xs text-gray-500">
-                        @if($khs)
-                            @if($khs->status_validasi === 'tervalidasi') Tervalidasi
-                            @elseif($khs->status_validasi === 'belum_valid') Belum Valid
-                            @elseif($khs->status_validasi === 'revisi') Perlu Revisi
-                            @else Menunggu Validasi
-                            @endif
+                    <div class="ml-4">
+                        <h4 class="text-lg font-semibold text-{{ $isEligibleForPkl ? 'green' : 'red' }}-800">Kelayakan PKL</h4>
+                        <p class="text-{{ $isEligibleForPkl ? 'green' : 'red' }}-700 font-medium">
+                            {{ $isEligibleForPkl ? 'LAYAK' : 'TIDAK LAYAK' }}
+                        </p>
+                        <p class="text-sm text-{{ $isEligibleForPkl ? 'green' : 'red' }}-600 mt-1">
+                            @if($isEligibleForPkl)
+                                Memenuhi semua persyaratan TPK
                         @else
-                            Belum Upload
+                                Belum memenuhi persyaratan TPK
                         @endif
                     </p>
+                    </div>
                 </div>
             </div>
 
-            <!-- Surat Balasan Status -->
-            <div class="flex items-center p-4 border rounded-lg {{ $surat && $surat->status_validasi === 'tervalidasi' ? 'bg-green-50 border-green-200' : 'bg-gray-50 border-gray-200' }}">
+            <!-- PKL Activity Status -->
+            <div class="bg-gradient-to-r from-{{ $pklStatusColor }}-50 to-{{ $pklStatusColor }}-100 border border-{{ $pklStatusColor }}-200 rounded-lg p-6">
+                <div class="flex items-center">
                 <div class="flex-shrink-0">
-                    <i class="fas fa-envelope text-2xl {{ $surat && $surat->status_validasi === 'tervalidasi' ? 'text-green-600' : 'text-gray-400' }}"></i>
+                        <i class="fas fa-{{ $pklStatus === 'selesai' ? 'check-circle' : ($pklStatus === 'sedang_berlangsung' ? 'play-circle' : ($pklStatus === 'siap_mulai' ? 'clock' : ($pklStatus === 'tidak_layak' ? 'times-circle' : 'pause-circle'))) }} text-3xl text-{{ $pklStatusColor }}-600"></i>
                 </div>
-                <div class="ml-3">
-                    <p class="text-sm font-medium text-gray-900">Surat Balasan</p>
-                    <p class="text-xs text-gray-500">
-                        @if($surat)
-                            @if($surat->status_validasi === 'tervalidasi') Tervalidasi
-                            @elseif($surat->status_validasi === 'belum_valid') Belum Valid
-                            @elseif($surat->status_validasi === 'revisi') Perlu Revisi
-                            @else Menunggu Validasi
-                            @endif
+                    <div class="ml-4">
+                        <h4 class="text-lg font-semibold text-{{ $pklStatusColor }}-800">Status Keaktifan PKL</h4>
+                        <p class="text-{{ $pklStatusColor }}-700 font-medium">{{ $pklStatusText }}</p>
+                        <p class="text-sm text-{{ $pklStatusColor }}-600 mt-1">
+                            @if($pklStatus === 'selesai')
+                                Semua tahapan PKL telah selesai
+                            @elseif($pklStatus === 'sedang_berlangsung')
+                                Sedang melaksanakan PKL di instansi
+                            @elseif($pklStatus === 'siap_mulai')
+                                Memenuhi syarat untuk memulai PKL
+                            @elseif($pklStatus === 'tidak_layak')
+                                Belum memenuhi syarat kelayakan
                         @else
-                            Belum Upload
+                                Belum memulai proses PKL
                         @endif
                     </p>
-                </div>
-            </div>
-
-            <!-- Laporan PKL Status -->
-            <div class="flex items-center p-4 border rounded-lg {{ $laporan && $laporan->status_validasi === 'tervalidasi' ? 'bg-green-50 border-green-200' : 'bg-gray-50 border-gray-200' }}">
-                <div class="flex-shrink-0">
-                    <i class="fas fa-book text-2xl {{ $laporan && $laporan->status_validasi === 'tervalidasi' ? 'text-green-600' : 'text-gray-400' }}"></i>
-                </div>
-                <div class="ml-3">
-                    <p class="text-sm font-medium text-gray-900">Laporan PKL</p>
-                    <p class="text-xs text-gray-500">
-                        @if($laporan)
-                            @if($laporan->status_validasi === 'tervalidasi') Tervalidasi
-                            @elseif($laporan->status_validasi === 'belum_valid') Belum Valid
-                            @elseif($laporan->status_validasi === 'revisi') Perlu Revisi
-                            @else Menunggu Validasi
-                            @endif
-                        @else
-                            Belum Upload
-                        @endif
-                    </p>
+                    </div>
                 </div>
             </div>
         </div>
         
-        <!-- Progress Bar -->
-        @php
-            $totalDocs = 3;
-            $completedDocs = 0;
-            if($khs && $khs->status_validasi === 'tervalidasi') $completedDocs++;
-            if($surat && $surat->status_validasi === 'tervalidasi') $completedDocs++;
-            if($laporan && $laporan->status_validasi === 'tervalidasi') $completedDocs++;
-            $progressPercentage = ($completedDocs / $totalDocs) * 100;
-        @endphp
-        
+        <!-- Detailed Requirements Status -->
         <div class="mt-6">
-            <div class="flex items-center justify-between mb-2">
-                <span class="text-sm font-medium text-gray-700">Progress Pemberkasan</span>
-                <span class="text-sm text-gray-500">{{ $completedDocs }}/{{ $totalDocs }} dokumen tervalidasi</span>
+            <h4 class="text-md font-semibold text-gray-900 mb-3">Detail Persyaratan</h4>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <!-- TPK Requirements -->
+                <div class="bg-gray-50 rounded-lg p-4">
+                    <h5 class="font-medium text-gray-900 mb-2">Persyaratan TPK</h5>
+                    <div class="space-y-1 text-sm">
+                        <div class="text-center text-gray-500 py-2">
+                            <i class="fas fa-info-circle text-lg mb-1"></i>
+                            <p class="text-sm">Data TPK sekarang tersimpan di tabel KHS</p>
+                            <p class="text-xs">Gunakan fitur "Data Tabel KHS Transkrip dari Sipadu" di bawah</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Document Requirements -->
+                <div class="bg-gray-50 rounded-lg p-4">
+                    <h5 class="font-medium text-gray-900 mb-2">Dokumen Wajib</h5>
+                    <div class="space-y-1 text-sm">
+                        <div class="flex justify-between">
+                            <span>KHS:</span>
+                            <span class="{{ $hasValidKhs ? 'text-green-600' : 'text-red-600' }}">
+                                {{ $hasValidKhs ? 'Valid' : 'Belum Valid' }}
+                            </span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>Surat Balasan:</span>
+                            <span class="{{ $hasValidSuratBalasan ? 'text-green-600' : 'text-red-600' }}">
+                                {{ $hasValidSuratBalasan ? 'Valid' : 'Belum Valid' }}
+                            </span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>Laporan PKL:</span>
+                            <span class="{{ $hasValidLaporan ? 'text-green-600' : 'text-red-600' }}">
+                                {{ $hasValidLaporan ? 'Valid' : 'Belum Valid' }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Progress Summary -->
+                <div class="bg-gray-50 rounded-lg p-4">
+                    <h5 class="font-medium text-gray-900 mb-2">Progress PKL</h5>
+                    @php
+                        $totalSteps = 4; // TPK + 3 dokumen
+                        $completedSteps = 0;
+                        if($isEligibleForPkl) $completedSteps++;
+                        if($hasValidKhs) $completedSteps++;
+                        if($hasValidSuratBalasan) $completedSteps++;
+                        if($hasValidLaporan) $completedSteps++;
+                        $progressPercentage = ($completedSteps / $totalSteps) * 100;
+        @endphp
+                    <div class="space-y-2">
+                        <div class="flex justify-between text-sm">
+                            <span>Langkah Selesai:</span>
+                            <span>{{ $completedSteps }}/{{ $totalSteps }}</span>
             </div>
             <div class="w-full bg-gray-200 rounded-full h-2">
                 <div class="bg-gradient-to-r from-blue-500 to-green-500 h-2 rounded-full transition-all duration-500" 
                      style="width: {{ $progressPercentage }}%"></div>
+                        </div>
+                        <p class="text-xs text-gray-500">{{ number_format($progressPercentage, 1) }}% selesai</p>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -145,11 +198,19 @@
         <div class="border-b border-gray-200">
             <nav class="-mb-px flex space-x-8" aria-label="Tabs">
                 <button onclick="showTab('pemberkasan')" id="tab-pemberkasan" class="tab-button active py-4 px-6 border-b-2 font-medium text-sm border-blue-500 text-blue-600 transition-colors duration-200">
-                    <i class="fas fa-file-alt mr-2"></i>Dokumen Pemberkasan
+                    <i class="fas fa-file-alt mr-2"></i>Pemberkasan Kelayakan
                 </button>
-
-                <button onclick="showTab('laporan')" id="tab-laporan"
-                        class="tab-button py-4 px-6 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 transition-colors duration-200 {{ !$laporanPklEnabled ? 'opacity-50 cursor-not-allowed' : '' }}" 
+                <button onclick="showTab('dokumen-pendukung')" id="tab-dokumen-pendukung" class="tab-button py-4 px-6 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 transition-colors duration-200">
+                    <i class="fab fa-google-drive mr-2"></i>Pemberkasan Dokumen Pendukung
+                </button>
+                <button onclick="showTab('surat-balasan')" id="tab-surat-balasan" class="tab-button py-4 px-6 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 transition-colors duration-200 {{ !$instansiMitraEnabled ? 'opacity-50 cursor-not-allowed' : '' }}" 
+                        {{ !$instansiMitraEnabled ? 'disabled' : '' }}>
+                    <i class="fas fa-envelope mr-2"></i>Pemberkasan Instansi Mitra
+                    @if(!$instansiMitraEnabled)
+                        <i class="fas fa-lock ml-2 text-gray-400"></i>
+                    @endif
+                </button>
+                <button onclick="showTab('laporan')" id="tab-laporan" class="tab-button py-4 px-6 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 transition-colors duration-200 {{ !$laporanPklEnabled ? 'opacity-50 cursor-not-allowed' : '' }}" 
                         {{ !$laporanPklEnabled ? 'disabled' : '' }}>
                     <i class="fas fa-book mr-2"></i>Pemberkasan Akhir
                     @if(!$laporanPklEnabled)
@@ -162,9 +223,60 @@
 
     <!-- Tab Content -->
     <div id="content-pemberkasan" class="tab-content">
-        <!-- Pemberkasan Forms -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <!-- KHS Upload -->
+        <div class="grid grid-cols-1 gap-6 mt-6">
+            <!-- Final IPK Calculation -->
+            <div class="bg-gradient-to-r from-green-50 to-blue-50 rounded-lg p-6 border border-green-200">
+                <h4 class="font-semibold text-gray-900 mb-4 flex items-center">
+                    <i class="fas fa-calculator mr-2 text-green-600"></i>
+                    Hasil Analisa Kelayakan
+                </h4>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                    <div class="bg-white rounded-lg p-4 border border-gray-200">
+                        <div class="text-center">
+                            <div id="finalIpk" class="text-3xl font-bold text-green-600 mb-1">-</div>
+                            <div class="text-sm text-gray-600">IPK Akhir</div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-lg p-4 border border-gray-200">
+                        <div class="text-center">
+                            <div id="totalSemester" class="text-3xl font-bold text-blue-600 mb-1">0/5</div>
+                            <div class="text-sm text-gray-600">Kelengkapan Transkrip</div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-lg p-4 border border-gray-200">
+                        <div class="text-center">
+                            <div id="pklStatus" class="text-3xl font-bold text-gray-600 mb-1">-</div>
+                            <div class="text-sm text-gray-600">Status PKL</div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-lg p-4 border border-gray-200">
+                        <div class="text-center">
+                            <div id="totalSksD" class="text-3xl font-bold text-yellow-600 mb-1">0</div>
+                            <div class="text-sm text-gray-600">Total SKS D</div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-lg p-4 border border-gray-200">
+                        <div class="text-center">
+                            <div id="totalE" class="text-3xl font-bold text-red-600 mb-1">0</div>
+                            <div class="text-sm text-gray-600">Jumlah E</div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-lg p-4 border border-gray-200">
+                        <div class="text-center">
+                            <div id="uploadKhs" class="text-3xl font-bold text-purple-600 mb-1">0/5</div>
+                            <div class="text-sm text-gray-600">Upload Berkas KHS</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center text-sm text-gray-600">
+                    <i class="fas fa-info-circle mr-1"></i>
+                    Data yang dimasukkan dapat dipertanggung jawabkan keaslianya dan menerima konsekuensi jika data dan berkas yang dimasukkan tidak tepat
+                </div>
+            </div>
+
+            <!-- Multiple Semester KHS Upload System -->
             <div class="bg-white shadow-lg rounded-xl border border-gray-100 overflow-hidden">
                 <div class="bg-gradient-to-r from-blue-500 to-blue-600 px-6 py-4">
                     <div class="flex items-center">
@@ -172,18 +284,240 @@
                             <i class="fas fa-graduation-cap text-2xl text-white"></i>
                         </div>
                         <div class="ml-3">
-                            <h3 class="text-lg font-semibold text-white">Kartu Hasil Studi (KHS)</h3>
-                            <p class="text-blue-100 text-sm">Upload transkrip nilai terbaru</p>
+                            <h3 class="text-lg font-semibold text-white">Upload Berkas Kartu Hasil Studi (KHS)</h3>
+                            <p class="text-blue-100 text-sm">Upload KHS untuk setiap semester (1-5)</p>
                         </div>
                     </div>
                 </div>
                 
                 <div class="p-6">
-                    @php
-                        $khs = Auth::user()->khs()->latest()->first();
-                    @endphp
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+                        @for($semester = 1; $semester <= 5; $semester++)
+                            <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                                <div class="text-center mb-4">
+                                    <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-2">
+                                        <span class="text-blue-600 font-bold text-lg">{{ $semester }}</span>
+                                    </div>
+                                    <h4 class="font-semibold text-gray-900">Semester {{ $semester }}</h4>
+                                </div>
+                                
+                                @php
+                                    $semesterKhs = $khsFiles->where('semester', $semester)->first() ?? null;
+                                @endphp
+                                
+                                @if($semesterKhs)
+                                    <div class="mb-3 p-2 bg-white rounded border">
+                                        <div class="flex items-center justify-between mb-1">
+                                            <i class="fas fa-file-pdf text-red-500 text-xs"></i>
+                                            <div class="flex space-x-1">
+                                                <button onclick="window.previewFile('{{ $semesterKhs->file_path }}')" class="text-blue-600 hover:text-blue-800 text-xs">
+                                                    <i class="fas fa-eye"></i>
+                                                </button>
+                                                <button onclick="window.deleteFile('khs', {{ $semesterKhs->id }})" class="text-red-600 hover:text-red-800 text-xs">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <p class="text-xs text-gray-600 truncate">{{ basename($semesterKhs->file_path) }}</p>
+                                        <p class="text-xs text-gray-500">{{ $semesterKhs->created_at->format('d M Y') }}</p>
+                                    </div>
+                                @else
+                                    <div class="mb-3 p-2 bg-white rounded border border-dashed border-gray-300 text-center">
+                                        <i class="fas fa-plus text-gray-400 text-lg mb-1"></i>
+                                        <p class="text-xs text-gray-500">Belum ada file</p>
+                                    </div>
+                                @endif
+                                
+                                @if($dokumenPemberkasanEnabled)
+                                    <form action="{{ route('documents.khs.upload') }}" method="POST" enctype="multipart/form-data" class="space-y-2">
+                                        @csrf
+                                        <input type="hidden" name="semester" value="{{ $semester }}">
+                                        <div>
+                                            <input type="file" name="file" accept=".pdf" required
+                                                   class="block w-full text-xs text-gray-500 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 border border-gray-300 rounded cursor-pointer focus:outline-none focus:ring-1 focus:ring-blue-500">
+                                        </div>
+                                        <button type="submit" class="w-full bg-blue-600 text-white py-2 px-3 rounded text-xs hover:bg-blue-700 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors duration-200">
+                                            <i class="fas fa-upload mr-1"></i>Upload
+                                        </button>
+                                    </form>
+                                @else
+                                    <div class="text-center py-2 text-gray-400">
+                                        <i class="fas fa-lock text-sm"></i>
+                                        <p class="text-xs">Upload dinonaktifkan</p>
+                                    </div>
+                                @endif
+                            </div>
+                        @endfor
+                    </div>
                     
-                    @if($khs)
+                    <div class="mt-6 p-4 bg-blue-50 rounded-lg">
+                        <h5 class="font-medium text-blue-900 mb-2 flex items-center">
+                            <i class="fas fa-info-circle mr-2"></i>
+                            Informasi Upload
+                        </h5>
+                        <div class="text-sm text-blue-800 space-y-1">
+                            <p>• File akan otomatis diberi nama: <code class="bg-blue-100 px-1 rounded">KHS_Semester-{{ '{X}' }}_(Nama)_(NIM)</code></p>
+                            <p>• Format: PDF, Maksimal: 10MB per file</p>
+                            <p>• Upload KHS sesuai semester yang sedang ditempuh</p>
+                            <p>• Data akan diekstrak untuk analisis transkrip</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Multi Semester Transcript Analysis -->
+            <div class="bg-white shadow-lg rounded-xl border border-gray-100 overflow-hidden">
+                <div class="bg-gradient-to-r from-purple-500 to-purple-600 px-6 py-4">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-chart-line text-2xl text-white"></i>
+                        </div>
+                        <div class="ml-3">
+                            <h3 class="text-lg font-semibold text-white">Data Tabel KHS Transkrip dari Sipadu</h3>
+                            <p class="text-purple-100 text-sm">Paste data transkrip untuk setiap semester</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="p-6">
+                    <div class="space-y-8">
+                        @for($semester = 1; $semester <= 5; $semester++)
+                            <div class="bg-gray-50 rounded-lg p-6 border border-gray-200">
+                                <div class="text-center mb-6">
+                                    <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                                        <span class="text-purple-600 font-bold text-lg">{{ $semester }}</span>
+                                    </div>
+                                    <h4 class="text-lg font-semibold text-gray-900">Semester {{ $semester }}</h4>
+                                </div>
+                                
+                                <!-- Layout Vertikal: Textfield di atas, Tabel di bawah -->
+                                <div class="space-y-6">
+                                    <!-- Textfield untuk Paste -->
+                                    <div class="space-y-3">
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                                            <i class="fas fa-paste mr-2 text-purple-600"></i>
+                                            Paste Data Transkrip
+                                        </label>
+                                        <textarea id="pasteArea{{ $semester }}" 
+                                                  class="w-full p-3 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500" 
+                                                  rows="6" 
+                                                  placeholder="Paste data transkrip semester {{ $semester }} di sini...&#10;&#10;Contoh format:&#10;Kode Mata Kuliah&#9;Nama Mata Kuliah&#9;SKS&#9;Nilai&#10;All231203&#9;Pemrograman Web&#9;3&#9;A"></textarea>
+                                        
+                                        <div class="flex space-x-2">
+                                            <button onclick="saveSemester({{ $semester }})" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded text-sm font-medium transition-colors duration-200">
+                                                <i class="fas fa-save mr-1"></i>Simpan
+                                            </button>
+                                            <button onclick="clearSemester({{ $semester }})" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded text-sm font-medium transition-colors duration-200">
+                                                <i class="fas fa-trash mr-1"></i>Clear
+                                            </button>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Tabel Hasil -->
+                                    <div class="space-y-3">
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                                            <i class="fas fa-table mr-2 text-green-600"></i>
+                                            Tabel Hasil
+                                        </label>
+                                        
+                                        <!-- Preview Tabel -->
+                                        <div id="preview{{ $semester }}" class="min-h-[300px] border border-gray-200 rounded-lg bg-white p-3 text-sm">
+                                            <div class="flex items-center justify-center h-full text-gray-400">
+                                                <div class="text-center">
+                                                    <i class="fas fa-table text-2xl mb-2"></i>
+                                                    <p>Tabel akan muncul setelah paste data</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Loading indicator -->
+                                        <div id="loading{{ $semester }}" class="hidden text-center py-2">
+                                            <div class="inline-flex items-center text-blue-600">
+                                                <i class="fas fa-spinner fa-spin mr-2"></i>
+                                                <span class="text-sm">Memuat data...</span>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Result Summary -->
+                                        <div id="result{{ $semester }}" class="text-sm"></div>
+                                        
+                                        <!-- Result Table untuk Semester {{ $semester }} -->
+                                        <div id="tableResult{{ $semester }}" class="mt-3" style="display: none;">
+                                            <div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
+                                                <div class="bg-purple-50 px-3 py-2 border-b border-gray-200">
+                                                    <h5 class="text-sm font-medium text-purple-800">Hasil Analisis Semester {{ $semester }}</h5>
+                                                </div>
+                                                <div class="p-3">
+                                                    <div class="grid grid-cols-2 gap-2 text-xs">
+                                                        <div class="flex justify-between">
+                                                            <span class="text-gray-600">IPS:</span>
+                                                            <span id="ips{{ $semester }}" class="font-medium text-blue-600">-</span>
+                                                        </div>
+                                                        <div class="flex justify-between">
+                                                            <span class="text-gray-600">SKS D:</span>
+                                                            <span id="sksD{{ $semester }}" class="font-medium text-orange-600">-</span>
+                                                        </div>
+                                                        <div class="flex justify-between">
+                                                            <span class="text-gray-600">Ada E:</span>
+                                                            <span id="hasE{{ $semester }}" class="font-medium text-red-600">-</span>
+                                                        </div>
+                                            <div class="flex justify-between">
+                                                <span class="text-gray-600">Total SKS:</span>
+                                                <span id="totalSks{{ $semester }}" class="font-medium text-blue-600">-</span>
+                                            </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        @endfor
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+    </div>
+
+    <div id="content-surat-balasan" class="tab-content hidden">
+        @if(!$instansiMitraEnabled)
+            <!-- Disabled State -->
+            <div class="bg-white shadow-lg rounded-xl border border-gray-100 overflow-hidden">
+                <div class="bg-gradient-to-r from-gray-400 to-gray-500 px-6 py-4">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-ban text-2xl text-white"></i>
+                        </div>
+                        <div class="ml-3">
+                            <h3 class="text-lg font-semibold text-white">Surat Balasan</h3>
+                            <p class="text-gray-100 text-sm">Fitur dinonaktifkan oleh admin</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="p-6 text-center">
+                    <i class="fas fa-lock text-4xl text-gray-300 mb-4"></i>
+                    <p class="text-gray-500">Fitur upload surat balasan sedang dinonaktifkan</p>
+                </div>
+            </div>
+        @else
+            <div class="bg-white shadow-lg rounded-xl border border-gray-100 overflow-hidden">
+                <div class="bg-gradient-to-r from-orange-500 to-orange-600 px-6 py-4">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-envelope text-2xl text-white"></i>
+                        </div>
+                        <div class="ml-3">
+                            <h3 class="text-lg font-semibold text-white">Surat Balasan</h3>
+                            <p class="text-orange-100 text-sm">Upload surat balasan dari instansi</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="p-6">
+                    @if($suratBalasan && is_object($suratBalasan))
                         <div class="mb-6 p-4 bg-gray-50 rounded-lg border">
                             <div class="flex items-start justify-between">
                                 <div class="flex-1">
@@ -192,23 +526,27 @@
                                             <i class="fas fa-file-pdf text-red-500 mr-2"></i>
                                             <p class="text-sm font-medium text-gray-900">{{ basename($suratBalasan->file_path ?? '') }}</p>
                                         </div>
-                                        <button onclick="previewFile('{{ $khs->file_path }}')" class="text-blue-600 hover:text-blue-800 text-sm">
-                                            <i class="fas fa-eye mr-1"></i>Lihat
-                                        </button>
-                                        <!-- Alternative direct link -->
-                                        <a href="/storage/{{ $khs->file_path }}" target="_blank" class="text-green-600 hover:text-green-800 text-sm ml-2">
-                                            <i class="fas fa-external-link-alt mr-1"></i>Direct
-                                        </a>
-                                        <!-- Debug info -->
-                                        <div class="text-xs text-gray-400 mt-1">
-                                            Debug: {{ $khs->file_path }}
+                                        <div class="flex space-x-2">
+                                            <button type="button" onclick="window.previewFile('{{ $suratBalasan->file_path ?? '' }}')" class="text-blue-600 hover:text-blue-800 text-sm px-2 py-1 rounded hover:bg-blue-50">
+                                                <i class="fas fa-eye mr-1"></i>Lihat
+                                            </button>
+                                            <button type="button" onclick="window.deleteFile('surat-balasan', {{ $suratBalasan->id }})" class="text-red-600 hover:text-red-800 text-sm px-2 py-1 rounded hover:bg-red-50">
+                                                <i class="fas fa-trash mr-1"></i>Hapus
+                                            </button>
                                         </div>
-                                        <!-- Test button -->
-                                        <button onclick="testFileAccess('{{ $khs->file_path }}')" class="text-purple-600 hover:text-purple-800 text-xs mt-1">
-                                            <i class="fas fa-bug mr-1"></i>Test
-                                        </button>
                                     </div>
-                                    <p class="text-xs text-gray-500 mb-3">Uploaded: {{ $khs->created_at->format('d M Y H:i') }}</p>
+                                    <p class="text-xs text-gray-500 mb-3">Uploaded: {{ isset($suratBalasan->created_at) ? $suratBalasan->created_at->format('d M Y H:i') : 'N/A' }}</p>
+                                    
+                                    @if($suratBalasan->mitra)
+                                        <div class="mb-3 p-3 bg-white rounded border">
+                                            <h5 class="font-medium text-gray-900 mb-2">Informasi Instansi</h5>
+                                            <div class="text-sm text-gray-600 space-y-1">
+                                                <p><strong>Nama:</strong> {{ $suratBalasan->mitra->nama_instansi }}</p>
+                                                <p><strong>Alamat:</strong> {{ $suratBalasan->mitra->alamat }}</p>
+                                                <p><strong>Kontak:</strong> {{ $suratBalasan->mitra->kontak }}</p>
+                                            </div>
+                                        </div>
+                                    @endif
                                     
                                     <div class="flex items-center">
                                         <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium
@@ -308,32 +646,25 @@
                                     </div>
                 
                 <div class="p-6">
-                    @php
-                        $surat = Auth::user()->suratBalasan()->latest()->first();
-                    @endphp
-                    
-                    @if($surat)
+                    @if($laporan && is_object($laporan))
                         <div class="mb-6 p-4 bg-gray-50 rounded-lg border">
                             <div class="flex items-start justify-between">
                                 <div class="flex-1">
                                     <div class="flex items-center justify-between mb-2">
                                         <div class="flex items-center">
                                             <i class="fas fa-file-pdf text-red-500 mr-2"></i>
-                                            <p class="text-sm font-medium text-gray-900">{{ basename($surat->file_path) }}</p>
-                                        </div>
-                                        <button onclick="previewFile('{{ $surat->file_path }}')" class="text-blue-600 hover:text-blue-800 text-sm">
-                                            <i class="fas fa-eye mr-1"></i>Lihat
-                                        </button>
-                                        <!-- Alternative direct link -->
-                                        <a href="/storage/{{ $surat->file_path }}" target="_blank" class="text-green-600 hover:text-green-800 text-sm ml-2">
-                                            <i class="fas fa-external-link-alt mr-1"></i>Direct
-                                        </a>
-                                        <!-- Debug info -->
-                                        <div class="text-xs text-gray-400 mt-1">
-                                            Debug: {{ $surat->file_path }}
-                                        </div>
+                                            <p class="text-sm font-medium text-gray-900">{{ basename($laporan->file_path ?? '') }}</p>
+                                </div>
+                                        <div class="flex space-x-2">
+                                            <button type="button" onclick="window.previewFile('{{ $laporan->file_path ?? '' }}')" class="text-blue-600 hover:text-blue-800 text-sm px-2 py-1 rounded hover:bg-blue-50">
+                                                <i class="fas fa-eye mr-1"></i>Lihat
+                                            </button>
+                                            <button type="button" onclick="window.deleteFile('laporan', {{ $laporan->id }})" class="text-red-600 hover:text-red-800 text-sm px-2 py-1 rounded hover:bg-red-50">
+                                                <i class="fas fa-trash mr-1"></i>Hapus
+                                            </button>
+                            </div>
                                     </div>
-                                    <p class="text-xs text-gray-500 mb-2">Uploaded: {{ $surat->created_at->format('d M Y H:i') }}</p>
+                                    <p class="text-xs text-gray-500 mb-3">Uploaded: {{ isset($laporan->created_at) ? $laporan->created_at->format('d M Y H:i') : 'N/A' }}</p>
                                     
                                     <div class="flex items-center">
                                         <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium
@@ -2052,38 +2383,37 @@ function renderTable(rows, container) {
                         </div>
                     @endif
 
-                    @if($dokumenPemberkasanEnabled)
-                        <form action="{{ route('documents.surat.upload') }}" method="POST" enctype="multipart/form-data" class="space-y-4">
-                            @csrf
-                            <div>
-                                <label for="mitra_id" class="block text-sm font-medium text-gray-700 mb-2">Mitra PKL</label>
-                                <select id="mitra_id" name="mitra_id" 
-                                        class="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500">
-                                    <option value="">-- Pilih Mitra --</option>
-                                    @foreach(\App\Models\Mitra::all() as $mitra)
-                                        <option value="{{ $mitra->id }}">{{ $mitra->nama }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
+                    <form action="{{ route('documents.surat.upload') }}" method="POST" enctype="multipart/form-data" class="space-y-4">
+                        @csrf
                         
                         <div>
-                            <label for="mitra_custom" class="block text-sm font-medium text-gray-700 mb-2">Atau Tulis Nama Mitra</label>
-                            <input type="text" id="mitra_custom" name="mitra_nama_custom" 
-                                   class="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                                   placeholder="Nama mitra jika tidak ada di daftar">
+                            <label for="mitra_id" class="block text-sm font-medium text-gray-700 mb-2">Pilih Instansi Mitra</label>
+                            <select id="mitra_id" name="mitra_id" required
+                                    class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500">
+                                <option value="">-- Pilih Instansi Mitra --</option>
+                                @if($mitra && is_iterable($mitra))
+                                    @foreach($mitra as $m)
+                                        @if(is_object($m) && isset($m->id))
+                                            <option value="{{ $m->id }}" {{ ($suratBalasan && is_object($suratBalasan) && isset($suratBalasan->mitra_id) && $suratBalasan->mitra_id == $m->id) ? 'selected' : '' }}>
+                                                {{ $m->nama_instansi ?? 'N/A' }} - {{ $m->alamat ?? 'N/A' }}
+                                            </option>
+                                        @endif
+                                    @endforeach
+                                @endif
+                            </select>
                         </div>
                         
-                            <div>
-                                <label for="surat_file" class="block text-sm font-medium text-gray-700 mb-2">Pilih File Surat Balasan</label>
-                                <div class="relative">
-                                    <input type="file" id="surat_file" name="file" accept=".pdf" required
-                                           class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100 border border-gray-300 rounded-lg cursor-pointer focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500">
-                                </div>
-                                <p class="mt-2 text-xs text-gray-500 flex items-center">
-                                    <i class="fas fa-info-circle mr-1"></i>
-                                    Format: PDF, Maksimal: 10MB
-                                </p>
+                        <div>
+                            <label for="surat_file" class="block text-sm font-medium text-gray-700 mb-2">Pilih File Surat Balasan</label>
+                            <div class="relative">
+                                <input type="file" id="surat_file" name="file" accept=".pdf" required
+                                       class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100 border border-gray-300 rounded-lg cursor-pointer focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500">
                             </div>
+                            <p class="mt-2 text-xs text-gray-500 flex items-center">
+                                <i class="fas fa-info-circle mr-1"></i>
+                                Format: PDF, Maksimal: 10MB
+                            </p>
+                        </div>
                         
                         <button type="submit" class="w-full bg-green-600 text-white py-3 px-4 rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors duration-200 font-medium">
                             <i class="fas fa-upload mr-2"></i>{{ ($suratBalasan && is_object($suratBalasan)) ? 'Update Surat Balasan' : 'Upload Surat Balasan' }}
@@ -2119,122 +2449,89 @@ function renderTable(rows, container) {
             </div>
         @else
             <!-- Laporan PKL Upload -->
-            <div class="bg-white shadow-lg rounded-xl border border-gray-100 overflow-hidden">
-            <div class="bg-gradient-to-r from-purple-500 to-purple-600 px-6 py-4">
-                <div class="flex items-center">
-                    <div class="flex-shrink-0">
-                        <i class="fas fa-book text-2xl text-white"></i>
-                    </div>
-                    <div class="ml-3">
-                        <h3 class="text-lg font-semibold text-white">Laporan PKL</h3>
-                        <p class="text-purple-100 text-sm">Upload laporan akhir PKL</p>
+            <div class="bg-white shadow-lg rounded-xl border border-gray-100 overflow-hidden mt-6">
+                <div class="bg-gradient-to-r from-purple-500 to-purple-600 px-6 py-4">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-book text-2xl text-white"></i>
+                        </div>
+                        <div class="ml-3">
+                            <h3 class="text-lg font-semibold text-white">Laporan PKL</h3>
+                            <p class="text-purple-100 text-sm">Upload laporan akhir PKL</p>
+                        </div>
                     </div>
                 </div>
-            </div>
-            
-            <div class="p-6">
-                @php
-                    $laporan = Auth::user()->laporanPkl()->latest()->first();
-                @endphp
                 
-                @if($laporan)
-                    <div class="mb-6 p-4 bg-gray-50 rounded-lg border">
-                        <div class="flex items-start justify-between">
-                            <div class="flex-1">
-                                <div class="flex items-center mb-2">
-                                    <i class="fas fa-file-pdf text-red-500 mr-2"></i>
-                                    <p class="text-sm font-medium text-gray-900">{{ basename($laporan->file_path) }}</p>
-                                </div>
-                                <p class="text-xs text-gray-500 mb-3">Uploaded: {{ $laporan->created_at->format('d M Y H:i') }}</p>
-                                
-                                <div class="flex items-center">
-                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium
-                                        @if($laporan->status_validasi === 'tervalidasi') bg-green-100 text-green-800
-                                        @elseif($laporan->status_validasi === 'belum_valid') bg-red-100 text-red-800
-                                        @elseif($laporan->status_validasi === 'revisi') bg-yellow-100 text-yellow-800
-                                        @else bg-gray-100 text-gray-800 @endif">
-                                        @if($laporan->status_validasi === 'tervalidasi')
-                                            <i class="fas fa-check-circle mr-1"></i>Tervalidasi
-                                        @elseif($laporan->status_validasi === 'belum_valid')
-                                            <i class="fas fa-times-circle mr-1"></i>Belum Valid
-                                        @elseif($laporan->status_validasi === 'revisi')
-                                            <i class="fas fa-exclamation-triangle mr-1"></i>Perlu Revisi
-                                        @else
-                                            <i class="fas fa-clock mr-1"></i>Menunggu Validasi
-                                        @endif
-                                    </span>
+                <div class="p-6">
+                    @if($laporan && is_object($laporan))
+                        <div class="mb-6 p-4 bg-gray-50 rounded-lg border">
+                            <div class="flex items-start justify-between">
+                                <div class="flex-1">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <div class="flex items-center">
+                                            <i class="fas fa-file-pdf text-red-500 mr-2"></i>
+                                            <p class="text-sm font-medium text-gray-900">{{ basename($laporan->file_path) }}</p>
+                                        </div>
+                                        <div class="flex space-x-2">
+                                            <button type="button" onclick="window.previewFile('{{ $laporan->file_path }}')" class="text-blue-600 hover:text-blue-800 text-sm px-2 py-1 rounded hover:bg-blue-50">
+                                                <i class="fas fa-eye mr-1"></i>Lihat
+                                            </button>
+                                            <button type="button" onclick="window.deleteFile('laporan', {{ $laporan->id }})" class="text-red-600 hover:text-red-800 text-sm px-2 py-1 rounded hover:bg-red-50">
+                                                <i class="fas fa-trash mr-1"></i>Hapus
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <p class="text-xs text-gray-500 mb-3">Uploaded: {{ $laporan->created_at->format('d M Y H:i') }}</p>
+                                    
+                                    <div class="flex items-center">
+                                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium
+                                            @if($laporan->status_validasi === 'tervalidasi') bg-green-100 text-green-800
+                                            @elseif($laporan->status_validasi === 'belum_valid') bg-red-100 text-red-800
+                                            @elseif($laporan->status_validasi === 'revisi') bg-yellow-100 text-yellow-800
+                                            @else bg-gray-100 text-gray-800 @endif">
+                                            @if($laporan->status_validasi === 'tervalidasi')
+                                                <i class="fas fa-check-circle mr-1"></i>Tervalidasi
+                                            @elseif($laporan->status_validasi === 'belum_valid')
+                                                <i class="fas fa-times-circle mr-1"></i>Belum Valid
+                                            @elseif($laporan->status_validasi === 'revisi')
+                                                <i class="fas fa-exclamation-triangle mr-1"></i>Perlu Revisi
+                                            @else
+                                                <i class="fas fa-clock mr-1"></i>Menunggu Validasi
+                                            @endif
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                @endif
+                    @endif
 
-                <form action="{{ route('documents.laporan.upload') }}" method="POST" enctype="multipart/form-data" class="space-y-4">
-                    @csrf
-                    <div>
-                        <label for="laporan_file" class="block text-sm font-medium text-gray-700 mb-2">Pilih File Laporan PKL</label>
-                        <div class="relative">
-                            <input type="file" id="laporan_file" name="file" accept=".pdf" required
-                                   class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100 border border-gray-300 rounded-lg cursor-pointer focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500">
+                    <form action="{{ route('documents.laporan.upload') }}" method="POST" enctype="multipart/form-data" class="space-y-4">
+                        @csrf
+                        <div>
+                            <label for="laporan_file" class="block text-sm font-medium text-gray-700 mb-2">Pilih File Laporan PKL</label>
+                            <div class="relative">
+                                <input type="file" id="laporan_file" name="file" accept=".pdf" required
+                                       class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100 border border-gray-300 rounded-lg cursor-pointer focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500">
+                            </div>
+                            <p class="mt-2 text-xs text-gray-500 flex items-center">
+                                <i class="fas fa-info-circle mr-1"></i>
+                                Format: PDF, Maksimal: 10MB
+                            </p>
                         </div>
-                        <p class="mt-2 text-xs text-gray-500 flex items-center">
-                            <i class="fas fa-info-circle mr-1"></i>
-                            Format: PDF, Maksimal: 10MB
-                        </p>
-                    </div>
-                    
-                    <button type="submit" class="w-full bg-purple-600 text-white py-3 px-4 rounded-lg hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transition-colors duration-200 font-medium">
-                        <i class="fas fa-upload mr-2"></i>Upload Laporan PKL
-                    </button>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <!-- Help Section -->
-    <div class="bg-blue-50 border border-blue-200 rounded-lg p-6">
-        <div class="flex items-start">
-            <div class="flex-shrink-0">
-                <i class="fas fa-question-circle text-blue-600 text-xl"></i>
-            </div>
-            <div class="ml-3">
-                <h4 class="text-lg font-medium text-blue-900 mb-2">Panduan Upload Dokumen</h4>
-                <div class="text-sm text-blue-800 space-y-2">
-                    <div class="flex items-start">
-                        <i class="fas fa-check-circle text-green-500 mr-2 mt-0.5"></i>
-                        <span><strong>KHS:</strong> Upload transkrip nilai terbaru dalam format PDF</span>
-                    </div>
-                    <div class="flex items-start">
-                        <i class="fas fa-check-circle text-green-500 mr-2 mt-0.5"></i>
-                        <span><strong>Surat Balasan:</strong> Upload surat balasan dari mitra PKL</span>
-                    </div>
-                    <div class="flex items-start">
-                        <i class="fas fa-check-circle text-green-500 mr-2 mt-0.5"></i>
-                        <span><strong>Laporan PKL:</strong> Upload laporan akhir PKL yang telah diselesaikan</span>
-                    </div>
-                    <div class="mt-3 p-3 bg-blue-100 rounded-lg">
-                        <p class="text-xs text-blue-700">
-                            <i class="fas fa-info-circle mr-1"></i>
-                            <strong>Catatan:</strong> Semua dokumen harus dalam format PDF dengan ukuran maksimal 10MB. 
-                            Pastikan dokumen sudah lengkap dan jelas sebelum diupload.
-                        </p>
-                    </div>
+                        
+                        <button type="submit" class="w-full bg-purple-600 text-white py-3 px-4 rounded-lg hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transition-colors duration-200 font-medium">
+                            <i class="fas fa-upload mr-2"></i>Upload Laporan PKL
+                        </button>
+                    </form>
                 </div>
             </div>
         @endif
     </div>
+
 </div>
 
 <script>
 function showTab(tabName) {
-    // Gate: kunci Pemberkasan kalau KHS belum tervalidasi
-    @if(!$canAjukan)
-    if (tabName === 'pemberkasan') {
-        alert('Ajukan Pemberkasan terkunci. Selesaikan Langkah 1 (KHS tervalidasi) dulu.');
-        return;
-    }
-    @endif
-
     // Check if Laporan PKL is disabled
     @if(!$laporanPklEnabled)
     if (tabName === 'laporan') {
@@ -2299,111 +2596,308 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 
 <script>
-function previewFile(filePath) {
-    console.log('=== FILE PREVIEW DEBUG ===');
-    console.log('Original filePath:', filePath);
-    console.log('Type of filePath:', typeof filePath);
+// Ensure functions are available globally
+window.previewFile = function(filePath) {
+    console.log('previewFile called with:', filePath);
     
-    // Handle null/undefined
-    if (!filePath) {
-        console.error('File path is null or undefined');
+    if (!filePath || filePath === '') {
         alert('File path tidak ditemukan');
         return;
     }
     
-    // Convert to string and clean the path
-    let cleanPath = filePath.toString().trim();
+    const filename = filePath.split('/').pop();
+    let fileType = 'khs';
+    if (filePath.includes('surat_balasan')) {
+        fileType = 'surat-balasan';
+    } else if (filePath.includes('laporan')) {
+        fileType = 'laporan';
+    }
     
-    // Remove any leading slashes or storage prefixes
-    cleanPath = cleanPath.replace(/^\/+/, ''); // Remove leading slashes
-    cleanPath = cleanPath.replace(/^storage\//, ''); // Remove storage/ prefix
-    cleanPath = cleanPath.replace(/^\/storage\//, ''); // Remove /storage/ prefix
+    console.log('Filename:', filename, 'FileType:', fileType);
     
-    console.log('Clean path:', cleanPath);
+    const url = `{{ route('documents.preview', ['type' => 'TYPE_PLACEHOLDER', 'filename' => 'FILENAME_PLACEHOLDER']) }}`
+        .replace('TYPE_PLACEHOLDER', fileType)
+        .replace('FILENAME_PLACEHOLDER', encodeURIComponent(filename));
     
-    // Test if URL is valid
-    if (!cleanPath || cleanPath.trim() === '') {
-        console.error('Clean path is empty');
-        alert('Path file tidak valid');
+    console.log('Opening URL:', url);
+    
+    // Try to open in new tab
+    const newWindow = window.open(url, '_blank');
+    if (!newWindow) {
+        alert('Pop-up blocked. Please allow pop-ups for this site.');
+    }
+};
+
+window.downloadPdf = function(filePath) {
+    console.log('downloadPdf called with:', filePath);
+    
+    if (!filePath || filePath === '') {
+        alert('File path tidak ditemukan');
         return;
     }
     
-    // Build final URL - files are stored in documents/khs/ or documents/surat_balasan/
-    const url = '/storage/' + cleanPath;
-    console.log('Final URL:', url);
-    
-    // Open file in new tab
-    console.log('Attempting to open:', url);
-    
-    // Create a test link to check if file exists
-    const testLink = document.createElement('a');
-    testLink.href = url;
-    testLink.target = '_blank';
-    testLink.style.display = 'none';
-    document.body.appendChild(testLink);
-    
-    // Try to open the file
-    try {
-        testLink.click();
-        console.log('File opened successfully');
-        
-        // Clean up test link
-        setTimeout(() => {
-            document.body.removeChild(testLink);
-        }, 1000);
-        
-    } catch (error) {
-        console.error('Error opening file:', error);
-        alert('Gagal membuka file: ' + error.message);
-        
-        // Clean up test link
-        document.body.removeChild(testLink);
+    const filename = filePath.split('/').pop();
+    let fileType = 'khs';
+    if (filePath.includes('surat_balasan')) {
+        fileType = 'surat-balasan';
+    } else if (filePath.includes('laporan')) {
+        fileType = 'laporan';
     }
-}
+    
+    console.log('Filename:', filename, 'FileType:', fileType);
+    
+    const url = `{{ route('documents.download', ['type' => 'TYPE_PLACEHOLDER', 'filename' => 'FILENAME_PLACEHOLDER']) }}`
+        .replace('TYPE_PLACEHOLDER', fileType)
+        .replace('FILENAME_PLACEHOLDER', encodeURIComponent(filename));
+    
+    console.log('Download URL:', url);
+    
+    // Create temporary link and trigger download
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+};
 
-function testFileAccess(filePath) {
-    console.log('=== TEST FILE ACCESS ===');
-    console.log('File path:', filePath);
+// TPK refresh function removed - data now stored in KHS table
+
+window.deleteFile = function(type, id) {
+    console.log('deleteFile called with type:', type, 'id:', id);
     
-    // Test different URL formats
-    const urls = [
-        '/storage/' + filePath,
-        '/storage/documents/khs/' + filePath,
-        '/storage/documents/surat_balasan/' + filePath,
-        '/storage/' + filePath.replace('documents/', ''),
-        filePath.startsWith('documents/') ? '/storage/' + filePath : '/storage/documents/' + filePath
-    ];
+    if (!confirm('Apakah Anda yakin ingin menghapus file ini?')) {
+        console.log('User cancelled deletion');
+        return;
+    }
     
-    console.log('Testing URLs:', urls);
+    let url = '';
+    if (type === 'khs') {
+        url = '{{ route("documents.khs.delete", ":id") }}'.replace(':id', id);
+    } else if (type === 'surat-balasan') {
+        url = '{{ route("documents.surat-balasan.delete", ":id") }}'.replace(':id', id);
+    } else if (type === 'laporan') {
+        url = '{{ route("documents.laporan.delete", ":id") }}'.replace(':id', id);
+    }
     
-    // Test each URL
-    urls.forEach((url, index) => {
-        console.log(`Testing URL ${index + 1}: ${url}`);
+    console.log('Delete URL:', url);
+    
+    const csrfToken = document.querySelector('meta[name="csrf-token"]');
+    if (!csrfToken) {
+        console.error('CSRF token not found');
+        alert('CSRF token tidak ditemukan');
+        return;
+    }
+    
+    console.log('CSRF token found:', csrfToken.getAttribute('content'));
+    
+    // Show loading state
+    const button = document.querySelector(`button[onclick*="deleteFile('${type}', ${id})"]`);
+    let originalText = '';
+    if (button) {
+        originalText = button.innerHTML;
+        button.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i>Menghapus...';
+        button.disabled = true;
+    }
+    
+    fetch(url, {
+        method: 'DELETE',
+        headers: {
+            'X-CSRF-TOKEN': csrfToken.getAttribute('content'),
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+        },
+    })
+    .then(response => {
+        console.log('Response status:', response.status);
+        console.log('Response headers:', response.headers);
         
-        // Create test link
-        const testLink = document.createElement('a');
-        testLink.href = url;
-        testLink.target = '_blank';
-        testLink.style.display = 'none';
-        testLink.textContent = `Test ${index + 1}`;
-        document.body.appendChild(testLink);
-        
-        // Try to click
-        try {
-            testLink.click();
-            console.log(`URL ${index + 1} clicked successfully`);
-        } catch (error) {
-            console.error(`URL ${index + 1} failed:`, error);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
         }
         
-        // Clean up
-        setTimeout(() => {
-            if (document.body.contains(testLink)) {
-                document.body.removeChild(testLink);
+        return response.json();
+    })
+    .then(data => {
+        console.log('Response data:', data);
+        if (data.success) {
+            alert('File berhasil dihapus');
+            location.reload();
+        } else {
+            alert('Gagal menghapus file: ' + (data.message || 'Unknown error'));
+            // Restore button state
+            if (button) {
+                button.innerHTML = originalText;
+                button.disabled = false;
             }
-        }, 1000);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Terjadi kesalahan saat menghapus file: ' + error.message);
+        // Restore button state
+        if (button) {
+            button.innerHTML = originalText;
+            button.disabled = false;
+        }
+    });
+};
+
+// Manual Transcript Analysis Functions
+document.addEventListener('DOMContentLoaded', function() {
+    const ta = document.getElementById('pasteArea');
+    const preview = document.getElementById('preview');
+    const analyzeBtn = document.getElementById('analyzeBtn');
+    const clearBtn = document.getElementById('clearBtn');
+    const result = document.getElementById('result');
+    const saveForm = document.getElementById('saveForm');
+
+    if (!ta || !preview || !analyzeBtn || !clearBtn || !result || !saveForm) {
+        console.log('Transcript analysis elements not found');
+        return;
+    }
+
+    // Handle paste event
+    ta.addEventListener('paste', async (e) => {
+        const text = (e.clipboardData || window.clipboardData).getData('text');
+        const rows = parseTranscript(text);
+        renderTable(rows);
+    });
+
+    // Handle analyze button
+    analyzeBtn.addEventListener('click', () => {
+        const table = preview.querySelector('table');
+        if (!table) {
+            alert('Paste dulu data transkrip.');
+            return;
+        }
+        
+        const arr = Array.from(table.querySelectorAll('tr')).map(tr => 
+            Array.from(tr.children).map(td => td.innerText.trim())
+        );
+        
+        fetch("#", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            },
+            body: JSON.stringify({table: arr})
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.error) {
+                result.innerHTML = `<div class='bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded'>${data.error}</div>`;
+                saveForm.style.display = 'none';
+            } else {
+                result.innerHTML = `
+                    <div class='bg-blue-100 border border-blue-400 text-blue-700 px-4 py-3 rounded'>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div><strong>IPK:</strong> ${data.ipk ?? '-'}</div>
+                            <div><strong>Total SKS D:</strong> ${data.total_sks_d}</div>
+                            <div><strong>Ada Nilai E:</strong> ${data.has_e ? 'Ya' : 'Tidak'}</div>
+                            <div><strong>Status:</strong> ${data.eligible ? '<span class="text-green-600 font-semibold">Layak PKL</span>' : '<span class="text-red-600 font-semibold">Tidak Layak PKL</span>'}</div>
+                        </div>
+                    </div>
+                `;
+                
+                // Fill hidden inputs
+                document.getElementById('ipkInput').value = data.ipk || '';
+                document.getElementById('sksDInput').value = data.total_sks_d;
+                document.getElementById('hasEInput').value = data.has_e ? 1 : 0;
+                document.getElementById('eligibleInput').value = data.eligible ? 1 : 0;
+                
+                // Show save form
+                saveForm.style.display = 'block';
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            result.innerHTML = `<div class='bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded'>Terjadi kesalahan: ${error.message}</div>`;
+            saveForm.style.display = 'none';
+        });
+    });
+
+    // Handle clear button
+    clearBtn.addEventListener('click', () => {
+        ta.value = '';
+        preview.innerHTML = '';
+        result.innerHTML = '';
+        saveForm.style.display = 'none';
+    });
+});
+
+// Function to save dokumen pendukung links
+function saveDokumenPendukung() {
+    const linkPkkmb = document.getElementById('link_pkkmb').value;
+    const linkEnglish = document.getElementById('link_english').value;
+    const linkSemasa = document.getElementById('link_semasa').value;
+    
+    // Simple validation
+    if (!linkPkkmb && !linkEnglish && !linkSemasa) {
+        alert('Minimal satu link harus diisi!');
+        return;
+    }
+    
+    // Show loading state
+    const saveButton = document.querySelector('button[onclick="saveDokumenPendukung()"]');
+    const originalText = saveButton.innerHTML;
+    saveButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Menyimpan...';
+    saveButton.disabled = true;
+    
+    // Save to database
+    fetch('{{ route("documents.save-gdrive-links") }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+        },
+        body: JSON.stringify({
+            gdrive_pkkmb: linkPkkmb,
+            gdrive_ecourse: linkEnglish,
+            gdrive_more: linkSemasa
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Link dokumen pendukung berhasil disimpan!');
+        } else {
+            alert('Error: ' + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Terjadi kesalahan saat menyimpan data.');
+    })
+    .finally(() => {
+        // Restore button state
+        saveButton.innerHTML = originalText;
+        saveButton.disabled = false;
+    });
+}
+
+// Load saved dokumen pendukung links on page load
+document.addEventListener('DOMContentLoaded', function() {
+    // Load from database via AJAX
+    fetch('{{ route("documents.load-gdrive-links") }}', {
+        method: 'GET',
+        headers: {
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success && data.profile) {
+            if (data.profile.gdrive_pkkmb) document.getElementById('link_pkkmb').value = data.profile.gdrive_pkkmb;
+            if (data.profile.gdrive_ecourse) document.getElementById('link_english').value = data.profile.gdrive_ecourse;
+            if (data.profile.gdrive_more) document.getElementById('link_semasa').value = data.profile.gdrive_more;
+        }
+    })
+    .catch(error => {
+        console.error('Error loading saved links:', error);
     });
 });
 
 </script>
-@endpush
+@endsection

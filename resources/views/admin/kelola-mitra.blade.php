@@ -92,7 +92,7 @@
                             {{ $m->created_at->format('d M Y') }}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                            <button onclick="openEditModal({{ $m->id }}, '{{ $m->nama }}', '{{ $m->alamat }}', '{{ $m->kontak }}')" 
+                            <button onclick="openEditModal({{ $m->id }}, '{{ $m->nama }}', '{{ $m->alamat }}', '{{ $m->kontak }}', {{ $m->jarak ?? 0 }}, {{ $m->honor ?? 0 }}, {{ $m->fasilitas ?? 1 }}, {{ $m->kesesuaian_jurusan ?? 1 }}, {{ $m->tingkat_kebersihan ?? 1 }})" 
                                     class="text-blue-600 hover:text-blue-900">
                                 <i class="fas fa-edit mr-1"></i>Edit
                             </button>
@@ -146,6 +146,35 @@
                                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                                placeholder="Masukkan kontak mitra">
                     </div>
+
+                    {{-- SAW Criteria Fields --}}
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="jarak" class="block text-sm font-medium text-gray-700">Jarak (km)</label>
+                            <input type="number" id="jarak" name="jarak" required value="0"
+                                   class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                        <div>
+                            <label for="honor" class="block text-sm font-medium text-gray-700">Honor (Rp)</label>
+                            <input type="number" id="honor" name="honor" required value="0"
+                                   class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                    </div>
+                    <div>
+                        <label for="fasilitas" class="block text-sm font-medium text-gray-700">Fasilitas (1-5)</label>
+                        <input type="number" id="fasilitas" name="fasilitas" required min="1" max="5" value="1"
+                               class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label for="kesesuaian_jurusan" class="block text-sm font-medium text-gray-700">Kesesuaian Jurusan (1-5)</label>
+                        <input type="number" id="kesesuaian_jurusan" name="kesesuaian_jurusan" required min="1" max="5" value="1"
+                               class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label for="tingkat_kebersihan" class="block text-sm font-medium text-gray-700">Tingkat Kebersihan (1-5)</label>
+                        <input type="number" id="tingkat_kebersihan" name="tingkat_kebersihan" required min="1" max="5" value="1"
+                               class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                    </div>
                 </div>
                 
                 <div class="flex justify-end space-x-3 mt-6">
@@ -189,6 +218,35 @@
                         <input type="text" id="edit_kontak" name="kontak"
                                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500">
                     </div>
+
+                    {{-- SAW Criteria Fields --}}
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="edit_jarak" class="block text-sm font-medium text-gray-700">Jarak (km)</label>
+                            <input type="number" id="edit_jarak" name="jarak" required
+                                   class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                        <div>
+                            <label for="edit_honor" class="block text-sm font-medium text-gray-700">Honor (Rp)</label>
+                            <input type="number" id="edit_honor" name="honor" required
+                                   class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                    </div>
+                    <div>
+                        <label for="edit_fasilitas" class="block text-sm font-medium text-gray-700">Fasilitas (1-5)</label>
+                        <input type="number" id="edit_fasilitas" name="fasilitas" required min="1" max="5"
+                               class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label for="edit_kesesuaian_jurusan" class="block text-sm font-medium text-gray-700">Kesesuaian Jurusan (1-5)</label>
+                        <input type="number" id="edit_kesesuaian_jurusan" name="kesesuaian_jurusan" required min="1" max="5"
+                               class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label for="edit_tingkat_kebersihan" class="block text-sm font-medium text-gray-700">Tingkat Kebersihan (1-5)</label>
+                        <input type="number" id="edit_tingkat_kebersihan" name="tingkat_kebersihan" required min="1" max="5"
+                               class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                    </div>
                 </div>
                 
                 <div class="flex justify-end space-x-3 mt-6">
@@ -215,11 +273,16 @@ function closeCreateModal() {
     document.getElementById('createModal').classList.add('hidden');
 }
 
-function openEditModal(id, nama, alamat, kontak) {
+function openEditModal(id, nama, alamat, kontak, jarak, honor, fasilitas, kesesuaian_jurusan, tingkat_kebersihan) {
     document.getElementById('editForm').action = `/admin/kelola-mitra/${id}`;
     document.getElementById('edit_nama').value = nama;
     document.getElementById('edit_alamat').value = alamat;
     document.getElementById('edit_kontak').value = kontak;
+    document.getElementById('edit_jarak').value = jarak;
+    document.getElementById('edit_honor').value = honor;
+    document.getElementById('edit_fasilitas').value = fasilitas;
+    document.getElementById('edit_kesesuaian_jurusan').value = kesesuaian_jurusan;
+    document.getElementById('edit_tingkat_kebersihan').value = tingkat_kebersihan;
     document.getElementById('editModal').classList.remove('hidden');
 }
 

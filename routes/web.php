@@ -8,62 +8,46 @@ use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\SuratBalasanController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\FAQController;
+use App\Http\Controllers\ActivityController;
+use App\Http\Controllers\MitraController;
 use App\Http\Controllers\PemberkasanController;
 
-// Public routes
-Route::get('/', function () {
-    if (Auth::check()) {
-        return redirect()->route('dashboard');
-    }
-    return redirect()->route('login');
-})->name('welcome');
+    Route::get('/', fn () => view('welcome'));
+    Route::get('faq', [FAQController::class, 'index'])->name('faq');
 
-Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
-Route::post('/login', [AuthController::class, 'login']);
-Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
-Route::post('/register', [AuthController::class, 'register']);
-Route::get('/complete-profile', [AuthController::class, 'showCompleteProfile'])->name('complete-profile');
-Route::post('/complete-profile', [AuthController::class, 'completeProfile']);
-Route::post('/cancel-registration', [AuthController::class, 'cancelRegistration'])->name('cancel-registration');
-Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+    // Auth Routes
+    Route::get('login', [AuthController::class, 'showLogin'])->name('login');
+    Route::post('login', [AuthController::class, 'login']);
+    Route::post('logout', [AuthController::class, 'logout'])->name('logout');
+    Route::get('register', [AuthController::class, 'showRegister'])->name('register');
+    Route::post('register', [AuthController::class, 'register']);
 
-// FAQ route
-Route::get('/faq', [FAQController::class, 'index'])->name('faq');
+    // Google OAuth Routes
+    Route::get('auth/google', [AuthController::class, 'redirectToGoogle'])->name('auth.google');
+    Route::get('auth/google/callback', [AuthController::class, 'handleGoogleCallback']);
 
-// Google OAuth routes - Try custom controller first
-Route::get('/auth/google', [\App\Http\Controllers\CustomGoogleOAuthController::class, 'redirectToGoogle'])->name('auth.google');
-Route::get('/auth/google/callback', [\App\Http\Controllers\CustomGoogleOAuthController::class, 'handleGoogleCallback'])->name('auth.google.callback');
+    Route::middleware(['auth'])->group(function () {
+        Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
+        Route::get('mitra', [MitraController::class, 'index'])->name('mitra');
+        Route::get('activity', [ActivityController::class, 'index'])->name('activity');
 
-// Protected routes
-Route::middleware(['auth'])->group(function () {
-    // Dashboard routes
-    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-    
-    // Document routes
-    Route::prefix('documents')->name('documents.')->group(function () {
-        Route::get('/', [DocumentController::class, 'index'])->name('index');
-        Route::post('/khs', [DocumentController::class, 'uploadKhs'])->name('khs.upload');
-        Route::post('/surat-balasan', [DocumentController::class, 'uploadSuratBalasan'])->name('surat.upload');
-        Route::post('/laporan', [DocumentController::class, 'uploadLaporan'])->name('laporan.upload');
-        Route::put('/khs/{id}', [DocumentController::class, 'updateKhs'])->name('khs.update');
-        Route::put('/surat-balasan/{id}', [DocumentController::class, 'updateSuratBalasan'])->name('surat.update');
-        Route::put('/laporan/{id}', [DocumentController::class, 'updateLaporan'])->name('laporan.update');
-        Route::get('/preview/{type}/{filename}', [DocumentController::class, 'previewFile'])->name('preview');
-Route::get('/download/{type}/{filename}', [DocumentController::class, 'downloadFile'])->name('download');
-Route::post('/save-semester-data', [DocumentController::class, 'saveSemesterData'])->name('save-semester-data');
-Route::post('/delete-semester-data', [DocumentController::class, 'deleteSemesterData'])->name('delete-semester-data');
-Route::delete('/khs/{id}', [DocumentController::class, 'deleteKhs'])->name('khs.delete');
-Route::get('/load-gdrive-links', [DocumentController::class, 'loadGdriveLinks'])->name('load-gdrive-links');
-Route::post('/save-gdrive-links', [DocumentController::class, 'saveGdriveLinks'])->name('save-gdrive-links');
-        Route::delete('/surat-balasan/{id}', [DocumentController::class, 'deleteSuratBalasan'])->name('surat-balasan.delete');
-        Route::delete('/laporan/{id}', [DocumentController::class, 'deleteLaporan'])->name('laporan.delete');
+        // Document Management Routes
+        Route::prefix('documents')->name('documents.')->group(function () {
+            Route::get('/', [DocumentController::class, 'index'])->name('index');
+            Route::post('/khs/upload', [DocumentController::class, 'uploadKhs'])->name('khs.upload');
+            Route::post('/surat/upload', [DocumentController::class, 'uploadSuratBalasan'])->name('surat.upload');
+            Route::post('/laporan/upload', [DocumentController::class, 'uploadLaporan'])->name('laporan.upload');
+            Route::get('/preview/{type}/{filename}', [DocumentController::class, 'previewFile'])->name('preview');
+            Route::get('/download/{type}/{filename}', [DocumentController::class, 'downloadFile'])->name('download');
+            Route::delete('/khs/{id}', [DocumentController::class, 'deleteKhs'])->name('khs.delete');
+            Route::delete('/surat-balasan/{id}', [DocumentController::class, 'deleteSuratBalasan'])->name('surat-balasan.delete');
+            Route::delete('/laporan/{id}', [DocumentController::class, 'deleteLaporan'])->name('laporan.delete');
+            Route::post('/save-semester-data', [DocumentController::class, 'saveSemesterData'])->name('save-semester-data');
+            Route::post('/delete-semester-data', [DocumentController::class, 'deleteSemesterData'])->name('delete-semester-data');
+            Route::post('/save-gdrive-links', [DocumentController::class, 'saveGdriveLinks'])->name('save-gdrive-links');
+            Route::get('/load-gdrive-links', [DocumentController::class, 'loadGdriveLinks'])->name('load-gdrive-links');
+        });
     });
-    
-    // Activity routes
-    Route::get('/activity', [\App\Http\Controllers\ActivityController::class, 'index'])->name('activity');
-    
-    // Mitra routes
-    Route::get('/mitra', [\App\Http\Controllers\MitraController::class, 'index'])->name('mitra');
     
     // Jadwal Seminar routes
     Route::get('/jadwal-seminar', [\App\Http\Controllers\JadwalSeminarManagementController::class, 'index'])->name('jadwal-seminar');
@@ -157,4 +141,4 @@ Route::post('/save-gdrive-links', [DocumentController::class, 'saveGdriveLinks']
         // (opsional) kalau masih ada form lama yang submit ke 'khs.multi', kamu bisa aktifkan alias ini:
         // Route::post('/khs-multi', [DocumentController::class, 'uploadKhs'])->name('khs.multi');
     });
-});
+    

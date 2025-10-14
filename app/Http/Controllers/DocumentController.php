@@ -21,12 +21,24 @@ class DocumentController extends Controller
         $user = Auth::user();
 
         if ($user->role === 'mahasiswa') {
-            $khs = $user->khs()->latest()->first();
+            $khsFiles = $user->khs()->get();
+            $khs = $khsFiles->sortByDesc('created_at')->first();
+            $khsFileCount = $khsFiles->count();
+            $khsManualTranskrip = $user->khsManualTranskrip()->get();
+
             $suratBalasan = $user->suratBalasan()->latest()->first();
             $laporanPkl = $user->laporanPkl()->latest()->first();
             $mitra = Mitra::all();
             
-            return view('documents.index', compact('khs', 'suratBalasan', 'laporanPkl', 'mitra'));
+            return view('documents.index', compact(
+                'khs', 
+                'suratBalasan', 
+                'laporanPkl', 
+                'mitra', 
+                'khsFiles', 
+                'khsFileCount', 
+                'khsManualTranskrip'
+            ));
         }
 
         // dospem & admin
