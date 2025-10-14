@@ -54,7 +54,7 @@ class User extends Authenticatable
     // Relationships
     public function profilMahasiswa()
     {
-        return $this->hasOne(ProfilMahasiswa::class, 'id_mahasiswa');
+        return $this->hasOne(ProfilMahasiswa::class, 'id_mahasiswa', 'id');
     }
 
     public function mahasiswaBimbingan()
@@ -65,6 +65,11 @@ class User extends Authenticatable
     public function khs()
     {
         return $this->hasMany(Khs::class, 'mahasiswa_id');
+    }
+
+    public function khsManualTranskrip()
+    {
+        return $this->hasMany(KhsManualTranskrip::class, 'mahasiswa_id');
     }
 
     public function suratBalasan()

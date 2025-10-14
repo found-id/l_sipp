@@ -1,16 +1,21 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DocumentController;
+use App\Http\Controllers\SuratBalasanController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\FAQController;
 use App\Http\Controllers\PemberkasanController;
 
 // Public routes
 Route::get('/', function () {
-    return view('welcome');
+    if (Auth::check()) {
+        return redirect()->route('dashboard');
+    }
+    return redirect()->route('login');
 })->name('welcome');
 
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
@@ -43,6 +48,15 @@ Route::middleware(['auth'])->group(function () {
         Route::put('/khs/{id}', [DocumentController::class, 'updateKhs'])->name('khs.update');
         Route::put('/surat-balasan/{id}', [DocumentController::class, 'updateSuratBalasan'])->name('surat.update');
         Route::put('/laporan/{id}', [DocumentController::class, 'updateLaporan'])->name('laporan.update');
+        Route::get('/preview/{type}/{filename}', [DocumentController::class, 'previewFile'])->name('preview');
+Route::get('/download/{type}/{filename}', [DocumentController::class, 'downloadFile'])->name('download');
+Route::post('/save-semester-data', [DocumentController::class, 'saveSemesterData'])->name('save-semester-data');
+Route::post('/delete-semester-data', [DocumentController::class, 'deleteSemesterData'])->name('delete-semester-data');
+Route::delete('/khs/{id}', [DocumentController::class, 'deleteKhs'])->name('khs.delete');
+Route::get('/load-gdrive-links', [DocumentController::class, 'loadGdriveLinks'])->name('load-gdrive-links');
+Route::post('/save-gdrive-links', [DocumentController::class, 'saveGdriveLinks'])->name('save-gdrive-links');
+        Route::delete('/surat-balasan/{id}', [DocumentController::class, 'deleteSuratBalasan'])->name('surat-balasan.delete');
+        Route::delete('/laporan/{id}', [DocumentController::class, 'deleteLaporan'])->name('laporan.delete');
     });
     
     // Activity routes

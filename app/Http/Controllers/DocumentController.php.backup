@@ -7,11 +7,9 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
 use App\Models\Khs;
-use App\Models\KhsManualTranskrip;
 use App\Models\SuratBalasan;
 use App\Models\LaporanPkl;
 use App\Models\Mitra;
-use App\Models\ProfilMahasiswa;
 use App\Services\PdfExtractionService;
 
 class DocumentController extends Controller
@@ -19,18 +17,18 @@ class DocumentController extends Controller
     public function index()
     {
         $user = Auth::user();
-
+        
         if ($user->role === 'mahasiswa') {
-            $khs = $user->khs()->latest()->first();
+            $khsFiles = $user->khs()->orderBy('semester')->get();
             $suratBalasan = $user->suratBalasan()->latest()->first();
             $laporanPkl = $user->laporanPkl()->latest()->first();
             $mitra = Mitra::all();
-            
-            return view('documents.index', compact('khs', 'suratBalasan', 'laporanPkl', 'mitra'));
+            return view('documents.index', compact('khsFiles', 'suratBalasan', 'laporanPkl', 'mitra'));
         }
-
-        // dospem & admin
+        
+        // For dospem and admin - show documents from their students
         $documents = $this->getDocumentsForSupervisor($user);
+        
         return view('documents.supervisor', compact('documents'));
     }
 
@@ -38,40 +36,44 @@ class DocumentController extends Controller
     {
         $request->validate([
             'file' => 'required|file|mimes:pdf|max:10240', // 10MB max
+            'semester' => 'required|integer|min:1|max:5',
         ]);
 
         $user = Auth::user();
+        $semester = $request->input('semester');
         
-        // Delete old KHS if exists
-        $oldKhs = $user->khs()->latest()->first();
+        // Delete old KHS for this semester if exists
+        $oldKhs = $user->khs()->where('semester', $semester)->first();
         if ($oldKhs) {
-            Storage::disk('public')->delete($oldKhs->file_path);
+            Storage::delete($oldKhs->file_path);
             $oldKhs->delete();
         }
 
-        // Store new file
+        // Store new file with semester naming convention
         $file = $request->file('file');
-        $nim = $user->profilMahasiswa->nim ?? $user->id;
+        $nim = $user->profilMahasiswa?->nim ?? $user->id;
         $nama = str_replace(' ', '_', $user->name);
-        $filename = 'KHS_' . $nama . '_' . $nim . '_' . time() . '.' . $file->getClientOriginalExtension();
+        $filename = 'KHS_Semester-' . $semester . '_' . $nama . '_' . $nim . '.' . $file->getClientOriginalExtension();
         $path = $file->storeAs('documents/khs', $filename, 'public');
 
         // Create KHS record
-        Khs::create([
+        $khs = Khs::create([
             'mahasiswa_id' => $user->id,
             'file_path' => $path,
+            'semester' => $semester,
             'status_validasi' => 'menunggu',
         ]);
 
 
-        // log aktivitas
+        // Log activity
         \App\Models\HistoryAktivitas::create([
-            'id_user'      => $user->id,
+            'id_user' => $user->id,
             'id_mahasiswa' => $user->id,
-            'tipe'         => 'upload_dokumen',
-            'pesan'        => [
-                'action'        => 'upload_dokumen',
+            'tipe' => 'upload_dokumen',
+            'pesan' => [
+                'action' => 'upload_dokumen',
                 'document_type' => 'KHS',
+                'semester' => $semester,
                 'mahasiswa' => $user->name,
                 'file_name' => $filename,
             ],
@@ -83,42 +85,46 @@ class DocumentController extends Controller
     public function uploadSuratBalasan(Request $request)
     {
         $request->validate([
-            'file'              => 'required|file|mimes:pdf|max:10240',
-            'mitra_id'          => 'nullable|exists:mitra,id',
+            'file' => 'required|file|mimes:pdf|max:10240',
+            'mitra_id' => 'nullable|exists:mitra,id',
             'mitra_nama_custom' => 'nullable|string|max:150',
         ]);
 
         $user = Auth::user();
-
-        $oldSurat = optional($user->suratBalasan())->latest()->first();
+        
+        // Delete old surat balasan if exists
+        $oldSurat = $user->suratBalasan()->latest()->first();
         if ($oldSurat) {
-            Storage::disk('public')->delete($oldSurat->file_path);
+            Storage::delete($oldSurat->file_path);
             $oldSurat->delete();
         }
 
+        // Store new file
         $file = $request->file('file');
-        $nim = $user->profilMahasiswa->nim ?? $user->id;
+        $nim = $user->profilMahasiswa?->nim ?? $user->id;
         $nama = str_replace(' ', '_', $user->name);
         $filename = 'Surat_Balasan_' . $nama . '_' . $nim . '_' . time() . '.' . $file->getClientOriginalExtension();
         $path = $file->storeAs('documents/surat_balasan', $filename, 'public');
 
+        // Create SuratBalasan record
         SuratBalasan::create([
-            'mahasiswa_id'     => $user->id,
-            'mitra_id'         => $request->mitra_id,
-            'mitra_nama_custom'=> $request->mitra_nama_custom,
-            'file_path'        => $path,
-            'status_validasi'  => 'menunggu',
+            'mahasiswa_id' => $user->id,
+            'mitra_id' => $request->mitra_id,
+            'mitra_nama_custom' => $request->mitra_nama_custom,
+            'file_path' => $path,
+            'status_validasi' => 'menunggu',
         ]);
 
+        // Log activity
         \App\Models\HistoryAktivitas::create([
-            'id_user'      => $user->id,
+            'id_user' => $user->id,
             'id_mahasiswa' => $user->id,
-            'tipe'         => 'upload_dokumen',
-            'pesan'        => [
-                'action'        => 'upload_dokumen',
+            'tipe' => 'upload_dokumen',
+            'pesan' => [
+                'action' => 'upload_dokumen',
                 'document_type' => 'Surat Balasan',
-                'mahasiswa'     => $user->name,
-                'file_name'     => $filename,
+                'mahasiswa' => $user->name,
+                'file_name' => $filename,
             ],
         ]);
 
@@ -132,34 +138,38 @@ class DocumentController extends Controller
         ]);
 
         $user = Auth::user();
-
-        $oldLaporan = optional($user->laporanPkl())->latest()->first();
+        
+        // Delete old laporan if exists
+        $oldLaporan = $user->laporanPkl()->latest()->first();
         if ($oldLaporan) {
-            Storage::disk('public')->delete($oldLaporan->file_path);
+            Storage::delete($oldLaporan->file_path);
             $oldLaporan->delete();
         }
 
+        // Store new file
         $file = $request->file('file');
-        $nim = $user->profilMahasiswa->nim ?? $user->id;
+        $nim = $user->profilMahasiswa?->nim ?? $user->id;
         $nama = str_replace(' ', '_', $user->name);
         $filename = 'Laporan_PKL_' . $nama . '_' . $nim . '_' . time() . '.' . $file->getClientOriginalExtension();
         $path = $file->storeAs('documents/laporan_pkl', $filename, 'public');
 
+        // Create LaporanPkl record
         LaporanPkl::create([
-            'mahasiswa_id'    => $user->id,
-            'file_path'       => $path,
+            'mahasiswa_id' => $user->id,
+            'file_path' => $path,
             'status_validasi' => 'menunggu',
         ]);
 
+        // Log activity
         \App\Models\HistoryAktivitas::create([
-            'id_user'      => $user->id,
+            'id_user' => $user->id,
             'id_mahasiswa' => $user->id,
-            'tipe'         => 'upload_dokumen',
-            'pesan'        => [
-                'action'        => 'upload_dokumen',
+            'tipe' => 'upload_dokumen',
+            'pesan' => [
+                'action' => 'upload_dokumen',
                 'document_type' => 'Laporan PKL',
-                'mahasiswa'     => $user->name,
-                'file_name'     => $filename,
+                'mahasiswa' => $user->name,
+                'file_name' => $filename,
             ],
         ]);
 
@@ -173,7 +183,9 @@ class DocumentController extends Controller
         ]);
 
         $khs = Khs::findOrFail($id);
-        $khs->update(['status_validasi' => $request->status_validasi]);
+        $khs->update([
+            'status_validasi' => $request->status_validasi,
+        ]);
 
         return redirect()->back()->with('success', 'Status KHS berhasil diupdate!');
     }
@@ -185,7 +197,9 @@ class DocumentController extends Controller
         ]);
 
         $surat = SuratBalasan::findOrFail($id);
-        $surat->update(['status_validasi' => $request->status_validasi]);
+        $surat->update([
+            'status_validasi' => $request->status_validasi,
+        ]);
 
         return redirect()->back()->with('success', 'Status Surat Balasan berhasil diupdate!');
     }
@@ -197,7 +211,9 @@ class DocumentController extends Controller
         ]);
 
         $laporan = LaporanPkl::findOrFail($id);
-        $laporan->update(['status_validasi' => $request->status_validasi]);
+        $laporan->update([
+            'status_validasi' => $request->status_validasi,
+        ]);
 
         return redirect()->back()->with('success', 'Status Laporan PKL berhasil diupdate!');
     }
@@ -207,23 +223,149 @@ class DocumentController extends Controller
         if ($user->role === 'dospem') {
             $mahasiswaIds = $user->mahasiswaBimbingan()->pluck('id_mahasiswa');
         } else {
+            // Admin can see all documents
             $mahasiswaIds = \App\Models\User::mahasiswa()->pluck('id');
         }
 
         return [
-            'khs'           => Khs::whereIn('mahasiswa_id', $mahasiswaIds)->with('mahasiswa')->get(),
+            'khs' => Khs::whereIn('mahasiswa_id', $mahasiswaIds)->with('mahasiswa')->get(),
             'surat_balasan' => SuratBalasan::whereIn('mahasiswa_id', $mahasiswaIds)->with(['mahasiswa', 'mitra'])->get(),
-            'laporan_pkl'   => LaporanPkl::whereIn('mahasiswa_id', $mahasiswaIds)->with('mahasiswa')->get(),
+            'laporan_pkl' => LaporanPkl::whereIn('mahasiswa_id', $mahasiswaIds)->with('mahasiswa')->get(),
         ];
     }
 
     /**
      * Process TPK data extraction from KHS PDF
      */
+    private function processTpkExtraction($khs, $filePath)
+    {
+        try {
+            // Delete old TPK data for this user
+            TpkData::where('user_id', $khs->mahasiswa_id)->delete();
+
+            // Initialize PDF extraction service
+            $pdfService = new PdfExtractionService();
+            
+            // Extract text from PDF
+            $text = $pdfService->extractText($filePath);
+            
+            // Extract KHS data
+            $khsData = $pdfService->extractKhsData($text, $filePath);
+            
+            // Create TPK data record
+            $tpkData = TpkData::create([
+                'user_id' => $khs->mahasiswa_id,
+                'khs_id' => $khs->id,
+                'semester' => $khsData['semester'],
+                'nim' => $khsData['nim'],
+                'nama' => $khsData['nama'],
+                'program_studi' => $khsData['program_studi'],
+                'dosen_pembimbing' => $khsData['dosen_pembimbing'],
+                'tanggal' => $khsData['tanggal'],
+                'ips' => $khsData['ips'],
+                'tahun_khs' => $khsData['tahun_khs'],
+                'mata_kuliah_data' => $khsData['mata_kuliah'],
+                'validation_status' => $khsData['validation_status'],
+                'is_eligible' => $this->checkEligibility($khsData['validation_status']),
+                'extraction_status' => 'success',
+                'extraction_errors' => null
+            ]);
+
+            return $tpkData;
+
+        } catch (\Exception $e) {
+            // Log error and create failed TPK record
+            Log::error('TPK Extraction Error: ' . $e->getMessage());
+            
+            TpkData::create([
+                'user_id' => $khs->mahasiswa_id,
+                'khs_id' => $khs->id,
+                'extraction_status' => 'failed',
+                'extraction_errors' => $e->getMessage(),
+                'is_eligible' => false
+            ]);
+
+            throw $e;
+        }
+    }
+
+    /**
+     * Check if user is eligible for PKL based on TPK requirements
+     */
+    private function checkEligibility($validationStatus)
+    {
+        if (!$validationStatus) {
+            return false;
+        }
+
+        return $validationStatus['semester_valid'] &&
+               $validationStatus['ipk_valid'] &&
+               $validationStatus['nilai_d_valid'] &&
+               $validationStatus['no_nilai_e'];
+    }
+
+    /**
+     * Process existing KHS files for TPK extraction
+     */
+    private function processExistingKhsFiles($user)
+    {
+        try {
+            $khsFiles = $user->khs()->get();
+            
+            foreach ($khsFiles as $khs) {
+                // Check if TPK data already exists for this KHS
+                $existingTpk = TpkData::where('khs_id', $khs->id)->first();
+                
+                if (!$existingTpk) {
+                    // Process TPK extraction for this KHS
+                    $this->processTpkExtraction($khs, $khs->file_path);
+                }
+            }
+        } catch (\Exception $e) {
+            Log::error('Error processing existing KHS files: ' . $e->getMessage());
+        }
+    }
 
 
-
-
+    /**
+     * Refresh TPK data by re-processing the latest KHS file
+     */
+    public function refreshTpkData()
+    {
+        try {
+            $user = Auth::user();
+            
+            Log::info('Refresh TPK data request', [
+                'user_id' => $user->id
+            ]);
+            
+            // Find the latest KHS file
+            $khs = $user->khs()->latest()->first();
+            
+            if (!$khs) {
+                return response()->json(['success' => false, 'message' => 'Tidak ada file KHS yang ditemukan']);
+            }
+            
+            // Delete existing TPK data
+            TpkData::where('user_id', $user->id)->delete();
+            
+            // Process TPK extraction again
+            $this->processTpkExtraction($khs, $khs->file_path);
+            
+            Log::info('TPK data refreshed successfully', [
+                'user_id' => $user->id,
+                'khs_id' => $khs->id
+            ]);
+            
+            return response()->json(['success' => true, 'message' => 'TPK data berhasil di-refresh']);
+            
+        } catch (\Exception $e) {
+            Log::error('Error refreshing TPK data: ' . $e->getMessage(), [
+                'user_id' => $user->id ?? 'unknown'
+            ]);
+            return response()->json(['success' => false, 'message' => 'Gagal refresh TPK data']);
+        }
+    }
 
     /**
      * Preview file with proper access control
@@ -503,6 +645,11 @@ class DocumentController extends Controller
                 }
             }
             
+            // Delete TPK data if exists
+            $tpkDeleted = TpkData::where('khs_id', $khs->id)->delete();
+            if ($tpkDeleted) {
+                Log::info('TPK data deleted', ['khs_id' => $khs->id]);
+            }
             
             // Delete record
             $khs->delete();
@@ -583,16 +730,26 @@ class DocumentController extends Controller
             $request->validate([
                 'semester' => 'required|integer|min:1|max:5',
                 'transcript_data' => 'required|string',
+                'ips' => 'required|numeric|min:0|max:4',
+                'total_sks_d' => 'required|integer|min:0',
+                'has_e' => 'required|boolean',
+                'eligible' => 'required|boolean',
             ]);
 
-            // Cari atau buat KHS Manual Transkrip record untuk semester ini
-            $khsManualTranskrip = KhsManualTranskrip::updateOrCreate(
+            // Cari atau buat KHS record untuk semester ini
+            $khs = Khs::updateOrCreate(
                 [
                     'mahasiswa_id' => $user->id,
                     'semester' => $request->semester,
                 ],
                 [
-                    'transcript_data' => $request->transcript_data, // Hanya simpan data textfield
+                    'file_path' => 'transcript_data_' . $user->id . '_semester_' . $request->semester . '.txt',
+                    'status_validasi' => 'menunggu',
+                    'transcript_data' => $request->transcript_data, // Simpan data textfield
+                    'ips' => $request->ips,
+                    'total_sks_d' => $request->total_sks_d,
+                    'has_e' => $request->has_e,
+                    'eligible' => $request->eligible,
                 ]
             );
 
@@ -605,14 +762,15 @@ class DocumentController extends Controller
                     'action' => 'save_transcript_data',
                     'semester' => $request->semester,
                     'mahasiswa' => $user->name,
-                    'transcript_data_length' => strlen($request->transcript_data),
+                    'ips' => $request->ips,
+                    'eligible' => $request->eligible,
                 ],
             ]);
 
             return response()->json([
                 'success' => true,
                 'message' => 'Data semester ' . $request->semester . ' berhasil disimpan!',
-                'khs_manual_transkrip_id' => $khsManualTranskrip->id,
+                'khs_id' => $khs->id,
             ]);
 
         } catch (\Exception $e) {
@@ -623,121 +781,4 @@ class DocumentController extends Controller
             ], 500);
         }
     }
-
-    public function deleteSemesterData(Request $request)
-    {
-        try {
-            $user = Auth::user();
-            
-            $request->validate([
-                'semester' => 'required|integer|min:1|max:5',
-            ]);
-
-            // Hapus data KHS Manual Transkrip untuk semester ini
-            $deleted = KhsManualTranskrip::where('mahasiswa_id', $user->id)
-                ->where('semester', $request->semester)
-                ->delete();
-
-            // Log activity
-            \App\Models\HistoryAktivitas::create([
-                'id_user' => $user->id,
-                'id_mahasiswa' => $user->id,
-                'tipe' => 'delete_transcript_data',
-                'pesan' => [
-                    'action' => 'delete_transcript_data',
-                    'semester' => $request->semester,
-                    'mahasiswa' => $user->name,
-                    'deleted' => $deleted > 0,
-                ],
-            ]);
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Data semester ' . $request->semester . ' berhasil dihapus!',
-                'deleted_count' => $deleted,
-            ]);
-
-        } catch (\Exception $e) {
-            Log::error('Error deleting semester data: ' . $e->getMessage());
-            return response()->json([
-                'success' => false,
-                'message' => 'Gagal menghapus data: ' . $e->getMessage()
-            ], 500);
-        }
-    }
-
-    public function loadGdriveLinks(Request $request)
-    {
-        try {
-            $user = Auth::user();
-            $profile = $user->profilMahasiswa;
-            return response()->json([
-                'success' => true,
-                'profile' => $profile ? [
-                    'gdrive_pkkmb' => $profile->gdrive_pkkmb,
-                    'gdrive_ecourse' => $profile->gdrive_ecourse,
-                    'gdrive_more' => $profile->gdrive_more,
-                ] : null
-            ]);
-        } catch (\Exception $e) {
-            Log::error('Error loading Google Drive links: ' . $e->getMessage());
-            return response()->json([
-                'success' => false,
-                'message' => 'Gagal memuat link: ' . $e->getMessage()
-            ], 500);
-        }
-    }
-
-    public function saveGdriveLinks(Request $request)
-    {
-        try {
-            $user = Auth::user();
-            
-            $request->validate([
-                'gdrive_pkkmb' => 'nullable|url',
-                'gdrive_ecourse' => 'nullable|url',
-                'gdrive_more' => 'nullable|url',
-            ]);
-
-            // Update or create profil mahasiswa
-            $profile = ProfilMahasiswa::updateOrCreate(
-                ['id_mahasiswa' => $user->id],
-                [
-                    'gdrive_pkkmb' => $request->gdrive_pkkmb,
-                    'gdrive_ecourse' => $request->gdrive_ecourse,
-                    'gdrive_more' => $request->gdrive_more,
-                ]
-            );
-
-            // Log activity
-            \App\Models\HistoryAktivitas::create([
-                'id_user' => $user->id,
-                'id_mahasiswa' => $user->id,
-                'tipe' => 'save_gdrive_links',
-                'pesan' => [
-                    'action' => 'save_gdrive_links',
-                    'mahasiswa' => $user->name,
-                    'links_saved' => [
-                        'pkkmb' => !empty($request->gdrive_pkkmb),
-                        'ecourse' => !empty($request->gdrive_ecourse),
-                        'more' => !empty($request->gdrive_more),
-                    ],
-                ],
-            ]);
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Link Google Drive berhasil disimpan!',
-                'profile_id' => $profile->id,
-            ]);
-
-        } catch (\Exception $e) {
-            Log::error('Error saving Google Drive links: ' . $e->getMessage());
-            return response()->json([
-                'success' => false,
-                'message' => 'Gagal menyimpan link: ' . $e->getMessage()
-            ], 500);
-        }
-    }
-
 }

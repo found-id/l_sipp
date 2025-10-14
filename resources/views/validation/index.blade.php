@@ -6,8 +6,13 @@
 <div class="space-y-6">
     <!-- Header -->
     <div class="bg-white shadow rounded-lg p-6">
-        <h1 class="text-2xl font-bold text-gray-900">Validasi Dokumen Mahasiswa Bimbingan</h1>
-        <p class="text-gray-600 mt-2">Validasi dan kelola dokumen mahasiswa bimbingan Anda</p>
+        @if(Auth::user()->role === 'admin')
+            <h1 class="text-2xl font-bold text-gray-900">Validasi Dokumen Semua Mahasiswa</h1>
+            <p class="text-gray-600 mt-2">Validasi dan kelola dokumen semua mahasiswa</p>
+        @else
+            <h1 class="text-2xl font-bold text-gray-900">Validasi Dokumen Mahasiswa Bimbingan</h1>
+            <p class="text-gray-600 mt-2">Validasi dan kelola dokumen mahasiswa bimbingan Anda</p>
+        @endif
     </div>
 
     <!-- Statistics -->
@@ -113,6 +118,9 @@
                                 <input type="checkbox" id="select-all-khs" onchange="toggleAllCheckboxes('khs')">
                             </th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Mahasiswa</th>
+                            @if(Auth::user()->role === 'admin')
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Dosen Pembimbing</th>
+                            @endif
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">File</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
@@ -142,6 +150,11 @@
                                     </button>
                                 </div>
                             </td>
+                            @if(Auth::user()->role === 'admin')
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    {{ $khs->mahasiswa->profilMahasiswa->dosenPembimbing->name ?? 'Belum ditentukan' }}
+                                </td>
+                            @endif
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                 {{ basename($khs->file_path) }}
                             </td>
@@ -195,6 +208,9 @@
                                 <input type="checkbox" id="select-all-surat" onchange="toggleAllCheckboxes('surat')">
                             </th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Mahasiswa</th>
+                            @if(Auth::user()->role === 'admin')
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Dosen Pembimbing</th>
+                            @endif
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Mitra</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">File</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
@@ -219,6 +235,11 @@
                                     </div>
                                 </div>
                             </td>
+                            @if(Auth::user()->role === 'admin')
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    {{ $surat->mahasiswa->profilMahasiswa->dosenPembimbing->name ?? 'Belum ditentukan' }}
+                                </td>
+                            @endif
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                 {{ $surat->mitra->nama ?? $surat->mitra_nama_custom ?? 'N/A' }}
                             </td>
@@ -275,6 +296,9 @@
                                 <input type="checkbox" id="select-all-laporan" onchange="toggleAllCheckboxes('laporan')">
                             </th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Mahasiswa</th>
+                            @if(Auth::user()->role === 'admin')
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Dosen Pembimbing</th>
+                            @endif
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">File</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tanggal Upload</th>
@@ -298,6 +322,11 @@
                                     </div>
                                 </div>
                             </td>
+                            @if(Auth::user()->role === 'admin')
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    {{ $laporan->mahasiswa->profilMahasiswa->dosenPembimbing->name ?? 'Belum ditentukan' }}
+                                </td>
+                            @endif
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                 {{ basename($laporan->file_path) }}
                             </td>

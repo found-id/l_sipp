@@ -18,26 +18,41 @@ class ValidationController extends Controller
     {
         $user = Auth::user();
 
-        // Get mahasiswa bimbingan
-        $mahasiswaIds = \App\Models\ProfilMahasiswa::where('id_dospem', $user->id)
-            ->pluck('id_mahasiswa')
-            ->toArray();
-
-        // Get documents that need validation
-        $documents = [
-            'khs' => Khs::whereIn('mahasiswa_id', $mahasiswaIds)
-                        ->with('mahasiswa.profilMahasiswa')
-                        ->orderBy('created_at', 'desc')
-                        ->get(),
-            'surat_balasan' => SuratBalasan::whereIn('mahasiswa_id', $mahasiswaIds)
-                                          ->with(['mahasiswa.profilMahasiswa', 'mitra'])
+        // Check if user is admin or dosen pembimbing
+        if ($user->role === 'admin') {
+            // Admin can see all mahasiswa documents
+            $documents = [
+                'khs' => Khs::with(['mahasiswa.profilMahasiswa.dosenPembimbing'])
+                            ->orderBy('created_at', 'desc')
+                            ->get(),
+                'surat_balasan' => SuratBalasan::with(['mahasiswa.profilMahasiswa.dosenPembimbing', 'mitra'])
+                                              ->orderBy('created_at', 'desc')
+                                              ->get(),
+                'laporan_pkl' => LaporanPkl::with(['mahasiswa.profilMahasiswa.dosenPembimbing'])
                                           ->orderBy('created_at', 'desc')
                                           ->get(),
-            'laporan_pkl' => LaporanPkl::whereIn('mahasiswa_id', $mahasiswaIds)
-                                      ->with('mahasiswa.profilMahasiswa')
-                                      ->orderBy('created_at', 'desc')
-                                      ->get(),
-        ];
+            ];
+        } else {
+            // Dosen pembimbing can only see their bimbingan
+            $mahasiswaIds = \App\Models\ProfilMahasiswa::where('id_dospem', $user->id)
+                ->pluck('id_mahasiswa')
+                ->toArray();
+
+            $documents = [
+                'khs' => Khs::whereIn('mahasiswa_id', $mahasiswaIds)
+                            ->with('mahasiswa.profilMahasiswa')
+                            ->orderBy('created_at', 'desc')
+                            ->get(),
+                'surat_balasan' => SuratBalasan::whereIn('mahasiswa_id', $mahasiswaIds)
+                                              ->with(['mahasiswa.profilMahasiswa', 'mitra'])
+                                              ->orderBy('created_at', 'desc')
+                                              ->get(),
+                'laporan_pkl' => LaporanPkl::whereIn('mahasiswa_id', $mahasiswaIds)
+                                          ->with('mahasiswa.profilMahasiswa')
+                                          ->orderBy('created_at', 'desc')
+                                          ->get(),
+            ];
+        }
 
         // Statistics
         $stats = [
