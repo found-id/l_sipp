@@ -16,30 +16,34 @@
     <div class="bg-white shadow rounded-lg p-6">
         <h3 class="text-lg font-medium text-gray-900 mb-4">Informasi Akun</h3>
         <div class="space-y-4">
-            <div>
-                <label class="block text-sm font-medium text-gray-700">Nama</label>
-                <p class="mt-1 text-sm text-gray-900">{{ Auth::user()->name }}</p>
-            </div>
-            
-            <div>
-                <label class="block text-sm font-medium text-gray-700">Email</label>
-                <p class="mt-1 text-sm text-gray-900">{{ Auth::user()->email }}</p>
-            </div>
-            
-            <div>
-                <label class="block text-sm font-medium text-gray-700">Role</label>
-                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
-                    @if(Auth::user()->role === 'admin') bg-red-100 text-red-800
-                    @elseif(Auth::user()->role === 'dospem') bg-purple-100 text-purple-800
-                    @else bg-green-100 text-green-800 @endif">
-                    {{ ucfirst(Auth::user()->role) }}
-                </span>
-            </div>
-            
-            <div>
-                <label class="block text-sm font-medium text-gray-700">Bergabung Sejak</label>
-                <p class="mt-1 text-sm text-gray-900">{{ Auth::user()->created_at->format('d M Y H:i') }}</p>
-            </div>
+            @if($user)
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Nama</label>
+                    <p class="mt-1 text-sm text-gray-900">{{ $user->name }}</p>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Email</label>
+                    <p class="mt-1 text-sm text-gray-900">{{ $user->email }}</p>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Role</label>
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                        @if($user->role === 'admin') bg-red-100 text-red-800
+                        @elseif($user->role === 'dospem') bg-purple-100 text-purple-800
+                        @else bg-green-100 text-green-800 @endif">
+                        {{ ucfirst($user->role) }}
+                    </span>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Bergabung Sejak</label>
+                    <p class="mt-1 text-sm text-gray-900">{{ $user->created_at->format('d M Y H:i') }}</p>
+                </div>
+            @else
+                <p class="text-gray-500">Data pengguna tidak ditemukan. Silakan coba login kembali.</p>
+            @endif
         </div>
     </div>
 

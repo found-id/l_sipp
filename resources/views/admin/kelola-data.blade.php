@@ -53,13 +53,13 @@
             </div>
         </a>
 
-        <!-- Kelola Rubrik Penilaian -->
+        <!-- Penilaian Mahasiswa -->
         <a href="{{ route('admin.rubrik.index') }}" class="bg-white p-6 rounded-lg shadow hover:shadow-md transition-shadow">
             <div class="flex items-center">
-                <i class="fas fa-clipboard-list text-3xl text-orange-600 mr-4"></i>
+                <i class="fas fa-user-check text-3xl text-teal-600 mr-4"></i>
                 <div>
-                    <h3 class="text-lg font-medium text-gray-900">Kelola Rubrik Penilaian</h3>
-                    <p class="text-sm text-gray-600">Kelola rubrik penilaian PKL</p>
+                    <h3 class="text-lg font-medium text-gray-900">Penilaian Mahasiswa</h3>
+                    <p class="text-sm text-gray-600">Lakukan penilaian mahasiswa PKL</p>
                 </div>
             </div>
         </a>

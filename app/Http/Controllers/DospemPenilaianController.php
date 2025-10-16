@@ -40,36 +40,16 @@ class DospemPenilaianController extends Controller
             ->pluck('id_mahasiswa')
             ->toArray();
         
-        $query = \App\Models\User::whereIn('id', $mahasiswaIds)
-            ->with('profilMahasiswa');
+        $query = \App\Models\User::whereIn('users.id', $mahasiswaIds)->with('profilMahasiswa');
             
-        // Apply sorting
-        $sort = $request->get('sort', 'name_asc');
-        switch ($sort) {
-            case 'name_desc':
-                $query->orderBy('name', 'desc');
-                break;
-            case 'nim_asc':
-                $query->join('profil_mahasiswa', 'users.id', '=', 'profil_mahasiswa.id_mahasiswa')
-                      ->orderBy('profil_mahasiswa.nim', 'asc');
-                break;
-            case 'nim_desc':
-                $query->join('profil_mahasiswa', 'users.id', '=', 'profil_mahasiswa.id_mahasiswa')
-                      ->orderBy('profil_mahasiswa.nim', 'desc');
-                break;
-            case 'status':
-                // Sort by assessment status (assessed first)
-                $query->leftJoin('assessment_responses', function($join) {
-                    $join->on('users.id', '=', 'assessment_responses.mahasiswa_user_id')
-                         ->where('assessment_responses.is_final', true);
-                })
-                ->orderByRaw('assessment_responses.id IS NULL ASC')
-                ->orderBy('name', 'asc');
-                break;
-            default: // name_asc
-                $query->orderBy('name', 'asc');
-                break;
-        }
+        // Default sort by assessment status (unevaluated first), then by name
+        $query->leftJoin('assessment_results', function ($join) use ($form) {
+            $join->on('users.id', '=', 'assessment_results.mahasiswa_user_id')
+                 ->where('assessment_results.form_id', $form->id);
+        })
+        ->orderByRaw('assessment_results.id IS NULL DESC')
+        ->orderBy('users.name', 'asc')
+        ->select('users.*');
         
         $students = $query->get();
         

@@ -6,7 +6,7 @@
 <div class="container mx-auto px-4 py-8">
     <div class="mb-6">
         <h1 class="text-3xl font-bold text-gray-900">Penilaian Mahasiswa</h1>
-        <p class="text-gray-600 mt-2">Penilaian mahasiswa bimbingan berdasarkan rubrik yang telah ditetapkan</p>
+        <p class="text-gray-600 mt-2">Penilaian semua mahasiswa berdasarkan rubrik yang telah ditetapkan</p>
     </div>
 
     @if(!$form)
@@ -21,18 +21,72 @@
         </div>
     @else
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <!-- Student Selection -->
+            <!-- Student/Lecturer Selection -->
             <div class="lg:col-span-1">
                 <div class="bg-white rounded-lg shadow p-6">
                     <div class="flex justify-between items-center mb-4">
-                        <h3 class="text-lg font-semibold text-gray-900">Pilih Mahasiswa</h3>
-
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-900">
+                                @if($selectedDospem)
+                                    Mahasiswa Bimbingan
+                                @elseif($lecturers->isNotEmpty())
+                                    Pilih Dosen Pembimbing
+                                @else
+                                    Pilih Mahasiswa
+                                @endif
+                            </h3>
+                            @if($selectedDospem)
+                                <p class="text-sm text-gray-600">{{ $selectedDospem->name }}</p>
+                            @endif
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <label class="text-sm text-gray-600">Sort:</label>
+                            <select id="sortSelect" class="text-sm border border-gray-300 rounded px-2 py-1">
+                                <option value="status" {{ request('sort', 'status') == 'status' ? 'selected' : '' }}>Status Penilaian</option>
+                                <option value="dospem_status" {{ request('sort') == 'dospem_status' ? 'selected' : '' }}>Dosen & Status</option>
+                            </select>
+                        </div>
                     </div>
-                    
-                    @if(isset($students) && $students->count() > 0)
+
+                    @if($lecturers->isNotEmpty())
+                        {{-- Lecturer List View --}}
+                        <div class="space-y-2">
+                            @foreach($lecturers as $lecturer)
+                                <a href="{{ route('admin.rubrik.index', ['sort' => 'dospem_status', 'dospem_id' => $lecturer->id]) }}"
+                                   class="block p-4 rounded-lg border bg-gray-50 border-gray-200 hover:bg-gray-100 transition-colors">
+                                    <div class="flex items-center space-x-4">
+                                        <div class="flex-shrink-0">
+                                            <div class="h-12 w-12 rounded-full bg-gray-300 flex items-center justify-center">
+                                                <i class="fas fa-chalkboard-teacher text-gray-600"></i>
+                                            </div>
+                                        </div>
+                                        <div class="flex-1 min-w-0">
+                                            <div class="font-medium text-gray-900 truncate">{{ $lecturer->name }}</div>
+                                            <div class="text-sm text-gray-500">
+                                                {{ $lecturer->total_mahasiswa }} mahasiswa
+                                            </div>
+                                        </div>
+                                        <div class="text-right">
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $lecturer->dinilai_count == $lecturer->total_mahasiswa ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800' }}">
+                                                {{ $lecturer->dinilai_count }} / {{ $lecturer->total_mahasiswa }} Dinilai
+                                            </span>
+                                        </div>
+                                    </div>
+                                </a>
+                            @endforeach
+                        </div>
+                    @elseif($students->count() > 0)
+                        {{-- Student List View --}}
+                        @if($selectedDospem)
+                        <div class="mb-4">
+                            <a href="{{ route('admin.rubrik.index', ['sort' => 'dospem_status']) }}" class="text-sm text-blue-600 hover:underline">
+                                &larr; Kembali ke daftar dosen
+                            </a>
+                        </div>
+                        @endif
                         <div class="space-y-2">
                             @foreach($students as $student)
-                                <a href="{{ route('dospem.penilaian', ['m' => $student->id]) }}" 
+                                <a href="{{ route('admin.rubrik.index', request()->query->all() + ['m' => $student->id]) }}"
                                    class="block p-4 rounded-lg border {{ $selectedStudent && $selectedStudent->id == $student->id ? 'bg-blue-50 border-blue-200' : 'bg-gray-50 border-gray-200 hover:bg-gray-100' }} transition-colors">
                                     <div class="flex items-center space-x-4">
                                         <!-- Profile Photo -->
@@ -52,37 +106,25 @@
                                                 <div>
                                                     <div class="font-medium text-gray-900 truncate">{{ $student->name }}</div>
                                                     <div class="text-sm text-gray-500">
-                                                        NIM: {{ $student->profilMahasiswa->nim ?? 'N/A' }} • 
-                                                        Prodi: {{ $student->profilMahasiswa->prodi ?? 'N/A' }}
+                                                        NIM: {{ $student->profilMahasiswa->nim ?? 'N/A' }}
                                                     </div>
                                                 </div>
                                                 
                                                 <!-- Assessment Status -->
-                                                <div class="flex flex-col items-end space-y-2">
+                                                <div class="flex flex-col items-end space-y-1">
                                                     @if($allResults && $allResults->has($student->id))
-                                                        @php
-                                                            $studentResult = $allResults->get($student->id);
-                                                        @endphp
-                                                        <div class="flex items-center space-x-2">
-                                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                                                <i class="fas fa-check mr-1"></i>
-                                                                Sudah dinilai
-                                                            </span>
-                                                        </div>
+                                                        @php $studentResult = $allResults->get($student->id); @endphp
+                                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                                            <i class="fas fa-check mr-1"></i>Sudah dinilai
+                                                        </span>
                                                         @if($studentResult)
-                                                            <div class="text-right">
-                                                                <div class="text-sm font-medium text-gray-900">
-                                                                    Total: {{ $studentResult->total_percent ?? 0 }}%
-                                                                </div>
-                                                                <div class="text-xs text-gray-600">
-                                                                    Grade: <span class="font-medium text-blue-600">{{ $studentResult->letter_grade ?? 'N/A' }}</span>
-                                                                </div>
+                                                            <div class="text-xs text-gray-600">
+                                                                <span class="font-medium text-blue-600">{{ $studentResult->letter_grade ?? 'N/A' }}</span> ({{ $studentResult->total_percent ?? 0 }}%)
                                                             </div>
                                                         @endif
                                                     @else
                                                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-                                                            <i class="fas fa-clock mr-1"></i>
-                                                            Belum dinilai
+                                                            <i class="fas fa-clock mr-1"></i>Belum dinilai
                                                         </span>
                                                     @endif
                                                 </div>
@@ -94,8 +136,19 @@
                         </div>
                     @else
                         <div class="text-center py-8">
+                            @if($selectedDospem)
+                                <a href="{{ route('admin.rubrik.index', ['sort' => 'dospem_status']) }}" class="text-sm text-blue-600 hover:underline mb-4 block">
+                                    &larr; Kembali ke daftar dosen
+                                </a>
+                            @endif
                             <i class="fas fa-user-graduate text-gray-400 text-4xl mb-4"></i>
-                            <p class="text-gray-500">Belum ada mahasiswa bimbingan</p>
+                            <p class="text-gray-500">
+                                @if($selectedDospem)
+                                    Tidak ada mahasiswa bimbingan untuk dosen ini.
+                                @else
+                                    Belum ada data untuk ditampilkan.
+                                @endif
+                            </p>
                         </div>
                     @endif
                 </div>
@@ -114,7 +167,7 @@
                         </div>
 
                         <div class="p-6">
-                            <form action="{{ route('dospem.penilaian.store') }}" method="POST">
+                            <form action="{{ route('admin.penilaian.store') }}" method="POST">
                                 @csrf
                                 <input type="hidden" name="mahasiswa_id" value="{{ $selectedStudent->id }}">
                                 <input type="hidden" name="form_id" value="{{ $form->id }}">
@@ -181,7 +234,7 @@
                                 </div>
 
                                 <div class="mt-8 flex justify-end space-x-4">
-                                    <a href="{{ route('dospem.penilaian') }}" 
+                                    <a href="{{ route('admin.rubrik.index') }}" 
                                        class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">
                                         Batal
                                     </a>
@@ -242,22 +295,30 @@
     @endif
 </div>
 
-@if(session('success'))
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Show success message
-            const successDiv = document.createElement('div');
-            successDiv.className = 'fixed top-4 right-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded z-50';
-            successDiv.innerHTML = '<i class="fas fa-check mr-2"></i>' + '{{ session("success") }}';
-            document.body.appendChild(successDiv);
-            
-            // Remove after 3 seconds
-            setTimeout(() => {
-                successDiv.remove();
-            }, 3000);
-            
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Sort functionality
+        const sortSelect = document.getElementById('sortSelect');
+        if (sortSelect) {
+            sortSelect.addEventListener('change', function() {
+                const currentUrl = new URL(window.location);
+                currentUrl.searchParams.set('sort', this.value);
+                window.location.href = currentUrl.toString();
+            });
+        }
 
-        });
-    </script>
-@endif
+        @if(session('success'))
+        // Show success message
+        const successDiv = document.createElement('div');
+        successDiv.className = 'fixed top-4 right-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded z-50';
+        successDiv.innerHTML = '<i class="fas fa-check mr-2"></i>' + '{{ session("success") }}';
+        document.body.appendChild(successDiv);
+        
+        // Remove after 3 seconds
+        setTimeout(() => {
+            successDiv.remove();
+        }, 3000);
+        @endif
+    });
+</script>
 @endsection

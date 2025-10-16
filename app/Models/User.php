@@ -82,6 +82,11 @@ class User extends Authenticatable
         return $this->hasMany(LaporanPkl::class, 'mahasiswa_id');
     }
 
+    public function assessmentResults()
+    {
+        return $this->hasMany(AssessmentResult::class, 'mahasiswa_user_id', 'id');
+    }
+
     public function historyAktivitas()
     {
         return $this->hasMany(HistoryAktivitas::class, 'id_user');

@@ -58,12 +58,16 @@
     <!-- Mitra Table -->
     <div class="bg-white shadow rounded-lg overflow-hidden">
         <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200">
+            <table class="min-w-full divide-y divide-gray-200 table-fixed">
                 <thead class="bg-gray-50">
                     <tr>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama Mitra</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Alamat</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kontak</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Honor</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fasilitas</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kesesuaian</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kebersihan</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Dibuat</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
                     </tr>
@@ -71,28 +75,40 @@
                 <tbody class="bg-white divide-y divide-gray-200">
                     @forelse($mitra as $m)
                     <tr>
-                        <td class="px-6 py-4 whitespace-nowrap">
+                        <td class="px-6 py-4">
                             <div class="flex items-center">
-                                <div class="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
+                                <div class="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
                                     <i class="fas fa-building text-blue-600"></i>
                                 </div>
                                 <div class="ml-4">
-                                    <div class="text-sm font-medium text-gray-900">{{ $m->nama }}</div>
+                                    <div class="text-sm font-medium text-gray-900 break-words">{{ $m->nama }}</div>
                                     <div class="text-sm text-gray-500">ID: {{ $m->id }}</div>
                                 </div>
                             </div>
                         </td>
-                        <td class="px-6 py-4 text-sm text-gray-900">
+                        <td class="px-6 py-4 text-sm text-gray-900 break-words">
                             {{ $m->alamat ?? 'N/A' }}
                         </td>
                         <td class="px-6 py-4 text-sm text-gray-900">
                             {{ $m->kontak ?? 'N/A' }}
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <td class="px-6 py-4 text-sm font-semibold {{ $m->honor > 0 ? 'text-green-600' : 'text-red-600' }}">
+                            {{ $m->honor > 0 ? 'Ada' : 'Tidak' }}
+                        </td>
+                        <td class="px-6 py-4 text-sm font-semibold {{ $m->fasilitas > 0 ? 'text-green-600' : 'text-red-600' }}">
+                            {{ $m->fasilitas > 0 ? 'Ada' : 'Tidak' }}
+                        </td>
+                        <td class="px-6 py-4 text-sm font-semibold {{ $m->kesesuaian_jurusan > 0 ? 'text-green-600' : 'text-red-600' }}">
+                            {{ $m->kesesuaian_jurusan > 0 ? 'Sesuai' : 'Kurang Sesuai' }}
+                        </td>
+                        <td class="px-6 py-4 text-sm font-semibold {{ $m->tingkat_kebersihan > 0 ? 'text-green-600' : 'text-red-600' }}">
+                            {{ $m->tingkat_kebersihan > 0 ? 'Bersih' : 'Kurang Bersih' }}
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-500">
                             {{ $m->created_at->format('d M Y') }}
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                            <button onclick="openEditModal({{ $m->id }}, '{{ $m->nama }}', '{{ $m->alamat }}', '{{ $m->kontak }}', {{ $m->jarak ?? 0 }}, {{ $m->honor ?? 0 }}, {{ $m->fasilitas ?? 1 }}, {{ $m->kesesuaian_jurusan ?? 1 }}, {{ $m->tingkat_kebersihan ?? 1 }})" 
+                        <td class="px-6 py-4 text-sm font-medium space-x-2">
+                            <button onclick="openEditModal({{ $m->id }}, '{{ $m->nama }}', '{{ $m->alamat }}', '{{ $m->kontak }}', {{ $m->jarak ?? 0 }}, {{ $m->honor ?? 0 }}, {{ $m->fasilitas ?? 0 }}, {{ $m->kesesuaian_jurusan ?? 0 }}, {{ $m->tingkat_kebersihan ?? 0 }})" 
                                     class="text-blue-600 hover:text-blue-900">
                                 <i class="fas fa-edit mr-1"></i>Edit
                             </button>
@@ -104,7 +120,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="5" class="px-6 py-4 text-center text-gray-500">Tidak ada mitra</td>
+                        <td colspan="9" class="px-6 py-4 text-center text-gray-500">Tidak ada mitra</td>
                     </tr>
                     @endforelse
                 </tbody>
@@ -148,32 +164,38 @@
                     </div>
 
                     {{-- SAW Criteria Fields --}}
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label for="jarak" class="block text-sm font-medium text-gray-700">Jarak (km)</label>
-                            <input type="number" id="jarak" name="jarak" required value="0"
-                                   class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500">
-                        </div>
-                        <div>
-                            <label for="honor" class="block text-sm font-medium text-gray-700">Honor (Rp)</label>
-                            <input type="number" id="honor" name="honor" required value="0"
-                                   class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500">
-                        </div>
-                    </div>
                     <div>
-                        <label for="fasilitas" class="block text-sm font-medium text-gray-700">Fasilitas (1-5)</label>
-                        <input type="number" id="fasilitas" name="fasilitas" required min="1" max="5" value="1"
+                        <label for="jarak" class="block text-sm font-medium text-gray-700">Jarak (km)</label>
+                        <input type="number" id="jarak" name="jarak" required value="0"
                                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500">
                     </div>
                     <div>
-                        <label for="kesesuaian_jurusan" class="block text-sm font-medium text-gray-700">Kesesuaian Jurusan (1-5)</label>
-                        <input type="number" id="kesesuaian_jurusan" name="kesesuaian_jurusan" required min="1" max="5" value="1"
-                               class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                        <label for="honor" class="block text-sm font-medium text-gray-700">Honor</label>
+                        <select id="honor" name="honor" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                            <option value="0">Tidak Ada</option>
+                            <option value="1">Ada</option>
+                        </select>
                     </div>
                     <div>
-                        <label for="tingkat_kebersihan" class="block text-sm font-medium text-gray-700">Tingkat Kebersihan (1-5)</label>
-                        <input type="number" id="tingkat_kebersihan" name="tingkat_kebersihan" required min="1" max="5" value="1"
-                               class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                        <label for="fasilitas" class="block text-sm font-medium text-gray-700">Fasilitas</label>
+                        <select id="fasilitas" name="fasilitas" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                            <option value="0">Tidak Ada</option>
+                            <option value="1">Ada</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="kesesuaian_jurusan" class="block text-sm font-medium text-gray-700">Kesesuaian Jurusan</label>
+                        <select id="kesesuaian_jurusan" name="kesesuaian_jurusan" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                            <option value="0">Kurang Sesuai</option>
+                            <option value="1">Sesuai</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="tingkat_kebersihan" class="block text-sm font-medium text-gray-700">Tingkat Kebersihan</label>
+                        <select id="tingkat_kebersihan" name="tingkat_kebersihan" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                            <option value="0">Kurang Bersih</option>
+                            <option value="1">Bersih</option>
+                        </select>
                     </div>
                 </div>
                 
@@ -220,32 +242,38 @@
                     </div>
 
                     {{-- SAW Criteria Fields --}}
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label for="edit_jarak" class="block text-sm font-medium text-gray-700">Jarak (km)</label>
-                            <input type="number" id="edit_jarak" name="jarak" required
-                                   class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500">
-                        </div>
-                        <div>
-                            <label for="edit_honor" class="block text-sm font-medium text-gray-700">Honor (Rp)</label>
-                            <input type="number" id="edit_honor" name="honor" required
-                                   class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500">
-                        </div>
-                    </div>
                     <div>
-                        <label for="edit_fasilitas" class="block text-sm font-medium text-gray-700">Fasilitas (1-5)</label>
-                        <input type="number" id="edit_fasilitas" name="fasilitas" required min="1" max="5"
+                        <label for="edit_jarak" class="block text-sm font-medium text-gray-700">Jarak (km)</label>
+                        <input type="number" id="edit_jarak" name="jarak" required
                                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500">
                     </div>
                     <div>
-                        <label for="edit_kesesuaian_jurusan" class="block text-sm font-medium text-gray-700">Kesesuaian Jurusan (1-5)</label>
-                        <input type="number" id="edit_kesesuaian_jurusan" name="kesesuaian_jurusan" required min="1" max="5"
-                               class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                        <label for="edit_honor" class="block text-sm font-medium text-gray-700">Honor</label>
+                        <select id="edit_honor" name="honor" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                            <option value="0">Tidak Ada</option>
+                            <option value="1">Ada</option>
+                        </select>
                     </div>
                     <div>
-                        <label for="edit_tingkat_kebersihan" class="block text-sm font-medium text-gray-700">Tingkat Kebersihan (1-5)</label>
-                        <input type="number" id="edit_tingkat_kebersihan" name="tingkat_kebersihan" required min="1" max="5"
-                               class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                        <label for="edit_fasilitas" class="block text-sm font-medium text-gray-700">Fasilitas</label>
+                        <select id="edit_fasilitas" name="fasilitas" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                            <option value="0">Tidak Ada</option>
+                            <option value="1">Ada</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="edit_kesesuaian_jurusan" class="block text-sm font-medium text-gray-700">Kesesuaian Jurusan</label>
+                        <select id="edit_kesesuaian_jurusan" name="kesesuaian_jurusan" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                            <option value="0">Kurang Sesuai</option>
+                            <option value="1">Sesuai</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="edit_tingkat_kebersihan" class="block text-sm font-medium text-gray-700">Tingkat Kebersihan</label>
+                        <select id="edit_tingkat_kebersihan" name="tingkat_kebersihan" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                            <option value="0">Kurang Bersih</option>
+                            <option value="1">Bersih</option>
+                        </select>
                     </div>
                 </div>
                 
@@ -279,10 +307,10 @@ function openEditModal(id, nama, alamat, kontak, jarak, honor, fasilitas, kesesu
     document.getElementById('edit_alamat').value = alamat;
     document.getElementById('edit_kontak').value = kontak;
     document.getElementById('edit_jarak').value = jarak;
-    document.getElementById('edit_honor').value = honor;
-    document.getElementById('edit_fasilitas').value = fasilitas;
-    document.getElementById('edit_kesesuaian_jurusan').value = kesesuaian_jurusan;
-    document.getElementById('edit_tingkat_kebersihan').value = tingkat_kebersihan;
+    document.getElementById('edit_honor').value = honor > 0 ? '1' : '0';
+    document.getElementById('edit_fasilitas').value = fasilitas > 0 ? '1' : '0';
+    document.getElementById('edit_kesesuaian_jurusan').value = kesesuaian_jurusan > 0 ? '1' : '0';
+    document.getElementById('edit_tingkat_kebersihan').value = tingkat_kebersihan > 0 ? '1' : '0';
     document.getElementById('editModal').classList.remove('hidden');
 }
 
