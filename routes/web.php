@@ -11,8 +11,9 @@ use App\Http\Controllers\FAQController;
 use App\Http\Controllers\ActivityController;
 use App\Http\Controllers\MitraController;
 use App\Http\Controllers\PemberkasanController;
+use App\Http\Controllers\HomeController;
 
-    Route::get('/', fn () => view('welcome'));
+    Route::get('/', [HomeController::class, 'index'])->name('welcome');
     Route::get('faq', [FAQController::class, 'index'])->name('faq');
 
     // Auth Routes
@@ -21,6 +22,8 @@ use App\Http\Controllers\PemberkasanController;
     Route::post('logout', [AuthController::class, 'logout'])->name('logout');
     Route::get('register', [AuthController::class, 'showRegister'])->name('register');
     Route::post('register', [AuthController::class, 'register']);
+    Route::get('complete-profile', [AuthController::class, 'showCompleteProfile'])->name('complete-profile');
+    Route::post('complete-profile', [AuthController::class, 'completeProfile']);
 
     // Google OAuth Routes
     Route::get('auth/google', [AuthController::class, 'redirectToGoogle'])->name('auth.google');

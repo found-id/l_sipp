@@ -4,12 +4,10 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use App\Models\AssessmentForm;
-use App\Models\AssessmentFormItem;
 use App\Models\AssessmentResponse;
 use App\Models\AssessmentResponseItem;
 use App\Models\AssessmentResult;
-use App\Models\GradeScaleStep;
+use App\Services\AssessmentService;
 
 class DospemPenilaianController extends Controller
 {
@@ -21,8 +19,8 @@ class DospemPenilaianController extends Controller
             abort(403, 'Unauthorized');
         }
         
-        // Get active assessment form
-        $form = AssessmentForm::where('is_active', true)->with('items')->first();
+        // Get hardcoded assessment form
+        $form = AssessmentService::getAssessmentForm();
         
         if (!$form) {
             return view('dospem.penilaian.index', [
@@ -43,9 +41,8 @@ class DospemPenilaianController extends Controller
         $query = \App\Models\User::whereIn('users.id', $mahasiswaIds)->with('profilMahasiswa');
             
         // Default sort by assessment status (unevaluated first), then by name
-        $query->leftJoin('assessment_results', function ($join) use ($form) {
-            $join->on('users.id', '=', 'assessment_results.mahasiswa_user_id')
-                 ->where('assessment_results.form_id', $form->id);
+        $query->leftJoin('assessment_results', function ($join) {
+            $join->on('users.id', '=', 'assessment_results.mahasiswa_user_id');
         })
         ->orderByRaw('assessment_results.id IS NULL DESC')
         ->orderBy('users.name', 'asc')
@@ -60,8 +57,7 @@ class DospemPenilaianController extends Controller
         $results = collect();
         
         // Get all assessment results for all students
-        $allResults = AssessmentResult::where('form_id', $form->id)
-            ->whereIn('mahasiswa_user_id', $students->pluck('id'))
+        $allResults = AssessmentResult::whereIn('mahasiswa_user_id', $students->pluck('id'))
             ->get()
             ->keyBy('mahasiswa_user_id');
         
@@ -69,8 +65,7 @@ class DospemPenilaianController extends Controller
             $selectedStudent = $students->firstWhere('id', $selectedStudentId);
             
             // Get existing response
-            $response = AssessmentResponse::where('form_id', $form->id)
-                ->where('mahasiswa_user_id', $selectedStudentId)
+            $response = AssessmentResponse::where('mahasiswa_user_id', $selectedStudentId)
                 ->where('dosen_user_id', $user->id)
                 ->with('responseItems')
                 ->first();
@@ -98,11 +93,10 @@ class DospemPenilaianController extends Controller
         
         $request->validate([
             'mahasiswa_id' => 'required|exists:users,id',
-            'form_id' => 'required|exists:assessment_forms,id',
             'items' => 'required|array',
         ]);
         
-        $form = AssessmentForm::findOrFail($request->form_id);
+        $form = AssessmentService::getAssessmentForm();
         $mahasiswaId = $request->mahasiswa_id;
         
         // Check if mahasiswa is under this dospem
@@ -116,7 +110,6 @@ class DospemPenilaianController extends Controller
         // Create or update response
         $response = AssessmentResponse::updateOrCreate(
             [
-                'form_id' => $form->id,
                 'mahasiswa_user_id' => $mahasiswaId,
                 'dosen_user_id' => $user->id,
             ],
@@ -128,16 +121,16 @@ class DospemPenilaianController extends Controller
         
         // Save response items
         foreach ($request->items as $itemId => $value) {
-            $item = AssessmentFormItem::findOrFail($itemId);
+            $item = AssessmentService::getAssessmentFormItem($itemId);
             
             $responseItem = [
                 'response_id' => $response->id,
                 'item_id' => $itemId,
             ];
             
-            if ($item->type === 'numeric') {
+            if ($item['type'] === 'numeric') {
                 $responseItem['value_numeric'] = $value;
-            } elseif ($item->type === 'boolean') {
+            } elseif ($item['type'] === 'boolean') {
                 $responseItem['value_bool'] = (bool) $value;
             } else {
                 $responseItem['value_text'] = $value;
@@ -161,7 +154,6 @@ class DospemPenilaianController extends Controller
         // Save result
         AssessmentResult::updateOrCreate(
             [
-                'form_id' => $form->id,
                 'mahasiswa_user_id' => $mahasiswaId,
             ],
             [
@@ -181,13 +173,13 @@ class DospemPenilaianController extends Controller
         $totalScore = 0;
         
         foreach ($response->responseItems as $item) {
-            $formItem = $item->item;
-            $weight = $formItem->weight;
+            $formItem = AssessmentService::getAssessmentFormItem($item->item_id);
+            $weight = $formItem['weight'];
             
-            if ($formItem->type === 'numeric') {
+            if ($formItem['type'] === 'numeric') {
                 $value = $item->value_numeric ?? 0;
                 $totalScore += ($value / 100) * $weight;
-            } elseif ($formItem->type === 'boolean') {
+            } elseif ($formItem['type'] === 'boolean') {
                 $value = $item->value_bool ? 100 : 0;
                 $totalScore += ($value / 100) * $weight;
             }
@@ -198,22 +190,11 @@ class DospemPenilaianController extends Controller
     
     private function getGradeFromScore($score)
     {
-        $gradeStep = GradeScaleStep::where('scale_id', 1)
-            ->where('min_score', '<=', $score)
-            ->where('max_score', '>=', $score)
-            ->orderBy('sort_order')
-            ->first();
-        
-        if ($gradeStep) {
-            return [
-                'letter' => $gradeStep->letter,
-                'gpa' => $gradeStep->gpa_point,
-            ];
-        }
+        $grade = AssessmentService::calculateGrade($score);
         
         return [
-            'letter' => 'F',
-            'gpa' => 0,
+            'letter' => $grade['letter'],
+            'gpa' => $grade['gpa_point'],
         ];
     }
 }

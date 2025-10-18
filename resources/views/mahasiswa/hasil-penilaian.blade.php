@@ -20,12 +20,12 @@
                     <div class="bg-gray-50 rounded-lg p-4 mb-4">
                         <div class="flex justify-between items-start">
                             <div>
-                                <h3 class="text-lg font-medium text-gray-900">{{ $result->form->name ?? 'Penilaian PKL' }}</h3>
+                                <h3 class="text-lg font-medium text-gray-900">{{ $form['name'] ?? 'Penilaian PKL' }}</h3>
                                 <p class="text-sm text-gray-600 mt-1">
                                     Dinilai oleh: {{ $result->decidedBy->name ?? 'N/A' }}
                                 </p>
                                 <p class="text-sm text-gray-500">
-                                    Tanggal: {{ $result->decided_at ? $result->decided_at->format('d M Y H:i') : 'N/A' }}
+                                    Tanggal: {{ $result->created_at ? $result->created_at->format('d M Y H:i') : 'N/A' }}
                                 </p>
                             </div>
                             <div class="text-right">
@@ -56,14 +56,14 @@
                 <div class="space-y-4">
                     @foreach($responses as $response)
                         <div class="border border-gray-200 rounded-lg p-4">
-                            <div class="flex justify-between items-start">
+                            <div class="flex justify-between items-start mb-4">
                                 <div>
-                                    <h3 class="text-md font-medium text-gray-900">{{ $response->form->name ?? 'Penilaian PKL' }}</h3>
+                                    <h3 class="text-md font-medium text-gray-900">{{ $form['name'] ?? 'Penilaian PKL' }}</h3>
                                     <p class="text-sm text-gray-600 mt-1">
                                         Dosen: {{ $response->dosen->name ?? 'N/A' }}
                                     </p>
                                     <p class="text-sm text-gray-500">
-                                        Tanggal: {{ $response->submitted_at ? $response->submitted_at->format('d M Y H:i') : 'N/A' }}
+                                        Tanggal: {{ $response->updated_at ? $response->updated_at->format('d M Y H:i') : 'N/A' }}
                                     </p>
                                 </div>
                                 <div class="text-right">
@@ -78,6 +78,35 @@
                                             Draft
                                         </span>
                                     @endif
+                                </div>
+                            </div>
+                            
+                            <!-- Detail Penilaian -->
+                            <div class="mt-4">
+                                <h4 class="text-sm font-medium text-gray-700 mb-3">Detail Penilaian:</h4>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                    @foreach($form['items'] as $item)
+                                        @php
+                                            $responseItem = $response->responseItems->where('item_id', $item['id'])->first();
+                                            $value = '';
+                                            if ($responseItem) {
+                                                if ($item['type'] === 'numeric') {
+                                                    $value = $responseItem->value_numeric;
+                                                } elseif ($item['type'] === 'boolean') {
+                                                    $value = $responseItem->value_bool ? 'Ya' : 'Tidak';
+                                                } else {
+                                                    $value = $responseItem->value_text;
+                                                }
+                                            }
+                                        @endphp
+                                        <div class="bg-gray-50 rounded p-3">
+                                            <div class="flex justify-between items-center">
+                                                <span class="text-sm font-medium text-gray-700">{{ $item['label'] }}</span>
+                                                <span class="text-sm text-gray-600">{{ $value ?: 'Belum dinilai' }}</span>
+                                            </div>
+                                            <div class="text-xs text-gray-500 mt-1">Bobot: {{ $item['weight'] }}%</div>
+                                        </div>
+                                    @endforeach
                                 </div>
                             </div>
                         </div>

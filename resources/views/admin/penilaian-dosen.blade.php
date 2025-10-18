@@ -64,7 +64,7 @@
                             </span>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            {{ $result->decided_at ? $result->decided_at->format('d M Y H:i') : 'N/A' }}
+                            {{ $result->created_at ? $result->created_at->format('d M Y H:i') : 'N/A' }}
                         </td>
                     </tr>
                     @empty

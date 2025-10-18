@@ -23,7 +23,11 @@ class DocumentController extends Controller
         if ($user->role === 'mahasiswa') {
             $khsFiles = $user->khs()->get();
             $khs = $khsFiles->sortByDesc('created_at')->first();
-            $khsFileCount = $khsFiles->count();
+            // Hitung jumlah KHS per semester secara distinct (1..5) agar tidak melebihi 5
+            $khsFileCount = $user->khs()
+                ->whereBetween('semester', [1, 5])
+                ->distinct()
+                ->count('semester');
             $khsManualTranskrip = $user->khsManualTranskrip()->get();
 
             $suratBalasan = $user->suratBalasan()->latest()->first();
@@ -50,33 +54,37 @@ class DocumentController extends Controller
     {
         $request->validate([
             'file' => 'required|file|mimes:pdf|max:10240', // 10MB max
+            'semester' => 'required|integer|min:1|max:5',
         ]);
 
         $user = Auth::user();
-        
-        // Delete old KHS if exists
-        $oldKhs = $user->khs()->latest()->first();
+        $semester = (int) $request->input('semester');
+
+        // Hapus KHS lama untuk semester yang sama (jika ada), jangan ganggu semester lain
+        $oldKhs = $user->khs()->where('semester', $semester)->first();
         if ($oldKhs) {
-            Storage::disk('public')->delete($oldKhs->file_path);
+            if (!empty($oldKhs->file_path)) {
+                Storage::disk('public')->delete($oldKhs->file_path);
+            }
             $oldKhs->delete();
         }
 
-        // Store new file
+        // Simpan file baru ke folder user_id agar rapi: storage/app/public/documents/khs/{user_id}
         $file = $request->file('file');
-        $nim = $user->profilMahasiswa->nim ?? $user->id;
-        $nama = str_replace(' ', '_', $user->name);
-        $filename = 'KHS_' . $nama . '_' . $nim . '_' . time() . '.' . $file->getClientOriginalExtension();
-        $path = $file->storeAs('documents/khs', $filename, 'public');
+        $nim  = optional($user->profilMahasiswa)->nim ?? $user->id;
+        $nama = preg_replace('/[^A-Za-z0-9_]/', '_', str_replace(' ', '_', $user->name));
+        $filename = 'S' . $semester . '_KHS_' . $nama . '_' . $nim . '_' . time() . '.' . $file->getClientOriginalExtension();
+        $path = $file->storeAs('documents/khs/' . $user->id, $filename, 'public');
 
-        // Create KHS record
+        // Buat record KHS untuk semester ini
         Khs::create([
-            'mahasiswa_id' => $user->id,
-            'file_path' => $path,
+            'mahasiswa_id'    => $user->id,
+            'file_path'       => $path,
+            'semester'        => $semester,
             'status_validasi' => 'menunggu',
         ]);
 
-
-        // log aktivitas
+        // Log aktivitas
         \App\Models\HistoryAktivitas::create([
             'id_user'      => $user->id,
             'id_mahasiswa' => $user->id,
@@ -84,11 +92,13 @@ class DocumentController extends Controller
             'pesan'        => [
                 'action'        => 'upload_dokumen',
                 'document_type' => 'KHS',
-                'mahasiswa' => $user->name,
-                'file_name' => $filename,
+                'semester'      => $semester,
+                'mahasiswa'     => $user->name,
+                'file_name'     => $filename,
             ],
         ]);
 
+        // Setelah upload, halaman index akan menghitung ulang $khsFileCount dan menampilkan x/5
         return redirect()->route('documents.index')->with('success', "KHS Semester {$semester} berhasil diupload!");
     }
 

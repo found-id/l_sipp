@@ -117,33 +117,31 @@
                             <form action="{{ route('dospem.penilaian.store') }}" method="POST">
                                 @csrf
                                 <input type="hidden" name="mahasiswa_id" value="{{ $selectedStudent->id }}">
-                                <input type="hidden" name="form_id" value="{{ $form->id }}">
-
                                 <div class="mb-6">
-                                    <h4 class="text-md font-medium text-gray-900 mb-2">{{ $form->name }}</h4>
-                                    @if($form->description)
-                                        <p class="text-sm text-gray-600">{{ $form->description }}</p>
+                                    <h4 class="text-md font-medium text-gray-900 mb-2">{{ $form['name'] }}</h4>
+                                    @if($form['description'])
+                                    <p class="text-sm text-gray-600">{{ $form['description'] }}</p>
                                     @endif
                                 </div>
 
                                 <div class="space-y-6">
-                                    @foreach($form->items as $item)
+                                    @foreach($form['items'] as $item)
                                         <div class="border border-gray-200 rounded-lg p-4">
                                             <div class="flex items-center justify-between mb-3">
                                                 <label class="text-sm font-medium text-gray-900">
-                                                    {{ $item->label }}
-                                                    @if($item->required)
+                                                    {{ $item['label'] }}
+                                                    @if($item['required'])
                                                         <span class="text-red-500">*</span>
                                                     @endif
                                                 </label>
-                                                <span class="text-xs text-gray-500">Bobot: {{ $item->weight }}%</span>
+                                                <span class="text-xs text-gray-500">Bobot: {{ $item['weight'] }}%</span>
                                             </div>
 
-                                            @if($item->type === 'numeric')
+                                            @if($item['type'] === 'numeric')
                                                 <div class="flex items-center space-x-4">
                                                     <input type="number" 
-                                                           name="items[{{ $item->id }}]" 
-                                                           value="{{ $responses->get($item->id)->value_numeric ?? '' }}"
+                                                           name="items[{{ $item['id'] }}]" 
+                                                           value="{{ $responses->get($item['id'])->value_numeric ?? '' }}"
                                                            min="0" 
                                                            max="100" 
                                                            step="0.1"
@@ -151,30 +149,30 @@
                                                            required>
                                                     <span class="text-sm text-gray-500">/ 100</span>
                                                 </div>
-                                            @elseif($item->type === 'boolean')
+                                            @elseif($item['type'] === 'boolean')
                                                 <div class="flex items-center space-x-4">
                                                     <label class="flex items-center">
                                                         <input type="radio" 
-                                                               name="items[{{ $item->id }}]" 
+                                                               name="items[{{ $item['id'] }}]" 
                                                                value="1"
-                                                               {{ ($responses->get($item->id)->value_bool ?? false) ? 'checked' : '' }}
+                                                               {{ ($responses->get($item['id'])->value_bool ?? false) ? 'checked' : '' }}
                                                                class="mr-2">
                                                         <span class="text-sm">Ya</span>
                                                     </label>
                                                     <label class="flex items-center">
                                                         <input type="radio" 
-                                                               name="items[{{ $item->id }}]" 
+                                                               name="items[{{ $item['id'] }}]" 
                                                                value="0"
-                                                               {{ !($responses->get($item->id)->value_bool ?? false) ? 'checked' : '' }}
+                                                               {{ !($responses->get($item['id'])->value_bool ?? false) ? 'checked' : '' }}
                                                                class="mr-2">
                                                         <span class="text-sm">Tidak</span>
                                                     </label>
                                                 </div>
                                             @else
-                                                <textarea name="items[{{ $item->id }}]" 
+                                                <textarea name="items[{{ $item['id'] }}]" 
                                                           rows="3"
                                                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                                          placeholder="Masukkan penilaian...">{{ $responses->get($item->id)->value_text ?? '' }}</textarea>
+                                                          placeholder="Masukkan penilaian...">{{ $responses->get($item['id'])->value_text ?? '' }}</textarea>
                                             @endif
                                         </div>
                                     @endforeach
@@ -210,7 +208,7 @@
                                         <div>
                                             <h4 class="text-md font-medium text-gray-900">Hasil Saat Ini</h4>
                                             <p class="text-sm text-gray-600 mt-1">
-                                                Ditetapkan: {{ $studentResult->decided_at ? $studentResult->decided_at->format('Y-m-d H:i:s') : 'N/A' }}
+                                                Ditetapkan: {{ $studentResult->created_at ? $studentResult->created_at->format('Y-m-d H:i:s') : 'N/A' }}
                                             </p>
                                         </div>
                                         <div class="text-right">
