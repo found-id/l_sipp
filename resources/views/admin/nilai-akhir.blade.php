@@ -51,7 +51,7 @@
                             {{ $result->mahasiswa->profilMahasiswa->dosenPembimbing->name ?? 'Belum ditentukan' }}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            {{ $result->form->name }}
+                            {{ $result->form['name'] }}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                             {{ number_format($result->total_percent, 1) }}%

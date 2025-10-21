@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use App\Models\User;
 use App\Models\ProfilMahasiswa;
 use App\Models\Mitra;
@@ -190,7 +191,7 @@ class AdminController extends Controller
 
             return redirect()->back()->with('success', 'User dan semua data terkait berhasil dihapus!');
         } catch (\Exception $e) {
-            \Log::error('Error deleting user: ' . $e->getMessage());
+            Log::error('Error deleting user: ' . $e->getMessage());
             return redirect()->back()->with('error', 'Gagal menghapus user: ' . $e->getMessage());
         }
     }
@@ -325,7 +326,7 @@ class AdminController extends Controller
         $laporanPkl = \App\Models\LaporanPkl::with(['mahasiswa.profilMahasiswa.dosenPembimbing'])->get();
         
         // Debug: Log the counts
-        \Log::info('Admin Validation Data:', [
+        Log::info('Admin Validation Data:', [
             'khs_count' => $khs->count(),
             'surat_count' => $suratBalasan->count(),
             'laporan_count' => $laporanPkl->count()
@@ -372,8 +373,7 @@ class AdminController extends Controller
     {
         // Get all assessment results with dospem info
         $results = \App\Models\AssessmentResult::with([
-            'mahasiswa.profilMahasiswa.dosenPembimbing',
-            'form'
+            'mahasiswa.profilMahasiswa.dosenPembimbing'
         ])->orderBy('created_at', 'desc')->get();
 
         return view('admin.penilaian-dosen', compact('results'));
@@ -383,8 +383,7 @@ class AdminController extends Controller
     {
         // Get all assessment results for all students
         $results = \App\Models\AssessmentResult::with([
-            'mahasiswa.profilMahasiswa.dosenPembimbing',
-            'form'
+            'mahasiswa.profilMahasiswa.dosenPembimbing'
         ])->orderBy('created_at', 'desc')->get();
 
         return view('admin.nilai-akhir', compact('results'));

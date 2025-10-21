@@ -35,6 +35,7 @@ class DocumentController extends Controller
             $mitra = Mitra::all();
             
             return view('documents.index', compact(
+                'user',
                 'khs', 
                 'suratBalasan', 
                 'laporanPkl', 
@@ -100,6 +101,126 @@ class DocumentController extends Controller
 
         // Setelah upload, halaman index akan menghitung ulang $khsFileCount dan menampilkan x/5
         return redirect()->route('documents.index')->with('success', "KHS Semester {$semester} berhasil diupload!");
+    }
+
+    public function uploadKhsMultiple(Request $request)
+    {
+        $request->validate([
+            'files' => 'required|array|min:1|max:5',
+            'files.*' => 'required|file|mimes:pdf|max:10240', // 10MB max per file
+            'semesters' => 'required|array|min:1|max:5',
+            'semesters.*' => 'required|integer|min:1|max:5',
+        ]);
+
+        $user = Auth::user();
+        $uploadedFiles = [];
+        $errors = [];
+
+        foreach ($request->file('files') as $index => $file) {
+            try {
+                $semester = $request->input('semesters')[$index] ?? ($index + 1);
+                
+                // Check if KHS already exists for this semester
+                $existingKhs = $user->khs()->where('semester', $semester)->first();
+                if ($existingKhs) {
+                    // Delete old file
+                    if (!empty($existingKhs->file_path)) {
+                        Storage::disk('public')->delete($existingKhs->file_path);
+                    }
+                    $existingKhs->delete();
+                }
+
+                // Save new file
+                $nim = optional($user->profilMahasiswa)->nim ?? $user->id;
+                $nama = preg_replace('/[^A-Za-z0-9_]/', '_', str_replace(' ', '_', $user->name));
+                $newFilename = 'S' . $semester . '_KHS_' . $nama . '_' . $nim . '_' . time() . '_' . $index . '.' . $file->getClientOriginalExtension();
+                $path = $file->storeAs('documents/khs/' . $user->id, $newFilename, 'public');
+
+                // Create KHS record
+                Khs::create([
+                    'mahasiswa_id' => $user->id,
+                    'file_path' => $path,
+                    'semester' => $semester,
+                    'status_validasi' => 'menunggu',
+                ]);
+
+                $uploadedFiles[] = [
+                    'semester' => $semester,
+                    'filename' => $newFilename,
+                    'original_name' => $file->getClientOriginalName()
+                ];
+
+                // Log activity
+                \App\Models\HistoryAktivitas::create([
+                    'id_user' => $user->id,
+                    'id_mahasiswa' => $user->id,
+                    'tipe' => 'upload_dokumen',
+                    'pesan' => [
+                        'action' => 'upload_dokumen',
+                        'document_type' => 'KHS',
+                        'semester' => $semester,
+                        'mahasiswa' => $user->name,
+                        'file_name' => $newFilename,
+                        'upload_type' => 'multiple'
+                    ],
+                ]);
+
+            } catch (\Exception $e) {
+                $errors[] = "File " . ($index + 1) . ": " . $e->getMessage();
+                Log::error('KHS Multiple Upload Error', [
+                    'user_id' => $user->id,
+                    'file_index' => $index,
+                    'error' => $e->getMessage()
+                ]);
+            }
+        }
+
+        if (count($uploadedFiles) > 0) {
+            $message = 'Berhasil mengupload ' . count($uploadedFiles) . ' file KHS!';
+            if (count($errors) > 0) {
+                $message .= ' Beberapa file gagal: ' . implode(', ', $errors);
+            }
+            return response()->json([
+                'success' => true,
+                'message' => $message,
+                'uploaded_count' => count($uploadedFiles),
+                'errors' => $errors
+            ]);
+        } else {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal mengupload file. ' . implode(', ', $errors)
+            ], 400);
+        }
+    }
+
+    public function selectMitra(Request $request)
+    {
+        $request->validate([
+            'mitra_id' => 'nullable|exists:mitra,id'
+        ]);
+
+        $user = Auth::user();
+        
+        // Update or create profil mahasiswa with selected mitra
+        $profilMahasiswa = $user->profilMahasiswa;
+        if ($profilMahasiswa) {
+            $profilMahasiswa->update(['mitra_selected' => $request->mitra_id]);
+        } else {
+            // If no profil mahasiswa exists, create one
+            \App\Models\ProfilMahasiswa::create([
+                'id_mahasiswa' => $user->id,
+                'nim' => $user->id, // fallback
+                'mitra_selected' => $request->mitra_id
+            ]);
+        }
+
+        $message = $request->mitra_id ? 'Instansi mitra berhasil dipilih' : 'Instansi mitra berhasil dihapus';
+        
+        return response()->json([
+            'success' => true,
+            'message' => $message
+        ]);
     }
 
     public function uploadSuratBalasan(Request $request)

@@ -42,6 +42,7 @@ class AssessmentResult extends Model
         return $this->belongsTo(User::class, 'decided_by');
     }
 
+
     /**
      * Get the hardcoded assessment form
      */

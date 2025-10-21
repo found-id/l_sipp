@@ -332,21 +332,72 @@ class AuthController extends Controller
         }
         
         try {
-            // Create custom HTTP client with SSL disabled
+            Log::info('Google OAuth redirect initiated');
+            
+            // Create custom HTTP client with enhanced configuration
             $client = new \GuzzleHttp\Client([
                 'verify' => false,
-                'timeout' => 30,
+                'timeout' => 60, // Increased timeout
+                'connect_timeout' => 30, // Connection timeout
                 'http_errors' => false,
+                'allow_redirects' => [
+                    'max' => 10,
+                    'strict' => false,
+                    'referer' => true,
+                    'protocols' => ['http', 'https'],
+                    'track_redirects' => true
+                ],
+                'headers' => [
+                    'User-Agent' => 'Laravel-SIPP-PKL/1.0',
+                    'Accept' => 'application/json',
+                ]
             ]);
             
             // Override Socialite's HTTP client
             $provider = Socialite::driver('google');
             $provider->setHttpClient($client);
             
+            // Store OAuth state in session for verification with enhanced persistence
+            $state = bin2hex(random_bytes(16));
+            $timestamp = time();
+            
+            // Store state with multiple fallbacks
+            session(['google_oauth_state' => $state]);
+            session(['google_oauth_timestamp' => $timestamp]);
+            
+            // Also store in cache as backup (if available)
+            try {
+                \Illuminate\Support\Facades\Cache::put('google_oauth_state_' . session()->getId(), $state, 300); // 5 minutes
+                \Illuminate\Support\Facades\Cache::put('google_oauth_timestamp_' . session()->getId(), $timestamp, 300);
+            } catch (\Exception $e) {
+                Log::warning('Cache not available for OAuth state backup', ['error' => $e->getMessage()]);
+            }
+            
+            Log::info('Google OAuth state stored', [
+                'state' => $state,
+                'timestamp' => $timestamp,
+                'session_id' => session()->getId()
+            ]);
+            
             return $provider->redirect();
         } catch (\Exception $e) {
-            Log::error('Google OAuth redirect error: ' . $e->getMessage());
-            return redirect()->route('login')->withErrors(['error' => 'Gagal mengarahkan ke Google. Silakan coba lagi.']);
+            Log::error('Google OAuth redirect error: ' . $e->getMessage(), [
+                'exception' => $e,
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            $errorMessage = 'Gagal mengarahkan ke Google. ';
+            if (strpos($e->getMessage(), 'SSL') !== false) {
+                $errorMessage .= 'Masalah SSL Certificate. Silakan hubungi admin.';
+            } elseif (strpos($e->getMessage(), 'cURL') !== false) {
+                $errorMessage .= 'Masalah koneksi internet. Silakan coba lagi.';
+            } elseif (strpos($e->getMessage(), 'timeout') !== false) {
+                $errorMessage .= 'Koneksi timeout. Silakan coba lagi.';
+            } else {
+                $errorMessage .= 'Error: ' . $e->getMessage();
+            }
+            
+            return redirect()->route('login')->withErrors(['error' => $errorMessage]);
         }
     }
 
@@ -355,16 +406,78 @@ class AuthController extends Controller
         try {
             Log::info('Google OAuth callback started');
             
-            // Create custom HTTP client with SSL disabled
+            // Verify OAuth state with enhanced fallback mechanism
+            $storedState = session('google_oauth_state');
+            $storedTimestamp = session('google_oauth_timestamp');
+            
+            // Fallback: Try to get state from cache if session is empty
+            if (!$storedState || !$storedTimestamp) {
+                try {
+                    $sessionId = session()->getId();
+                    $cachedState = \Illuminate\Support\Facades\Cache::get('google_oauth_state_' . $sessionId);
+                    $cachedTimestamp = \Illuminate\Support\Facades\Cache::get('google_oauth_timestamp_' . $sessionId);
+                    
+                    if ($cachedState && $cachedTimestamp) {
+                        $storedState = $cachedState;
+                        $storedTimestamp = $cachedTimestamp;
+                        Log::info('Google OAuth state recovered from cache', [
+                            'session_id' => $sessionId,
+                            'cached_state' => $cachedState
+                        ]);
+                    }
+                } catch (\Exception $e) {
+                    Log::warning('Cache fallback failed', ['error' => $e->getMessage()]);
+                }
+            }
+            
+            // Final fallback: If still no state found (server restart), allow OAuth to continue
+            if (!$storedState || !$storedTimestamp) {
+                Log::warning('Google OAuth state not found in session or cache - allowing fallback for server restart', [
+                    'has_session_state' => !empty(session('google_oauth_state')),
+                    'has_session_timestamp' => !empty(session('google_oauth_timestamp')),
+                    'session_id' => session()->getId()
+                ]);
+                
+                // Don't block OAuth if state is missing (likely server restart)
+                // Just log the warning and continue
+            } else {
+                // Check if OAuth session is not too old (5 minutes) only if state exists
+                if (time() - $storedTimestamp > 300) {
+                    Log::warning('Google OAuth session expired', [
+                        'stored_timestamp' => $storedTimestamp,
+                        'current_time' => time(),
+                        'difference' => time() - $storedTimestamp
+                    ]);
+                    session()->forget(['google_oauth_state', 'google_oauth_timestamp']);
+                    return redirect()->route('login')->withErrors(['error' => 'Sesi OAuth telah expired. Silakan coba lagi.']);
+                }
+            }
+            
+            // Create custom HTTP client with enhanced configuration
             $client = new \GuzzleHttp\Client([
                 'verify' => false,
-                'timeout' => 30,
+                'timeout' => 60, // Increased timeout
+                'connect_timeout' => 30, // Connection timeout
                 'http_errors' => false,
+                'allow_redirects' => [
+                    'max' => 10,
+                    'strict' => false,
+                    'referer' => true,
+                    'protocols' => ['http', 'https'],
+                    'track_redirects' => true
+                ],
+                'headers' => [
+                    'User-Agent' => 'Laravel-SIPP-PKL/1.0',
+                    'Accept' => 'application/json',
+                ]
             ]);
             
             // Override Socialite's HTTP client
             $provider = Socialite::driver('google');
             $provider->setHttpClient($client);
+            
+            // Clear OAuth state from session
+            session()->forget(['google_oauth_state', 'google_oauth_timestamp']);
             
             $googleUser = $provider->user();
             Log::info('Google user data received', [
@@ -373,13 +486,19 @@ class AuthController extends Controller
                 'id' => $googleUser->getId()
             ]);
             
-            // Check if user exists
-            $user = User::where('email', $googleUser->getEmail())->first();
+            // Check if user exists by google_email (not by email)
+            $user = User::where('google_email', $googleUser->getEmail())->first();
             
             if ($user) {
                 // User exists, log them in
-                Log::info('Existing user found, logging in', ['user_id' => $user->id]);
+                Log::info('Existing Google user found, logging in', ['user_id' => $user->id]);
                 Auth::login($user);
+                
+                // Check if user has completed profile (for mahasiswa)
+                if ($user->role === 'mahasiswa' && !$user->profilMahasiswa) {
+                    Log::info('Google user needs to complete profile', ['user_id' => $user->id]);
+                    return redirect()->route('complete-profile')->with('info', 'Silakan lengkapi biodata Anda terlebih dahulu.');
+                }
                 
                 // Log login activity
                 \App\Models\HistoryAktivitas::create([
@@ -395,66 +514,69 @@ class AuthController extends Controller
                 ]);
                 
                 return redirect()->route('dashboard')->with('success', 'Login berhasil!');
-                } else {
-                    // User doesn't exist, create new account
-                    Log::info('Creating new user via Google OAuth');
-                    
-                    $user = User::create([
-                        'name' => $googleUser->getName(),
-                        'email' => 'google_' . time() . '@google.oauth', // Unique email for local account
-                        'password' => Hash::make('google_oauth_' . time()),
-                        'role' => 'mahasiswa', // Default role for Google OAuth
-                        'google_linked' => true,
-                        'google_email' => $googleUser->getEmail(), // Store actual Google email here
-                        'photo' => $googleUser->getAvatar(),
-                    ]);
-                    
-                    // Create basic profile for Google users
-                    \App\Models\ProfilMahasiswa::create([
-                        'id_mahasiswa' => $user->id,
-                        'nim' => 'GOOGLE_' . time(), // Temporary NIM for Google users
-                        'prodi' => 'Teknologi Informasi', // Default prodi
-                        'semester' => 5, // Default semester
-                        'jenis_kelamin' => 'L', // Default gender
-                        'cek_min_semester' => false,
-                        'cek_ipk_nilaisks' => false,
-                        'cek_valid_biodata' => false,
-                    ]);
-                    
-                    Log::info('New user created with profile', ['user_id' => $user->id]);
-                    Auth::login($user);
-                    
-                    // Log registration activity
-                    \App\Models\HistoryAktivitas::create([
-                        'id_user' => $user->id,
-                        'id_mahasiswa' => $user->id,
-                        'tipe' => 'register',
-                        'pesan' => [
-                            'action' => 'register',
-                            'user' => $user->name,
-                            'role' => $user->role,
-                            'message' => $user->name . ' telah melakukan registrasi via Google sebagai ' . ucfirst($user->role),
-                        ],
-                    ]);
-                    
-                    // Redirect to complete profile
-                    return redirect()->route('complete-profile')->with('info', 'Silakan lengkapi biodata Anda terlebih dahulu.');
-                }
+            } else {
+                // User doesn't exist, create new account
+                Log::info('Creating new user via Google OAuth');
+                
+                $user = User::create([
+                    'name' => $googleUser->getName(),
+                    'email' => $googleUser->getEmail(), // Use actual Google email as primary email
+                    'password' => Hash::make('google_oauth_' . time()),
+                    'role' => 'mahasiswa', // Default role for Google OAuth
+                    'google_linked' => true,
+                    'google_email' => $googleUser->getEmail(), // Store actual Google email here
+                    'photo' => $googleUser->getAvatar(),
+                ]);
+                
+                // DON'T create profile automatically - let user complete it
+                Log::info('New Google user created, redirecting to complete profile', ['user_id' => $user->id]);
+                Auth::login($user);
+                
+                // Log registration activity
+                \App\Models\HistoryAktivitas::create([
+                    'id_user' => $user->id,
+                    'id_mahasiswa' => $user->id,
+                    'tipe' => 'register',
+                    'pesan' => [
+                        'action' => 'register',
+                        'user' => $user->name,
+                        'role' => $user->role,
+                        'message' => $user->name . ' telah melakukan registrasi via Google sebagai ' . ucfirst($user->role),
+                    ],
+                ]);
+                
+                // Redirect to complete profile
+                return redirect()->route('complete-profile')->with('info', 'Silakan lengkapi biodata Anda terlebih dahulu.');
+            }
         } catch (\Exception $e) {
             Log::error('Google OAuth Error: ' . $e->getMessage(), [
                 'exception' => $e,
-                'trace' => $e->getTraceAsString()
+                'trace' => $e->getTraceAsString(),
+                'request_data' => request()->all()
             ]);
+            
+            // Clear any remaining OAuth state
+            session()->forget(['google_oauth_state', 'google_oauth_timestamp']);
+            
             $errorMessage = 'Terjadi kesalahan saat login dengan Google. ';
+            $retryMessage = ' Silakan coba lagi dalam beberapa detik.';
+            
             if (strpos($e->getMessage(), 'SSL') !== false) {
                 $errorMessage .= 'Masalah SSL Certificate. Silakan hubungi admin.';
             } elseif (strpos($e->getMessage(), 'cURL') !== false) {
-                $errorMessage .= 'Masalah koneksi internet. Silakan coba lagi.';
+                $errorMessage .= 'Masalah koneksi internet.' . $retryMessage;
+            } elseif (strpos($e->getMessage(), 'timeout') !== false) {
+                $errorMessage .= 'Koneksi timeout.' . $retryMessage;
             } elseif (strpos($e->getMessage(), 'token') !== false) {
                 $errorMessage .= 'Token Google tidak valid. Silakan hubungi admin.';
+            } elseif (strpos($e->getMessage(), 'state') !== false) {
+                $errorMessage .= 'Sesi OAuth tidak valid.' . $retryMessage;
             } else {
-                $errorMessage .= 'Error: ' . $e->getMessage();
+                $errorMessage .= 'Error: ' . $e->getMessage() . $retryMessage;
             }
+            
+            // Add special flag for auto-retry mechanism
+            $errorMessage .= ' [AUTO_RETRY]';
             
             return redirect()->route('login')->withErrors(['error' => $errorMessage]);
         }

@@ -28,6 +28,7 @@ use App\Http\Controllers\HomeController;
     // Google OAuth Routes
     Route::get('auth/google', [AuthController::class, 'redirectToGoogle'])->name('auth.google');
     Route::get('auth/google/callback', [AuthController::class, 'handleGoogleCallback']);
+    Route::post('cancel-registration', [AuthController::class, 'cancelRegistration'])->name('cancel-registration');
 
     Route::middleware(['auth'])->group(function () {
         Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
@@ -38,6 +39,8 @@ use App\Http\Controllers\HomeController;
         Route::prefix('documents')->name('documents.')->group(function () {
             Route::get('/', [DocumentController::class, 'index'])->name('index');
             Route::post('/khs/upload', [DocumentController::class, 'uploadKhs'])->name('khs.upload');
+            Route::post('/khs/upload/multiple', [DocumentController::class, 'uploadKhsMultiple'])->name('khs.upload.multiple');
+            Route::post('/select-mitra', [DocumentController::class, 'selectMitra'])->name('select-mitra');
             Route::post('/surat/upload', [DocumentController::class, 'uploadSuratBalasan'])->name('surat.upload');
             Route::post('/laporan/upload', [DocumentController::class, 'uploadLaporan'])->name('laporan.upload');
             Route::get('/preview/{type}/{filename}', [DocumentController::class, 'previewFile'])->name('preview');

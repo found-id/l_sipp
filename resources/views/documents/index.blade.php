@@ -329,17 +329,17 @@
                                 @endif
                                 
                                 @if($dokumenPemberkasanEnabled)
-                                    <form action="{{ route('documents.khs.upload') }}" method="POST" enctype="multipart/form-data" class="space-y-2">
-                                        @csrf
-                                        <input type="hidden" name="semester" value="{{ $semester }}">
+                                    <div class="space-y-2">
                                         <div>
-                                            <input type="file" name="file" accept=".pdf" required
-                                                   class="block w-full text-xs text-gray-500 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 border border-gray-300 rounded cursor-pointer focus:outline-none focus:ring-1 focus:ring-blue-500">
+                                            <input type="file" id="file_semester_{{ $semester }}" name="file_semester_{{ $semester }}" accept=".pdf" 
+                                                   class="block w-full text-xs text-gray-500 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 border border-gray-300 rounded cursor-pointer focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                                   onchange="updateFilePreview({{ $semester }})">
                                         </div>
-                                        <button type="submit" class="w-full bg-blue-600 text-white py-2 px-3 rounded text-xs hover:bg-blue-700 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors duration-200">
-                                            <i class="fas fa-upload mr-1"></i>Upload
-                                        </button>
-                                    </form>
+                                        <div id="file_preview_{{ $semester }}" class="hidden text-xs text-gray-600 bg-green-50 p-2 rounded border">
+                                            <i class="fas fa-check-circle text-green-600 mr-1"></i>
+                                            <span id="file_name_{{ $semester }}"></span>
+                                        </div>
+                                    </div>
                                 @else
                                     <div class="text-center py-2 text-gray-400">
                                         <i class="fas fa-lock text-sm"></i>
@@ -350,18 +350,28 @@
                         @endfor
                     </div>
                     
-                    <div class="mt-6 p-4 bg-blue-50 rounded-lg">
-                        <h5 class="font-medium text-blue-900 mb-2 flex items-center">
-                            <i class="fas fa-info-circle mr-2"></i>
-                            Informasi Upload
-                        </h5>
-                        <div class="text-sm text-blue-800 space-y-1">
-                            <p>• File akan otomatis diberi nama: <code class="bg-blue-100 px-1 rounded">KHS_Semester-{{ '{X}' }}_(Nama)_(NIM)</code></p>
-                            <p>• Format: PDF, Maksimal: 10MB per file</p>
-                            <p>• Upload KHS sesuai semester yang sedang ditempuh</p>
-                            <p>• Data akan diekstrak untuk analisis transkrip</p>
+                    @if($dokumenPemberkasanEnabled)
+                        <!-- Upload All Button -->
+                        <div class="mt-6 text-center">
+                            <form action="{{ route('documents.khs.upload.multiple') }}" method="POST" enctype="multipart/form-data" id="uploadAllForm">
+                                @csrf
+                                <button type="submit" id="uploadAllBtn" class="bg-blue-600 text-white py-3 px-6 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors duration-200 font-medium">
+                                    <i class="fas fa-save mr-2" id="upload-icon"></i>
+                                    <span id="upload-text">Simpan dan Upload</span>
+                                    <div id="upload-loading" class="hidden flex items-center">
+                                        <div class="relative mr-3">
+                                            <div class="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+                                            <div class="absolute inset-0 flex items-center justify-center">
+                                                <div class="w-2 h-2 bg-white rounded-full animate-pulse"></div>
                         </div>
                     </div>
+                                        <span class="text-white">Memproses...</span>
+                                    </div>
+                                </button>
+                                <div id="uploadStatus" class="mt-3 text-sm"></div>
+                            </form>
+                        </div>
+                    @endif
                 </div>
             </div>
 
@@ -380,8 +390,29 @@
                 </div>
                 
                 <div class="p-6">
-                    <div class="space-y-8">
+                    <!-- Semester Tabs Navigation -->
+                    <div class="mb-6">
+                        <div class="border-b border-gray-200">
+                            <nav class="-mb-px flex space-x-8" aria-label="Semester Tabs">
                         @for($semester = 1; $semester <= 5; $semester++)
+                                    <button onclick="showSemesterTab({{ $semester }})" 
+                                            id="semester-tab-{{ $semester }}" 
+                                            class="semester-tab-button py-3 px-4 border-b-2 font-medium text-sm transition-colors duration-200 {{ $semester === 1 ? 'border-purple-500 text-purple-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }}">
+                                        <div class="flex items-center">
+                                            <div class="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center mr-2">
+                                                <span class="text-purple-600 font-bold text-sm">{{ $semester }}</span>
+                                            </div>
+                                            <span>Semester {{ $semester }}</span>
+                                        </div>
+                                    </button>
+                                @endfor
+                            </nav>
+                        </div>
+                    </div>
+
+               <!-- Semester Tab Content -->
+               @for($semester = 1; $semester <= 5; $semester++)
+                   <div id="semester-content-{{ $semester }}" class="semester-content transition-opacity duration-300 {{ $semester === 1 ? 'opacity-100' : 'opacity-0 hidden' }}">
                             <div class="bg-gray-50 rounded-lg p-6 border border-gray-200">
                                 <div class="text-center mb-6">
                                     <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-3">
@@ -401,7 +432,8 @@
                                         <textarea id="pasteArea{{ $semester }}" 
                                                   class="w-full p-3 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500" 
                                                   rows="6" 
-                                                  placeholder="Paste data transkrip semester {{ $semester }} di sini...&#10;&#10;Contoh format:&#10;Kode Mata Kuliah&#9;Nama Mata Kuliah&#9;SKS&#9;Nilai&#10;All231203&#9;Pemrograman Web&#9;3&#9;A"></textarea>
+                                                  placeholder="Paste data transkrip semester {{ $semester }} di sini...&#10;&#10;Contoh format:&#10;Kode Mata Kuliah&#9;Nama Mata Kuliah&#9;SKS&#9;Nilai&#10;All231203&#9;Pemrograman Web&#9;3&#9;A"
+                                                  onpaste="handlePaste({{ $semester }})"></textarea>
                                         
                                         <div class="flex space-x-2">
                                             <button onclick="saveSemester({{ $semester }})" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded text-sm font-medium transition-colors duration-200">
@@ -464,6 +496,7 @@
                                             <div class="flex justify-between">
                                                 <span class="text-gray-600">Total SKS:</span>
                                                 <span id="totalSks{{ $semester }}" class="font-medium text-blue-600">-</span>
+                                                        </div>
                                             </div>
                                                     </div>
                                                 </div>
@@ -473,7 +506,6 @@
                                 </div>
                             </div>
                         @endfor
-                    </div>
                 </div>
             </div>
 
@@ -481,134 +513,6 @@
         </div>
     </div>
 
-    <div id="content-surat-balasan" class="tab-content hidden">
-        @if(!$instansiMitraEnabled)
-            <!-- Disabled State -->
-            <div class="bg-white shadow-lg rounded-xl border border-gray-100 overflow-hidden">
-                <div class="bg-gradient-to-r from-gray-400 to-gray-500 px-6 py-4">
-                    <div class="flex items-center">
-                        <div class="flex-shrink-0">
-                            <i class="fas fa-ban text-2xl text-white"></i>
-                        </div>
-                        <div class="ml-3">
-                            <h3 class="text-lg font-semibold text-white">Surat Balasan</h3>
-                            <p class="text-gray-100 text-sm">Fitur dinonaktifkan oleh admin</p>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="p-6 text-center">
-                    <i class="fas fa-lock text-4xl text-gray-300 mb-4"></i>
-                    <p class="text-gray-500">Fitur upload surat balasan sedang dinonaktifkan</p>
-                </div>
-            </div>
-        @else
-            <div class="bg-white shadow-lg rounded-xl border border-gray-100 overflow-hidden">
-                <div class="bg-gradient-to-r from-orange-500 to-orange-600 px-6 py-4">
-                    <div class="flex items-center">
-                        <div class="flex-shrink-0">
-                            <i class="fas fa-envelope text-2xl text-white"></i>
-                        </div>
-                        <div class="ml-3">
-                            <h3 class="text-lg font-semibold text-white">Surat Balasan</h3>
-                            <p class="text-orange-100 text-sm">Upload surat balasan dari instansi</p>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="p-6">
-                    @if($suratBalasan && is_object($suratBalasan))
-                        <div class="mb-6 p-4 bg-gray-50 rounded-lg border">
-                            <div class="flex items-start justify-between">
-                                <div class="flex-1">
-                                    <div class="flex items-center justify-between mb-2">
-                                        <div class="flex items-center">
-                                            <i class="fas fa-file-pdf text-red-500 mr-2"></i>
-                                            <p class="text-sm font-medium text-gray-900">{{ basename($suratBalasan->file_path ?? '') }}</p>
-                                        </div>
-                                        <div class="flex space-x-2">
-                                            <button type="button" onclick="window.previewFile('{{ $suratBalasan->file_path ?? '' }}')" class="text-blue-600 hover:text-blue-800 text-sm px-2 py-1 rounded hover:bg-blue-50">
-                                                <i class="fas fa-eye mr-1"></i>Lihat
-                                            </button>
-                                            <button type="button" onclick="window.deleteFile('surat-balasan', {{ $suratBalasan->id }})" class="text-red-600 hover:text-red-800 text-sm px-2 py-1 rounded hover:bg-red-50">
-                                                <i class="fas fa-trash mr-1"></i>Hapus
-                                            </button>
-                                        </div>
-                                    </div>
-                                    <p class="text-xs text-gray-500 mb-3">Uploaded: {{ isset($suratBalasan->created_at) ? $suratBalasan->created_at->format('d M Y H:i') : 'N/A' }}</p>
-                                    
-                                    @if($suratBalasan->mitra)
-                                        <div class="mb-3 p-3 bg-white rounded border">
-                                            <h5 class="font-medium text-gray-900 mb-2">Informasi Instansi</h5>
-                                            <div class="text-sm text-gray-600 space-y-1">
-                                                <p><strong>Nama:</strong> {{ $suratBalasan->mitra->nama_instansi }}</p>
-                                                <p><strong>Alamat:</strong> {{ $suratBalasan->mitra->alamat }}</p>
-                                                <p><strong>Kontak:</strong> {{ $suratBalasan->mitra->kontak }}</p>
-                                            </div>
-                                        </div>
-                                    @endif
-                                    
-                                    <div class="flex items-center">
-                                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium
-                                            @if(isset($suratBalasan->status_validasi) && $suratBalasan->status_validasi === 'tervalidasi') bg-green-100 text-green-800
-                                            @elseif(isset($suratBalasan->status_validasi) && $suratBalasan->status_validasi === 'belum_valid') bg-red-100 text-red-800
-                                            @elseif(isset($suratBalasan->status_validasi) && $suratBalasan->status_validasi === 'revisi') bg-yellow-100 text-yellow-800
-                                            @else bg-gray-100 text-gray-800 @endif">
-                                            @if(isset($suratBalasan->status_validasi) && $suratBalasan->status_validasi === 'tervalidasi')
-                                                <i class="fas fa-check-circle mr-1"></i>Tervalidasi
-                                            @elseif(isset($suratBalasan->status_validasi) && $suratBalasan->status_validasi === 'belum_valid')
-                                                <i class="fas fa-times-circle mr-1"></i>Belum Valid
-                                            @elseif(isset($suratBalasan->status_validasi) && $suratBalasan->status_validasi === 'revisi')
-                                                <i class="fas fa-exclamation-triangle mr-1"></i>Perlu Revisi
-                                            @else
-                                                <i class="fas fa-clock mr-1"></i>Menunggu Validasi
-                                            @endif
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    @endif
-
-                    <form action="{{ route('documents.surat.upload') }}" method="POST" enctype="multipart/form-data" class="space-y-4">
-                            @csrf
-                            <div>
-                            <label for="surat_file" class="block text-sm font-medium text-gray-700 mb-2">Pilih File Surat Balasan</label>
-                                <div class="relative">
-                                <input type="file" id="surat_file" name="file" accept=".pdf" required
-                                       class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100 border border-gray-300 rounded-lg cursor-pointer focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500">
-                                </div>
-                                <p class="mt-2 text-xs text-gray-500 flex items-center">
-                                    <i class="fas fa-info-circle mr-1"></i>
-                                    Format: PDF, Maksimal: 10MB
-                                </p>
-                            </div>
-                            
-                        <div>
-                            <label for="mitra_id" class="block text-sm font-medium text-gray-700 mb-2">Pilih Instansi Mitra</label>
-                            <select id="mitra_id" name="mitra_id" required class="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500">
-                                <option value="">-- Pilih Instansi --</option>
-                                @if(isset($mitraList) && $mitraList->count() > 0)
-                                    @foreach($mitraList as $m)
-                                        @if($m->nama_instansi && $m->alamat)
-                                            <option value="{{ $m->id }}" 
-                                                @if(isset($suratBalasan) && $suratBalasan->mitra_id == $m->id) selected @endif>
-                                                {{ $m->nama_instansi ?? 'N/A' }} - {{ $m->alamat ?? 'N/A' }}
-                                            </option>
-                                        @endif
-                                    @endforeach
-                                @endif
-                            </select>
-                        </div>
-                        
-                        <button type="submit" class="w-full bg-orange-600 text-white py-3 px-4 rounded-lg hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 transition-colors duration-200 font-medium">
-                            <i class="fas fa-upload mr-2"></i>Upload Surat Balasan
-                            </button>
-                        </form>
-                </div>
-                        </div>
-                    @endif
-            </div>
 
     <div id="content-laporan" class="tab-content hidden">
         @if(!$laporanPklEnabled)
@@ -870,7 +774,199 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     showTab('pemberkasan');
+    
+    // Restore scroll position after page load
+    restoreScrollPosition();
 });
+
+// Scroll position preservation functions
+function saveScrollPosition() {
+    const scrollY = window.scrollY;
+    sessionStorage.setItem('documentsScrollPosition', scrollY.toString());
+}
+
+function restoreScrollPosition() {
+    const savedScrollPosition = sessionStorage.getItem('documentsScrollPosition');
+    if (savedScrollPosition) {
+        // Use setTimeout to ensure DOM is fully loaded
+        setTimeout(() => {
+            window.scrollTo(0, parseInt(savedScrollPosition));
+        }, 100);
+    }
+}
+
+// Save scroll position before page unload
+window.addEventListener('beforeunload', saveScrollPosition);
+
+// Save scroll position on scroll (throttled)
+let scrollTimeout;
+window.addEventListener('scroll', function() {
+    clearTimeout(scrollTimeout);
+    scrollTimeout = setTimeout(saveScrollPosition, 100);
+});
+
+// File preview and upload handling
+function updateFilePreview(semester) {
+    const fileInput = document.getElementById(`file_semester_${semester}`);
+    const preview = document.getElementById(`file_preview_${semester}`);
+    const fileName = document.getElementById(`file_name_${semester}`);
+    
+    if (fileInput.files.length > 0) {
+        const file = fileInput.files[0];
+        fileName.textContent = file.name;
+        preview.classList.remove('hidden');
+    } else {
+        preview.classList.add('hidden');
+    }
+}
+
+// Handle paste and clean data automatically
+function handlePaste(semester) {
+    setTimeout(() => {
+        const textarea = document.getElementById(`pasteArea${semester}`);
+        let content = textarea.value;
+        
+        // Clean the content by removing "Periode" lines and year lines
+        content = cleanTranskripData(content);
+        
+        // Update the textarea with cleaned content
+        textarea.value = content;
+        
+        // Trigger analysis if content is not empty
+        if (content.trim()) {
+            analyzeSemester(semester);
+        }
+    }, 100); // Small delay to ensure paste is complete
+}
+
+// Clean transkrip data by removing "Periode" and year lines at the beginning, and "Indeks Prestasi Semester" lines at the end
+function cleanTranskripData(content) {
+    if (!content) return content;
+    
+    const lines = content.split('\n');
+    const cleanedLines = [];
+    let foundDataStart = false;
+    let foundDataEnd = false;
+    
+    for (let i = 0; i < lines.length; i++) {
+        const line = lines[i].trim();
+        
+        // Skip empty lines at the beginning
+        if (!foundDataStart && !line) {
+            continue;
+        }
+        
+        // Skip "Periode" lines at the beginning
+        if (line.toLowerCase().includes('periode') && !foundDataStart) {
+            continue;
+        }
+        
+        // Skip year lines (like "20241", "20242", etc.) that come after "Periode"
+        if (!foundDataStart && /^\d{5}$/.test(line)) {
+            continue;
+        }
+        
+        // Skip lines that are just "Periode" followed by year
+        if (!foundDataStart && line.match(/^periode\s+\d{5}$/i)) {
+            continue;
+        }
+        
+        // If we find a line that looks like data (contains tab or multiple spaces), start collecting
+        if (!foundDataStart && (line.includes('\t') || line.split(/\s{2,}/).length > 2)) {
+            foundDataStart = true;
+        }
+        
+        // Check if we've reached the end of data (Indeks Prestasi Semester)
+        if (foundDataStart && !foundDataEnd && line.toLowerCase().includes('indeks prestasi semester')) {
+            // Include this line (Indeks Prestasi Semester) but mark that we've reached the end
+            cleanedLines.push(lines[i]);
+            foundDataEnd = true;
+            // Don't include any lines after this
+            continue;
+        }
+        
+        // If we've found the start of data and haven't reached the end, include the line
+        if (foundDataStart && !foundDataEnd) {
+            cleanedLines.push(lines[i]);
+        }
+    }
+    
+    return cleanedLines.join('\n');
+}
+
+// Handle multiple upload
+document.getElementById('uploadAllForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData();
+    const uploadStatus = document.getElementById('uploadStatus');
+    const uploadBtn = document.getElementById('uploadAllBtn');
+    
+    // Collect all selected files
+    let hasFiles = false;
+    for (let semester = 1; semester <= 5; semester++) {
+        const fileInput = document.getElementById(`file_semester_${semester}`);
+        if (fileInput.files.length > 0) {
+            formData.append('files[]', fileInput.files[0]);
+            formData.append('semesters[]', semester);
+            hasFiles = true;
+        }
+    }
+    
+    if (!hasFiles) {
+        uploadStatus.innerHTML = '<div class="text-red-600"><i class="fas fa-exclamation-triangle mr-1"></i>Pilih minimal satu file untuk diupload</div>';
+        return;
+    }
+    
+    // Add CSRF token
+    formData.append('_token', document.querySelector('meta[name="csrf-token"]').getAttribute('content'));
+    
+    // Show loading state with same animation as login
+    showUploadLoading();
+    
+    // Submit form
+    fetch('{{ route("documents.khs.upload.multiple") }}', {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            uploadStatus.innerHTML = '<div class="text-green-600"><i class="fas fa-check-circle mr-1"></i>' + data.message + '</div>';
+            // Reload page after 2 seconds
+            setTimeout(() => {
+                window.location.reload();
+            }, 2000);
+        } else {
+            uploadStatus.innerHTML = '<div class="text-red-600"><i class="fas fa-exclamation-triangle mr-1"></i>' + (data.message || 'Terjadi kesalahan saat upload') + '</div>';
+        }
+    })
+    .catch(error => {
+        console.error('Upload error:', error);
+        uploadStatus.innerHTML = '<div class="text-red-600"><i class="fas fa-exclamation-triangle mr-1"></i>Terjadi kesalahan saat upload</div>';
+    })
+    .finally(() => {
+        hideUploadLoading();
+    });
+});
+
+// Upload loading functions
+function showUploadLoading() {
+    document.getElementById('upload-icon').classList.add('hidden');
+    document.getElementById('upload-text').classList.add('hidden');
+    document.getElementById('upload-loading').classList.remove('hidden');
+    document.getElementById('uploadAllBtn').classList.add('opacity-75', 'cursor-not-allowed');
+}
+
+function hideUploadLoading() {
+    document.getElementById('upload-icon').classList.remove('hidden');
+    document.getElementById('upload-text').classList.remove('hidden');
+    document.getElementById('upload-loading').classList.add('hidden');
+    document.getElementById('uploadAllBtn').classList.remove('opacity-75', 'cursor-not-allowed');
+}
 
 // Ensure functions are available globally
 window.previewFile = function(filePath) {
@@ -2318,8 +2414,61 @@ function renderTable(rows, container) {
                 </div>
             </div>
         @else
-            <!-- Surat Balasan Upload -->
-            <div class="bg-white shadow-lg rounded-xl border border-gray-100 overflow-hidden mt-6">
+            <!-- Pemberkasan Instansi Mitra Content -->
+            <div class="space-y-6 mt-6">
+                <!-- Row 1: Pilih Instansi Mitra -->
+                <div class="bg-white shadow-lg rounded-xl border border-gray-100 overflow-hidden">
+                    <div class="bg-gradient-to-r from-blue-500 to-blue-600 px-6 py-4">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0">
+                                <i class="fas fa-building text-2xl text-white"></i>
+                            </div>
+                            <div class="ml-3">
+                                <h3 class="text-lg font-semibold text-white">Pilih Instansi Mitra</h3>
+                                <p class="text-blue-100 text-sm">Pilih instansi mitra untuk PKL</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="p-6">
+                        @if($user->profilMahasiswa && $user->profilMahasiswa->mitraSelected)
+                            <!-- Selected Mitra Display -->
+                            <div class="p-4 bg-blue-50 rounded-lg border border-blue-200">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center">
+                                        <div class="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center mr-3">
+                                            <i class="fas fa-building text-blue-600"></i>
+                                        </div>
+                                        <div>
+                                            <h4 class="text-sm font-medium text-gray-900">{{ $user->profilMahasiswa->mitraSelected->nama }}</h4>
+                                            <p class="text-xs text-gray-600">{{ $user->profilMahasiswa->mitraSelected->alamat }}</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex space-x-2">
+                                        <button type="button" onclick="changeMitra()" class="text-blue-600 hover:text-blue-800 text-sm">
+                                            <i class="fas fa-edit mr-1"></i>Ubah
+                                        </button>
+                                        <button type="button" onclick="removeMitra()" class="text-red-600 hover:text-red-800 text-sm">
+                                            <i class="fas fa-times mr-1"></i>Hapus
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        @else
+                            <!-- No Mitra Selected -->
+                            <div class="p-4 bg-gray-50 rounded-lg border border-gray-200 text-center">
+                                <i class="fas fa-building text-2xl text-gray-400 mb-2"></i>
+                                <p class="text-sm text-gray-600 mb-3">Belum ada instansi mitra yang dipilih</p>
+                                <button type="button" onclick="searchMitra()" class="bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors duration-200 font-medium">
+                                    <i class="fas fa-search mr-2"></i>Cari Instansi/Mitra
+                                </button>
+                            </div>
+                        @endif
+                    </div>
+                </div>
+
+                <!-- Row 2: Surat Balasan -->
+                <div class="bg-white shadow-lg rounded-xl border border-gray-100 overflow-hidden">
                 <div class="bg-gradient-to-r from-green-500 to-green-600 px-6 py-4">
                     <div class="flex items-center">
                         <div class="flex-shrink-0">
@@ -2327,7 +2476,7 @@ function renderTable(rows, container) {
                         </div>
                         <div class="ml-3">
                             <h3 class="text-lg font-semibold text-white">Surat Balasan</h3>
-                            <p class="text-green-100 text-sm">Upload surat balasan dari instansi mitra</p>
+                                <p class="text-green-100 text-sm">Upload surat balasan dari instansi</p>
                         </div>
                     </div>
                 </div>
@@ -2386,22 +2535,11 @@ function renderTable(rows, container) {
                     <form action="{{ route('documents.surat.upload') }}" method="POST" enctype="multipart/form-data" class="space-y-4">
                         @csrf
                         
-                        <div>
-                            <label for="mitra_id" class="block text-sm font-medium text-gray-700 mb-2">Pilih Instansi Mitra</label>
-                            <select id="mitra_id" name="mitra_id" required
-                                    class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500">
-                                <option value="">-- Pilih Instansi Mitra --</option>
-                                @if($mitra && is_iterable($mitra))
-                                    @foreach($mitra as $m)
-                                        @if(is_object($m) && isset($m->id))
-                                            <option value="{{ $m->id }}" {{ ($suratBalasan && is_object($suratBalasan) && isset($suratBalasan->mitra_id) && $suratBalasan->mitra_id == $m->id) ? 'selected' : '' }}>
-                                                {{ $m->nama_instansi ?? 'N/A' }} - {{ $m->alamat ?? 'N/A' }}
-                                            </option>
+                            @if($user->profilMahasiswa && $user->profilMahasiswa->mitraSelected)
+                                <input type="hidden" name="mitra_id" value="{{ $user->profilMahasiswa->mitraSelected->id }}">
+                            @else
+                                <input type="hidden" name="mitra_id" value="">
                                         @endif
-                                    @endforeach
-                                @endif
-                            </select>
-                        </div>
                         
                         <div>
                             <label for="surat_file" class="block text-sm font-medium text-gray-700 mb-2">Pilih File Surat Balasan</label>
@@ -2419,6 +2557,7 @@ function renderTable(rows, container) {
                             <i class="fas fa-upload mr-2"></i>{{ ($suratBalasan && is_object($suratBalasan)) ? 'Update Surat Balasan' : 'Upload Surat Balasan' }}
                         </button>
                     </form>
+                    </div>
                 </div>
             </div>
         @endif
@@ -2578,6 +2717,45 @@ function showTab(tabName) {
     activeTab.classList.remove('border-transparent', 'text-gray-500');
 }
 
+// Semester tab switching functionality with fade animation
+function showSemesterTab(semester) {
+    // Get all semester contents
+    const allContents = document.querySelectorAll('.semester-content');
+    const targetContent = document.getElementById('semester-content-' + semester);
+    
+    // Remove active class from all semester tabs
+    document.querySelectorAll('.semester-tab-button').forEach(button => {
+        button.classList.remove('border-purple-500', 'text-purple-600');
+        button.classList.add('border-transparent', 'text-gray-500');
+    });
+    
+    // Add active class to selected semester tab
+    const activeTab = document.getElementById('semester-tab-' + semester);
+    activeTab.classList.add('border-purple-500', 'text-purple-600');
+    activeTab.classList.remove('border-transparent', 'text-gray-500');
+    
+    // Fade out all contents first
+    allContents.forEach(content => {
+        if (!content.classList.contains('hidden')) {
+            content.classList.add('opacity-0');
+            setTimeout(() => {
+                content.classList.add('hidden');
+                content.classList.remove('opacity-100');
+            }, 150); // Half of transition duration
+        }
+    });
+    
+    // Fade in target content
+    setTimeout(() => {
+        targetContent.classList.remove('hidden');
+        targetContent.classList.add('opacity-0');
+        // Force reflow
+        targetContent.offsetHeight;
+        targetContent.classList.remove('opacity-0');
+        targetContent.classList.add('opacity-100');
+    }, 150);
+}
+
 // Add smooth transitions to tab content
 document.addEventListener('DOMContentLoaded', function() {
     const tabContents = document.querySelectorAll('.tab-content');
@@ -2593,6 +2771,44 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log('window.deleteFile available:', typeof window.deleteFile);
     // TPK refresh function removed
 });
+
+// Mitra management functions
+function searchMitra() {
+    window.location.href = '{{ route("mitra") }}';
+}
+
+function changeMitra() {
+    if (confirm('Apakah Anda yakin ingin mengubah instansi mitra yang dipilih?')) {
+        window.location.href = '{{ route("mitra") }}';
+    }
+}
+
+function removeMitra() {
+    if (confirm('Apakah Anda yakin ingin menghapus instansi mitra yang dipilih?')) {
+        fetch('{{ route("documents.select-mitra") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            },
+            body: JSON.stringify({
+                mitra_id: null
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                window.location.reload();
+            } else {
+                alert('Terjadi kesalahan: ' + (data.message || 'Gagal menghapus instansi mitra'));
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Terjadi kesalahan saat menghapus instansi mitra');
+        });
+    }
+}
 </script>
 
 <script>
@@ -2897,6 +3113,14 @@ document.addEventListener('DOMContentLoaded', function() {
     .catch(error => {
         console.error('Error loading saved links:', error);
     });
+    
+    // Auto-switch to tab based on URL parameter
+    const urlParams = new URLSearchParams(window.location.search);
+    const tabParam = urlParams.get('tab');
+    if (tabParam === 'surat-balasan') {
+        // Switch to Pemberkasan Instansi Mitra tab
+        showTab('surat-balasan');
+    }
 });
 
 </script>

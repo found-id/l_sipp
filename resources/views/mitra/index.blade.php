@@ -15,6 +15,7 @@
                 <div class="flex-1">
                     <input type="text" 
                            name="search" 
+                           id="searchInput"
                            value="{{ request('search') }}"
                            placeholder="Cari berdasarkan nama, alamat, atau kontak..."
                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
@@ -57,15 +58,15 @@
     <!-- Mitra List -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         @forelse($mitra as $m)
-        <div class="bg-white shadow rounded-lg p-6 hover:shadow-md transition-shadow">
+        <div class="bg-white shadow rounded-lg p-6 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 group">
             <div class="flex items-start">
                 <div class="flex-shrink-0">
-                    <div class="h-12 w-12 rounded-full bg-blue-100 flex items-center justify-center">
+                    <div class="h-12 w-12 rounded-full bg-blue-100 flex items-center justify-center group-hover:bg-blue-200 transition-colors duration-300">
                         <i class="fas fa-building text-blue-600"></i>
                     </div>
                 </div>
                 <div class="ml-4 flex-1">
-                    <h3 class="text-lg font-medium text-gray-900">{{ $m->nama }}</h3>
+                    <h3 class="text-lg font-medium text-gray-900 group-hover:text-blue-600 transition-colors duration-300">{{ $m->nama }}</h3>
                     
                     @if($m->alamat)
                     <div class="mt-2">
@@ -124,6 +125,14 @@
                             <span class="ml-1">mahasiswa</span>
                         </div>
                     </div>
+                    
+                    <!-- Pilih Mitra Button -->
+                    <div class="mt-4 pt-4 border-t border-gray-200">
+                        <button onclick="selectMitra({{ $m->id }}, '{{ $m->nama }}')" 
+                                class="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors duration-200 font-medium">
+                            <i class="fas fa-check mr-2"></i>Pilih Instansi Mitra
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -147,4 +156,52 @@
         @endforelse
     </div>
 </div>
+
+<script>
+// Auto-focus search input when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('searchInput');
+    if (searchInput) {
+        searchInput.focus();
+    }
+});
+
+// Function to select mitra and redirect to documents page
+function selectMitra(mitraId, mitraName) {
+    // Show loading state
+    const button = event.target;
+    const originalText = button.innerHTML;
+    button.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Memproses...';
+    button.disabled = true;
+    
+    // Send AJAX request to save selected mitra
+    fetch('{{ route("documents.select-mitra") }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+        },
+        body: JSON.stringify({
+            mitra_id: mitraId
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Redirect to documents page with success message
+            window.location.href = '{{ route("documents.index") }}?tab=surat-balasan&mitra_selected=' + mitraId + '&success=' + encodeURIComponent('Instansi mitra "' + mitraName + '" berhasil dipilih!');
+        } else {
+            alert('Terjadi kesalahan: ' + (data.message || 'Gagal memilih instansi mitra'));
+            button.innerHTML = originalText;
+            button.disabled = false;
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Terjadi kesalahan saat memilih instansi mitra');
+        button.innerHTML = originalText;
+        button.disabled = false;
+    });
+}
+</script>
 @endsection

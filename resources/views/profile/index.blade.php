@@ -23,9 +23,15 @@
         <div class="bg-white shadow rounded-lg p-6">
             <div class="flex items-center mb-6">
                 @if($user->photo && $user->google_linked)
-                    <img src="{{ $user->photo }}" alt="Profile" class="h-16 w-16 rounded-full object-cover">
+                    <img src="{{ $user->photo }}" alt="Profile" class="h-16 w-16 rounded-full object-cover" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="h-16 w-16 rounded-full bg-gray-500 flex items-center justify-center" style="display: none;">
+                        <i class="fas fa-user text-white text-2xl"></i>
+                    </div>
                 @elseif($user->photo && !$user->google_linked)
-                    <img src="{{ asset('storage/' . $user->photo) }}" alt="Profile" class="h-16 w-16 rounded-full object-cover">
+                    <img src="{{ asset('storage/' . $user->photo) }}" alt="Profile" class="h-16 w-16 rounded-full object-cover" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="h-16 w-16 rounded-full bg-gray-500 flex items-center justify-center" style="display: none;">
+                        <i class="fas fa-user text-white text-2xl"></i>
+                    </div>
                 @else
                     <div class="h-16 w-16 rounded-full bg-gray-500 flex items-center justify-center">
                         <i class="fas fa-user text-white text-2xl"></i>

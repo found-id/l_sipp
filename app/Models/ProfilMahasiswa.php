@@ -21,6 +21,7 @@ class ProfilMahasiswa extends Model
         'cek_ipk_nilaisks',
         'cek_valid_biodata',
         'id_dospem',
+        'mitra_selected',
         'gdrive_pkkmb',
         'gdrive_ecourse',
         'gdrive_more',
@@ -45,5 +46,10 @@ class ProfilMahasiswa extends Model
     public function dosenPembimbing()
     {
         return $this->belongsTo(User::class, 'id_dospem', 'id');
+    }
+
+    public function mitraSelected()
+    {
+        return $this->belongsTo(Mitra::class, 'mitra_selected', 'id');
     }
 }
