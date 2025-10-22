@@ -22,7 +22,7 @@
                             <p class="text-sm text-gray-600 mt-1">{{ $j->subjudul }}</p>
                         @endif
                         <p class="text-xs text-gray-500 mt-2">
-                            Dipublikasikan: {{ $j->tanggal_publikasi->format('d M Y H:i') }} 
+                            Dipublikasikan: {{ $j->created_at->format('d M Y H:i') }} 
                             oleh {{ $j->pembuat->name }}
                         </p>
                     </div>
@@ -40,7 +40,9 @@
                     @if(in_array($ext, ['jpg', 'jpeg', 'png']))
                         <img src="{{ $url }}" alt="Jadwal" class="max-w-full h-auto border border-gray-200 rounded-lg">
                     @elseif($ext === 'pdf')
-                        <embed src="{{ $url }}" type="application/pdf" class="w-full h-96 border border-gray-200 rounded-lg">
+                        <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                            <iframe src="{{ $url }}" class="w-full h-96 border border-gray-200 rounded-lg" frameborder="0"></iframe>
+                        </div>
                     @else
                         <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
                             <a href="{{ $url }}" target="_blank" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">

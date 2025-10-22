@@ -2415,7 +2415,8 @@ function renderTable(rows, container) {
             </div>
         @else
             <!-- Pemberkasan Instansi Mitra Content -->
-            <div class="space-y-6 mt-6">
+            <div class="max-w-5xl mx-auto mt-6" style="max-width: 76rem;">
+                <div class="grid grid-cols-1 gap-6">
                 <!-- Row 1: Pilih Instansi Mitra -->
                 <div class="bg-white shadow-lg rounded-xl border border-gray-100 overflow-hidden">
                     <div class="bg-gradient-to-r from-blue-500 to-blue-600 px-6 py-4">
@@ -2558,6 +2559,7 @@ function renderTable(rows, container) {
                         </button>
                     </form>
                     </div>
+                </div>
                 </div>
             </div>
         @endif

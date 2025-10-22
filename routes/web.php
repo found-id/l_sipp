@@ -56,7 +56,7 @@ use App\Http\Controllers\HomeController;
     });
     
     // Jadwal Seminar routes
-    Route::get('/jadwal-seminar', [\App\Http\Controllers\JadwalSeminarManagementController::class, 'index'])->name('jadwal-seminar');
+    Route::get('/jadwal-seminar', [\App\Http\Controllers\AdminJadwalSeminarController::class, 'index'])->name('jadwal-seminar');
     
     // Profile routes
     Route::prefix('profile')->name('profile.')->group(function () {
@@ -73,11 +73,11 @@ use App\Http\Controllers\HomeController;
         Route::post('/assign-dospem', [\App\Http\Controllers\AdminController::class, 'assignDospem'])->name('assign-dospem');
         
         // Jadwal Seminar Management
-        Route::get('/jadwal-seminar', [\App\Http\Controllers\JadwalSeminarManagementController::class, 'manage'])->name('jadwal-seminar.manage');
-        Route::get('/jadwal-seminar/create', [\App\Http\Controllers\JadwalSeminarManagementController::class, 'create'])->name('jadwal-seminar.create');
-        Route::post('/jadwal-seminar', [\App\Http\Controllers\JadwalSeminarManagementController::class, 'store'])->name('jadwal-seminar.store');
-        Route::post('/jadwal-seminar/{id}/toggle', [\App\Http\Controllers\JadwalSeminarManagementController::class, 'toggle'])->name('jadwal-seminar.toggle');
-        Route::delete('/jadwal-seminar/{id}', [\App\Http\Controllers\JadwalSeminarManagementController::class, 'destroy'])->name('jadwal-seminar.destroy');
+        Route::get('/jadwal-seminar', [\App\Http\Controllers\AdminJadwalSeminarController::class, 'manage'])->name('jadwal-seminar.manage');
+        Route::get('/jadwal-seminar/create', [\App\Http\Controllers\AdminJadwalSeminarController::class, 'create'])->name('jadwal-seminar.create');
+        Route::post('/jadwal-seminar', [\App\Http\Controllers\AdminJadwalSeminarController::class, 'store'])->name('jadwal-seminar.store');
+        Route::post('/jadwal-seminar/{id}/toggle', [\App\Http\Controllers\AdminJadwalSeminarController::class, 'toggle'])->name('jadwal-seminar.toggle');
+        Route::delete('/jadwal-seminar/{id}', [\App\Http\Controllers\AdminJadwalSeminarController::class, 'destroy'])->name('jadwal-seminar.destroy');
         
         // Rubrik Management
         Route::get('/rubrik', [\App\Http\Controllers\RubrikController::class, 'index'])->name('rubrik.index');

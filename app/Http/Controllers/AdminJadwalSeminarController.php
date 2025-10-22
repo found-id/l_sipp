@@ -3,17 +3,17 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\JadwalSeminarManagement;
+use App\Models\JadwalSeminar;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
 
-class JadwalSeminarManagementController extends Controller
+class AdminJadwalSeminarController extends Controller
 {
     public function index()
     {
-        $jadwal = JadwalSeminarManagement::with('pembuat')
+        $jadwal = JadwalSeminar::with('pembuat')
             ->where('status_aktif', true)
-            ->orderBy('tanggal_publikasi', 'desc')
+            ->orderBy('created_at', 'desc')
             ->paginate(10);
             
         return view('jadwal-seminar.index', compact('jadwal'));
@@ -25,7 +25,7 @@ class JadwalSeminarManagementController extends Controller
             abort(403, 'Unauthorized');
         }
         
-        $jadwal = JadwalSeminarManagement::with('pembuat')
+        $jadwal = JadwalSeminar::with('pembuat')
             ->orderBy('created_at', 'desc')
             ->paginate(15);
             
@@ -60,7 +60,6 @@ class JadwalSeminarManagementController extends Controller
             'subjudul' => $request->subjudul,
             'jenis' => $request->jenis,
             'status_aktif' => true,
-            'tanggal_publikasi' => now(),
             'dibuat_oleh' => Auth::id(),
         ];
         
@@ -73,7 +72,7 @@ class JadwalSeminarManagementController extends Controller
             $data['url_eksternal'] = $request->url_eksternal;
         }
         
-        JadwalSeminarManagement::create($data);
+        JadwalSeminar::create($data);
         
         return redirect()->route('admin.jadwal-seminar.manage')
             ->with('success', 'Jadwal seminar berhasil dipublikasikan!');
@@ -85,7 +84,7 @@ class JadwalSeminarManagementController extends Controller
             abort(403, 'Unauthorized');
         }
         
-        $jadwal = JadwalSeminarManagement::findOrFail($id);
+        $jadwal = JadwalSeminar::findOrFail($id);
         $jadwal->update(['status_aktif' => !$jadwal->status_aktif]);
         
         return redirect()->back()
@@ -98,7 +97,7 @@ class JadwalSeminarManagementController extends Controller
             abort(403, 'Unauthorized');
         }
         
-        $jadwal = JadwalSeminarManagement::findOrFail($id);
+        $jadwal = JadwalSeminar::findOrFail($id);
         
         if ($jadwal->lokasi_file && Storage::disk('public')->exists($jadwal->lokasi_file)) {
             Storage::disk('public')->delete($jadwal->lokasi_file);
