@@ -34,13 +34,30 @@
                 @if($j->jenis === 'file' && $j->lokasi_file)
                     @php
                         $ext = strtolower(pathinfo($j->lokasi_file, PATHINFO_EXTENSION));
-                        $url = Storage::url($j->lokasi_file);
+                        $filename = basename($j->lokasi_file);
+                        $url = route('jadwal.file', ['filename' => $filename]);
                     @endphp
                     
                     @if(in_array($ext, ['jpg', 'jpeg', 'png']))
-                        <img src="{{ $url }}" alt="Jadwal" class="max-w-full h-auto border border-gray-200 rounded-lg">
+                        <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                            <div class="flex justify-between items-start mb-2">
+                                <h4 class="text-sm font-medium text-gray-700">Pratinjau Gambar</h4>
+                                <a href="{{ $url }}" target="_blank" class="inline-flex items-center px-3 py-1 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm">
+                                    <i class="fas fa-external-link-alt mr-1"></i>
+                                    Lihat penuh
+                                </a>
+                            </div>
+                            <img src="{{ $url }}" alt="Jadwal" class="max-w-full h-auto border border-gray-200 rounded-lg mx-auto block">
+                        </div>
                     @elseif($ext === 'pdf')
                         <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                            <div class="flex justify-between items-start mb-2">
+                                <h4 class="text-sm font-medium text-gray-700">Pratinjau PDF</h4>
+                                <a href="{{ $url }}" target="_blank" class="inline-flex items-center px-3 py-1 bg-red-600 text-white rounded-md hover:bg-red-700 text-sm">
+                                    <i class="fas fa-file-pdf mr-1"></i>
+                                    Lihat penuh
+                                </a>
+                            </div>
                             <iframe src="{{ $url }}" class="w-full h-96 border border-gray-200 rounded-lg" frameborder="0"></iframe>
                         </div>
                     @else

@@ -55,8 +55,23 @@ use App\Http\Controllers\HomeController;
         });
     });
     
-    // Jadwal Seminar routes
-    Route::get('/jadwal-seminar', [\App\Http\Controllers\AdminJadwalSeminarController::class, 'index'])->name('jadwal-seminar');
+// Jadwal Seminar routes
+Route::get('/jadwal-seminar', [\App\Http\Controllers\AdminJadwalSeminarController::class, 'index'])->name('jadwal-seminar');
+
+// Serve jadwal seminar files
+Route::get('/jadwal/{filename}', function ($filename) {
+    $path = storage_path('app/public/jadwal/' . $filename);
+    
+    \Log::info('Trying to serve file: ' . $path);
+    \Log::info('File exists: ' . (file_exists($path) ? 'yes' : 'no'));
+    
+    if (!file_exists($path)) {
+        \Log::error('File not found: ' . $path);
+        abort(404);
+    }
+    
+    return response()->file($path);
+})->name('jadwal.file');
     
     // Profile routes
     Route::prefix('profile')->name('profile.')->group(function () {
