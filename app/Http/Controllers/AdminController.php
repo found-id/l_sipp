@@ -275,10 +275,10 @@ class AdminController extends Controller
             'alamat' => 'nullable|string',
             'kontak' => 'nullable|string|max:100',
             'jarak' => 'required|integer|min:0',
-            'honor' => 'required|integer|min:0',
-            'fasilitas' => 'required|integer|in:0,1',
-            'kesesuaian_jurusan' => 'required|integer|in:0,1',
-            'tingkat_kebersihan' => 'required|integer|in:0,1',
+            'honor' => 'required|integer|in:1,2,3,4,5',
+            'fasilitas' => 'required|integer|in:1,2,3,4,5',
+            'kesesuaian_jurusan' => 'required|integer|in:1,2,3,4,5',
+            'tingkat_kebersihan' => 'required|integer|in:1,2,3,4,5',
         ]);
 
         Mitra::create($request->all());
@@ -289,16 +289,16 @@ class AdminController extends Controller
     public function updateMitra(Request $request, $id)
     {
         $mitra = Mitra::findOrFail($id);
-        
+
         $request->validate([
             'nama' => 'required|string|max:150',
             'alamat' => 'nullable|string',
             'kontak' => 'nullable|string|max:100',
             'jarak' => 'required|integer|min:0',
-            'honor' => 'required|integer|min:0',
-            'fasilitas' => 'required|integer|in:0,1',
-            'kesesuaian_jurusan' => 'required|integer|in:0,1',
-            'tingkat_kebersihan' => 'required|integer|in:0,1',
+            'honor' => 'required|integer|in:1,2,3,4,5',
+            'fasilitas' => 'required|integer|in:1,2,3,4,5',
+            'kesesuaian_jurusan' => 'required|integer|in:1,2,3,4,5',
+            'tingkat_kebersihan' => 'required|integer|in:1,2,3,4,5',
         ]);
 
         $mitra->update($request->all());

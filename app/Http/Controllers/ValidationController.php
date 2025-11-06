@@ -298,4 +298,385 @@ class ValidationController extends Controller
             ]);
         }
     }
+
+    /**
+     * Display list of mahasiswa for dospem to select
+     */
+    public function mahasiswaList()
+    {
+        $user = Auth::user();
+
+        if ($user->role === 'admin') {
+            // Admin can see all mahasiswa
+            $mahasiswa = \App\Models\ProfilMahasiswa::with(['user', 'dosenPembimbing'])
+                ->orderBy('id_mahasiswa')
+                ->get();
+        } else {
+            // Dospem can only see their bimbingan
+            $mahasiswa = \App\Models\ProfilMahasiswa::where('id_dospem', $user->id)
+                ->with(['user', 'dosenPembimbing'])
+                ->orderBy('id_mahasiswa')
+                ->get();
+        }
+
+        return view('validation.mahasiswa-list', compact('mahasiswa'));
+    }
+
+    /**
+     * Display detailed pemberkasan for a specific mahasiswa
+     */
+    public function mahasiswaDetail($id)
+    {
+        $user = Auth::user();
+
+        // Find the mahasiswa
+        $mahasiswa = User::with([
+            'profilMahasiswa.dosenPembimbing',
+            'profilMahasiswa.mitraSelected',
+            'khs' => function($q) { $q->orderBy('semester'); },
+            'khsManualTranskrip' => function($q) { $q->orderBy('semester'); },
+            'suratBalasan.mitra',
+            'laporanPkl'
+        ])->findOrFail($id);
+
+        // Check authorization
+        if ($user->role === 'dospem') {
+            // Verify this mahasiswa is under this dospem
+            if (!$mahasiswa->profilMahasiswa || $mahasiswa->profilMahasiswa->id_dospem !== $user->id) {
+                abort(403, 'Anda tidak memiliki akses ke mahasiswa ini.');
+            }
+        }
+
+        // Calculate academic summary
+        $khsManual = $mahasiswa->khsManualTranskrip;
+        $totalSemesters = $khsManual->count();
+        $totalIPSSum = $khsManual->sum('ips');
+        $ipk = $totalSemesters > 0 ? round($totalIPSSum / $totalSemesters, 2) : 0;
+        $totalSksDCount = $khsManual->sum('total_sks_d');
+        $hasECount = $khsManual->where('has_e', true)->count();
+        $allEligible = $khsManual->every(function($item) {
+            return $item->eligible;
+        });
+
+        // KHS files count
+        $khsFilesCount = $mahasiswa->khs->count();
+
+        // Get Google Drive links from profil
+        $gdrive = [
+            'pkkmb' => $mahasiswa->profilMahasiswa->gdrive_pkkmb ?? null,
+            'ecourse' => $mahasiswa->profilMahasiswa->gdrive_ecourse ?? null,
+            'more' => $mahasiswa->profilMahasiswa->gdrive_more ?? null,
+        ];
+
+        // Get validation status for each category
+        $validationStatus = [
+            'kelayakan' => $this->getKelayakanStatus($mahasiswa),
+            'dokumen_pendukung' => $this->getDokumenPendukungStatus($gdrive),
+            'instansi_mitra' => $this->getInstansiMitraStatus($mahasiswa),
+            'akhir' => $this->getAkhirStatus($mahasiswa),
+        ];
+
+        // Status PKL (based on all documents completion)
+        $statusPKL = $this->calculateStatusPKL($mahasiswa, $gdrive);
+
+        return view('validation.mahasiswa-detail', compact(
+            'mahasiswa',
+            'ipk',
+            'totalSksDCount',
+            'hasECount',
+            'allEligible',
+            'totalSemesters',
+            'khsFilesCount',
+            'gdrive',
+            'validationStatus',
+            'statusPKL'
+        ));
+    }
+
+    /**
+     * Get validation status for Pemberkasan Kelayakan
+     */
+    private function getKelayakanStatus($mahasiswa)
+    {
+        $khsFiles = $mahasiswa->khs;
+
+        if ($khsFiles->isEmpty()) {
+            return ['status' => 'belum_upload', 'label' => 'Belum Upload', 'color' => 'gray'];
+        }
+
+        $tervalidasi = $khsFiles->where('status_validasi', 'tervalidasi')->count();
+        $total = $khsFiles->count();
+
+        if ($tervalidasi === $total) {
+            return ['status' => 'tervalidasi', 'label' => 'Tervalidasi', 'color' => 'green'];
+        } elseif ($khsFiles->where('status_validasi', 'revisi')->count() > 0) {
+            return ['status' => 'revisi', 'label' => 'Perlu Revisi', 'color' => 'orange'];
+        } elseif ($khsFiles->where('status_validasi', 'belum_valid')->count() > 0) {
+            return ['status' => 'belum_valid', 'label' => 'Belum Valid', 'color' => 'red'];
+        } else {
+            return ['status' => 'menunggu', 'label' => 'Menunggu Validasi', 'color' => 'yellow'];
+        }
+    }
+
+    /**
+     * Get validation status for Pemberkasan Dokumen Pendukung
+     */
+    private function getDokumenPendukungStatus($gdrive)
+    {
+        $hasAll = $gdrive['pkkmb'] && $gdrive['ecourse'] && $gdrive['more'];
+        $hasAny = $gdrive['pkkmb'] || $gdrive['ecourse'] || $gdrive['more'];
+
+        if ($hasAll) {
+            return ['status' => 'lengkap', 'label' => 'Lengkap', 'color' => 'green'];
+        } elseif ($hasAny) {
+            return ['status' => 'sebagian', 'label' => 'Sebagian', 'color' => 'yellow'];
+        } else {
+            return ['status' => 'belum_upload', 'label' => 'Belum Upload', 'color' => 'gray'];
+        }
+    }
+
+    /**
+     * Get validation status for Pemberkasan Instansi Mitra
+     */
+    private function getInstansiMitraStatus($mahasiswa)
+    {
+        $suratBalasan = $mahasiswa->suratBalasan;
+
+        if ($suratBalasan->isEmpty()) {
+            return ['status' => 'belum_upload', 'label' => 'Belum Upload', 'color' => 'gray'];
+        }
+
+        $surat = $suratBalasan->first();
+
+        if ($surat->status_validasi === 'tervalidasi') {
+            return ['status' => 'tervalidasi', 'label' => 'Tervalidasi', 'color' => 'green'];
+        } elseif ($surat->status_validasi === 'revisi') {
+            return ['status' => 'revisi', 'label' => 'Perlu Revisi', 'color' => 'orange'];
+        } elseif ($surat->status_validasi === 'belum_valid') {
+            return ['status' => 'belum_valid', 'label' => 'Belum Valid', 'color' => 'red'];
+        } else {
+            return ['status' => 'menunggu', 'label' => 'Menunggu Validasi', 'color' => 'yellow'];
+        }
+    }
+
+    /**
+     * Get validation status for Pemberkasan Akhir
+     */
+    private function getAkhirStatus($mahasiswa)
+    {
+        $laporanPkl = $mahasiswa->laporanPkl;
+
+        if ($laporanPkl->isEmpty()) {
+            return ['status' => 'belum_upload', 'label' => 'Belum Upload', 'color' => 'gray'];
+        }
+
+        $laporan = $laporanPkl->first();
+
+        if ($laporan->status_validasi === 'tervalidasi') {
+            return ['status' => 'tervalidasi', 'label' => 'Tervalidasi', 'color' => 'green'];
+        } elseif ($laporan->status_validasi === 'revisi') {
+            return ['status' => 'revisi', 'label' => 'Perlu Revisi', 'color' => 'orange'];
+        } elseif ($laporan->status_validasi === 'belum_valid') {
+            return ['status' => 'belum_valid', 'label' => 'Belum Valid', 'color' => 'red'];
+        } else {
+            return ['status' => 'menunggu', 'label' => 'Menunggu Validasi', 'color' => 'yellow'];
+        }
+    }
+
+    /**
+     * Calculate overall PKL status
+     */
+    private function calculateStatusPKL($mahasiswa, $gdrive)
+    {
+        $khsComplete = $mahasiswa->khs->count() >= 5 &&
+                      $mahasiswa->khs->where('status_validasi', 'tervalidasi')->count() >= 5;
+        $gdriveComplete = $gdrive['pkkmb'] && $gdrive['ecourse'] && $gdrive['more'];
+        $suratComplete = $mahasiswa->suratBalasan->isNotEmpty() &&
+                        $mahasiswa->suratBalasan->first()->status_validasi === 'tervalidasi';
+        $laporanComplete = $mahasiswa->laporanPkl->isNotEmpty() &&
+                          $mahasiswa->laporanPkl->first()->status_validasi === 'tervalidasi';
+
+        if ($khsComplete && $gdriveComplete && $suratComplete && $laporanComplete) {
+            return 'Lengkap';
+        } else {
+            return 'Belum Lengkap';
+        }
+    }
+
+    /**
+     * Validate Pemberkasan Kelayakan (KHS Files + Manual Transkrip)
+     */
+    public function validateKelayakan(Request $request, $mahasiswaId)
+    {
+        $request->validate([
+            'status_validasi' => 'required|in:tervalidasi,belum_valid,revisi',
+            'catatan' => 'nullable|string|max:1000',
+        ]);
+
+        $user = Auth::user();
+        $mahasiswa = User::findOrFail($mahasiswaId);
+
+        // Check authorization
+        if ($user->role === 'dospem') {
+            if (!$mahasiswa->profilMahasiswa || $mahasiswa->profilMahasiswa->id_dospem !== $user->id) {
+                abort(403, 'Anda tidak memiliki akses ke mahasiswa ini.');
+            }
+        }
+
+        // Update all KHS files status
+        \App\Models\Khs::where('mahasiswa_id', $mahasiswaId)->update([
+            'status_validasi' => $request->status_validasi,
+        ]);
+
+        // Log activity
+        $this->logValidationActivity(
+            'pemberkasan_kelayakan',
+            $mahasiswaId,
+            'menunggu',
+            $request->status_validasi,
+            $request->catatan
+        );
+
+        // Send WhatsApp notification
+        $this->sendValidationNotification(
+            $mahasiswa,
+            'Pemberkasan Kelayakan (KHS)',
+            $request->status_validasi,
+            $request->catatan
+        );
+
+        return redirect()->back()->with('success', 'Pemberkasan Kelayakan berhasil divalidasi!');
+    }
+
+    /**
+     * Validate Pemberkasan Dokumen Pendukung (Google Drive Links)
+     */
+    public function validateDokumenPendukung(Request $request, $mahasiswaId)
+    {
+        $request->validate([
+            'status_validasi' => 'required|in:tervalidasi,belum_valid,revisi',
+            'catatan' => 'nullable|string|max:1000',
+        ]);
+
+        $user = Auth::user();
+        $mahasiswa = User::findOrFail($mahasiswaId);
+
+        // Check authorization
+        if ($user->role === 'dospem') {
+            if (!$mahasiswa->profilMahasiswa || $mahasiswa->profilMahasiswa->id_dospem !== $user->id) {
+                abort(403, 'Anda tidak memiliki akses ke mahasiswa ini.');
+            }
+        }
+
+        // Update profil mahasiswa with validation status
+        // We'll add a new column for this, or store in existing structure
+        // For now, we'll log the activity
+        $this->logValidationActivity(
+            'pemberkasan_dokumen_pendukung',
+            $mahasiswaId,
+            'menunggu',
+            $request->status_validasi,
+            $request->catatan
+        );
+
+        // Send WhatsApp notification
+        $this->sendValidationNotification(
+            $mahasiswa,
+            'Pemberkasan Dokumen Pendukung (Sertifikat)',
+            $request->status_validasi,
+            $request->catatan
+        );
+
+        return redirect()->back()->with('success', 'Pemberkasan Dokumen Pendukung berhasil divalidasi!');
+    }
+
+    /**
+     * Validate Pemberkasan Instansi Mitra (Surat Balasan)
+     */
+    public function validateInstansiMitra(Request $request, $mahasiswaId)
+    {
+        $request->validate([
+            'status_validasi' => 'required|in:tervalidasi,belum_valid,revisi',
+            'catatan' => 'nullable|string|max:1000',
+        ]);
+
+        $user = Auth::user();
+        $mahasiswa = User::findOrFail($mahasiswaId);
+
+        // Check authorization
+        if ($user->role === 'dospem') {
+            if (!$mahasiswa->profilMahasiswa || $mahasiswa->profilMahasiswa->id_dospem !== $user->id) {
+                abort(403, 'Anda tidak memiliki akses ke mahasiswa ini.');
+            }
+        }
+
+        // Update surat balasan status
+        \App\Models\SuratBalasan::where('mahasiswa_id', $mahasiswaId)->update([
+            'status_validasi' => $request->status_validasi,
+        ]);
+
+        // Log activity
+        $this->logValidationActivity(
+            'pemberkasan_instansi_mitra',
+            $mahasiswaId,
+            'menunggu',
+            $request->status_validasi,
+            $request->catatan
+        );
+
+        // Send WhatsApp notification
+        $this->sendValidationNotification(
+            $mahasiswa,
+            'Pemberkasan Instansi Mitra (Surat Balasan)',
+            $request->status_validasi,
+            $request->catatan
+        );
+
+        return redirect()->back()->with('success', 'Pemberkasan Instansi Mitra berhasil divalidasi!');
+    }
+
+    /**
+     * Validate Pemberkasan Akhir (Laporan PKL)
+     */
+    public function validateAkhir(Request $request, $mahasiswaId)
+    {
+        $request->validate([
+            'status_validasi' => 'required|in:tervalidasi,belum_valid,revisi',
+            'catatan' => 'nullable|string|max:1000',
+        ]);
+
+        $user = Auth::user();
+        $mahasiswa = User::findOrFail($mahasiswaId);
+
+        // Check authorization
+        if ($user->role === 'dospem') {
+            if (!$mahasiswa->profilMahasiswa || $mahasiswa->profilMahasiswa->id_dospem !== $user->id) {
+                abort(403, 'Anda tidak memiliki akses ke mahasiswa ini.');
+            }
+        }
+
+        // Update laporan PKL status
+        \App\Models\LaporanPkl::where('mahasiswa_id', $mahasiswaId)->update([
+            'status_validasi' => $request->status_validasi,
+        ]);
+
+        // Log activity
+        $this->logValidationActivity(
+            'pemberkasan_akhir',
+            $mahasiswaId,
+            'menunggu',
+            $request->status_validasi,
+            $request->catatan
+        );
+
+        // Send WhatsApp notification
+        $this->sendValidationNotification(
+            $mahasiswa,
+            'Pemberkasan Akhir (Laporan PKL)',
+            $request->status_validasi,
+            $request->catatan
+        );
+
+        return redirect()->back()->with('success', 'Pemberkasan Akhir berhasil divalidasi!');
+    }
 }

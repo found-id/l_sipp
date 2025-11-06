@@ -92,17 +92,17 @@
                         <td class="px-6 py-4 text-sm text-gray-900">
                             {{ $m->kontak ?? 'N/A' }}
                         </td>
-                        <td class="px-6 py-4 text-sm font-semibold {{ $m->honor > 0 ? 'text-green-600' : 'text-red-600' }}">
-                            {{ $m->honor > 0 ? 'Ada' : 'Tidak' }}
+                        <td class="px-6 py-4 text-sm font-semibold {{ $m->honor >= 4 ? 'text-green-600' : ($m->honor >= 3 ? 'text-blue-600' : 'text-orange-600') }}">
+                            {{ $m->honor_label }}
                         </td>
-                        <td class="px-6 py-4 text-sm font-semibold {{ $m->fasilitas > 0 ? 'text-green-600' : 'text-red-600' }}">
-                            {{ $m->fasilitas > 0 ? 'Ada' : 'Tidak' }}
+                        <td class="px-6 py-4 text-sm font-semibold {{ $m->fasilitas >= 4 ? 'text-green-600' : ($m->fasilitas >= 3 ? 'text-blue-600' : 'text-orange-600') }}">
+                            {{ $m->fasilitas_label }}
                         </td>
-                        <td class="px-6 py-4 text-sm font-semibold {{ $m->kesesuaian_jurusan > 0 ? 'text-green-600' : 'text-red-600' }}">
-                            {{ $m->kesesuaian_jurusan > 0 ? 'Sesuai' : 'Kurang Sesuai' }}
+                        <td class="px-6 py-4 text-sm font-semibold {{ $m->kesesuaian_jurusan >= 4 ? 'text-green-600' : ($m->kesesuaian_jurusan >= 3 ? 'text-blue-600' : 'text-orange-600') }}">
+                            {{ $m->kesesuaian_jurusan_label }}
                         </td>
-                        <td class="px-6 py-4 text-sm font-semibold {{ $m->tingkat_kebersihan > 0 ? 'text-green-600' : 'text-red-600' }}">
-                            {{ $m->tingkat_kebersihan > 0 ? 'Bersih' : 'Kurang Bersih' }}
+                        <td class="px-6 py-4 text-sm font-semibold {{ $m->tingkat_kebersihan >= 4 ? 'text-green-600' : ($m->tingkat_kebersihan >= 3 ? 'text-blue-600' : 'text-orange-600') }}">
+                            {{ $m->tingkat_kebersihan_label }}
                         </td>
                         <td class="px-6 py-4 text-sm text-gray-500">
                             {{ $m->created_at->format('d M Y') }}
@@ -172,29 +172,41 @@
                     <div>
                         <label for="honor" class="block text-sm font-medium text-gray-700">Honor</label>
                         <select id="honor" name="honor" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500">
-                            <option value="0">Tidak Ada</option>
-                            <option value="1">Ada</option>
+                            <option value="1">Biasa saja</option>
+                            <option value="2">Baik</option>
+                            <option value="3">Bagus</option>
+                            <option value="4">Sangat Bagus</option>
+                            <option value="5">Luar Biasa</option>
                         </select>
                     </div>
                     <div>
                         <label for="fasilitas" class="block text-sm font-medium text-gray-700">Fasilitas</label>
                         <select id="fasilitas" name="fasilitas" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500">
-                            <option value="0">Tidak Ada</option>
-                            <option value="1">Ada</option>
+                            <option value="1">Biasa saja</option>
+                            <option value="2">Baik</option>
+                            <option value="3">Bagus</option>
+                            <option value="4">Sangat Bagus</option>
+                            <option value="5">Luar Biasa</option>
                         </select>
                     </div>
                     <div>
                         <label for="kesesuaian_jurusan" class="block text-sm font-medium text-gray-700">Kesesuaian Jurusan</label>
                         <select id="kesesuaian_jurusan" name="kesesuaian_jurusan" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500">
-                            <option value="0">Kurang Sesuai</option>
-                            <option value="1">Sesuai</option>
+                            <option value="1">Biasa saja</option>
+                            <option value="2">Baik</option>
+                            <option value="3">Bagus</option>
+                            <option value="4">Sangat Bagus</option>
+                            <option value="5">Luar Biasa</option>
                         </select>
                     </div>
                     <div>
                         <label for="tingkat_kebersihan" class="block text-sm font-medium text-gray-700">Tingkat Kebersihan</label>
                         <select id="tingkat_kebersihan" name="tingkat_kebersihan" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500">
-                            <option value="0">Kurang Bersih</option>
-                            <option value="1">Bersih</option>
+                            <option value="1">Biasa saja</option>
+                            <option value="2">Baik</option>
+                            <option value="3">Bagus</option>
+                            <option value="4">Sangat Bagus</option>
+                            <option value="5">Luar Biasa</option>
                         </select>
                     </div>
                 </div>
@@ -250,29 +262,41 @@
                     <div>
                         <label for="edit_honor" class="block text-sm font-medium text-gray-700">Honor</label>
                         <select id="edit_honor" name="honor" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500">
-                            <option value="0">Tidak Ada</option>
-                            <option value="1">Ada</option>
+                            <option value="1">Biasa saja</option>
+                            <option value="2">Baik</option>
+                            <option value="3">Bagus</option>
+                            <option value="4">Sangat Bagus</option>
+                            <option value="5">Luar Biasa</option>
                         </select>
                     </div>
                     <div>
                         <label for="edit_fasilitas" class="block text-sm font-medium text-gray-700">Fasilitas</label>
                         <select id="edit_fasilitas" name="fasilitas" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500">
-                            <option value="0">Tidak Ada</option>
-                            <option value="1">Ada</option>
+                            <option value="1">Biasa saja</option>
+                            <option value="2">Baik</option>
+                            <option value="3">Bagus</option>
+                            <option value="4">Sangat Bagus</option>
+                            <option value="5">Luar Biasa</option>
                         </select>
                     </div>
                     <div>
                         <label for="edit_kesesuaian_jurusan" class="block text-sm font-medium text-gray-700">Kesesuaian Jurusan</label>
                         <select id="edit_kesesuaian_jurusan" name="kesesuaian_jurusan" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500">
-                            <option value="0">Kurang Sesuai</option>
-                            <option value="1">Sesuai</option>
+                            <option value="1">Biasa saja</option>
+                            <option value="2">Baik</option>
+                            <option value="3">Bagus</option>
+                            <option value="4">Sangat Bagus</option>
+                            <option value="5">Luar Biasa</option>
                         </select>
                     </div>
                     <div>
                         <label for="edit_tingkat_kebersihan" class="block text-sm font-medium text-gray-700">Tingkat Kebersihan</label>
                         <select id="edit_tingkat_kebersihan" name="tingkat_kebersihan" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500">
-                            <option value="0">Kurang Bersih</option>
-                            <option value="1">Bersih</option>
+                            <option value="1">Biasa saja</option>
+                            <option value="2">Baik</option>
+                            <option value="3">Bagus</option>
+                            <option value="4">Sangat Bagus</option>
+                            <option value="5">Luar Biasa</option>
                         </select>
                     </div>
                 </div>

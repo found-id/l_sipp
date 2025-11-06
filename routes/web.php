@@ -131,13 +131,18 @@ Route::get('/jadwal/{filename}', function ($filename) {
     
     // Dosen Pembimbing routes
     Route::middleware(['role:dospem'])->prefix('dospem')->name('dospem.')->group(function () {
-        Route::get('/validation', [\App\Http\Controllers\ValidationController::class, 'index'])->name('validation');
-        Route::put('/validation/khs/{id}', [\App\Http\Controllers\ValidationController::class, 'validateKhs'])->name('validation.khs');
-        Route::put('/validation/surat-balasan/{id}', [\App\Http\Controllers\ValidationController::class, 'validateSuratBalasan'])->name('validation.surat');
-        Route::put('/validation/laporan/{id}', [\App\Http\Controllers\ValidationController::class, 'validateLaporan'])->name('validation.laporan');
-        Route::post('/validation/bulk', [\App\Http\Controllers\ValidationController::class, 'bulkValidate'])->name('validation.bulk');
+        // Main validation page (mahasiswa list)
+        Route::get('/validation', [\App\Http\Controllers\ValidationController::class, 'mahasiswaList'])->name('validation');
+        Route::get('/mahasiswa/{id}/detail', [\App\Http\Controllers\ValidationController::class, 'mahasiswaDetail'])->name('mahasiswa.detail');
+
+        // New validation methods for 4 categories
+        Route::put('/validate/{mahasiswaId}/kelayakan', [\App\Http\Controllers\ValidationController::class, 'validateKelayakan'])->name('validate.kelayakan');
+        Route::put('/validate/{mahasiswaId}/dokumen-pendukung', [\App\Http\Controllers\ValidationController::class, 'validateDokumenPendukung'])->name('validate.dokumen_pendukung');
+        Route::put('/validate/{mahasiswaId}/instansi-mitra', [\App\Http\Controllers\ValidationController::class, 'validateInstansiMitra'])->name('validate.instansi_mitra');
+        Route::put('/validate/{mahasiswaId}/akhir', [\App\Http\Controllers\ValidationController::class, 'validateAkhir'])->name('validate.akhir');
+
         Route::get('/biodata/{id}', [\App\Http\Controllers\ValidationController::class, 'getBiodata'])->name('biodata');
-        
+
         // Penilaian routes
         Route::get('/penilaian', [\App\Http\Controllers\DospemPenilaianController::class, 'index'])->name('penilaian');
         Route::post('/penilaian', [\App\Http\Controllers\DospemPenilaianController::class, 'store'])->name('penilaian.store');

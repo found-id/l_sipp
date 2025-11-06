@@ -107,7 +107,7 @@
                                     <i class="fas fa-home mr-2"></i>Dashboard
                                 </a>
                                 <a href="{{ route('admin.kelola-data') }}" class="nav-link {{ request()->routeIs('admin.kelola-data') ? 'active' : '' }}">
-                                    <i class="fas fa-cogs mr-2"></i>Menu Kelola
+                                    <i class="fas fa-cogs mr-2"></i>Kelola Data
                                 </a>
                                 <a href="{{ route('admin.system-settings') }}" class="nav-link {{ request()->routeIs('admin.system-settings') ? 'active' : '' }}">
                                     <i class="fas fa-sliders-h mr-2"></i>Menu Sistem

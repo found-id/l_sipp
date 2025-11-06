@@ -84,23 +84,38 @@ class DemoDataSeeder extends Seeder
             ]);
         }
 
-        // Create Mitra
+        // Create Mitra with SAW criteria (1-5 scale)
         $mitra1 = Mitra::create([
             'nama' => 'PT. Teknologi Digital Indonesia',
             'alamat' => 'Jl. Teknologi No. 123, Jakarta',
             'kontak' => '021-12345678',
+            'jarak' => 15,
+            'honor' => 5,              // Luar Biasa
+            'fasilitas' => 4,          // Sangat Bagus
+            'kesesuaian_jurusan' => 5, // Luar Biasa
+            'tingkat_kebersihan' => 4, // Sangat Bagus
         ]);
 
         $mitra2 = Mitra::create([
             'nama' => 'CV. Solusi Informatika',
             'alamat' => 'Jl. Informatika No. 456, Bandung',
             'kontak' => '022-87654321',
+            'jarak' => 25,
+            'honor' => 3,              // Bagus
+            'fasilitas' => 3,          // Bagus
+            'kesesuaian_jurusan' => 4, // Sangat Bagus
+            'tingkat_kebersihan' => 3, // Bagus
         ]);
 
         $mitra3 = Mitra::create([
             'nama' => 'PT. Sistem Informasi Global',
             'alamat' => 'Jl. Sistem No. 789, Surabaya',
             'kontak' => '031-11223344',
+            'jarak' => 50,
+            'honor' => 4,              // Sangat Bagus
+            'fasilitas' => 5,          // Luar Biasa
+            'kesesuaian_jurusan' => 3, // Bagus
+            'tingkat_kebersihan' => 5, // Luar Biasa
         ]);
 
         // Create sample documents for some mahasiswa

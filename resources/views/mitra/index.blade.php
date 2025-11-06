@@ -96,19 +96,19 @@
                             </div>
                             <div class="flex items-center">
                                 <i class="fas fa-money-bill-wave text-gray-400 mr-2 w-4 text-center"></i>
-                                <p class="text-sm text-gray-600">Honor: <span class="font-semibold {{ $m->honor > 0 ? 'text-green-600' : 'text-red-600' }}">{{ $m->honor > 0 ? 'Ada' : 'Tidak Ada' }}</span></p>
+                                <p class="text-sm text-gray-600">Honor: <span class="font-semibold {{ $m->honor >= 4 ? 'text-green-600' : ($m->honor >= 3 ? 'text-blue-600' : 'text-orange-600') }}">{{ $m->honor_label }}</span></p>
                             </div>
                             <div class="flex items-center">
                                 <i class="fas fa-couch text-gray-400 mr-2 w-4 text-center"></i>
-                                <p class="text-sm text-gray-600">Fasilitas: <span class="font-semibold {{ $m->fasilitas > 0 ? 'text-green-600' : 'text-red-600' }}">{{ $m->fasilitas > 0 ? 'Ada' : 'Tidak Ada' }}</span></p>
+                                <p class="text-sm text-gray-600">Fasilitas: <span class="font-semibold {{ $m->fasilitas >= 4 ? 'text-green-600' : ($m->fasilitas >= 3 ? 'text-blue-600' : 'text-orange-600') }}">{{ $m->fasilitas_label }}</span></p>
                             </div>
                             <div class="flex items-center">
                                 <i class="fas fa-graduation-cap text-gray-400 mr-2 w-4 text-center"></i>
-                                <p class="text-sm text-gray-600">Kesesuaian Jurusan: <span class="font-semibold {{ $m->kesesuaian_jurusan > 0 ? 'text-green-600' : 'text-red-600' }}">{{ $m->kesesuaian_jurusan > 0 ? 'Ada' : 'Tidak Ada' }}</span></p>
+                                <p class="text-sm text-gray-600">Kesesuaian Jurusan: <span class="font-semibold {{ $m->kesesuaian_jurusan >= 4 ? 'text-green-600' : ($m->kesesuaian_jurusan >= 3 ? 'text-blue-600' : 'text-orange-600') }}">{{ $m->kesesuaian_jurusan_label }}</span></p>
                             </div>
                             <div class="flex items-center">
                                 <i class="fas fa-broom text-gray-400 mr-2 w-4 text-center"></i>
-                                <p class="text-sm text-gray-600">Tingkat Kebersihan: <span class="font-semibold {{ $m->tingkat_kebersihan > 0 ? 'text-green-600' : 'text-red-600' }}">{{ $m->tingkat_kebersihan > 0 ? 'Ada' : 'Tidak Ada' }}</span></p>
+                                <p class="text-sm text-gray-600">Tingkat Kebersihan: <span class="font-semibold {{ $m->tingkat_kebersihan >= 4 ? 'text-green-600' : ($m->tingkat_kebersihan >= 3 ? 'text-blue-600' : 'text-orange-600') }}">{{ $m->tingkat_kebersihan_label }}</span></p>
                             </div>
                         </div>
                     </div>
