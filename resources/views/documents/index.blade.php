@@ -1338,7 +1338,7 @@ function autoAnalyzeSemester(semester) {
                 semesterData[semester] = analysis;
                 
                 // Auto-save to database
-                autoSaveSemester(semester, text);
+                autoSaveSemester(semester, text, analysis);
                 
                 // Tunggu sebentar agar tabel selesai di-render, lalu update result table
                 setTimeout(() => {
@@ -1460,7 +1460,12 @@ function saveSemester(semester) {
             formData.append('_token', '{{ csrf_token() }}');
             formData.append('semester', semester);
             formData.append('transcript_data', text);
-            
+            formData.append('ips', analysis.ips || 0);
+            formData.append('total_sks', analysis.total_sks || 0);
+            formData.append('total_sks_d', analysis.total_sks_d || 0);
+            formData.append('has_e', analysis.has_e ? 1 : 0);
+            formData.append('eligible', analysis.eligible ? 1 : 0);
+
             fetch("{{ route('documents.save-semester-data') }}", {
                 method: 'POST',
                 body: formData
@@ -1945,14 +1950,14 @@ function updateKelayakanPklStatus(statusText, isEligible) {
 }
 
 // Function to auto-save semester data
-function autoSaveSemester(semester, transcriptData) {
+function autoSaveSemester(semester, transcriptData, analysis) {
     console.log(`Auto-saving semester ${semester} data...`);
-    
+
     // Debounce auto-save to avoid too many requests
     if (window.autoSaveTimeout) {
         clearTimeout(window.autoSaveTimeout);
     }
-    
+
     window.autoSaveTimeout = setTimeout(() => {
         fetch('/documents/save-semester-data', {
             method: 'POST',
@@ -1962,7 +1967,12 @@ function autoSaveSemester(semester, transcriptData) {
             },
             body: JSON.stringify({
                 semester: semester,
-                transcript_data: transcriptData
+                transcript_data: transcriptData,
+                ips: analysis.ips || 0,
+                total_sks: analysis.total_sks || 0,
+                total_sks_d: analysis.total_sks_d || 0,
+                has_e: analysis.has_e ? 1 : 0,
+                eligible: analysis.eligible ? 1 : 0
             })
         })
         .then(response => response.json())
@@ -2446,11 +2456,8 @@ function renderTable(rows, container) {
                                         </div>
                                     </div>
                                     <div class="flex space-x-2">
-                                        <button type="button" onclick="changeMitra()" class="text-blue-600 hover:text-blue-800 text-sm">
-                                            <i class="fas fa-edit mr-1"></i>Ubah
-                                        </button>
-                                        <button type="button" onclick="removeMitra()" class="text-red-600 hover:text-red-800 text-sm">
-                                            <i class="fas fa-times mr-1"></i>Hapus
+                                        <button type="button" onclick="changeMitra()" class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                                            <i class="fas fa-edit mr-1"></i>Ganti
                                         </button>
                                     </div>
                                 </div>
@@ -2782,33 +2789,6 @@ function searchMitra() {
 function changeMitra() {
     if (confirm('Apakah Anda yakin ingin mengubah instansi mitra yang dipilih?')) {
         window.location.href = '{{ route("mitra") }}';
-    }
-}
-
-function removeMitra() {
-    if (confirm('Apakah Anda yakin ingin menghapus instansi mitra yang dipilih?')) {
-        fetch('{{ route("documents.select-mitra") }}', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-            },
-            body: JSON.stringify({
-                mitra_id: null
-            })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                window.location.reload();
-            } else {
-                alert('Terjadi kesalahan: ' + (data.message || 'Gagal menghapus instansi mitra'));
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('Terjadi kesalahan saat menghapus instansi mitra');
-        });
     }
 }
 </script>

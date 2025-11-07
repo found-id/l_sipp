@@ -93,14 +93,14 @@ class AuthController extends Controller
     public function register(Request $request)
     {
         $request->validate([
-            'name' => 'required|string|max:100',
+            'name' => 'required|string|max:100|regex:/^[^0-9]+$/',
             'email' => 'required|string|email|max:190|unique:users',
             'password' => 'required|string|min:6|confirmed',
             'role' => 'required|in:mahasiswa,dospem,admin',
             // Biodata validation for mahasiswa
-            'nim' => 'required_if:role,mahasiswa|string|max:20|unique:profil_mahasiswa,nim',
+            'nim' => 'required_if:role,mahasiswa|regex:/^\\d+$/|max:20|unique:profil_mahasiswa,nim',
             'prodi' => 'required_if:role,mahasiswa|string|max:100',
-            'semester' => 'required_if:role,mahasiswa|integer|min:1|max:8',
+            'semester' => 'required_if:role,mahasiswa|integer|min:5|max:8',
             'jenis_kelamin' => 'required_if:role,mahasiswa|string|in:L,P',
             'no_wa' => 'required_if:role,mahasiswa|string|regex:/^8\d{8,11}$/',
             'ipk' => 'required_if:role,mahasiswa|numeric|min:0|max:4.0',
@@ -281,10 +281,10 @@ class AuthController extends Controller
         }
 
         $request->validate([
-            'name' => 'required|string|max:100',
-            'nim' => 'required|string|max:20|unique:profil_mahasiswa,nim',
+            'name' => 'required|string|max:100|regex:/^[^0-9]+$/',
+            'nim' => 'required|regex:/^\\d+$/|max:20|unique:profil_mahasiswa,nim',
             'prodi' => 'required|string|max:100',
-            'semester' => 'required|integer|min:1|max:14',
+            'semester' => 'required|integer|min:5|max:14',
             'jenis_kelamin' => 'required|string|in:L,P',
             'no_whatsapp' => 'required|string|regex:/^8\d{8,11}$/',
             'ipk' => 'required|numeric|min:0|max:4.0',

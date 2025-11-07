@@ -102,6 +102,17 @@
         @endif
     </div>
 
+    <!-- Biodata Dosen -->
+    @if($user->role === 'dospem' && isset($dospem))
+    <div class="bg-white shadow rounded-lg p-6">
+        <h3 class="text-lg font-medium text-gray-900 mb-4">Biodata Dosen</h3>
+        <div>
+            <label class="block text-sm font-medium text-gray-700">NIP</label>
+            <p class="mt-1 text-sm text-gray-900">{{ $dospem->nip ?? 'Belum diisi' }}</p>
+        </div>
+    </div>
+    @endif
+
     <!-- Biodata Information (for Mahasiswa) -->
     @if($user->role === 'mahasiswa' && $profil)
     <div class="bg-white shadow rounded-lg p-6">

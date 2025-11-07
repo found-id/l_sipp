@@ -4,12 +4,29 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - SIPP PKL</title>
+
+    <!-- Favicons -->
+    <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}">
+    <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
+
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .auth-image-container {
+            background: url('{{ asset('images/auth/bg_login.jpg') }}') center/cover no-repeat;
+            background-color: #667eea;
+        }
+    </style>
 </head>
-<body class="bg-gray-50 flex flex-col min-h-screen">
-    <div class="flex-1 flex items-center justify-center py-8 px-4 sm:px-6 lg:px-8">
-        <div class="max-w-md w-full space-y-8">
+<body class="bg-gray-50 h-screen overflow-hidden">
+    <div class="flex h-screen">
+        <!-- Left Side - Image -->
+        <div class="hidden lg:flex lg:w-1/2 auth-image-container items-center justify-center relative">
+        </div>
+
+        <!-- Right Side - Login Form -->
+        <div class="w-full lg:w-1/2 flex items-center justify-center p-8 overflow-y-auto">
+            <div class="max-w-md w-full space-y-8">
             <div>
                 <div class="mx-auto h-12 w-12 flex items-center justify-center">
                     <i class="fas fa-graduation-cap text-3xl text-indigo-600"></i>
@@ -138,26 +155,22 @@
                     </button>
                 </div>
             </form>
-        </div>
-        </div>
-    </div>
 
-    <!-- Footer -->
-    <footer class="bg-white border-t border-gray-200 mt-8">
-        <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
-            <div class="flex flex-col md:flex-row justify-between items-center">
+            <!-- Footer -->
+            <footer class="mt-8 text-center">
                 <p class="text-sm text-gray-500">
                     © {{ date('Y') }} SIPP PKL. All rights reserved.
                 </p>
-                <div class="flex space-x-4 mt-2 md:mt-0">
+                <div class="mt-2">
                     <a href="{{ route('faq') }}" class="text-sm text-gray-500 hover:text-indigo-600 transition-colors">
                         <i class="fas fa-question-circle mr-1"></i>
                         FAQ
                     </a>
                 </div>
-            </div>
+            </footer>
         </div>
-    </footer>
+        </div>
+    </div>
 
     <script>
         // Check if registration is enabled

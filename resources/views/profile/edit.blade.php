@@ -45,6 +45,20 @@
             </div>
         </div>
 
+        @if($user->role === 'dospem')
+        <!-- Biodata Dosen -->
+        <div class="bg-white shadow rounded-lg p-6">
+            <h3 class="text-lg font-medium text-gray-900 mb-4">Biodata Dosen</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label for="nip" class="block text-sm font-medium text-gray-700">NIP</label>
+                    <input type="text" id="nip" name="nip" value="{{ old('nip', $dospem->nip ?? '') }}"
+                           class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                </div>
+            </div>
+        </div>
+        @endif
+
         @if($user->role === 'mahasiswa')
         <!-- Biodata Information -->
         <div class="bg-white shadow rounded-lg p-6">

@@ -302,22 +302,66 @@ class ValidationController extends Controller
     /**
      * Display list of mahasiswa for dospem to select
      */
-    public function mahasiswaList()
+    public function mahasiswaList(Request $request)
     {
         $user = Auth::user();
 
+        $query = \App\Models\ProfilMahasiswa::with([
+            'user',
+            'user.khs',
+            'user.suratBalasan',
+            'user.laporanPkl',
+            'dosenPembimbing'
+        ]);
+
         if ($user->role === 'admin') {
             // Admin can see all mahasiswa
-            $mahasiswa = \App\Models\ProfilMahasiswa::with(['user', 'dosenPembimbing'])
-                ->orderBy('id_mahasiswa')
-                ->get();
         } else {
             // Dospem can only see their bimbingan
-            $mahasiswa = \App\Models\ProfilMahasiswa::where('id_dospem', $user->id)
-                ->with(['user', 'dosenPembimbing'])
-                ->orderBy('id_mahasiswa')
-                ->get();
+            $query->where('id_dospem', $user->id);
         }
+
+        // Search functionality
+        if ($request->has('search') && $request->search != '') {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->whereHas('user', function($uq) use ($search) {
+                    $uq->where('name', 'like', '%' . $search . '%');
+                })
+                ->orWhere('nim', 'like', '%' . $search . '%')
+                ->orWhere('prodi', 'like', '%' . $search . '%');
+            });
+        }
+
+        // Sort functionality
+        $sortBy = $request->get('sort', 'name');
+        $sortOrder = $request->get('order', 'asc');
+
+        switch($sortBy) {
+            case 'name':
+                $query->join('users', 'profil_mahasiswa.id_mahasiswa', '=', 'users.id')
+                      ->orderBy('users.name', $sortOrder)
+                      ->select('profil_mahasiswa.*');
+                break;
+            case 'prodi':
+                $query->orderBy('prodi', $sortOrder);
+                break;
+            case 'semester':
+                $query->orderBy('semester', $sortOrder);
+                break;
+            case 'ipk':
+                $query->orderBy('ipk', $sortOrder);
+                break;
+            case 'nim':
+                $query->orderBy('nim', $sortOrder);
+                break;
+            default:
+                $query->join('users', 'profil_mahasiswa.id_mahasiswa', '=', 'users.id')
+                      ->orderBy('users.name', $sortOrder)
+                      ->select('profil_mahasiswa.*');
+        }
+
+        $mahasiswa = $query->get();
 
         return view('validation.mahasiswa-list', compact('mahasiswa'));
     }
@@ -333,6 +377,8 @@ class ValidationController extends Controller
         $mahasiswa = User::with([
             'profilMahasiswa.dosenPembimbing',
             'profilMahasiswa.mitraSelected',
+            'profilMahasiswa.riwayatPengantianMitra.mitraLama',
+            'profilMahasiswa.riwayatPengantianMitra.mitraBaru',
             'khs' => function($q) { $q->orderBy('semester'); },
             'khsManualTranskrip' => function($q) { $q->orderBy('semester'); },
             'suratBalasan.mitra',
@@ -350,13 +396,70 @@ class ValidationController extends Controller
         // Calculate academic summary
         $khsManual = $mahasiswa->khsManualTranskrip;
         $totalSemesters = $khsManual->count();
-        $totalIPSSum = $khsManual->sum('ips');
-        $ipk = $totalSemesters > 0 ? round($totalIPSSum / $totalSemesters, 2) : 0;
-        $totalSksDCount = $khsManual->sum('total_sks_d');
-        $hasECount = $khsManual->where('has_e', true)->count();
-        $allEligible = $khsManual->every(function($item) {
-            return $item->eligible;
-        });
+
+        // Calculate IPK from transcript_data
+        $totalIps = 0;
+        $semesterCount = 0;
+        $totalSksDCount = 0;
+        $totalSksECount = 0;
+
+        foreach ($khsManual as $transkrip) {
+            $data = is_string($transkrip->transcript_data)
+                ? json_decode($transkrip->transcript_data, true)
+                : $transkrip->transcript_data;
+
+            if (!empty($data)) {
+                $semesterIps = 0;
+                $semesterSks = 0;
+                $hasDGrade = false;
+                $hasEGrade = false;
+
+                foreach ($data as $matkul) {
+                    $nilai = strtoupper(trim($matkul['nilai'] ?? ''));
+                    $sks = floatval($matkul['sks'] ?? 0);
+
+                    // Convert nilai to angka mutu
+                    $angkaMutu = 0;
+                    switch ($nilai) {
+                        case 'A': $angkaMutu = 4.0; break;
+                        case 'AB': $angkaMutu = 3.5; break;
+                        case 'B': $angkaMutu = 3.0; break;
+                        case 'BC': $angkaMutu = 2.5; break;
+                        case 'C': $angkaMutu = 2.0; break;
+                        case 'D':
+                            $angkaMutu = 1.0;
+                            $hasDGrade = true;
+                            $totalSksDCount += $sks;
+                            break;
+                        case 'E':
+                            $angkaMutu = 0.0;
+                            $hasEGrade = true;
+                            break;
+                    }
+
+                    $semesterIps += ($angkaMutu * $sks);
+                    $semesterSks += $sks;
+                }
+
+                if ($semesterSks > 0) {
+                    $totalIps += ($semesterIps / $semesterSks);
+                    $semesterCount++;
+                }
+
+                if ($hasEGrade) {
+                    $totalSksECount++;
+                }
+            }
+        }
+
+        $ipkFromTranskrip = $semesterCount > 0 ? round($totalIps / $semesterCount, 2) : 0;
+        $ipkFromProfile = $mahasiswa->profilMahasiswa->ipk ?? 0;
+        $allEligible = true; // Default karena tidak ada kolom eligible lagi
+
+        // Count rejected from mitra (ditolak)
+        $jumlahDitolak = \App\Models\RiwayatPengantianMitra::where('mahasiswa_id', $id)
+            ->where('jenis_alasan', 'ditolak')
+            ->count();
 
         // KHS files count
         $khsFilesCount = $mahasiswa->khs->count();
@@ -381,15 +484,17 @@ class ValidationController extends Controller
 
         return view('validation.mahasiswa-detail', compact(
             'mahasiswa',
-            'ipk',
+            'ipkFromTranskrip',
+            'ipkFromProfile',
             'totalSksDCount',
-            'hasECount',
+            'totalSksECount',
             'allEligible',
             'totalSemesters',
             'khsFilesCount',
             'gdrive',
             'validationStatus',
-            'statusPKL'
+            'statusPKL',
+            'jumlahDitolak'
         ));
     }
 

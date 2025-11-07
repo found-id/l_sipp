@@ -34,11 +34,17 @@
                             @foreach($students as $student)
                                 <a href="{{ route('dospem.penilaian', ['m' => $student->id]) }}" 
                                    class="block p-4 rounded-lg border {{ $selectedStudent && $selectedStudent->id == $student->id ? 'bg-blue-50 border-blue-200' : 'bg-gray-50 border-gray-200 hover:bg-gray-100' }} transition-colors">
-                                    <div class="flex items-center space-x-4">
+                                    <div class="flex items-center space-x-3">
                                         <!-- Profile Photo -->
                                         <div class="flex-shrink-0">
                                             @if($student->photo && $student->google_linked)
-                                                <img src="{{ $student->photo }}" alt="{{ $student->name }}" class="h-12 w-12 rounded-full object-cover">
+                                                <img src="{{ $student->photo }}"
+                                                     alt="{{ $student->name }}"
+                                                     class="h-12 w-12 rounded-full object-cover"
+                                                     onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                                <div class="h-12 w-12 rounded-full bg-gray-300 items-center justify-center hidden">
+                                                    <i class="fas fa-user text-gray-600"></i>
+                                                </div>
                                             @else
                                                 <div class="h-12 w-12 rounded-full bg-gray-300 flex items-center justify-center">
                                                     <i class="fas fa-user text-gray-600"></i>
@@ -48,11 +54,13 @@
                                         
                                         <!-- Student Info -->
                                         <div class="flex-1 min-w-0">
-                                            <div class="flex items-center justify-between">
-                                                <div>
-                                                    <div class="font-medium text-gray-900 truncate">{{ $student->name }}</div>
-                                                    <div class="text-sm text-gray-500">
-                                                        NIM: {{ $student->profilMahasiswa->nim ?? 'N/A' }} • 
+                                            <div class="flex items-center justify-between gap-3">
+                                                <div class="flex-1 min-w-0">
+                                                    <div class="font-medium text-gray-900 truncate max-w-[200px]" title="{{ $student->name }}">
+                                                        {{ $student->name }}
+                                                    </div>
+                                                    <div class="text-sm text-gray-500 truncate">
+                                                        NIM: {{ $student->profilMahasiswa->nim ?? 'N/A' }} •
                                                         Prodi: {{ $student->profilMahasiswa->prodi ?? 'N/A' }}
                                                     </div>
                                                 </div>
@@ -64,10 +72,9 @@
                                                             $studentResult = $allResults->get($student->id);
                                                         @endphp
                                                         <div class="flex items-center space-x-2">
-                                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                                                <i class="fas fa-check mr-1"></i>
-                                                                Sudah dinilai
-                                                            </span>
+                                                            <div class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center" title="Sudah dinilai">
+                                                                <i class="fas fa-check text-green-600 text-sm"></i>
+                                                            </div>
                                                         </div>
                                                         @if($studentResult)
                                                             <div class="text-right">
@@ -80,10 +87,9 @@
                                                             </div>
                                                         @endif
                                                     @else
-                                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-                                                            <i class="fas fa-clock mr-1"></i>
-                                                            Belum dinilai
-                                                        </span>
+                                                        <div class="w-8 h-8 rounded-full bg-yellow-100 flex items-center justify-center" title="Belum dinilai">
+                                                            <i class="fas fa-clock text-yellow-600 text-sm"></i>
+                                                        </div>
                                                     @endif
                                                 </div>
                                             </div>
@@ -239,23 +245,4 @@
         </div>
     @endif
 </div>
-
-@if(session('success'))
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Show success message
-            const successDiv = document.createElement('div');
-            successDiv.className = 'fixed top-4 right-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded z-50';
-            successDiv.innerHTML = '<i class="fas fa-check mr-2"></i>' + '{{ session("success") }}';
-            document.body.appendChild(successDiv);
-            
-            // Remove after 3 seconds
-            setTimeout(() => {
-                successDiv.remove();
-            }, 3000);
-            
-
-        });
-    </script>
-@endif
 @endsection

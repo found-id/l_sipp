@@ -21,8 +21,8 @@
             <!-- Search -->
             <div class="flex-1">
                 <form method="GET" class="flex">
-                    <input type="text" name="search" value="{{ request('search') }}" 
-                           placeholder="Cari nama, email..." 
+                    <input type="text" name="search" value="{{ request('search') }}"
+                           placeholder="Cari nama, email..."
                            class="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500">
                     <button type="submit" class="ml-2 bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700">
                         <i class="fas fa-search"></i>
@@ -34,8 +34,8 @@
                     @endif
                 </form>
             </div>
-            
-            <!-- Sort -->
+
+            <!-- Sort and Per Page -->
             <div class="flex gap-2">
                 <select name="sort_by" onchange="updateSort()" class="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500">
                     <option value="name" {{ request('sort_by') == 'name' ? 'selected' : '' }}>Nama</option>
@@ -47,28 +47,72 @@
                     <option value="asc" {{ request('sort_order') == 'asc' ? 'selected' : '' }}>A-Z</option>
                     <option value="desc" {{ request('sort_order') == 'desc' ? 'selected' : '' }}>Z-A</option>
                 </select>
+                <select name="per_page" onchange="updatePerPage()" class="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500">
+                    <option value="15" {{ request('per_page', 15) == 15 ? 'selected' : '' }}>15 per halaman</option>
+                    <option value="30" {{ request('per_page') == 30 ? 'selected' : '' }}>30 per halaman</option>
+                    <option value="50" {{ request('per_page') == 50 ? 'selected' : '' }}>50 per halaman</option>
+                    <option value="all" {{ request('per_page') == 'all' ? 'selected' : '' }}>Semua</option>
+                </select>
             </div>
         </div>
+
+        <!-- Bulk Actions -->
+        <div id="bulkActions" class="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg hidden">
+            <div class="flex flex-wrap items-center gap-3">
+                <span class="font-medium text-gray-700">
+                    <span id="selectedCount">0</span> akun dipilih
+                </span>
+                <button onclick="bulkDelete()" class="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 text-sm">
+                    <i class="fas fa-trash mr-2"></i>Hapus Terpilih
+                </button>
+                <button onclick="openBulkEditDospemModal()" class="bg-purple-600 text-white px-4 py-2 rounded-md hover:bg-purple-700 text-sm">
+                    <i class="fas fa-user-edit mr-2"></i>Edit Dosen Pembimbing
+                </button>
+                <button onclick="bulkResetDocuments()" class="bg-orange-600 text-white px-4 py-2 rounded-md hover:bg-orange-700 text-sm">
+                    <i class="fas fa-redo mr-2"></i>Reset Data Pemberkasan
+                </button>
+                <button onclick="clearSelection()" class="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600 text-sm">
+                    <i class="fas fa-times mr-2"></i>Batal
+                </button>
+            </div>
+        </div>
+
+        @if($showAll)
+        <div class="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg">
+            <p class="text-sm text-green-800">
+                <i class="fas fa-info-circle mr-2"></i>
+                Menampilkan <span class="font-semibold">semua {{ $users->count() }} akun</span>
+            </p>
+        </div>
+        @endif
     </div>
 
     <!-- Users Table -->
     <div class="bg-white shadow rounded-lg overflow-hidden">
-        <div class="overflow-x-auto">
+        <div class="overflow-x-auto relative">
             <table class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50">
                     <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">NIM/NIDN</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Dosen Pembimbing</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
+                        <th class="px-4 py-3 text-left w-12 sticky left-0 bg-gray-50 z-10">
+                            <input type="checkbox" id="selectAll" onchange="toggleSelectAll()"
+                                   class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                        </th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-56 sticky left-12 bg-gray-50 z-10">User</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-48">Email</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-32">Role</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-32">NIM/NIDN</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-48">Dosen Pembimbing</th>
+                        <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider w-40 sticky right-0 bg-gray-50 z-10 shadow-[-4px_0_6px_-1px_rgba(0,0,0,0.1)]">Aksi</th>
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
                     @forelse($users as $user)
-                    <tr>
-                        <td class="px-6 py-4 whitespace-nowrap">
+                    <tr class="hover:bg-gray-50 transition-colors">
+                        <td class="px-4 py-4 whitespace-nowrap sticky left-0 bg-white z-10 hover:bg-gray-50 transition-colors">
+                            <input type="checkbox" class="user-checkbox w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                                   value="{{ $user->id }}" onchange="updateBulkActions()">
+                        </td>
+                        <td class="px-4 py-4 whitespace-nowrap sticky left-12 bg-white z-10 hover:bg-gray-50 transition-colors">
                             <div class="flex items-center">
                                 <div class="h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center">
                                     <i class="fas fa-user text-gray-600"></i>
@@ -92,10 +136,10 @@
                                 </div>
                             </div>
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
                             {{ $user->google_linked ? $user->google_email : $user->email }}
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
+                        <td class="px-4 py-4 whitespace-nowrap">
                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
                                 @if($user->role === 'admin') bg-red-100 text-red-800
                                 @elseif($user->role === 'dospem') bg-purple-100 text-purple-800
@@ -103,18 +147,18 @@
                                 {{ ucfirst($user->role) }}
                             </span>
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
                             {{ $user->profilMahasiswa->nim ?? 'N/A' }}
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
                             {{ $user->profilMahasiswa->dosenPembimbing->name ?? 'N/A' }}
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                            <button onclick="openEditModal({{ $user->id }}, '{{ $user->name }}', '{{ $user->email }}', '{{ $user->role }}', '{{ $user->profilMahasiswa->nim ?? '' }}', '{{ $user->profilMahasiswa->prodi ?? '' }}', '{{ $user->profilMahasiswa->semester ?? '' }}', '{{ $user->profilMahasiswa->id_dospem ?? '' }}')" 
-                                    class="text-blue-600 hover:text-blue-900">
+                        <td class="px-4 py-4 whitespace-nowrap text-sm font-medium text-center sticky right-0 bg-white z-10 hover:bg-gray-50 transition-colors shadow-[-4px_0_6px_-1px_rgba(0,0,0,0.1)]">
+                            <button onclick="openEditModal({{ $user->id }}, '{{ $user->name }}', '{{ $user->email }}', '{{ $user->role }}', '{{ $user->profilMahasiswa->nim ?? '' }}', '{{ $user->profilMahasiswa->prodi ?? '' }}', '{{ $user->profilMahasiswa->semester ?? '' }}', '{{ $user->profilMahasiswa->id_dospem ?? '' }}')"
+                                    class="text-blue-600 hover:text-blue-900 mr-2">
                                 <i class="fas fa-edit mr-1"></i>Edit
                             </button>
-                            <button onclick="deleteUser({{ $user->id }})" 
+                            <button onclick="deleteUser({{ $user->id }})"
                                     class="text-red-600 hover:text-red-900">
                                 <i class="fas fa-trash mr-1"></i>Hapus
                             </button>
@@ -122,15 +166,15 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="6" class="px-6 py-4 text-center text-gray-500">Tidak ada user</td>
+                        <td colspan="7" class="px-6 py-4 text-center text-gray-500">Tidak ada user</td>
                     </tr>
                     @endforelse
                 </tbody>
             </table>
         </div>
-        
+
         <!-- Pagination -->
-        @if($users->hasPages())
+        @if(!$showAll && method_exists($users, 'hasPages') && $users->hasPages())
         <div class="px-6 py-3 border-t border-gray-200">
             {{ $users->links() }}
         </div>
@@ -298,18 +342,197 @@
     </div>
 </div>
 
+<!-- Bulk Edit Dospem Modal -->
+<div id="bulkEditDospemModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
+    <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+        <div class="mt-3">
+            <h3 class="text-lg font-medium text-gray-900 mb-4">Edit Dosen Pembimbing</h3>
+            <form id="bulkEditDospemForm" method="POST" action="{{ route('admin.bulk-edit-dospem') }}">
+                @csrf
+                <input type="hidden" name="user_ids" id="bulkEditUserIds">
+                <div class="space-y-4">
+                    <div>
+                        <label for="bulk_dospem_id" class="block text-sm font-medium text-gray-700">Pilih Dosen Pembimbing</label>
+                        <select id="bulk_dospem_id" name="dospem_id" required
+                                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                            <option value="">-- Pilih Dosen Pembimbing --</option>
+                            @foreach($dospems as $dospem)
+                                <option value="{{ $dospem->id }}">{{ $dospem->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <p class="text-sm text-gray-500">
+                        <i class="fas fa-info-circle mr-1"></i>
+                        Dosen pembimbing akan diterapkan ke <span id="bulkEditCount" class="font-semibold">0</span> mahasiswa yang dipilih
+                    </p>
+                </div>
+
+                <div class="flex justify-end space-x-3 mt-6">
+                    <button type="button" onclick="closeBulkEditDospemModal()"
+                            class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400">
+                        Batal
+                    </button>
+                    <button type="submit"
+                            class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700">
+                        <i class="fas fa-save mr-2"></i>Simpan
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <script>
-function updateSort() {
+function updatePerPage() {
+    const perPage = document.querySelector('select[name="per_page"]').value;
     const sortBy = document.querySelector('select[name="sort_by"]').value;
     const sortOrder = document.querySelector('select[name="sort_order"]').value;
     const search = new URLSearchParams(window.location.search).get('search') || '';
-    
+
     const url = new URL(window.location);
+    url.searchParams.set('per_page', perPage);
     url.searchParams.set('sort_by', sortBy);
     url.searchParams.set('sort_order', sortOrder);
     if (search) url.searchParams.set('search', search);
-    
+
     window.location.href = url.toString();
+}
+
+function updateSort() {
+    const sortBy = document.querySelector('select[name="sort_by"]').value;
+    const sortOrder = document.querySelector('select[name="sort_order"]').value;
+    const perPage = document.querySelector('select[name="per_page"]').value;
+    const search = new URLSearchParams(window.location.search).get('search') || '';
+
+    const url = new URL(window.location);
+    url.searchParams.set('sort_by', sortBy);
+    url.searchParams.set('sort_order', sortOrder);
+    url.searchParams.set('per_page', perPage);
+    if (search) url.searchParams.set('search', search);
+
+    window.location.href = url.toString();
+}
+
+// Bulk Actions Functions
+function toggleSelectAll() {
+    const selectAll = document.getElementById('selectAll');
+    const checkboxes = document.querySelectorAll('.user-checkbox');
+    checkboxes.forEach(cb => cb.checked = selectAll.checked);
+    updateBulkActions();
+}
+
+function updateBulkActions() {
+    const checkboxes = document.querySelectorAll('.user-checkbox:checked');
+    const count = checkboxes.length;
+    document.getElementById('selectedCount').textContent = count;
+    document.getElementById('bulkActions').classList.toggle('hidden', count === 0);
+}
+
+function getSelectedIds() {
+    const checkboxes = document.querySelectorAll('.user-checkbox:checked');
+    return Array.from(checkboxes).map(cb => cb.value);
+}
+
+function clearSelection() {
+    document.getElementById('selectAll').checked = false;
+    document.querySelectorAll('.user-checkbox').forEach(cb => cb.checked = false);
+    updateBulkActions();
+}
+
+function bulkDelete() {
+    const ids = getSelectedIds();
+    if (ids.length === 0) {
+        alert('Pilih minimal 1 akun untuk dihapus!');
+        return;
+    }
+
+    if (!confirm(`Apakah Anda yakin ingin menghapus ${ids.length} akun? Data yang terkait juga akan dihapus!`)) {
+        return;
+    }
+
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = '{{ route("admin.bulk-delete-users") }}';
+
+    const csrfInput = document.createElement('input');
+    csrfInput.type = 'hidden';
+    csrfInput.name = '_token';
+    csrfInput.value = '{{ csrf_token() }}';
+    form.appendChild(csrfInput);
+
+    ids.forEach(id => {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'user_ids[]';
+        input.value = id;
+        form.appendChild(input);
+    });
+
+    document.body.appendChild(form);
+    form.submit();
+}
+
+function openBulkEditDospemModal() {
+    const ids = getSelectedIds();
+    if (ids.length === 0) {
+        alert('Pilih minimal 1 mahasiswa untuk edit dosen pembimbing!');
+        return;
+    }
+
+    document.getElementById('bulkEditUserIds').value = JSON.stringify(ids);
+    document.getElementById('bulkEditCount').textContent = ids.length;
+    document.getElementById('bulkEditDospemModal').classList.remove('hidden');
+}
+
+function closeBulkEditDospemModal() {
+    document.getElementById('bulkEditDospemModal').classList.add('hidden');
+}
+
+// Update form submission to convert JSON array to proper array format
+document.getElementById('bulkEditDospemForm').addEventListener('submit', function(e) {
+    const ids = JSON.parse(document.getElementById('bulkEditUserIds').value);
+    document.getElementById('bulkEditUserIds').remove();
+
+    ids.forEach(id => {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'user_ids[]';
+        input.value = id;
+        this.appendChild(input);
+    });
+});
+
+function bulkResetDocuments() {
+    const ids = getSelectedIds();
+    if (ids.length === 0) {
+        alert('Pilih minimal 1 mahasiswa untuk reset data pemberkasan!');
+        return;
+    }
+
+    if (!confirm(`Apakah Anda yakin ingin mereset data pemberkasan untuk ${ids.length} mahasiswa? Semua dokumen dan data terkait akan dihapus!`)) {
+        return;
+    }
+
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = '{{ route("admin.bulk-reset-documents") }}';
+
+    const csrfInput = document.createElement('input');
+    csrfInput.type = 'hidden';
+    csrfInput.name = '_token';
+    csrfInput.value = '{{ csrf_token() }}';
+    form.appendChild(csrfInput);
+
+    ids.forEach(id => {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'user_ids[]';
+        input.value = id;
+        form.appendChild(input);
+    });
+
+    document.body.appendChild(form);
+    form.submit();
 }
 
 function openCreateModal() {

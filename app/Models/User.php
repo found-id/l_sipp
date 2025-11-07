@@ -57,6 +57,11 @@ class User extends Authenticatable
         return $this->hasOne(ProfilMahasiswa::class, 'id_mahasiswa', 'id');
     }
 
+    public function dospem()
+    {
+        return $this->hasOne(Dospem::class, 'user_id');
+    }
+
     public function mahasiswaBimbingan()
     {
         return $this->hasMany(ProfilMahasiswa::class, 'id_dospem', 'id');

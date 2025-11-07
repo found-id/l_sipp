@@ -4,20 +4,37 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lengkapi Biodata - SIPP PKL</title>
+
+    <!-- Favicons -->
+    <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}">
+    <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
+
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .auth-image-container {
+            background: url('{{ asset('images/auth/bg_login.jpg') }}') center/cover no-repeat;
+            background-color: #667eea;
+        }
+    </style>
 </head>
-<body class="bg-gray-50 flex flex-col min-h-screen">
-    <div class="flex-1 flex items-center justify-center py-8 px-4 sm:px-6 lg:px-8">
-        <div class="max-w-md w-full space-y-8">
-            <div>
-                <div class="mx-auto h-12 w-12 flex items-center justify-center">
-                    <i class="fas fa-user-edit text-3xl text-indigo-600"></i>
+<body class="bg-gray-50 h-screen overflow-hidden">
+    <div class="flex h-screen">
+        <!-- Left Side - Image -->
+        <div class="hidden lg:flex lg:w-1/2 auth-image-container items-center justify-center relative">
+        </div>
+
+        <!-- Right Side - Complete Profile Form -->
+        <div class="w-full lg:w-1/2 flex items-center justify-center p-8 overflow-y-auto">
+            <div class="max-w-md w-full space-y-8">
+            <div class="mt-96">
+                <div class="mx-auto h-16 w-16 flex items-center justify-center">
+                    <i class="fas fa-user-edit text-4xl text-indigo-600"></i>
                 </div>
-                <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
+                <h2 class="mt-8 text-center text-3xl font-extrabold text-gray-900">
                     Lengkapi Biodata
                 </h2>
-                <p class="mt-2 text-center text-sm text-gray-600">
+                <p class="mt-3 text-center text-sm text-gray-600">
                     Lengkapi data diri untuk menyelesaikan pendaftaran
                 </p>
             </div>
@@ -29,6 +46,9 @@
                     <div>
                         <label for="name" class="block text-sm font-medium text-gray-700">Nama Lengkap</label>
                         <input type="text" id="name" name="name" required
+                               pattern="^(?!.*\\d).+$"
+                               title="Nama tidak boleh mengandung angka"
+                               oninput="this.value=this.value.replace(/[0-9]/g,'')"
                                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                                value="{{ old('name', auth()->user()->name ?? '') }}">
                         @error('name')
@@ -39,6 +59,8 @@
                     <div>
                         <label for="nim" class="block text-sm font-medium text-gray-700">NIM</label>
                         <input type="text" id="nim" name="nim" required
+                               inputmode="numeric"
+                               oninput="this.value=this.value.replace(/[^0-9]/g,'')"
                                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                                value="{{ old('nim') }}">
                         @error('nim')
@@ -69,9 +91,9 @@
                         <label for="semester" class="block text-sm font-medium text-gray-700">Semester</label>
                         <select id="semester" name="semester" required
                                 class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
-                            <option value="">-- Pilih Semester --</option>
-                            @for($i = 1; $i <= 14; $i++)
-                                <option value="{{ $i }}" {{ old('semester', 5) == $i ? 'selected' : '' }}>{{ $i }}</option>
+                            <option value="">-- Pilih Semester (>= 5) --</option>
+                            @for($i = 5; $i <= 14; $i++)
+                                <option value="{{ $i }}" {{ old('semester', 5) == $i ? 'selected' : '' }}>Semester {{ $i }}</option>
                             @endfor
                         </select>
                         @error('semester')
@@ -102,8 +124,8 @@
                                    class="flex-1 min-w-0 block w-full px-3 py-2 border border-gray-300 rounded-r-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                                    placeholder="8xxxxxxxxxx"
                                    value="{{ old('no_whatsapp') }}"
-                                   pattern="^8[0-9]{10,13}$"
-                                   title="Nomor WhatsApp harus dimulai dengan 8 dan minimal 11 digit">
+                                   inputmode="numeric"
+                                   oninput="this.value=this.value.replace(/[^0-9]/g,'')">
                         </div>
                         <p class="mt-1 text-xs text-gray-500">Format: +628xxxxxxxxxx (minimal 11 digit)</p>
                         @error('no_whatsapp')
@@ -154,25 +176,22 @@
                     </button>
                 </div>
             </form>
-        </div>
-    </div>
 
-    <!-- Footer -->
-    <footer class="bg-white border-t border-gray-200 mt-8">
-        <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
-            <div class="flex flex-col md:flex-row justify-between items-center">
+            <!-- Footer -->
+            <footer class="mt-8 text-center">
                 <p class="text-sm text-gray-500">
                     © {{ date('Y') }} SIPP PKL. All rights reserved.
                 </p>
-                <div class="flex space-x-4 mt-2 md:mt-0">
+                <div class="mt-2">
                     <a href="{{ route('faq') }}" class="text-sm text-gray-500 hover:text-indigo-600 transition-colors">
                         <i class="fas fa-question-circle mr-1"></i>
                         FAQ
                     </a>
                 </div>
-            </div>
+            </footer>
         </div>
-    </footer>
+        </div>
+    </div>
 
     <script>
         function validateForm() {

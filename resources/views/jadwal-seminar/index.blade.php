@@ -15,20 +15,15 @@
         <div class="space-y-4">
             @foreach($jadwal as $j)
             <div class="bg-white shadow rounded-lg p-6">
-                <div class="flex justify-between items-start mb-4">
-                    <div>
-                        <h3 class="text-lg font-semibold text-gray-900">{{ $j->judul }}</h3>
-                        @if($j->subjudul)
-                            <p class="text-sm text-gray-600 mt-1">{{ $j->subjudul }}</p>
-                        @endif
-                        <p class="text-xs text-gray-500 mt-2">
-                            Dipublikasikan: {{ $j->created_at->format('d M Y H:i') }} 
-                            oleh {{ $j->pembuat->name }}
-                        </p>
-                    </div>
-                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                        Aktif
-                    </span>
+                <div class="mb-4">
+                    <h3 class="text-lg font-semibold text-gray-900">{{ $j->judul }}</h3>
+                    @if($j->subjudul)
+                        <p class="text-sm text-gray-600 mt-1">{{ $j->subjudul }}</p>
+                    @endif
+                    <p class="text-xs text-gray-500 mt-2">
+                        Dipublikasikan: {{ $j->created_at->format('d M Y H:i') }}
+                        oleh {{ $j->pembuat->name }}
+                    </p>
                 </div>
                 
                 @if($j->jenis === 'file' && $j->lokasi_file)
@@ -39,7 +34,7 @@
                     @endphp
                     
                     @if(in_array($ext, ['jpg', 'jpeg', 'png']))
-                        <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                        <div class="bg-gray-50 p-4 rounded-lg border border-gray-200" id="image-container-{{ $j->id }}">
                             <div class="flex justify-between items-start mb-2">
                                 <h4 class="text-sm font-medium text-gray-700">Pratinjau Gambar</h4>
                                 <a href="{{ $url }}" target="_blank" class="inline-flex items-center px-3 py-1 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm">
@@ -47,10 +42,18 @@
                                     Lihat penuh
                                 </a>
                             </div>
-                            <img src="{{ $url }}" alt="Jadwal" class="max-w-full h-auto border border-gray-200 rounded-lg mx-auto block">
+                            <img src="{{ $url }}"
+                                 alt="Jadwal"
+                                 class="max-w-full h-auto border border-gray-200 rounded-lg mx-auto block"
+                                 onerror="handleImageError(this, {{ $j->id }})">
+                            <div id="error-message-{{ $j->id }}" class="hidden text-center py-8">
+                                <i class="fas fa-exclamation-triangle text-yellow-500 text-4xl mb-3"></i>
+                                <p class="text-gray-700 font-medium">Jadwal seminar ini telah dihapus atau hilang.</p>
+                                <p class="text-gray-500 text-sm mt-1">Silahkan hubungi Admin</p>
+                            </div>
                         </div>
                     @elseif($ext === 'pdf')
-                        <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                        <div class="bg-gray-50 p-4 rounded-lg border border-gray-200" id="pdf-container-{{ $j->id }}">
                             <div class="flex justify-between items-start mb-2">
                                 <h4 class="text-sm font-medium text-gray-700">Pratinjau PDF</h4>
                                 <a href="{{ $url }}" target="_blank" class="inline-flex items-center px-3 py-1 bg-red-600 text-white rounded-md hover:bg-red-700 text-sm">
@@ -58,7 +61,16 @@
                                     Lihat penuh
                                 </a>
                             </div>
-                            <iframe src="{{ $url }}" class="w-full h-96 border border-gray-200 rounded-lg" frameborder="0"></iframe>
+                            <iframe src="{{ $url }}"
+                                    class="w-full h-96 border border-gray-200 rounded-lg"
+                                    frameborder="0"
+                                    onload="checkPdfLoaded(this, {{ $j->id }})"
+                                    id="pdf-iframe-{{ $j->id }}"></iframe>
+                            <div id="pdf-error-message-{{ $j->id }}" class="hidden text-center py-8">
+                                <i class="fas fa-exclamation-triangle text-yellow-500 text-4xl mb-3"></i>
+                                <p class="text-gray-700 font-medium">Jadwal seminar ini telah dihapus atau hilang.</p>
+                                <p class="text-gray-500 text-sm mt-1">Silahkan hubungi Admin</p>
+                            </div>
                         </div>
                     @else
                         <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
@@ -94,4 +106,36 @@
         </div>
     @endif
 </div>
+
+<script>
+    // Handle image loading error
+    function handleImageError(img, jadwalId) {
+        img.style.display = 'none';
+        document.getElementById('error-message-' + jadwalId).classList.remove('hidden');
+    }
+
+    // Check if PDF loaded successfully
+    function checkPdfLoaded(iframe, jadwalId) {
+        try {
+            // Try to access iframe content
+            fetch(iframe.src, { method: 'HEAD' })
+                .then(response => {
+                    if (!response.ok || response.status === 404) {
+                        // File not found or error
+                        iframe.style.display = 'none';
+                        document.getElementById('pdf-error-message-' + jadwalId).classList.remove('hidden');
+                    }
+                })
+                .catch(error => {
+                    // Network error or file not accessible
+                    iframe.style.display = 'none';
+                    document.getElementById('pdf-error-message-' + jadwalId).classList.remove('hidden');
+                });
+        } catch (e) {
+            // Error accessing iframe
+            iframe.style.display = 'none';
+            document.getElementById('pdf-error-message-' + jadwalId).classList.remove('hidden');
+        }
+    }
+</script>
 @endsection

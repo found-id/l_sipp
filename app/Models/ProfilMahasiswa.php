@@ -52,4 +52,9 @@ class ProfilMahasiswa extends Model
     {
         return $this->belongsTo(Mitra::class, 'mitra_selected', 'id');
     }
+
+    public function riwayatPengantianMitra()
+    {
+        return $this->hasMany(RiwayatPengantianMitra::class, 'mahasiswa_id', 'id_mahasiswa');
+    }
 }

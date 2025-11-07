@@ -117,6 +117,9 @@ Route::get('/jadwal/{filename}', function ($filename) {
         Route::post('/kelola-akun', [\App\Http\Controllers\AdminController::class, 'createUser'])->name('create-user');
         Route::put('/kelola-akun/{id}', [\App\Http\Controllers\AdminController::class, 'updateUser'])->name('update-user');
         Route::delete('/kelola-akun/{id}', [\App\Http\Controllers\AdminController::class, 'deleteUser'])->name('delete-user');
+        Route::post('/kelola-akun/bulk-delete', [\App\Http\Controllers\AdminController::class, 'bulkDeleteUsers'])->name('bulk-delete-users');
+        Route::post('/kelola-akun/bulk-edit-dospem', [\App\Http\Controllers\AdminController::class, 'bulkEditDospem'])->name('bulk-edit-dospem');
+        Route::post('/kelola-akun/bulk-reset-documents', [\App\Http\Controllers\AdminController::class, 'bulkResetDocuments'])->name('bulk-reset-documents');
         Route::get('/kelola-mitra', [\App\Http\Controllers\AdminController::class, 'kelolaMitra'])->name('kelola-mitra');
         Route::post('/kelola-mitra', [\App\Http\Controllers\AdminController::class, 'createMitra'])->name('create-mitra');
         Route::put('/kelola-mitra/{id}', [\App\Http\Controllers\AdminController::class, 'updateMitra'])->name('update-mitra');
@@ -125,6 +128,7 @@ Route::get('/jadwal/{filename}', function ($filename) {
         // System settings routes
         Route::get('/system-settings', [\App\Http\Controllers\Admin\SystemSettingsController::class, 'index'])->name('system-settings');
         Route::put('/system-settings', [\App\Http\Controllers\Admin\SystemSettingsController::class, 'update'])->name('system-settings.update');
+        Route::post('/system-settings/upload-login-bg', [\App\Http\Controllers\Admin\SystemSettingsController::class, 'uploadLoginBackground'])->name('system-settings.upload-login-bg');
 
         // (catatan: kamu punya dua set /validation di admin sebelumnya — aku biarkan yang di atas saja agar tidak ganda)
     });

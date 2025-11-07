@@ -26,6 +26,12 @@
 
     <!-- Academic Summary Cards -->
     <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+        <!-- IPK Card -->
+        @php
+            // Cek apakah IPK Profile dan KHS sama
+            $ipkSame = $ipkFromProfile > 0 && $ipkFromTranskrip > 0 &&
+                       number_format($ipkFromProfile, 2) === number_format($ipkFromTranskrip, 2);
+        @endphp
         <div class="bg-white overflow-hidden shadow rounded-lg">
             <div class="p-5">
                 <div class="flex items-center">
@@ -35,76 +41,122 @@
                     <div class="ml-4 w-0 flex-1">
                         <dl>
                             <dt class="text-xs font-medium text-gray-500 uppercase">IPK</dt>
-                            <dd class="text-xl font-bold {{ $ipk >= 3.0 ? 'text-green-600' : 'text-orange-600' }}">
-                                {{ $ipk > 0 ? number_format($ipk, 2) : '-' }}
-                            </dd>
+                            @if($ipkSame)
+                                <dd class="text-xl font-bold {{ $ipkFromProfile >= 3.0 ? 'text-green-600' : 'text-orange-600' }}">
+                                    {{ number_format($ipkFromProfile, 2) }}
+                                </dd>
+                            @else
+                                <dd class="text-sm space-y-1">
+                                    <div class="font-bold {{ $ipkFromProfile >= 3.0 ? 'text-green-600' : 'text-orange-600' }}">
+                                        Profil: {{ $ipkFromProfile > 0 ? number_format($ipkFromProfile, 2) : '-' }}
+                                    </div>
+                                    <div id="ipkKhsCard" class="font-bold {{ $ipkFromTranskrip >= 3.0 ? 'text-green-600' : 'text-orange-600' }}">
+                                        KHS: {{ $ipkFromTranskrip > 0 ? number_format($ipkFromTranskrip, 2) : '-' }}
+                                    </div>
+                                </dd>
+                            @endif
                         </dl>
                     </div>
                 </div>
             </div>
         </div>
 
+        <!-- Kelayakan Card -->
+        @php
+            $kelayakanStatus = 'Belum';
+            $kelayakanColor = 'gray';
+            if ($allEligible && $totalSksDCount <= 6 && $totalSksECount == 0) {
+                $kelayakanStatus = 'Layak';
+                $kelayakanColor = 'green';
+            } elseif ($totalSksDCount > 6 || $totalSksECount > 0) {
+                $kelayakanStatus = 'Tidak Layak';
+                $kelayakanColor = 'red';
+            }
+        @endphp
         <div class="bg-white overflow-hidden shadow rounded-lg">
             <div class="p-5">
                 <div class="flex items-center">
                     <div class="flex-shrink-0">
-                        <i class="fas fa-calendar-alt text-2xl text-purple-600"></i>
-                    </div>
-                    <div class="ml-4 w-0 flex-1">
-                        <dl>
-                            <dt class="text-xs font-medium text-gray-500 uppercase">Semester</dt>
-                            <dd class="text-xl font-bold text-gray-900">{{ $totalSemesters }}/5</dd>
-                        </dl>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="bg-white overflow-hidden shadow rounded-lg">
-            <div class="p-5">
-                <div class="flex items-center">
-                    <div class="flex-shrink-0">
-                        <i class="fas fa-file-pdf text-2xl text-red-600"></i>
-                    </div>
-                    <div class="ml-4 w-0 flex-1">
-                        <dl>
-                            <dt class="text-xs font-medium text-gray-500 uppercase">KHS Files</dt>
-                            <dd class="text-xl font-bold text-gray-900">{{ $khsFilesCount }}/5</dd>
-                        </dl>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="bg-white overflow-hidden shadow rounded-lg">
-            <div class="p-5">
-                <div class="flex items-center">
-                    <div class="flex-shrink-0">
-                        <i class="fas fa-exclamation-triangle text-2xl {{ $totalSksDCount > 0 ? 'text-yellow-600' : 'text-green-600' }}"></i>
-                    </div>
-                    <div class="ml-4 w-0 flex-1">
-                        <dl>
-                            <dt class="text-xs font-medium text-gray-500 uppercase">Total SKS D</dt>
-                            <dd class="text-xl font-bold {{ $totalSksDCount > 0 ? 'text-yellow-600' : 'text-green-600' }}">
-                                {{ $totalSksDCount }}
-                            </dd>
-                        </dl>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="bg-white overflow-hidden shadow rounded-lg">
-            <div class="p-5">
-                <div class="flex items-center">
-                    <div class="flex-shrink-0">
-                        <i class="fas {{ $allEligible ? 'fa-check-circle text-green-600' : 'fa-times-circle text-red-600' }} text-2xl"></i>
+                        <i class="fas fa-{{ $kelayakanColor === 'green' ? 'check-circle' : ($kelayakanColor === 'red' ? 'times-circle' : 'clock') }} text-2xl text-{{ $kelayakanColor }}-600"></i>
                     </div>
                     <div class="ml-4 w-0 flex-1">
                         <dl>
                             <dt class="text-xs font-medium text-gray-500 uppercase">Kelayakan</dt>
-                            <dd class="text-sm font-bold {{ $allEligible ? 'text-green-600' : 'text-red-600' }}">
-                                {{ $allEligible ? 'Layak' : 'Belum' }}
+                            <dd class="text-lg font-bold text-{{ $kelayakanColor }}-600">
+                                {{ $kelayakanStatus }}
+                            </dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SKS D dan E Card -->
+        <div class="bg-white overflow-hidden shadow rounded-lg">
+            <div class="p-5">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-exclamation-triangle text-2xl {{ ($totalSksDCount > 0 || $totalSksECount > 0) ? 'text-yellow-600' : 'text-green-600' }}"></i>
+                    </div>
+                    <div class="ml-4 w-0 flex-1">
+                        <dl>
+                            <dt class="text-xs font-medium text-gray-500 uppercase">SKS D & E</dt>
+                            <dd class="text-sm space-y-1">
+                                <div id="sksDCard" class="font-bold {{ $totalSksDCount > 0 ? 'text-yellow-600' : 'text-green-600' }}">
+                                    SKS D: {{ $totalSksDCount }}
+                                </div>
+                                <div id="sksECard" class="font-bold {{ $totalSksECount > 0 ? 'text-red-600' : 'text-green-600' }}">
+                                    SKS E: {{ $totalSksECount }}
+                                </div>
+                            </dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Status PKL Card -->
+        @php
+            $pklStatus = 'Persiapan PKL';
+            $pklColor = 'blue';
+            if ($statusPKL === 'Lengkap') {
+                $pklStatus = 'PKL Selesai';
+                $pklColor = 'green';
+            } elseif ($mahasiswa->profilMahasiswa && $mahasiswa->profilMahasiswa->mitra_selected) {
+                $pklStatus = 'Sedang PKL';
+                $pklColor = 'purple';
+            }
+        @endphp
+        <div class="bg-white overflow-hidden shadow rounded-lg">
+            <div class="p-5">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-briefcase text-2xl text-{{ $pklColor }}-600"></i>
+                    </div>
+                    <div class="ml-4 w-0 flex-1">
+                        <dl>
+                            <dt class="text-xs font-medium text-gray-500 uppercase">Status PKL</dt>
+                            <dd class="text-sm font-bold text-{{ $pklColor }}-600">
+                                {{ $pklStatus }}
+                            </dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Jumlah Ditolak Card -->
+        <div class="bg-white overflow-hidden shadow rounded-lg">
+            <div class="p-5">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-ban text-2xl {{ $jumlahDitolak > 0 ? 'text-red-600' : 'text-gray-400' }}"></i>
+                    </div>
+                    <div class="ml-4 w-0 flex-1">
+                        <dl>
+                            <dt class="text-xs font-medium text-gray-500 uppercase">Ditolak Mitra</dt>
+                            <dd class="text-xl font-bold {{ $jumlahDitolak > 0 ? 'text-red-600' : 'text-gray-600' }}">
+                                {{ $jumlahDitolak }}
                             </dd>
                         </dl>
                     </div>
@@ -234,10 +286,7 @@
                     <i class="fab fa-google-drive mr-2"></i>Dokumen Pendukung
                 </button>
                 <button onclick="showTab('mitra')" id="tab-mitra" class="tab-button border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-6 border-b-2 font-medium text-sm">
-                    <i class="fas fa-building mr-2"></i>Instansi Mitra
-                </button>
-                <button onclick="showTab('surat-balasan')" id="tab-surat-balasan" class="tab-button border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-6 border-b-2 font-medium text-sm">
-                    <i class="fas fa-envelope mr-2"></i>Surat Balasan
+                    <i class="fas fa-building mr-2"></i>Instansi Mitra & Surat Balasan
                 </button>
                 <button onclick="showTab('laporan')" id="tab-laporan" class="tab-button border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-6 border-b-2 font-medium text-sm">
                     <i class="fas fa-file-alt mr-2"></i>Laporan PKL
@@ -385,58 +434,74 @@
                 <p class="text-sm text-gray-600 mb-4">Data transkrip yang diinput mahasiswa per semester ({{ $totalSemesters }}/5 semester)</p>
 
                 @if($mahasiswa->khsManualTranskrip->count() > 0)
-                    <div class="space-y-6">
-                        @foreach($mahasiswa->khsManualTranskrip->sortBy('semester') as $transkrip)
-                        <div class="border border-gray-200 rounded-lg overflow-hidden">
-                            <div class="bg-gray-50 px-4 py-3 border-b border-gray-200">
-                                <h3 class="text-base font-semibold text-gray-900">Semester {{ $transkrip->semester }}</h3>
-                            </div>
-                            <div class="p-4">
-                                @if($transkrip->transcript_data)
-                                    <!-- Tabel Hasil -->
-                                    <div class="mb-4">
-                                        <label class="block text-sm font-medium text-gray-700 mb-2">
-                                            <i class="fas fa-table mr-2 text-green-600"></i>
-                                            Tabel Hasil
-                                        </label>
-                                        <div id="tableDisplay{{ $transkrip->semester }}" class="border border-gray-200 rounded-lg bg-white p-3">
-                                            <!-- Table will be rendered here by JavaScript -->
-                                        </div>
-                                    </div>
+                    <!-- Semester Tabs -->
+                    <div class="mb-4">
+                        <div class="border-b border-gray-200">
+                            <nav class="-mb-px flex space-x-4" aria-label="Tabs Semester">
+                                @foreach($mahasiswa->khsManualTranskrip->sortBy('semester') as $index => $transkrip)
+                                    <button onclick="showSemesterTab({{ $transkrip->semester }})"
+                                            id="semester-tab-{{ $transkrip->semester }}"
+                                            class="semester-tab-button {{ $index === 0 ? 'border-purple-500 text-purple-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }} whitespace-nowrap py-3 px-4 border-b-2 font-medium text-sm">
+                                        <i class="fas fa-circle-{{ $transkrip->semester }} mr-2"></i>Semester {{ $transkrip->semester }}
+                                    </button>
+                                @endforeach
+                            </nav>
+                        </div>
+                    </div>
 
-                                    <!-- Hasil Analisis Semester -->
-                                    <div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
-                                        <div class="bg-purple-50 px-3 py-2 border-b border-gray-200">
-                                            <h5 class="text-sm font-medium text-purple-800">Hasil Analisis Semester {{ $transkrip->semester }}</h5>
+                    <!-- Semester Content -->
+                    <div class="semester-tab-contents">
+                        @foreach($mahasiswa->khsManualTranskrip->sortBy('semester') as $index => $transkrip)
+                        <div id="semester-content-{{ $transkrip->semester }}"
+                             class="semester-tab-content {{ $index !== 0 ? 'hidden' : '' }}">
+                            <div class="border border-gray-200 rounded-lg overflow-hidden">
+                                <div class="p-4">
+                                    @if($transkrip->transcript_data)
+                                        <!-- Tabel Hasil -->
+                                        <div class="mb-4">
+                                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                                <i class="fas fa-table mr-2 text-green-600"></i>
+                                                Tabel Hasil
+                                            </label>
+                                            <div id="tableDisplay{{ $transkrip->semester }}" class="border border-gray-200 rounded-lg bg-white p-3">
+                                                <!-- Table will be rendered here by JavaScript -->
+                                            </div>
                                         </div>
-                                        <div class="p-3">
-                                            <div class="grid grid-cols-2 gap-2 text-xs">
-                                                <div class="flex justify-between">
-                                                    <span class="text-gray-600">IPS:</span>
-                                                    <span id="ips{{ $transkrip->semester }}" class="font-medium text-blue-600">-</span>
-                                                </div>
-                                                <div class="flex justify-between">
-                                                    <span class="text-gray-600">SKS D:</span>
-                                                    <span id="sksD{{ $transkrip->semester }}" class="font-medium text-green-600">-</span>
-                                                </div>
-                                                <div class="flex justify-between">
-                                                    <span class="text-gray-600">Ada E:</span>
-                                                    <span id="hasE{{ $transkrip->semester }}" class="font-medium text-green-600">-</span>
-                                                </div>
-                                                <div class="flex justify-between">
-                                                    <span class="text-gray-600">Total SKS:</span>
-                                                    <span id="totalSks{{ $transkrip->semester }}" class="font-medium text-blue-600">-</span>
+
+                                        <!-- Hasil Analisis Semester -->
+                                        <div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
+                                            <div class="bg-purple-50 px-3 py-2 border-b border-gray-200">
+                                                <h5 class="text-sm font-medium text-purple-800">Hasil Analisis Semester {{ $transkrip->semester }}</h5>
+                                            </div>
+                                            <div class="p-3">
+                                                <div class="grid grid-cols-2 gap-2 text-xs">
+                                                    <div class="flex justify-between">
+                                                        <span class="text-gray-600">IPS:</span>
+                                                        <span id="ips{{ $transkrip->semester }}" class="font-medium text-blue-600">-</span>
+                                                    </div>
+                                                    <div class="flex justify-between">
+                                                        <span class="text-gray-600">SKS D:</span>
+                                                        <span id="sksD{{ $transkrip->semester }}" class="font-medium text-green-600">-</span>
+                                                    </div>
+                                                    <div class="flex justify-between">
+                                                        <span class="text-gray-600">Ada E:</span>
+                                                        <span id="hasE{{ $transkrip->semester }}" class="font-medium text-green-600">-</span>
+                                                    </div>
+                                                    <div class="flex justify-between">
+                                                        <span class="text-gray-600">Total SKS:</span>
+                                                        <span id="totalSks{{ $transkrip->semester }}" class="font-medium text-blue-600">-</span>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
 
-                                    <!-- Hidden transcript data for JavaScript -->
-                                    <input type="hidden" id="transcriptData{{ $transkrip->semester }}" value="{{ base64_encode($transkrip->transcript_data) }}">
-                                @else
-                                    <p class="text-sm text-gray-400 italic">Tidak ada data transkrip</p>
-                                @endif
-                                <p class="text-xs text-gray-400 mt-3">Diinput: {{ $transkrip->created_at->format('d M Y, H:i') }}</p>
+                                        <!-- Hidden transcript data for JavaScript -->
+                                        <input type="hidden" id="transcriptData{{ $transkrip->semester }}" value="{{ base64_encode($transkrip->transcript_data) }}">
+                                    @else
+                                        <p class="text-sm text-gray-400 italic">Tidak ada data transkrip</p>
+                                    @endif
+                                    <p class="text-xs text-gray-400 mt-3">Diinput: {{ $transkrip->created_at->format('d M Y, H:i') }}</p>
+                                </div>
                             </div>
                         </div>
                         @endforeach
@@ -607,136 +672,190 @@
 
             <!-- Instansi Mitra Tab -->
             <div id="content-mitra" class="tab-content hidden">
-                <h2 class="text-lg font-semibold text-gray-900 mb-4">Instansi Mitra yang Dipilih</h2>
-                <p class="text-sm text-gray-600 mb-6">Informasi instansi mitra tempat PKL mahasiswa</p>
+                <div class="space-y-6">
+                    <!-- Instansi Mitra yang Dipilih -->
+                    <div>
+                        <h2 class="text-lg font-semibold text-gray-900 mb-4">Instansi Mitra yang Dipilih</h2>
+                        <p class="text-sm text-gray-600 mb-4">Informasi instansi mitra tempat PKL mahasiswa</p>
 
-                @if($mahasiswa->profilMahasiswa && $mahasiswa->profilMahasiswa->mitraSelected)
-                    @php $mitra = $mahasiswa->profilMahasiswa->mitraSelected; @endphp
-                    <div class="border border-gray-200 rounded-lg p-6">
-                        <div class="flex items-start space-x-4">
-                            <div class="h-16 w-16 rounded-lg bg-blue-100 flex items-center justify-center flex-shrink-0">
-                                <i class="fas fa-building text-blue-600 text-2xl"></i>
-                            </div>
-                            <div class="flex-1">
-                                <h3 class="text-xl font-semibold text-gray-900">{{ $mitra->nama }}</h3>
-                                <div class="mt-4 space-y-3">
-                                    <div class="flex items-start">
-                                        <i class="fas fa-map-marker-alt text-gray-400 mt-1 mr-3"></i>
-                                        <p class="text-sm text-gray-600">{{ $mitra->alamat ?? 'Alamat tidak tersedia' }}</p>
+                        @if($mahasiswa->profilMahasiswa && $mahasiswa->profilMahasiswa->mitraSelected)
+                            @php $mitra = $mahasiswa->profilMahasiswa->mitraSelected; @endphp
+                            <div class="border border-gray-200 rounded-lg p-6 bg-blue-50">
+                                <div class="flex items-start space-x-4">
+                                    <div class="h-16 w-16 rounded-lg bg-blue-100 flex items-center justify-center flex-shrink-0">
+                                        <i class="fas fa-building text-blue-600 text-2xl"></i>
                                     </div>
-                                    <div class="flex items-center">
-                                        <i class="fas fa-phone text-gray-400 mr-3"></i>
-                                        <p class="text-sm text-gray-600">{{ $mitra->kontak ?? 'Kontak tidak tersedia' }}</p>
-                                    </div>
-                                    <div class="flex items-center">
-                                        <i class="fas fa-road text-gray-400 mr-3"></i>
-                                        <p class="text-sm text-gray-600">Jarak: <span class="font-semibold">{{ $mitra->jarak }} km</span></p>
+                                    <div class="flex-1">
+                                        <h3 class="text-xl font-semibold text-gray-900">{{ $mitra->nama }}</h3>
+                                        <div class="mt-4 space-y-3">
+                                            <div class="flex items-start">
+                                                <i class="fas fa-map-marker-alt text-gray-400 mt-1 mr-3"></i>
+                                                <p class="text-sm text-gray-600">{{ $mitra->alamat ?? 'Alamat tidak tersedia' }}</p>
+                                            </div>
+                                            <div class="flex items-center">
+                                                <i class="fas fa-phone text-gray-400 mr-3"></i>
+                                                <p class="text-sm text-gray-600">{{ $mitra->kontak ?? 'Kontak tidak tersedia' }}</p>
+                                            </div>
+                                            <div class="flex items-center">
+                                                <i class="fas fa-road text-gray-400 mr-3"></i>
+                                                <p class="text-sm text-gray-600">Jarak: <span class="font-semibold">{{ $mitra->jarak }} km</span></p>
+                                            </div>
+                                        </div>
+
+                                        <!-- SAW Criteria -->
+                                        <div class="mt-6 pt-6 border-t border-gray-200">
+                                            <h4 class="text-sm font-semibold text-gray-700 mb-3">Kriteria Penilaian SAW</h4>
+                                            <div class="grid grid-cols-2 gap-3">
+                                                <div class="flex items-center justify-between p-3 bg-white rounded-lg">
+                                                    <span class="text-sm text-gray-600">Honor</span>
+                                                    <span class="text-sm font-semibold {{ $mitra->honor >= 4 ? 'text-green-600' : ($mitra->honor >= 3 ? 'text-blue-600' : 'text-orange-600') }}">
+                                                        {{ $mitra->honor_label }}
+                                                    </span>
+                                                </div>
+                                                <div class="flex items-center justify-between p-3 bg-white rounded-lg">
+                                                    <span class="text-sm text-gray-600">Fasilitas</span>
+                                                    <span class="text-sm font-semibold {{ $mitra->fasilitas >= 4 ? 'text-green-600' : ($mitra->fasilitas >= 3 ? 'text-blue-600' : 'text-orange-600') }}">
+                                                        {{ $mitra->fasilitas_label }}
+                                                    </span>
+                                                </div>
+                                                <div class="flex items-center justify-between p-3 bg-white rounded-lg">
+                                                    <span class="text-sm text-gray-600">Kesesuaian Jurusan</span>
+                                                    <span class="text-sm font-semibold {{ $mitra->kesesuaian_jurusan >= 4 ? 'text-green-600' : ($mitra->kesesuaian_jurusan >= 3 ? 'text-blue-600' : 'text-orange-600') }}">
+                                                        {{ $mitra->kesesuaian_jurusan_label }}
+                                                    </span>
+                                                </div>
+                                                <div class="flex items-center justify-between p-3 bg-white rounded-lg">
+                                                    <span class="text-sm text-gray-600">Tingkat Kebersihan</span>
+                                                    <span class="text-sm font-semibold {{ $mitra->tingkat_kebersihan >= 4 ? 'text-green-600' : ($mitra->tingkat_kebersihan >= 3 ? 'text-blue-600' : 'text-orange-600') }}">
+                                                        {{ $mitra->tingkat_kebersihan_label }}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
-
-                                <!-- SAW Criteria -->
-                                <div class="mt-6 pt-6 border-t border-gray-200">
-                                    <h4 class="text-sm font-semibold text-gray-700 mb-3">Kriteria Penilaian SAW</h4>
-                                    <div class="grid grid-cols-2 gap-3">
-                                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                                            <span class="text-sm text-gray-600">Honor</span>
-                                            <span class="text-sm font-semibold {{ $mitra->honor >= 4 ? 'text-green-600' : ($mitra->honor >= 3 ? 'text-blue-600' : 'text-orange-600') }}">
-                                                {{ $mitra->honor_label }}
-                                            </span>
-                                        </div>
-                                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                                            <span class="text-sm text-gray-600">Fasilitas</span>
-                                            <span class="text-sm font-semibold {{ $mitra->fasilitas >= 4 ? 'text-green-600' : ($mitra->fasilitas >= 3 ? 'text-blue-600' : 'text-orange-600') }}">
-                                                {{ $mitra->fasilitas_label }}
-                                            </span>
-                                        </div>
-                                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                                            <span class="text-sm text-gray-600">Kesesuaian Jurusan</span>
-                                            <span class="text-sm font-semibold {{ $mitra->kesesuaian_jurusan >= 4 ? 'text-green-600' : ($mitra->kesesuaian_jurusan >= 3 ? 'text-blue-600' : 'text-orange-600') }}">
-                                                {{ $mitra->kesesuaian_jurusan_label }}
-                                            </span>
-                                        </div>
-                                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                                            <span class="text-sm text-gray-600">Tingkat Kebersihan</span>
-                                            <span class="text-sm font-semibold {{ $mitra->tingkat_kebersihan >= 4 ? 'text-green-600' : ($mitra->tingkat_kebersihan >= 3 ? 'text-blue-600' : 'text-orange-600') }}">
-                                                {{ $mitra->tingkat_kebersihan_label }}
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
                             </div>
-                        </div>
+                        @else
+                            <div class="text-center py-12 border border-gray-200 rounded-lg">
+                                <i class="fas fa-building text-gray-300 text-5xl mb-4"></i>
+                                <p class="text-gray-500">Mahasiswa belum memilih instansi mitra</p>
+                            </div>
+                        @endif
                     </div>
-                @else
-                    <div class="text-center py-12">
-                        <i class="fas fa-building text-gray-300 text-5xl mb-4"></i>
-                        <p class="text-gray-500">Mahasiswa belum memilih instansi mitra</p>
-                    </div>
-                @endif
-            </div>
 
-            <!-- Surat Balasan Tab -->
-            <div id="content-surat-balasan" class="tab-content hidden">
-                <h2 class="text-lg font-semibold text-gray-900 mb-4">Surat Balasan dari Instansi Mitra</h2>
-                <p class="text-sm text-gray-600 mb-6">Surat balasan/persetujuan dari perusahaan tempat PKL</p>
+                    <!-- Surat Balasan -->
+                    <div>
+                        <h2 class="text-lg font-semibold text-gray-900 mb-4">Surat Balasan dari Instansi Mitra</h2>
+                        <p class="text-sm text-gray-600 mb-4">Surat balasan/persetujuan dari perusahaan tempat PKL</p>
 
-                @if($mahasiswa->suratBalasan->count() > 0)
-                    <div class="space-y-4">
-                        @foreach($mahasiswa->suratBalasan as $surat)
-                        <div class="border border-gray-200 rounded-lg p-4 hover:border-blue-300 transition">
-                            <div class="flex items-center justify-between">
-                                <div class="flex items-center space-x-4">
-                                    <div class="h-12 w-12 rounded-lg bg-blue-100 flex items-center justify-center">
-                                        <i class="fas fa-envelope text-blue-600 text-xl"></i>
-                                    </div>
-                                    <div>
-                                        <h3 class="text-base font-medium text-gray-900">Surat Balasan</h3>
-                                        <p class="text-sm text-gray-600 mt-1">
-                                            Perusahaan:
-                                            @if($surat->mitra)
-                                                <span class="font-semibold">{{ $surat->mitra->nama }}</span>
+                        @if($mahasiswa->suratBalasan->count() > 0)
+                            <div class="space-y-4">
+                                @foreach($mahasiswa->suratBalasan as $surat)
+                                <div class="border border-gray-200 rounded-lg p-4 hover:border-blue-300 transition">
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex items-center space-x-4">
+                                            <div class="h-12 w-12 rounded-lg bg-blue-100 flex items-center justify-center">
+                                                <i class="fas fa-envelope text-blue-600 text-xl"></i>
+                                            </div>
+                                            <div>
+                                                <h3 class="text-base font-medium text-gray-900">Surat Balasan</h3>
+                                                <p class="text-sm text-gray-600 mt-1">
+                                                    Perusahaan:
+                                                    @if($surat->mitra)
+                                                        <span class="font-semibold">{{ $surat->mitra->nama }}</span>
+                                                    @else
+                                                        <span class="font-semibold">{{ $surat->mitra_nama_custom ?? 'N/A' }}</span>
+                                                    @endif
+                                                </p>
+                                                <p class="text-sm text-gray-500 mt-1">{{ basename($surat->file_path) }}</p>
+                                                <p class="text-xs text-gray-400 mt-1">Diupload: {{ $surat->created_at->format('d M Y, H:i') }}</p>
+                                            </div>
+                                        </div>
+                                        <div class="flex items-center space-x-3">
+                                            @if($surat->status_validasi === 'tervalidasi')
+                                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                                    <i class="fas fa-check mr-1"></i> Tervalidasi
+                                                </span>
+                                            @elseif($surat->status_validasi === 'menunggu')
+                                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                                    <i class="fas fa-clock mr-1"></i> Menunggu
+                                                </span>
+                                            @elseif($surat->status_validasi === 'revisi')
+                                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
+                                                    <i class="fas fa-redo mr-1"></i> Revisi
+                                                </span>
                                             @else
-                                                <span class="font-semibold">{{ $surat->mitra_nama_custom ?? 'N/A' }}</span>
+                                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                                    <i class="fas fa-times mr-1"></i> Belum Valid
+                                                </span>
                                             @endif
-                                        </p>
-                                        <p class="text-sm text-gray-500 mt-1">{{ basename($surat->file_path) }}</p>
-                                        <p class="text-xs text-gray-400 mt-1">Diupload: {{ $surat->created_at->format('d M Y, H:i') }}</p>
+
+                                            <a href="{{ asset('storage/' . $surat->file_path) }}" target="_blank"
+                                               class="inline-flex items-center px-3 py-1.5 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition">
+                                                <i class="fas fa-eye mr-2"></i> Lihat PDF
+                                            </a>
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="flex items-center space-x-3">
-                                    @if($surat->status_validasi === 'tervalidasi')
-                                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                            <i class="fas fa-check mr-1"></i> Tervalidasi
-                                        </span>
-                                    @elseif($surat->status_validasi === 'menunggu')
-                                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-                                            <i class="fas fa-clock mr-1"></i> Menunggu
-                                        </span>
-                                    @elseif($surat->status_validasi === 'revisi')
-                                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
-                                            <i class="fas fa-redo mr-1"></i> Revisi
-                                        </span>
-                                    @else
-                                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                                            <i class="fas fa-times mr-1"></i> Belum Valid
-                                        </span>
-                                    @endif
+                                @endforeach
+                            </div>
+                        @else
+                            <div class="text-center py-12 border border-gray-200 rounded-lg">
+                                <i class="fas fa-envelope text-gray-300 text-5xl mb-4"></i>
+                                <p class="text-gray-500">Belum ada surat balasan yang diupload</p>
+                            </div>
+                        @endif
+                    </div>
 
-                                    <a href="{{ asset('storage/' . $surat->file_path) }}" target="_blank"
-                                       class="inline-flex items-center px-3 py-1.5 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition">
-                                        <i class="fas fa-eye mr-2"></i> Lihat PDF
-                                    </a>
+                    <!-- Riwayat Penggantian Mitra -->
+                    @if($mahasiswa->profilMahasiswa && $mahasiswa->profilMahasiswa->riwayatPengantianMitra->count() > 0)
+                    <div>
+                        <h2 class="text-lg font-semibold text-gray-900 mb-4">Riwayat Penggantian Instansi Mitra</h2>
+                        <p class="text-sm text-gray-600 mb-4">Riwayat perubahan instansi mitra yang dipilih mahasiswa</p>
+
+                        <div class="space-y-4">
+                            @foreach($mahasiswa->profilMahasiswa->riwayatPengantianMitra->sortByDesc('created_at') as $riwayat)
+                            <div class="border border-gray-200 rounded-lg p-4 bg-gray-50">
+                                <div class="flex items-start space-x-4">
+                                    <div class="h-10 w-10 rounded-lg bg-yellow-100 flex items-center justify-center flex-shrink-0">
+                                        <i class="fas fa-exchange-alt text-yellow-600"></i>
+                                    </div>
+                                    <div class="flex-1">
+                                        <div class="flex items-center justify-between">
+                                            <h4 class="text-sm font-semibold text-gray-900">Penggantian Mitra</h4>
+                                            <span class="text-xs text-gray-500">{{ $riwayat->created_at->format('d M Y, H:i') }}</span>
+                                        </div>
+                                        <div class="mt-3 space-y-2">
+                                            <div class="flex items-center text-sm">
+                                                <i class="fas fa-arrow-right text-gray-400 mr-2"></i>
+                                                <span class="text-gray-600">Dari:</span>
+                                                <span class="ml-2 font-semibold text-gray-900">
+                                                    {{ $riwayat->mitraLama->nama ?? 'Belum ada' }}
+                                                </span>
+                                            </div>
+                                            <div class="flex items-center text-sm">
+                                                <i class="fas fa-arrow-right text-gray-400 mr-2"></i>
+                                                <span class="text-gray-600">Ke:</span>
+                                                <span class="ml-2 font-semibold text-blue-600">
+                                                    {{ $riwayat->mitraBaru->nama }}
+                                                </span>
+                                            </div>
+                                            <div class="mt-3 p-3 bg-white border border-gray-200 rounded-lg">
+                                                <p class="text-xs font-medium text-gray-500 mb-1">Alasan:</p>
+                                                <p class="text-sm text-gray-900 font-semibold">{{ $riwayat->jenis_alasan_label }}</p>
+                                                @if($riwayat->alasan_lengkap)
+                                                    <p class="text-sm text-gray-600 mt-2 italic">"{{ $riwayat->alasan_lengkap }}"</p>
+                                                @endif
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
+                            @endforeach
                         </div>
-                        @endforeach
                     </div>
-                @else
-                    <div class="text-center py-12">
-                        <i class="fas fa-envelope text-gray-300 text-5xl mb-4"></i>
-                        <p class="text-gray-500">Belum ada surat balasan yang diupload</p>
-                    </div>
-                @endif
+                    @endif
+                </div>
             </div>
 
             <!-- Laporan PKL Tab -->
@@ -873,6 +992,33 @@ function showTab(tabName) {
     const activeButton = document.getElementById('tab-' + tabName);
     activeButton.classList.remove('border-transparent', 'text-gray-500');
     activeButton.classList.add('border-blue-500', 'text-blue-600');
+}
+
+// Semester tab switching function
+function showSemesterTab(semesterNumber) {
+    // Hide all semester tab contents
+    const semesterContents = document.querySelectorAll('.semester-tab-content');
+    semesterContents.forEach(content => content.classList.add('hidden'));
+
+    // Remove active state from all semester tab buttons
+    const semesterButtons = document.querySelectorAll('.semester-tab-button');
+    semesterButtons.forEach(button => {
+        button.classList.remove('border-purple-500', 'text-purple-600');
+        button.classList.add('border-transparent', 'text-gray-500');
+    });
+
+    // Show selected semester content
+    const selectedContent = document.getElementById('semester-content-' + semesterNumber);
+    if (selectedContent) {
+        selectedContent.classList.remove('hidden');
+    }
+
+    // Activate selected semester tab button
+    const activeButton = document.getElementById('semester-tab-' + semesterNumber);
+    if (activeButton) {
+        activeButton.classList.remove('border-transparent', 'text-gray-500');
+        activeButton.classList.add('border-purple-500', 'text-purple-600');
+    }
 }
 
 // Validation modal functions
@@ -1200,6 +1346,27 @@ function updateSummaryDisplay() {
     if (statusPKLElement) {
         statusPKLElement.textContent = isEligible ? 'Lengkap' : 'Belum Lengkap';
         statusPKLElement.className = 'text-xl font-bold ' + (isEligible ? 'text-green-600' : 'text-orange-600');
+    }
+
+    // Update card atas - IPK KHS
+    const ipkKhsCardElement = document.getElementById('ipkKhsCard');
+    if (ipkKhsCardElement) {
+        ipkKhsCardElement.innerHTML = 'KHS: ' + (ipk > 0 ? ipk.toFixed(2) : '-');
+        ipkKhsCardElement.className = 'font-bold ' + (ipk >= 3.0 ? 'text-green-600' : 'text-orange-600');
+    }
+
+    // Update card atas - SKS D
+    const sksDCardElement = document.getElementById('sksDCard');
+    if (sksDCardElement) {
+        sksDCardElement.innerHTML = 'SKS D: ' + totalSksDSum;
+        sksDCardElement.className = 'font-bold ' + (totalSksDSum > 0 ? 'text-yellow-600' : 'text-green-600');
+    }
+
+    // Update card atas - SKS E
+    const sksECardElement = document.getElementById('sksECard');
+    if (sksECardElement) {
+        sksECardElement.innerHTML = 'SKS E: ' + hasECount;
+        sksECardElement.className = 'font-bold ' + (hasECount > 0 ? 'text-red-600' : 'text-green-600');
     }
 
     console.log('Summary updated:', {

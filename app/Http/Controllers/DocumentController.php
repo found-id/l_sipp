@@ -197,13 +197,34 @@ class DocumentController extends Controller
     public function selectMitra(Request $request)
     {
         $request->validate([
-            'mitra_id' => 'nullable|exists:mitra,id'
+            'mitra_id' => 'nullable|exists:mitra,id',
+            'jenis_alasan' => 'nullable|in:ditolak,alasan_tertentu,pilihan_pribadi',
+            'alasan_lengkap' => 'nullable|string|max:500'
         ]);
 
         $user = Auth::user();
-        
-        // Update or create profil mahasiswa with selected mitra
+
+        // Get profil mahasiswa
         $profilMahasiswa = $user->profilMahasiswa;
+        $mitraLamaId = null;
+
+        if ($profilMahasiswa && $profilMahasiswa->mitra_selected) {
+            $mitraLamaId = $profilMahasiswa->mitra_selected;
+
+            // Jika ada penggantian mitra (dari mitra lama ke mitra baru)
+            if ($mitraLamaId != $request->mitra_id && $request->mitra_id) {
+                // Simpan riwayat penggantian
+                \App\Models\RiwayatPengantianMitra::create([
+                    'mahasiswa_id' => $user->id,
+                    'mitra_lama_id' => $mitraLamaId,
+                    'mitra_baru_id' => $request->mitra_id,
+                    'jenis_alasan' => $request->jenis_alasan ?? 'pilihan_pribadi',
+                    'alasan_lengkap' => $request->alasan_lengkap
+                ]);
+            }
+        }
+
+        // Update or create profil mahasiswa with selected mitra
         if ($profilMahasiswa) {
             $profilMahasiswa->update(['mitra_selected' => $request->mitra_id]);
         } else {
@@ -216,7 +237,7 @@ class DocumentController extends Controller
         }
 
         $message = $request->mitra_id ? 'Instansi mitra berhasil dipilih' : 'Instansi mitra berhasil dihapus';
-        
+
         return response()->json([
             'success' => true,
             'message' => $message
@@ -726,6 +747,11 @@ class DocumentController extends Controller
             $request->validate([
                 'semester' => 'required|integer|min:1|max:5',
                 'transcript_data' => 'required|string',
+                'ips' => 'nullable|numeric|min:0|max:4',
+                'total_sks' => 'nullable|integer|min:0',
+                'total_sks_d' => 'nullable|integer|min:0',
+                'has_e' => 'nullable|boolean',
+                'eligible' => 'nullable|boolean',
             ]);
 
             // Cari atau buat KHS Manual Transkrip record untuk semester ini
@@ -735,7 +761,12 @@ class DocumentController extends Controller
                     'semester' => $request->semester,
                 ],
                 [
-                    'transcript_data' => $request->transcript_data, // Hanya simpan data textfield
+                    'transcript_data' => $request->transcript_data,
+                    'ips' => $request->ips,
+                    'total_sks' => $request->total_sks,
+                    'total_sks_d' => $request->total_sks_d ?? 0,
+                    'has_e' => $request->has_e ?? false,
+                    'eligible' => $request->eligible ?? false,
                 ]
             );
 

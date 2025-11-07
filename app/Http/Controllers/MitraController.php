@@ -13,7 +13,7 @@ class MitraController extends Controller
     public function index(Request $request)
     {
         $query = Mitra::query();
-        
+
         // Search functionality
         if ($request->filled('search')) {
             $search = $request->search;
@@ -24,22 +24,34 @@ class MitraController extends Controller
             });
         }
 
-        if ($request->query('sort') === 'ranking') {
+        $isRankingSort = $request->query('sort') === 'ranking';
+
+        if ($isRankingSort) {
             $mitrasToRank = $query->get();
             if ($mitrasToRank->isNotEmpty()) {
                 $saw = new SawCalculationService($mitrasToRank);
                 $mitra = $saw->calculate(); // This is a sorted collection
-                // Manually load the count of applications for the ranked collection
-                $mitra->loadCount('suratBalasan as total_applications');
+                // Manually load the count of students who selected this mitra
+                $mitra->loadCount('mahasiswaTerpilih as mahasiswa_count');
+
+                // Add rank number to each mitra
+                $rank = 1;
+                foreach ($mitra as $m) {
+                    $m->rank = $rank++;
+                }
             } else {
                 $mitra = $mitrasToRank; // Empty collection
             }
         } else {
-            $mitra = $query->withCount(['suratBalasan as total_applications'])
+            $mitra = $query->withCount(['mahasiswaTerpilih as mahasiswa_count'])
                           ->orderBy('nama')
                           ->get();
         }
-        
-        return view('mitra.index', compact('mitra'));
+
+        // Get current user's profil mahasiswa untuk cek mitra yang sudah dipilih
+        $user = \Illuminate\Support\Facades\Auth::user();
+        $profilMahasiswa = $user->profilMahasiswa ?? null;
+
+        return view('mitra.index', compact('mitra', 'profilMahasiswa', 'isRankingSort'));
     }
 }

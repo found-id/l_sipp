@@ -35,37 +35,37 @@ class SystemSettingsController extends Controller
         try {
             // Update all settings
             SystemSetting::setEnabled(
-                'laporan_pkl_enabled', 
+                'laporan_pkl_enabled',
                 $request->boolean('laporan_pkl_enabled'),
                 'Toggle untuk mengaktifkan/menonaktifkan fitur upload Laporan PKL untuk mahasiswa'
             );
-            
+
             SystemSetting::setEnabled(
-                'penilaian_enabled', 
+                'penilaian_enabled',
                 $request->boolean('penilaian_enabled'),
                 'Toggle untuk mengaktifkan/menonaktifkan fitur Penilaian untuk dosen pembimbing'
             );
-            
+
             SystemSetting::setEnabled(
-                'jadwal_seminar_enabled', 
+                'jadwal_seminar_enabled',
                 $request->boolean('jadwal_seminar_enabled'),
                 'Toggle untuk mengaktifkan/menonaktifkan fitur Jadwal Seminar'
             );
-            
+
             SystemSetting::setEnabled(
-                'instansi_mitra_enabled', 
+                'instansi_mitra_enabled',
                 $request->boolean('instansi_mitra_enabled'),
                 'Toggle untuk mengaktifkan/menonaktifkan fitur Instansi Mitra'
             );
-            
+
             SystemSetting::setEnabled(
-                'dokumen_pemberkasan_enabled', 
+                'dokumen_pemberkasan_enabled',
                 $request->boolean('dokumen_pemberkasan_enabled'),
                 'Toggle untuk mengaktifkan/menonaktifkan fitur upload dokumen pemberkasan (KHS, Surat Balasan)'
             );
-            
+
             SystemSetting::setEnabled(
-                'registration_enabled', 
+                'registration_enabled',
                 $request->boolean('registration_enabled'),
                 'Toggle untuk mengaktifkan/menonaktifkan pendaftaran akun baru (termasuk Google OAuth)'
             );
@@ -86,8 +86,53 @@ class SystemSettingsController extends Controller
                 'error' => $e->getMessage(),
                 'user_id' => auth()->id()
             ]);
-            
+
             return redirect()->back()->withErrors(['error' => 'Gagal memperbarui pengaturan sistem: ' . $e->getMessage()]);
+        }
+    }
+
+    public function uploadLoginBackground(Request $request)
+    {
+        $request->validate([
+            'login_bg_image' => 'required|image|mimes:jpeg,jpg,png|max:5120', // max 5MB
+        ], [
+            'login_bg_image.required' => 'Gambar harus dipilih',
+            'login_bg_image.image' => 'File harus berupa gambar',
+            'login_bg_image.mimes' => 'Format gambar harus JPG, JPEG, atau PNG',
+            'login_bg_image.max' => 'Ukuran gambar maksimal 5MB',
+        ]);
+
+        try {
+            $image = $request->file('login_bg_image');
+            $destinationPath = public_path('images/auth');
+
+            // Create directory if not exists
+            if (!file_exists($destinationPath)) {
+                mkdir($destinationPath, 0755, true);
+            }
+
+            // Delete old image if exists
+            $oldImagePath = $destinationPath . '/bg_login.jpg';
+            if (file_exists($oldImagePath)) {
+                unlink($oldImagePath);
+            }
+
+            // Save new image with fixed name
+            $image->move($destinationPath, 'bg_login.jpg');
+
+            Log::info('Login background image updated', [
+                'updated_by' => auth()->id(),
+                'file_size' => $image->getSize(),
+            ]);
+
+            return redirect()->back()->with('success', 'Gambar background login berhasil diupload!');
+        } catch (\Exception $e) {
+            Log::error('Failed to upload login background image', [
+                'error' => $e->getMessage(),
+                'user_id' => auth()->id()
+            ]);
+
+            return redirect()->back()->withErrors(['error' => 'Gagal mengupload gambar: ' . $e->getMessage()]);
         }
     }
 }

@@ -29,7 +29,7 @@ class AdminController extends Controller
     public function kelolaAkun(Request $request)
     {
         $query = User::with(['profilMahasiswa.dosenPembimbing']);
-        
+
         // Search functionality
         if ($request->has('search') && $request->search) {
             $query->where(function($q) use ($request) {
@@ -38,11 +38,11 @@ class AdminController extends Controller
                   ->orWhere('google_email', 'like', '%' . $request->search . '%');
             });
         }
-        
+
         // Sort functionality
         $sortBy = $request->get('sort_by', 'created_at');
         $sortOrder = $request->get('sort_order', 'desc');
-        
+
         if ($sortBy === 'role') {
             $query->orderBy('role', $sortOrder);
         } elseif ($sortBy === 'created_at') {
@@ -50,11 +50,21 @@ class AdminController extends Controller
         } else {
             $query->orderBy($sortBy, $sortOrder);
         }
-        
-        $users = $query->paginate(15);
+
+        // Pagination with per_page option
+        $perPage = $request->get('per_page', 15);
+        $showAll = ($perPage === 'all');
+
+        if ($showAll) {
+            $users = $query->get();
+        } else {
+            $perPage = in_array($perPage, [15, 30, 50]) ? $perPage : 15;
+            $users = $query->paginate($perPage)->withQueryString();
+        }
+
         $dospems = User::where('role', 'dospem')->get();
-        
-        return view('admin.kelola-akun', compact('users', 'dospems'));
+
+        return view('admin.kelola-akun', compact('users', 'dospems', 'showAll'));
     }
 
     public function createUser(Request $request)
@@ -387,5 +397,144 @@ class AdminController extends Controller
         ])->orderBy('created_at', 'desc')->get();
 
         return view('admin.nilai-akhir', compact('results'));
+    }
+
+    public function bulkDeleteUsers(Request $request)
+    {
+        $request->validate([
+            'user_ids' => 'required|array',
+            'user_ids.*' => 'exists:users,id',
+        ]);
+
+        try {
+            $deletedCount = 0;
+            foreach ($request->user_ids as $userId) {
+                $user = User::find($userId);
+                if ($user) {
+                    // Delete related data first
+                    if ($user->role === 'mahasiswa') {
+                        if ($user->profilMahasiswa) {
+                            $user->profilMahasiswa->delete();
+                        }
+                        $user->khs()->delete();
+                        $user->suratBalasan()->delete();
+                        $user->laporanPkl()->delete();
+
+                        if (class_exists('\App\Models\AssessmentResult')) {
+                            \App\Models\AssessmentResult::where('mahasiswa_user_id', $user->id)->delete();
+                        }
+                        if (class_exists('\App\Models\AssessmentResponse')) {
+                            \App\Models\AssessmentResponse::where('mahasiswa_user_id', $user->id)->delete();
+                        }
+                    }
+
+                    if ($user->role === 'dospem') {
+                        ProfilMahasiswa::where('id_dospem', $user->id)->update(['id_dospem' => null]);
+                        if (class_exists('\App\Models\AssessmentResponse')) {
+                            \App\Models\AssessmentResponse::where('dosen_user_id', $user->id)->delete();
+                        }
+                        if (class_exists('\App\Models\AssessmentResult')) {
+                            \App\Models\AssessmentResult::where('decided_by', $user->id)->delete();
+                        }
+                    }
+
+                    $user->historyAktivitas()->delete();
+                    $user->delete();
+                    $deletedCount++;
+                }
+            }
+
+            return redirect()->back()->with('success', "Berhasil menghapus {$deletedCount} user!");
+        } catch (\Exception $e) {
+            Log::error('Error bulk deleting users: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Gagal menghapus user: ' . $e->getMessage());
+        }
+    }
+
+    public function bulkEditDospem(Request $request)
+    {
+        $request->validate([
+            'user_ids' => 'required|array',
+            'user_ids.*' => 'exists:users,id',
+            'dospem_id' => 'required|exists:users,id',
+        ]);
+
+        try {
+            $dospem = User::findOrFail($request->dospem_id);
+            if ($dospem->role !== 'dospem') {
+                return redirect()->back()->with('error', 'User yang dipilih bukan dosen pembimbing!');
+            }
+
+            $updatedCount = 0;
+            foreach ($request->user_ids as $userId) {
+                $user = User::find($userId);
+                if ($user && $user->role === 'mahasiswa') {
+                    $profil = $user->profilMahasiswa;
+                    if ($profil) {
+                        $profil->update(['id_dospem' => $request->dospem_id]);
+                        $updatedCount++;
+                    } else {
+                        // Create profile if not exists
+                        ProfilMahasiswa::create([
+                            'id_mahasiswa' => $user->id,
+                            'id_dospem' => $request->dospem_id,
+                            'nim' => 'TEMP_' . $user->id,
+                            'prodi' => 'Teknologi Informasi',
+                            'semester' => 1,
+                            'jenis_kelamin' => 'L',
+                            'no_whatsapp' => '081234567890',
+                            'ipk' => 3.0,
+                            'cek_min_semester' => false,
+                            'cek_ipk_nilaisks' => false,
+                            'cek_valid_biodata' => false,
+                        ]);
+                        $updatedCount++;
+                    }
+                }
+            }
+
+            return redirect()->back()->with('success', "Berhasil mengubah dosen pembimbing untuk {$updatedCount} mahasiswa!");
+        } catch (\Exception $e) {
+            Log::error('Error bulk editing dospem: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Gagal mengubah dosen pembimbing: ' . $e->getMessage());
+        }
+    }
+
+    public function bulkResetDocuments(Request $request)
+    {
+        $request->validate([
+            'user_ids' => 'required|array',
+            'user_ids.*' => 'exists:users,id',
+        ]);
+
+        try {
+            $resetCount = 0;
+            foreach ($request->user_ids as $userId) {
+                $user = User::find($userId);
+                if ($user && $user->role === 'mahasiswa') {
+                    // Delete all documents
+                    $user->khs()->delete();
+                    $user->suratBalasan()->delete();
+                    $user->laporanPkl()->delete();
+
+                    // Reset profile data
+                    if ($user->profilMahasiswa) {
+                        $user->profilMahasiswa->update([
+                            'mitra_selected' => null,
+                            'cek_min_semester' => false,
+                            'cek_ipk_nilaisks' => false,
+                            'cek_valid_biodata' => false,
+                        ]);
+                    }
+
+                    $resetCount++;
+                }
+            }
+
+            return redirect()->back()->with('success', "Berhasil mereset data pemberkasan untuk {$resetCount} mahasiswa!");
+        } catch (\Exception $e) {
+            Log::error('Error bulk resetting documents: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Gagal mereset data pemberkasan: ' . $e->getMessage());
+        }
     }
 }

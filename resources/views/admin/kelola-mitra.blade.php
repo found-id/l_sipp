@@ -57,70 +57,85 @@
 
     <!-- Mitra Table -->
     <div class="bg-white shadow rounded-lg overflow-hidden">
-        <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200 table-fixed">
+        <div class="overflow-x-auto relative">
+            <table class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50">
                     <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama Mitra</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Alamat</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kontak</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Honor</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fasilitas</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kesesuaian</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kebersihan</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Dibuat</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-64 sticky left-0 bg-gray-50 z-10">Nama Mitra</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-64">Alamat</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-32">Kontak</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-24">Jarak</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-28">Honor</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-28">Fasilitas</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-32">Kesesuaian</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-28">Kebersihan</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-28">Dibuat</th>
+                        <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider w-40 sticky right-0 bg-gray-50 z-10 shadow-[-4px_0_6px_-1px_rgba(0,0,0,0.1)]">Aksi</th>
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
                     @forelse($mitra as $m)
-                    <tr>
-                        <td class="px-6 py-4">
+                    <tr class="hover:bg-gray-50 transition-colors">
+                        <td class="px-4 py-4 sticky left-0 bg-white z-10 hover:bg-gray-50 transition-colors">
                             <div class="flex items-center">
                                 <div class="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
                                     <i class="fas fa-building text-blue-600"></i>
                                 </div>
-                                <div class="ml-4">
-                                    <div class="text-sm font-medium text-gray-900 break-words">{{ $m->nama }}</div>
-                                    <div class="text-sm text-gray-500">ID: {{ $m->id }}</div>
+                                <div class="ml-3">
+                                    <div class="text-sm font-medium text-gray-900">{{ Str::limit($m->nama, 40) }}</div>
+                                    <div class="text-xs text-gray-500">ID: {{ $m->id }}</div>
                                 </div>
                             </div>
                         </td>
-                        <td class="px-6 py-4 text-sm text-gray-900 break-words">
-                            {{ $m->alamat ?? 'N/A' }}
+                        <td class="px-4 py-4 text-sm text-gray-900">
+                            <div class="max-w-xs truncate" title="{{ $m->alamat }}">{{ $m->alamat ?? 'N/A' }}</div>
                         </td>
-                        <td class="px-6 py-4 text-sm text-gray-900">
+                        <td class="px-4 py-4 text-sm text-gray-900 whitespace-nowrap">
                             {{ $m->kontak ?? 'N/A' }}
                         </td>
-                        <td class="px-6 py-4 text-sm font-semibold {{ $m->honor >= 4 ? 'text-green-600' : ($m->honor >= 3 ? 'text-blue-600' : 'text-orange-600') }}">
-                            {{ $m->honor_label }}
+                        <td class="px-4 py-4 text-sm text-gray-900 whitespace-nowrap">
+                            {{ $m->jarak }} km
                         </td>
-                        <td class="px-6 py-4 text-sm font-semibold {{ $m->fasilitas >= 4 ? 'text-green-600' : ($m->fasilitas >= 3 ? 'text-blue-600' : 'text-orange-600') }}">
-                            {{ $m->fasilitas_label }}
+                        <td class="px-4 py-4 text-sm whitespace-nowrap">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ $m->honor >= 4 ? 'bg-green-100 text-green-800' : ($m->honor >= 3 ? 'bg-blue-100 text-blue-800' : 'bg-orange-100 text-orange-800') }}">
+                                {{ $m->honor_label }}
+                            </span>
                         </td>
-                        <td class="px-6 py-4 text-sm font-semibold {{ $m->kesesuaian_jurusan >= 4 ? 'text-green-600' : ($m->kesesuaian_jurusan >= 3 ? 'text-blue-600' : 'text-orange-600') }}">
-                            {{ $m->kesesuaian_jurusan_label }}
+                        <td class="px-4 py-4 text-sm whitespace-nowrap">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ $m->fasilitas >= 4 ? 'bg-green-100 text-green-800' : ($m->fasilitas >= 3 ? 'bg-blue-100 text-blue-800' : 'bg-orange-100 text-orange-800') }}">
+                                {{ $m->fasilitas_label }}
+                            </span>
                         </td>
-                        <td class="px-6 py-4 text-sm font-semibold {{ $m->tingkat_kebersihan >= 4 ? 'text-green-600' : ($m->tingkat_kebersihan >= 3 ? 'text-blue-600' : 'text-orange-600') }}">
-                            {{ $m->tingkat_kebersihan_label }}
+                        <td class="px-4 py-4 text-sm whitespace-nowrap">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ $m->kesesuaian_jurusan >= 4 ? 'bg-green-100 text-green-800' : ($m->kesesuaian_jurusan >= 3 ? 'bg-blue-100 text-blue-800' : 'bg-orange-100 text-orange-800') }}">
+                                {{ $m->kesesuaian_jurusan_label }}
+                            </span>
                         </td>
-                        <td class="px-6 py-4 text-sm text-gray-500">
+                        <td class="px-4 py-4 text-sm whitespace-nowrap">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ $m->tingkat_kebersihan >= 4 ? 'bg-green-100 text-green-800' : ($m->tingkat_kebersihan >= 3 ? 'bg-blue-100 text-blue-800' : 'bg-orange-100 text-orange-800') }}">
+                                {{ $m->tingkat_kebersihan_label }}
+                            </span>
+                        </td>
+                        <td class="px-4 py-4 text-sm text-gray-500 whitespace-nowrap">
                             {{ $m->created_at->format('d M Y') }}
                         </td>
-                        <td class="px-6 py-4 text-sm font-medium space-x-2">
-                            <button onclick="openEditModal({{ $m->id }}, '{{ $m->nama }}', '{{ $m->alamat }}', '{{ $m->kontak }}', {{ $m->jarak ?? 0 }}, {{ $m->honor ?? 0 }}, {{ $m->fasilitas ?? 0 }}, {{ $m->kesesuaian_jurusan ?? 0 }}, {{ $m->tingkat_kebersihan ?? 0 }})" 
-                                    class="text-blue-600 hover:text-blue-900">
+                        <td class="px-4 py-4 text-sm font-medium whitespace-nowrap text-center sticky right-0 bg-white z-10 hover:bg-gray-50 transition-colors shadow-[-4px_0_6px_-1px_rgba(0,0,0,0.1)]">
+                            <button onclick="openEditModal({{ $m->id }}, '{{ addslashes($m->nama) }}', '{{ addslashes($m->alamat) }}', '{{ addslashes($m->kontak) }}', {{ $m->jarak ?? 0 }}, {{ $m->honor ?? 0 }}, {{ $m->fasilitas ?? 0 }}, {{ $m->kesesuaian_jurusan ?? 0 }}, {{ $m->tingkat_kebersihan ?? 0 }})"
+                                    class="text-blue-600 hover:text-blue-900 mr-3 inline-flex items-center">
                                 <i class="fas fa-edit mr-1"></i>Edit
                             </button>
-                            <button onclick="deleteMitra({{ $m->id }})" 
-                                    class="text-red-600 hover:text-red-900">
+                            <button onclick="deleteMitra({{ $m->id }})"
+                                    class="text-red-600 hover:text-red-900 inline-flex items-center">
                                 <i class="fas fa-trash mr-1"></i>Hapus
                             </button>
                         </td>
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="9" class="px-6 py-4 text-center text-gray-500">Tidak ada mitra</td>
+                        <td colspan="10" class="px-6 py-8 text-center text-gray-500">
+                            <i class="fas fa-inbox text-4xl text-gray-300 mb-2"></i>
+                            <p>Tidak ada mitra</p>
+                        </td>
                     </tr>
                     @endforelse
                 </tbody>
@@ -331,10 +346,10 @@ function openEditModal(id, nama, alamat, kontak, jarak, honor, fasilitas, kesesu
     document.getElementById('edit_alamat').value = alamat;
     document.getElementById('edit_kontak').value = kontak;
     document.getElementById('edit_jarak').value = jarak;
-    document.getElementById('edit_honor').value = honor > 0 ? '1' : '0';
-    document.getElementById('edit_fasilitas').value = fasilitas > 0 ? '1' : '0';
-    document.getElementById('edit_kesesuaian_jurusan').value = kesesuaian_jurusan > 0 ? '1' : '0';
-    document.getElementById('edit_tingkat_kebersihan').value = tingkat_kebersihan > 0 ? '1' : '0';
+    document.getElementById('edit_honor').value = honor;
+    document.getElementById('edit_fasilitas').value = fasilitas;
+    document.getElementById('edit_kesesuaian_jurusan').value = kesesuaian_jurusan;
+    document.getElementById('edit_tingkat_kebersihan').value = tingkat_kebersihan;
     document.getElementById('editModal').classList.remove('hidden');
 }
 

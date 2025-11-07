@@ -4,6 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register - SIPP PKL</title>
+
+    <!-- Favicons -->
+    <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}">
+    <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
+
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -15,20 +20,29 @@
         #step2Buttons:not(.hidden) button {
             flex: 1;
         }
+        .auth-image-container {
+            background: url('{{ asset('images/auth/bg_login.jpg') }}') center/cover no-repeat;
+            background-color: #667eea;
+        }
     </style>
 </head>
-<body class="bg-gray-50 flex flex-col min-h-screen">
+<body class="bg-gray-50 h-screen overflow-hidden">
+    <div class="flex h-screen">
+        <!-- Left Side - Image -->
+        <div class="hidden lg:flex lg:w-1/2 auth-image-container items-center justify-center relative">
+        </div>
 
-    <div class="flex-1 flex items-center justify-center py-8 px-4 sm:px-6 lg:px-8">
-        <div class="max-w-md w-full space-y-8">
-            <div>
-                <div class="mx-auto h-12 w-12 flex items-center justify-center">
-                    <i class="fas fa-user-plus text-3xl text-indigo-600"></i>
+        <!-- Right Side - Register Form -->
+        <div class="w-full lg:w-1/2 flex items-center justify-center p-8 overflow-y-auto">
+            <div class="max-w-md w-full space-y-8">
+            <div class="mt-20">
+                <div class="mx-auto h-16 w-16 flex items-center justify-center">
+                    <i class="fas fa-user-plus text-4xl text-indigo-600"></i>
                 </div>
-                <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
+                <h2 class="mt-8 text-center text-3xl font-extrabold text-gray-900">
                     Daftar Akun Baru
                 </h2>
-                <p class="mt-2 text-center text-sm text-gray-600">
+                <p class="mt-3 text-center text-sm text-gray-600">
                     Buat akun untuk mengakses sistem
                 </p>
             </div>
@@ -43,6 +57,9 @@
                         <input id="name" name="name" type="text" required 
                                class="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm" 
                                placeholder="Masukkan nama lengkap"
+                               pattern="^[^0-9]+$"
+                               title="Nama tidak boleh mengandung angka"
+                               oninput="this.value = this.value.replace(/[0-9]/g, '')"
                                value="{{ old('name') }}">
                         @error('name')
                             <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
@@ -85,6 +102,9 @@
                         <input id="nim" name="nim" type="text" required 
                                class="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm" 
                                placeholder="Masukkan NIM"
+                               inputmode="numeric" pattern="\d+" title="NIM harus angka"
+                               oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+                               maxlength="20"
                                value="{{ old('nim') }}">
                         @error('nim')
                             <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
@@ -115,7 +135,7 @@
                         <select id="semester" name="semester" required 
                                 class="mt-1 block w-full px-3 py-2 border border-gray-300 bg-white rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
                             <option value="">Pilih Semester</option>
-                            @for($i = 1; $i <= 8; $i++)
+                            @for($i = 5; $i <= 8; $i++)
                                 <option value="{{ $i }}" {{ old('semester') == $i ? 'selected' : '' }}>Semester {{ $i }}</option>
                             @endfor
                         </select>
@@ -143,10 +163,11 @@
                             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                 <span class="text-gray-700 font-medium">+62</span>
                             </div>
-                            <input id="no_wa" name="no_wa" type="text" required 
-                                   class="block w-full pl-12 border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" 
+                            <input id="no_wa" name="no_wa" type="text" required
+                                   class="block w-full pl-12 border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                                    placeholder="8xxxxxxxxxx"
                                    value="{{ old('no_wa') }}"
+                                   inputmode="numeric"
                                    oninput="this.value = this.value.replace(/[^0-9]/g, '')"
                                    maxlength="13">
                         </div>
@@ -280,26 +301,22 @@
                     </a>
                 </div>
             </form>
-        </div>
-        </div>
-    </div>
 
-    <!-- Footer -->
-    <footer class="bg-white border-t border-gray-200 mt-8">
-        <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
-            <div class="flex flex-col md:flex-row justify-between items-center">
+            <!-- Footer -->
+            <footer class="mt-8 text-center">
                 <p class="text-sm text-gray-500">
                     © {{ date('Y') }} SIPP PKL. All rights reserved.
                 </p>
-                <div class="flex space-x-4 mt-2 md:mt-0">
+                <div class="mt-2">
                     <a href="{{ route('faq') }}" class="text-sm text-gray-500 hover:text-indigo-600 transition-colors">
                         <i class="fas fa-question-circle mr-1"></i>
                         FAQ
                     </a>
                 </div>
-            </div>
+            </footer>
         </div>
-    </footer>
+        </div>
+    </div>
 
     <script>
         // Loading state functions

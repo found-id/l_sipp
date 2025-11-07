@@ -14,30 +14,32 @@ class ProfileController extends Controller
 {
     public function index()
     {
-        $user = Auth::user();
+        $user = Auth::user()->load('dospem');
         if (!$user) {
             return redirect()->route('login');
         }
         $profil = $user->profilMahasiswa;
-        
+        $dospem = $user->dospem;
+
         // Get dosen pembimbing info
         $dosenPembimbing = null;
         if ($profil && $profil->dosenPembimbing) {
             $dosenPembimbing = $profil->dosenPembimbing;
         }
-        
-        return view('profile.index', compact('user', 'profil', 'dosenPembimbing'));
+
+        return view('profile.index', compact('user', 'profil', 'dospem', 'dosenPembimbing'));
     }
 
     public function edit()
     {
-        $user = Auth::user();
+        $user = Auth::user()->load('dospem');
         $profil = $user->profilMahasiswa;
-        
+        $dospem = $user->dospem;
+
         // Get all dosen pembimbing for dropdown
         $dosenPembimbingList = User::dosenPembimbing()->get();
-        
-        return view('profile.edit', compact('user', 'profil', 'dosenPembimbingList'));
+
+        return view('profile.edit', compact('user', 'profil', 'dospem', 'dosenPembimbingList'));
     }
 
     public function update(Request $request)
@@ -53,21 +55,34 @@ class ProfileController extends Controller
         ]);
         
         try {
-            $request->validate([
+            // Base rules for all roles
+            $rules = [
                 'name' => 'required|string|max:100',
                 'email' => 'required|string|email|max:190|unique:users,email,' . $user->id,
                 'password' => 'nullable|string|min:6|confirmed',
-                'nim' => 'nullable|string|max:50|unique:profil_mahasiswa,nim,' . ($user->profilMahasiswa->id_mahasiswa ?? 'NULL') . ',id_mahasiswa',
-                'prodi' => 'required|string|max:100',
-                'semester' => 'required|integer|min:1|max:14',
-                'no_whatsapp' => 'nullable|string|max:30',
-                'jenis_kelamin' => 'nullable|in:L,P',
-                'ipk' => 'nullable|numeric|min:0|max:4.0',
-                'id_dospem' => 'nullable|exists:users,id',
-                'cek_min_semester' => 'boolean',
-                'cek_ipk_nilaisks' => 'boolean',
-                'cek_valid_biodata' => 'boolean',
-            ]);
+            ];
+
+            if ($user->role === 'dospem') {
+                // Only validate NIP for dospem
+                $ignoreId = optional($user->dospem)->id;
+                $rules['nip'] = 'nullable|string|max:50|unique:dospems,nip,' . ($ignoreId ?? 'NULL') . ',id';
+            } elseif ($user->role === 'mahasiswa') {
+                // Mahasiswa-specific validations
+                $rules = array_merge($rules, [
+                    'nim' => 'nullable|string|max:50|unique:profil_mahasiswa,nim,' . ($user->profilMahasiswa->id_mahasiswa ?? 'NULL') . ',id_mahasiswa',
+                    'prodi' => 'required|string|max:100',
+                    'semester' => 'required|integer|min:1|max:14',
+                    'no_whatsapp' => 'nullable|string|max:30',
+                    'jenis_kelamin' => 'nullable|in:L,P',
+                    'ipk' => 'nullable|numeric|min:0|max:4.0',
+                    'id_dospem' => 'nullable|exists:users,id',
+                    'cek_min_semester' => 'boolean',
+                    'cek_ipk_nilaisks' => 'boolean',
+                    'cek_valid_biodata' => 'boolean',
+                ]);
+            }
+
+            $request->validate($rules);
         } catch (\Illuminate\Validation\ValidationException $e) {
             Log::error('Validation failed:', ['errors' => $e->errors()]);
             return back()->withErrors($e->errors())->withInput();
@@ -85,56 +100,65 @@ class ProfileController extends Controller
         
         $user->update($userData);
 
-        // Update or create profil mahasiswa
-        $profilData = [
-            'nim' => $request->nim,
-            'prodi' => $request->prodi,
-            'semester' => $request->semester,
-            'no_whatsapp' => $request->no_whatsapp,
-            'jenis_kelamin' => $request->jenis_kelamin,
-            'ipk' => $request->ipk,
-            'id_dospem' => $request->id_dospem,
-            'cek_min_semester' => $request->has('cek_min_semester'),
-            'cek_ipk_nilaisks' => $request->has('cek_ipk_nilaisks'),
-            'cek_valid_biodata' => $request->has('cek_valid_biodata'),
-        ];
+        // If user is dospem, update or create dospem profile
+        if ($user->role === 'dospem') {
+            $user->dospem()->updateOrCreate(
+                ['user_id' => $user->id],
+                ['nip' => $request->nip]
+            );
+        }
 
-        // Debug logging
-        Log::info('Profile Update Debug:', [
-            'user_id' => $user->id,
-            'profil_exists' => $user->profilMahasiswa ? 'yes' : 'no',
-            'profil_data' => $profilData,
-            'request_data' => $request->all()
-        ]);
+        // Update or create profil mahasiswa only for mahasiswa role
+        if ($user->role === 'mahasiswa') {
+            $profilData = [
+                'nim' => $request->nim,
+                'prodi' => $request->prodi,
+                'semester' => $request->semester,
+                'no_whatsapp' => $request->no_whatsapp,
+                'jenis_kelamin' => $request->jenis_kelamin,
+                'ipk' => $request->ipk,
+                'id_dospem' => $request->id_dospem,
+                'cek_min_semester' => $request->has('cek_min_semester'),
+                'cek_ipk_nilaisks' => $request->has('cek_ipk_nilaisks'),
+                'cek_valid_biodata' => $request->has('cek_valid_biodata'),
+            ];
 
+            // Debug logging
+            Log::info('Profile Update Debug:', [
+                'user_id' => $user->id,
+                'profil_exists' => $user->profilMahasiswa ? 'yes' : 'no',
+                'profil_data' => $profilData,
+                'request_data' => $request->all()
+            ]);
 
-        // Update profile data
-        try {
-            if ($user->profilMahasiswa) {
-                // Update existing profile
-                $profil = $user->profilMahasiswa;
-                $profil->nim = $profilData['nim'];
-                $profil->prodi = $profilData['prodi'];
-                $profil->semester = $profilData['semester'];
-                $profil->no_whatsapp = $profilData['no_whatsapp'];
-                $profil->jenis_kelamin = $profilData['jenis_kelamin'];
-                $profil->ipk = $profilData['ipk'];
-                $profil->id_dospem = $profilData['id_dospem'];
-                $profil->cek_min_semester = $profilData['cek_min_semester'];
-                $profil->cek_ipk_nilaisks = $profilData['cek_ipk_nilaisks'];
-                $profil->cek_valid_biodata = $profilData['cek_valid_biodata'];
-                
-                $result = $profil->save();
-                Log::info('Profile updated successfully:', ['result' => $result, 'profil_id' => $profil->id_mahasiswa]);
-            } else {
-                // Create new profile
-                $profilData['id_mahasiswa'] = $user->id;
-                $profil = ProfilMahasiswa::create($profilData);
-                Log::info('Profile created successfully:', ['profil' => $profil]);
+            // Update profile data
+            try {
+                if ($user->profilMahasiswa) {
+                    // Update existing profile
+                    $profil = $user->profilMahasiswa;
+                    $profil->nim = $profilData['nim'];
+                    $profil->prodi = $profilData['prodi'];
+                    $profil->semester = $profilData['semester'];
+                    $profil->no_whatsapp = $profilData['no_whatsapp'];
+                    $profil->jenis_kelamin = $profilData['jenis_kelamin'];
+                    $profil->ipk = $profilData['ipk'];
+                    $profil->id_dospem = $profilData['id_dospem'];
+                    $profil->cek_min_semester = $profilData['cek_min_semester'];
+                    $profil->cek_ipk_nilaisks = $profilData['cek_ipk_nilaisks'];
+                    $profil->cek_valid_biodata = $profilData['cek_valid_biodata'];
+
+                    $result = $profil->save();
+                    Log::info('Profile updated successfully:', ['result' => $result, 'profil_id' => $profil->id_mahasiswa]);
+                } else {
+                    // Create new profile
+                    $profilData['id_mahasiswa'] = $user->id;
+                    $profil = ProfilMahasiswa::create($profilData);
+                    Log::info('Profile created successfully:', ['profil' => $profil]);
+                }
+            } catch (\Exception $e) {
+                Log::error('Profile update error:', ['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
+                return back()->withErrors(['error' => 'Terjadi kesalahan saat menyimpan data: ' . $e->getMessage()]);
             }
-        } catch (\Exception $e) {
-            Log::error('Profile update error:', ['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
-            return back()->withErrors(['error' => 'Terjadi kesalahan saat menyimpan data: ' . $e->getMessage()]);
         }
 
         // Send WhatsApp notification for profile changes
