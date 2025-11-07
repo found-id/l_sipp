@@ -9,7 +9,7 @@
         <div class="flex justify-between items-center">
             <div>
                 <h1 class="text-2xl font-bold text-gray-900">Edit Profile</h1>
-                <p class="text-gray-600 mt-2">Lengkapi informasi pribadi Anda</p>
+                <p class="text-gray-600 mt-2">@@@Lengkapi informasi pribadi Anda</p>
             </div>
             <a href="{{ route('profile.index') }}" class="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700">
                 <i class="fas fa-arrow-left mr-2"></i>Kembali
