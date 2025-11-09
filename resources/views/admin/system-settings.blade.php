@@ -36,7 +36,7 @@
                 @method('PUT')
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <!-- Laporan PKL Toggle -->
+                    <!-- Tab Pemberkasan Akhir Toggle -->
                     <div class="group bg-gradient-to-br from-blue-50 to-white border-2 border-blue-100 rounded-xl p-5 hover:shadow-lg transition-all duration-300 hover:border-blue-300">
                         <div class="flex items-start justify-between mb-3">
                             <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
@@ -47,8 +47,8 @@
                                 <div class="w-14 h-7 bg-gray-300 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-gradient-to-r peer-checked:from-blue-500 peer-checked:to-blue-600"></div>
                             </label>
                         </div>
-                        <h3 class="text-lg font-bold text-gray-900 mb-1">Laporan PKL</h3>
-                        <p class="text-sm text-gray-600">Mengontrol upload Laporan PKL mahasiswa</p>
+                        <h3 class="text-lg font-bold text-gray-900 mb-1">Tab Pemberkasan Akhir</h3>
+                        <p class="text-sm text-gray-600">Mengontrol akses Tab Pemberkasan Akhir mahasiswa</p>
                         <div class="mt-3">
                             <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold {{ $laporanPklEnabled ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-700' }}">
                                 {{ $laporanPklEnabled ? 'Aktif' : 'Nonaktif' }}
@@ -116,7 +116,7 @@
                         </div>
                     </div>
 
-                    <!-- Dokumen Pemberkasan Toggle -->
+                    <!-- Tab Pemberkasan Instansi Mitra Toggle -->
                     <div class="group bg-gradient-to-br from-indigo-50 to-white border-2 border-indigo-100 rounded-xl p-5 hover:shadow-lg transition-all duration-300 hover:border-indigo-300">
                         <div class="flex items-start justify-between mb-3">
                             <div class="w-10 h-10 bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-lg flex items-center justify-center">
@@ -127,8 +127,8 @@
                                 <div class="w-14 h-7 bg-gray-300 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-indigo-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-gradient-to-r peer-checked:from-indigo-500 peer-checked:to-indigo-600"></div>
                             </label>
                         </div>
-                        <h3 class="text-lg font-bold text-gray-900 mb-1">Dokumen Pemberkasan</h3>
-                        <p class="text-sm text-gray-600">Kontrol upload dokumen (KHS, Surat)</p>
+                        <h3 class="text-lg font-bold text-gray-900 mb-1">Tab Pemberkasan Instansi Mitra</h3>
+                        <p class="text-sm text-gray-600">Mengontrol akses Tab Pemberkasan Instansi Mitra mahasiswa</p>
                         <div class="mt-3">
                             <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold {{ $dokumenPemberkasanEnabled ? 'bg-indigo-100 text-indigo-700' : 'bg-gray-100 text-gray-700' }}">
                                 {{ $dokumenPemberkasanEnabled ? 'Aktif' : 'Nonaktif' }}

@@ -12,6 +12,11 @@ class KhsManualTranskrip extends Model
         'mahasiswa_id',
         'semester',
         'transcript_data',
+        'ips',
+        'total_sks',
+        'total_sks_d',
+        'has_e',
+        'eligible',
     ];
 
     protected function casts(): array

@@ -380,6 +380,86 @@
             </form>
         </div>
     </div>
+
+    <!-- Orphaned Profil Mahasiswa Section -->
+    @if($orphanedProfils->count() > 0)
+    <div class="bg-white shadow rounded-lg p-6">
+        <div class="flex justify-between items-center mb-4">
+            <div>
+                <h2 class="text-xl font-bold text-red-900">
+                    <i class="fas fa-exclamation-triangle mr-2"></i>Profil Mahasiswa Orphaned
+                </h2>
+                <p class="text-gray-600 mt-1">Profil mahasiswa yang tidak terkait dengan user aktif ({{ $orphanedProfils->count() }} ditemukan)</p>
+            </div>
+            <form action="{{ route('admin.bulk-delete-orphaned-profils') }}" method="POST"
+                  onsubmit="return confirm('Apakah Anda yakin ingin menghapus SEMUA profil orphaned? Tindakan ini tidak dapat dibatalkan!')">
+                @csrf
+                <button type="submit" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700">
+                    <i class="fas fa-trash-alt mr-2"></i>Hapus Semua ({{ $orphanedProfils->count() }})
+                </button>
+            </form>
+        </div>
+
+        <div class="bg-red-50 border-l-4 border-red-500 p-4 mb-4">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <i class="fas fa-exclamation-circle text-red-500"></i>
+                </div>
+                <div class="ml-3">
+                    <p class="text-sm text-red-700">
+                        Profil di bawah ini tidak memiliki relasi dengan user yang aktif. Ini mungkin terjadi karena kesalahan saat menghapus user atau masalah database. Disarankan untuk menghapus profil orphaned ini.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">ID Mahasiswa</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">NIM</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Prodi</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Semester</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Dosen Pembimbing</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    @foreach($orphanedProfils as $profil)
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            <span class="px-2 py-1 bg-red-100 text-red-800 rounded">{{ $profil->id_mahasiswa }}</span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {{ $profil->nim ?? '-' }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {{ $profil->prodi ?? '-' }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {{ $profil->semester ?? '-' }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {{ $profil->dosenPembimbing->name ?? '-' }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm">
+                            <form action="{{ route('admin.delete-orphaned-profil', ['id' => $profil->id_mahasiswa]) }}" method="POST" class="inline"
+                                  onsubmit="return confirm('Apakah Anda yakin ingin menghapus profil ini?')">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="text-red-600 hover:text-red-900">
+                                    <i class="fas fa-trash-alt mr-1"></i>Hapus
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+    </div>
+    @endif
 </div>
 
 <script>

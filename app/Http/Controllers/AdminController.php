@@ -64,7 +64,12 @@ class AdminController extends Controller
 
         $dospems = User::where('role', 'dospem')->get();
 
-        return view('admin.kelola-akun', compact('users', 'dospems', 'showAll'));
+        // Get orphaned profil mahasiswa (profil yang tidak memiliki relasi dengan users)
+        $orphanedProfils = ProfilMahasiswa::whereNotIn('id_mahasiswa', function($query) {
+            $query->select('id')->from('users');
+        })->with('dosenPembimbing')->get();
+
+        return view('admin.kelola-akun', compact('users', 'dospems', 'showAll', 'orphanedProfils'));
     }
 
     public function createUser(Request $request)
@@ -203,6 +208,55 @@ class AdminController extends Controller
         } catch (\Exception $e) {
             Log::error('Error deleting user: ' . $e->getMessage());
             return redirect()->back()->with('error', 'Gagal menghapus user: ' . $e->getMessage());
+        }
+    }
+
+    public function deleteOrphanedProfil($id)
+    {
+        try {
+            // Find by primary key (id_mahasiswa)
+            $profil = ProfilMahasiswa::where('id_mahasiswa', $id)->firstOrFail();
+
+            // Verify that this profil is actually orphaned
+            $userExists = User::where('id', $profil->id_mahasiswa)->exists();
+            if ($userExists) {
+                return redirect()->back()->with('error', 'Profil ini masih terkait dengan user yang aktif!');
+            }
+
+            // Delete related KHS if any
+            \App\Models\KhsManualTranskrip::where('id_mahasiswa', $profil->id_mahasiswa)->delete();
+
+            // Delete the orphaned profil
+            $profil->delete();
+
+            return redirect()->back()->with('success', 'Profil mahasiswa orphaned berhasil dihapus!');
+        } catch (\Exception $e) {
+            Log::error('Error deleting orphaned profil: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Gagal menghapus profil: ' . $e->getMessage());
+        }
+    }
+
+    public function bulkDeleteOrphanedProfils(Request $request)
+    {
+        try {
+            $orphanedMahasiswaIds = ProfilMahasiswa::whereNotIn('id_mahasiswa', function($query) {
+                $query->select('id')->from('users');
+            })->pluck('id_mahasiswa');
+
+            if ($orphanedMahasiswaIds->isEmpty()) {
+                return redirect()->back()->with('info', 'Tidak ada profil orphaned yang ditemukan.');
+            }
+
+            // Delete related KHS for all orphaned profils
+            \App\Models\KhsManualTranskrip::whereIn('id_mahasiswa', $orphanedMahasiswaIds)->delete();
+
+            // Delete all orphaned profils
+            $count = ProfilMahasiswa::whereIn('id_mahasiswa', $orphanedMahasiswaIds)->delete();
+
+            return redirect()->back()->with('success', "Berhasil menghapus {$count} profil mahasiswa orphaned!");
+        } catch (\Exception $e) {
+            Log::error('Error bulk deleting orphaned profils: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Gagal menghapus profil: ' . $e->getMessage());
         }
     }
 

@@ -120,6 +120,8 @@ Route::get('/jadwal/{filename}', function ($filename) {
         Route::post('/kelola-akun/bulk-delete', [\App\Http\Controllers\AdminController::class, 'bulkDeleteUsers'])->name('bulk-delete-users');
         Route::post('/kelola-akun/bulk-edit-dospem', [\App\Http\Controllers\AdminController::class, 'bulkEditDospem'])->name('bulk-edit-dospem');
         Route::post('/kelola-akun/bulk-reset-documents', [\App\Http\Controllers\AdminController::class, 'bulkResetDocuments'])->name('bulk-reset-documents');
+        Route::delete('/kelola-akun/orphaned/{id}', [\App\Http\Controllers\AdminController::class, 'deleteOrphanedProfil'])->name('delete-orphaned-profil');
+        Route::post('/kelola-akun/bulk-delete-orphaned', [\App\Http\Controllers\AdminController::class, 'bulkDeleteOrphanedProfils'])->name('bulk-delete-orphaned-profils');
         Route::get('/kelola-mitra', [\App\Http\Controllers\AdminController::class, 'kelolaMitra'])->name('kelola-mitra');
         Route::post('/kelola-mitra', [\App\Http\Controllers\AdminController::class, 'createMitra'])->name('create-mitra');
         Route::put('/kelola-mitra/{id}', [\App\Http\Controllers\AdminController::class, 'updateMitra'])->name('update-mitra');

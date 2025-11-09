@@ -32,7 +32,7 @@
                 <span>Terakhir diperbarui: {{ now()->format('d M Y H:i') }}</span>
             </div>
         </div>
-        
+
             @php
                 $laporan = $laporanPkl;
                 $khs = $khs ?? null;
@@ -41,58 +41,101 @@
                 $laporan = $laporan ?? null;
                 $tpkData = null;
                 $mitra = $mitra ?? collect();
-            
-            // Check PKL eligibility
-            $isEligibleForPkl = false; // Default to false since we removed TpkData
+
+            // Calculate PKL eligibility from khsManualTranskrip data
+            $isEligibleForPkl = false;
+            $totalSemesters = $khsManualTranskrip->count();
+            $totalSksD = 0;
+            $totalE = 0;
+            $totalIps = 0;
+
+            // Calculate from transcript data
+            foreach ($khsManualTranskrip as $transcript) {
+                $totalSksD += $transcript->total_sks_d ?? 0;
+                if ($transcript->has_e) {
+                    $totalE++;
+                }
+                $totalIps += $transcript->ips ?? 0;
+            }
+
+            // Calculate final IPK
+            $finalIpk = $totalSemesters > 0 ? $totalIps / $totalSemesters : 0;
+
+            // Check dokumen pendukung (PKKMB dan English Course wajib)
+            $hasPkkmb = !empty($user->profilMahasiswa->gdrive_pkkmb ?? '');
+            $hasEcourse = !empty($user->profilMahasiswa->gdrive_ecourse ?? '');
+            $hasDokumenPendukung = $hasPkkmb && $hasEcourse;
+
+            // Check eligibility: transcript complete (5 semesters), KHS files uploaded (5), IPK >= 2.5, SKS D <= 9, no E, dokumen pendukung lengkap
+            $isTranscriptComplete = $totalSemesters >= 5;
+            $isKhsComplete = $khsFileCount >= 5;
+
+            if ($isTranscriptComplete && $isKhsComplete && $finalIpk >= 2.5 && $totalSksD <= 9 && $totalE == 0 && $hasDokumenPendukung) {
+                $isEligibleForPkl = true;
+            }
+
             $hasValidKhs = $khs && is_object($khs) && $khs->status_validasi === 'tervalidasi';
             $hasValidSuratBalasan = $suratBalasan && is_object($suratBalasan) && $suratBalasan->status_validasi === 'tervalidasi';
             $hasValidLaporan = $laporan && is_object($laporan) && $laporan->status_validasi === 'tervalidasi';
-            
-            // Determine PKL status
-            $pklStatus = 'belum_mulai';
-            $pklStatusText = 'Belum Memulai PKL';
-            $pklStatusColor = 'gray';
-            
-            if ($isEligibleForPkl && $hasValidKhs && $hasValidSuratBalasan) {
-                if ($hasValidLaporan) {
-                    $pklStatus = 'selesai';
-                    $pklStatusText = 'PKL Selesai';
-                    $pklStatusColor = 'green';
-                } else {
-                    $pklStatus = 'sedang_berlangsung';
-                    $pklStatusText = 'PKL Sedang Berlangsung';
-                    $pklStatusColor = 'blue';
-                }
-            } elseif ($isEligibleForPkl && $hasValidKhs) {
-                $pklStatus = 'siap_mulai';
-                $pklStatusText = 'Siap Memulai PKL';
+
+            // Determine PKL Activity Status (4 tahap)
+            // 1. Menyiapkan Berkas - belum layak
+            // 2. Siap untuk PKL - sudah layak, belum ada dokumen tervalidasi
+            // 3. Aktif PKL - sudah layak, KHS dan Surat Balasan tervalidasi
+            // 4. PKL Selesai - semua dokumen tervalidasi
+
+            if (!$isEligibleForPkl) {
+                // Tahap 1: Menyiapkan Berkas (belum layak)
+                $pklStatus = 'menyiapkan_berkas';
+                $pklStatusText = 'Menyiapkan Berkas';
+                $pklStatusColor = 'gray';
+                $pklStatusIcon = 'file-alt';
+            } elseif ($isEligibleForPkl && $hasValidKhs && $hasValidSuratBalasan && $hasValidLaporan) {
+                // Tahap 4: PKL Selesai
+                $pklStatus = 'selesai';
+                $pklStatusText = 'PKL Selesai';
+                $pklStatusColor = 'green';
+                $pklStatusIcon = 'check-circle';
+            } elseif ($isEligibleForPkl && $hasValidKhs && $hasValidSuratBalasan) {
+                // Tahap 3: Aktif PKL
+                $pklStatus = 'aktif';
+                $pklStatusText = 'Aktif PKL';
+                $pklStatusColor = 'blue';
+                $pklStatusIcon = 'play-circle';
+            } else {
+                // Tahap 2: Siap untuk PKL (layak tapi belum semua dokumen tervalidasi)
+                $pklStatus = 'siap';
+                $pklStatusText = 'Siap untuk PKL';
                 $pklStatusColor = 'yellow';
-            } elseif (!$isEligibleForPkl) {
-                $pklStatus = 'tidak_layak';
-                $pklStatusText = 'Tidak Layak PKL';
-                $pklStatusColor = 'red';
+                $pklStatusIcon = 'clipboard-check';
             }
             @endphp
-            
+
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <!-- PKL Eligibility Status -->
             <div class="bg-gradient-to-r from-{{ $isEligibleForPkl ? 'green' : 'red' }}-50 to-{{ $isEligibleForPkl ? 'green' : 'red' }}-100 border border-{{ $isEligibleForPkl ? 'green' : 'red' }}-200 rounded-lg p-6">
                 <div class="flex items-center">
-                <div class="flex-shrink-0">
-                        <i class="fas fa-{{ $isEligibleForPkl ? 'check-circle' : 'times-circle' }} text-3xl text-{{ $isEligibleForPkl ? 'green' : 'red' }}-600"></i>
-                </div>
+                    <div class="flex-shrink-0">
+                        @if($isEligibleForPkl)
+                            <div class="w-16 h-16 bg-green-600 rounded-full flex items-center justify-center">
+                                <i class="fas fa-check text-3xl text-white"></i>
+                            </div>
+                        @else
+                            <i class="fas fa-times-circle text-5xl text-red-600"></i>
+                        @endif
+                    </div>
                     <div class="ml-4">
                         <h4 class="text-lg font-semibold text-{{ $isEligibleForPkl ? 'green' : 'red' }}-800">Kelayakan PKL</h4>
-                        <p class="text-{{ $isEligibleForPkl ? 'green' : 'red' }}-700 font-medium">
-                            {{ $isEligibleForPkl ? 'LAYAK' : 'TIDAK LAYAK' }}
+                        <p class="text-2xl text-{{ $isEligibleForPkl ? 'green' : 'red' }}-700 font-bold">
+                            {{ $isEligibleForPkl ? 'LAYAK' : 'BELUM LAYAK' }}
                         </p>
                         <p class="text-sm text-{{ $isEligibleForPkl ? 'green' : 'red' }}-600 mt-1">
                             @if($isEligibleForPkl)
-                                Memenuhi semua persyaratan TPK
-                        @else
-                                Belum memenuhi persyaratan TPK
-                        @endif
-                    </p>
+                                Memenuhi semua persyaratan PKL
+                            @else
+                                Belum memenuhi persyaratan PKL
+                            @endif
+                        </p>
                     </div>
                 </div>
             </div>
@@ -100,93 +143,23 @@
             <!-- PKL Activity Status -->
             <div class="bg-gradient-to-r from-{{ $pklStatusColor }}-50 to-{{ $pklStatusColor }}-100 border border-{{ $pklStatusColor }}-200 rounded-lg p-6">
                 <div class="flex items-center">
-                <div class="flex-shrink-0">
-                        <i class="fas fa-{{ $pklStatus === 'selesai' ? 'check-circle' : ($pklStatus === 'sedang_berlangsung' ? 'play-circle' : ($pklStatus === 'siap_mulai' ? 'clock' : ($pklStatus === 'tidak_layak' ? 'times-circle' : 'pause-circle'))) }} text-3xl text-{{ $pklStatusColor }}-600"></i>
-                </div>
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-{{ $pklStatusIcon }} text-5xl text-{{ $pklStatusColor }}-600"></i>
+                    </div>
                     <div class="ml-4">
                         <h4 class="text-lg font-semibold text-{{ $pklStatusColor }}-800">Status Keaktifan PKL</h4>
-                        <p class="text-{{ $pklStatusColor }}-700 font-medium">{{ $pklStatusText }}</p>
+                        <p class="text-2xl text-{{ $pklStatusColor }}-700 font-bold">{{ $pklStatusText }}</p>
                         <p class="text-sm text-{{ $pklStatusColor }}-600 mt-1">
-                            @if($pklStatus === 'selesai')
-                                Semua tahapan PKL telah selesai
-                            @elseif($pklStatus === 'sedang_berlangsung')
+                            @if($pklStatus === 'menyiapkan_berkas')
+                                Sedang menyiapkan berkas kelayakan PKL
+                            @elseif($pklStatus === 'siap')
+                                Memenuhi syarat kelayakan, siap memulai PKL
+                            @elseif($pklStatus === 'aktif')
                                 Sedang melaksanakan PKL di instansi
-                            @elseif($pklStatus === 'siap_mulai')
-                                Memenuhi syarat untuk memulai PKL
-                            @elseif($pklStatus === 'tidak_layak')
-                                Belum memenuhi syarat kelayakan
-                        @else
-                                Belum memulai proses PKL
-                        @endif
-                    </p>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Detailed Requirements Status -->
-        <div class="mt-6">
-            <h4 class="text-md font-semibold text-gray-900 mb-3">Detail Persyaratan</h4>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <!-- TPK Requirements -->
-                <div class="bg-gray-50 rounded-lg p-4">
-                    <h5 class="font-medium text-gray-900 mb-2">Persyaratan TPK</h5>
-                    <div class="space-y-1 text-sm">
-                        <div class="text-center text-gray-500 py-2">
-                            <i class="fas fa-info-circle text-lg mb-1"></i>
-                            <p class="text-sm">Data TPK sekarang tersimpan di tabel KHS</p>
-                            <p class="text-xs">Gunakan fitur "Data Tabel KHS Transkrip dari Sipadu" di bawah</p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Document Requirements -->
-                <div class="bg-gray-50 rounded-lg p-4">
-                    <h5 class="font-medium text-gray-900 mb-2">Dokumen Wajib</h5>
-                    <div class="space-y-1 text-sm">
-                        <div class="flex justify-between">
-                            <span>KHS:</span>
-                            <span class="{{ $hasValidKhs ? 'text-green-600' : 'text-red-600' }}">
-                                {{ $hasValidKhs ? 'Valid' : 'Belum Valid' }}
-                            </span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span>Surat Balasan:</span>
-                            <span class="{{ $hasValidSuratBalasan ? 'text-green-600' : 'text-red-600' }}">
-                                {{ $hasValidSuratBalasan ? 'Valid' : 'Belum Valid' }}
-                            </span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span>Laporan PKL:</span>
-                            <span class="{{ $hasValidLaporan ? 'text-green-600' : 'text-red-600' }}">
-                                {{ $hasValidLaporan ? 'Valid' : 'Belum Valid' }}
-                            </span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Progress Summary -->
-                <div class="bg-gray-50 rounded-lg p-4">
-                    <h5 class="font-medium text-gray-900 mb-2">Progress PKL</h5>
-                    @php
-                        $totalSteps = 4; // TPK + 3 dokumen
-                        $completedSteps = 0;
-                        if($isEligibleForPkl) $completedSteps++;
-                        if($hasValidKhs) $completedSteps++;
-                        if($hasValidSuratBalasan) $completedSteps++;
-                        if($hasValidLaporan) $completedSteps++;
-                        $progressPercentage = ($completedSteps / $totalSteps) * 100;
-        @endphp
-                    <div class="space-y-2">
-                        <div class="flex justify-between text-sm">
-                            <span>Langkah Selesai:</span>
-                            <span>{{ $completedSteps }}/{{ $totalSteps }}</span>
-            </div>
-            <div class="w-full bg-gray-200 rounded-full h-2">
-                <div class="bg-gradient-to-r from-blue-500 to-green-500 h-2 rounded-full transition-all duration-500" 
-                     style="width: {{ $progressPercentage }}%"></div>
-                        </div>
-                        <p class="text-xs text-gray-500">{{ number_format($progressPercentage, 1) }}% selesai</p>
+                            @else
+                                Semua tahapan PKL telah selesai
+                            @endif
+                        </p>
                     </div>
                 </div>
             </div>
@@ -203,14 +176,21 @@
                 <button onclick="showTab('dokumen-pendukung')" id="tab-dokumen-pendukung" class="tab-button py-4 px-6 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 transition-colors duration-200">
                     <i class="fab fa-google-drive mr-2"></i>Pemberkasan Dokumen Pendukung
                 </button>
-                <button onclick="showTab('surat-balasan')" id="tab-surat-balasan" class="tab-button py-4 px-6 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 transition-colors duration-200 {{ !$instansiMitraEnabled ? 'opacity-50 cursor-not-allowed' : '' }}" 
-                        {{ !$instansiMitraEnabled ? 'disabled' : '' }}>
+                <button onclick="showTab('surat-balasan')" id="tab-surat-balasan" class="tab-button py-4 px-6 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 transition-colors duration-200 {{ !$dokumenPemberkasanEnabled ? 'opacity-50 cursor-not-allowed' : '' }}"
+                        {{ !$dokumenPemberkasanEnabled ? 'disabled' : '' }}>
                     <i class="fas fa-envelope mr-2"></i>Pemberkasan Instansi Mitra
-                    @if(!$instansiMitraEnabled)
+                    @if(!$dokumenPemberkasanEnabled)
                         <i class="fas fa-lock ml-2 text-gray-400"></i>
                     @endif
                 </button>
-                <button onclick="showTab('laporan')" id="tab-laporan" class="tab-button py-4 px-6 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 transition-colors duration-200 {{ !$laporanPklEnabled ? 'opacity-50 cursor-not-allowed' : '' }}" 
+                @php
+                    // Check if instansi mitra selected and surat balasan uploaded
+                    $hasMitraSelected = !empty($user->profilMahasiswa->mitra_selected ?? '');
+                    $hasSuratBalasan = $suratBalasan && is_object($suratBalasan);
+                    // Pemberkasan Akhir requires: eligible, mitra selected, and surat balasan uploaded
+                    $canAccessPemberkasanAkhir = $laporanPklEnabled && $isEligibleForPkl && $hasMitraSelected && $hasSuratBalasan;
+                @endphp
+                <button onclick="showTab('laporan')" id="tab-laporan" class="tab-button py-4 px-6 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 transition-colors duration-200 {{ !$laporanPklEnabled ? 'opacity-50 cursor-not-allowed' : '' }}"
                         {{ !$laporanPklEnabled ? 'disabled' : '' }}>
                     <i class="fas fa-book mr-2"></i>Pemberkasan Akhir
                     @if(!$laporanPklEnabled)
@@ -630,13 +610,18 @@
                     </div>
                 </div>
             </div>
-            
+
             <div class="p-6 space-y-6">
                 <!-- Sertifikat PKKMB -->
                 <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
-                    <div class="flex items-center mb-3">
-                        <i class="fab fa-google-drive text-blue-500 mr-2"></i>
-                        <h4 class="text-lg font-medium text-gray-900">Sertifikat PKKMB</h4>
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="flex items-center">
+                            <i class="fab fa-google-drive text-blue-500 mr-2"></i>
+                            <h4 class="text-lg font-medium text-gray-900">Sertifikat PKKMB</h4>
+                        </div>
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                            <i class="fas fa-asterisk mr-1 text-xs"></i>Wajib
+                        </span>
                     </div>
                     <div class="space-y-3">
                         <div>
@@ -653,9 +638,14 @@
 
                 <!-- Sertifikat English Course -->
                 <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
-                    <div class="flex items-center mb-3">
-                        <i class="fab fa-google-drive text-blue-500 mr-2"></i>
-                        <h4 class="text-lg font-medium text-gray-900">Sertifikat English Course</h4>
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="flex items-center">
+                            <i class="fab fa-google-drive text-blue-500 mr-2"></i>
+                            <h4 class="text-lg font-medium text-gray-900">Sertifikat English Course</h4>
+                        </div>
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                            <i class="fas fa-asterisk mr-1 text-xs"></i>Wajib
+                        </span>
                     </div>
                     <div class="space-y-3">
                         <div>
@@ -672,9 +662,14 @@
 
                 <!-- Sertifikat Semasa Berkuliah -->
                 <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
-                    <div class="flex items-center mb-3">
-                        <i class="fab fa-google-drive text-blue-500 mr-2"></i>
-                        <h4 class="text-lg font-medium text-gray-900">Sertifikat Semasa Berkuliah di Politeknik Negeri Tanah Laut</h4>
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="flex items-center">
+                            <i class="fab fa-google-drive text-blue-500 mr-2"></i>
+                            <h4 class="text-lg font-medium text-gray-900">Sertifikat Semasa Berkuliah di Politeknik Negeri Tanah Laut</h4>
+                        </div>
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                            <i class="fas fa-info-circle mr-1"></i>Opsional
+                        </span>
                     </div>
                     <div class="space-y-3">
                         <div>
@@ -709,23 +704,23 @@ function showTab(tabName) {
         return;
     }
     @endif
-    
-    // Check if Surat Balasan is disabled
-    @if(!$instansiMitraEnabled)
+
+    // Check if Tab Pemberkasan Instansi Mitra is disabled
+    @if(!$dokumenPemberkasanEnabled)
     if (tabName === 'surat-balasan') {
-        alert('Fitur surat balasan sedang dinonaktifkan oleh admin.');
-        return;
-    }
-                                        @endif
-    
-    // Check if Laporan PKL is disabled
-    @if(!$laporanPklEnabled)
-    if (tabName === 'laporan') {
-        alert('Fitur laporan PKL sedang dinonaktifkan oleh admin.');
+        alert('Tab Pemberkasan Instansi Mitra sedang dinonaktifkan oleh admin.');
         return;
     }
     @endif
-    
+
+    // Check if Tab Pemberkasan Akhir is disabled
+    @if(!$laporanPklEnabled)
+    if (tabName === 'laporan') {
+        alert('Tab Pemberkasan Akhir sedang dinonaktifkan oleh admin.');
+        return;
+    }
+    @endif
+
     // Hide all tab contents with smooth transition
     const tabContents = document.querySelectorAll('.tab-content');
     tabContents.forEach(content => {
@@ -1801,19 +1796,10 @@ function calculateFinalIpk() {
         document.getElementById('totalSksD').textContent = '0';
         document.getElementById('totalE').textContent = '0';
         document.getElementById('uploadKhs').textContent = `${khsFileCount}/5`;
-        
-        // Set PKL status based on both transcript and KHS file count
-        const pklStatusElement = document.getElementById('pklStatus');
-        const isTranscriptComplete = false; // No transcript data
-        const isKhsComplete = khsFileCount >= 5;
-        
-        if (!isTranscriptComplete || !isKhsComplete) {
-            pklStatusElement.textContent = 'Belum Lengkap';
-            pklStatusElement.className = 'text-3xl font-bold text-yellow-600 mb-1';
-        } else {
-            pklStatusElement.textContent = 'Tidak Layak';
-            pklStatusElement.className = 'text-3xl font-bold text-red-600 mb-1';
-        }
+
+        // Update status: Belum Layak dan Menyiapkan Berkas
+        updateKelayakanPklStatus('BELUM LAYAK', false);
+        updateStatusKeaktifanPkl('Menyiapkan Berkas', 'menyiapkan_berkas');
         return;
     }
     
@@ -1849,59 +1835,31 @@ function calculateFinalIpk() {
     document.getElementById('totalE').textContent = totalE;
     document.getElementById('uploadKhs').textContent = `${khsFileCount}/5`;
     
-    // Update PKL status with new logic
+    // Update PKL status with new logic (4 tahap)
     const pklStatusElement = document.getElementById('pklStatus');
-    
+
     // Check if both Kelengkapan Transkrip and Upload Berkas KHS are complete
     const isTranscriptComplete = totalSemester >= 5;
     const isKhsComplete = khsFileCount >= 5;
-    
+
+    // Check eligibility criteria
+    const isEligibleForPkl = isTranscriptComplete && isKhsComplete && finalIpk >= 2.5 && totalSksD <= 9 && totalE == 0;
+
     console.log('PKL Status Logic Check:');
     console.log(`- totalSemester: ${totalSemester}, isTranscriptComplete: ${isTranscriptComplete}`);
     console.log(`- khsFileCount: ${khsFileCount}, isKhsComplete: ${isKhsComplete}`);
     console.log(`- finalIpk: ${finalIpk}, totalSksD: ${totalSksD}, totalE: ${totalE}`);
-    
-    if (!isTranscriptComplete || !isKhsComplete) {
-        // Belum Lengkap if either is incomplete
-        pklStatusElement.textContent = 'Belum Lengkap';
-        pklStatusElement.className = 'text-3xl font-bold text-yellow-600 mb-1';
-        console.log('Status: Belum Lengkap (incomplete data)');
-        
-        // Update Kelayakan PKL in the header section
-        updateKelayakanPklStatus('TIDAK LAYAK', false);
+    console.log(`- isEligibleForPkl: ${isEligibleForPkl}`);
+
+    // Update Kelayakan PKL status
+    if (isEligibleForPkl) {
+        updateKelayakanPklStatus('LAYAK', true);
+        // Update Status Keaktifan: Siap untuk PKL (karena baru layak, belum aktif)
+        updateStatusKeaktifanPkl('Siap untuk PKL', 'siap');
     } else {
-        // Both are complete, check eligibility criteria
-        console.log('Both transcript and KHS are complete, checking eligibility...');
-        
-        if (totalSksD > 9) {
-            pklStatusElement.textContent = 'Tidak Layak';
-            pklStatusElement.className = 'text-3xl font-bold text-red-600 mb-1';
-            console.log('Status: Tidak Layak (SKS D > 9)');
-            
-            // Update Kelayakan PKL in the header section
-            updateKelayakanPklStatus('TIDAK LAYAK', false);
-        } else if (totalE > 0) {
-            pklStatusElement.textContent = 'Tidak Layak';
-            pklStatusElement.className = 'text-3xl font-bold text-red-600 mb-1';
-            console.log('Status: Tidak Layak (has E grades)');
-            
-            // Update Kelayakan PKL in the header section
-            updateKelayakanPklStatus('TIDAK LAYAK', false);
-        } else if (finalIpk >= 2.5) {
-            pklStatusElement.textContent = 'Layak PKL';
-            pklStatusElement.className = 'text-3xl font-bold text-green-600 mb-1';
-            console.log('Status: Layak PKL (all criteria met)');
-            
-            // Update Kelayakan PKL in the header section
-            updateKelayakanPklStatus('LAYAK', true);
-        } else {
-            pklStatusElement.textContent = 'Tidak Layak';
-            pklStatusElement.className = 'text-3xl font-bold text-red-600 mb-1';
-            console.log('Status: Tidak Layak (IPK < 2.5)');
-            
-            // Update Kelayakan PKL in the header section
-            updateKelayakanPklStatus('TIDAK LAYAK', false);
-        }
+        updateKelayakanPklStatus('BELUM LAYAK', false);
+        // Update Status Keaktifan: Menyiapkan Berkas
+        updateStatusKeaktifanPkl('Menyiapkan Berkas', 'menyiapkan_berkas');
     }
     
     console.log('=== FINAL IPK CALCULATION COMPLETED ===');
@@ -1910,42 +1868,145 @@ function calculateFinalIpk() {
 // Function to update Kelayakan PKL status in the header section
 function updateKelayakanPklStatus(statusText, isEligible) {
     console.log(`Updating Kelayakan PKL to: ${statusText} (${isEligible ? 'eligible' : 'not eligible'})`);
-    
-    // Find all h4 elements and look for "Kelayakan PKL"
+
+    // Find the Kelayakan PKL section
     const allH4Elements = document.querySelectorAll('h4');
     let kelayakanSection = null;
-    
+
     allH4Elements.forEach(h4 => {
         if (h4.textContent.includes('Kelayakan PKL')) {
             kelayakanSection = h4;
-            console.log('Found Kelayakan PKL section:', h4);
         }
     });
-    
+
     if (kelayakanSection) {
-        // Update the text content
-        const statusElement = kelayakanSection.nextElementSibling;
-        if (statusElement) {
-            statusElement.textContent = statusText;
-            statusElement.className = `text-${isEligible ? 'green' : 'red'}-700 font-medium`;
-            console.log('Updated status text:', statusElement.textContent);
+        const parentDiv = kelayakanSection.closest('.bg-gradient-to-r');
+        if (!parentDiv) {
+            console.log('❌ Parent div not found');
+            return;
         }
-        
-        // Update the icon
-        const iconElement = kelayakanSection.closest('.flex')?.querySelector('i');
-        if (iconElement) {
-            iconElement.className = `fas fa-${isEligible ? 'check-circle' : 'times-circle'} text-3xl text-${isEligible ? 'green' : 'red'}-600`;
-            console.log('Updated icon:', iconElement.className);
+
+        // Update background color
+        parentDiv.className = `bg-gradient-to-r from-${isEligible ? 'green' : 'red'}-50 to-${isEligible ? 'green' : 'red'}-100 border border-${isEligible ? 'green' : 'red'}-200 rounded-lg p-6`;
+
+        // Update icon container
+        const iconContainer = parentDiv.querySelector('.flex-shrink-0');
+        if (iconContainer) {
+            if (isEligible) {
+                // Create contreng icon in circle
+                iconContainer.innerHTML = `
+                    <div class="w-16 h-16 bg-green-600 rounded-full flex items-center justify-center">
+                        <i class="fas fa-check text-3xl text-white"></i>
+                    </div>
+                `;
+            } else {
+                // Times circle icon
+                iconContainer.innerHTML = `<i class="fas fa-times-circle text-5xl text-red-600"></i>`;
+            }
         }
-        
-        // Update the header color
+
+        // Update header color
         kelayakanSection.className = `text-lg font-semibold text-${isEligible ? 'green' : 'red'}-800`;
-        console.log('Updated header color:', kelayakanSection.className);
-        
-        console.log(`✅ Updated Kelayakan PKL to: ${statusText} (${isEligible ? 'eligible' : 'not eligible'})`);
+
+        // Update status text
+        const statusElement = kelayakanSection.nextElementSibling;
+        if (statusElement && statusElement.tagName === 'P') {
+            statusElement.textContent = statusText;
+            statusElement.className = `text-2xl text-${isEligible ? 'green' : 'red'}-700 font-bold`;
+        }
+
+        // Update description
+        const descElement = statusElement?.nextElementSibling;
+        if (descElement && descElement.tagName === 'P') {
+            descElement.innerHTML = isEligible ? 'Memenuhi semua persyaratan PKL' : 'Belum memenuhi persyaratan PKL';
+            descElement.className = `text-sm text-${isEligible ? 'green' : 'red'}-600 mt-1`;
+        }
+
+        console.log(`✅ Updated Kelayakan PKL to: ${statusText}`);
     } else {
-        console.log('❌ Kelayakan PKL section not found in header');
-        console.log('Available h4 elements:', Array.from(allH4Elements).map(el => el.textContent));
+        console.log('❌ Kelayakan PKL section not found');
+    }
+}
+
+// Function to update Status Keaktifan PKL
+function updateStatusKeaktifanPkl(statusText, statusType) {
+    console.log(`Updating Status Keaktifan PKL to: ${statusText} (${statusType})`);
+
+    // Find the Status Keaktifan PKL section
+    const allH4Elements = document.querySelectorAll('h4');
+    let statusSection = null;
+
+    allH4Elements.forEach(h4 => {
+        if (h4.textContent.includes('Status Keaktifan PKL')) {
+            statusSection = h4;
+        }
+    });
+
+    if (statusSection) {
+        const parentDiv = statusSection.closest('.bg-gradient-to-r');
+        if (!parentDiv) {
+            console.log('❌ Parent div not found');
+            return;
+        }
+
+        // Determine color and icon based on status type
+        let color, icon, desc;
+        switch(statusType) {
+            case 'menyiapkan_berkas':
+                color = 'gray';
+                icon = 'file-alt';
+                desc = 'Sedang menyiapkan berkas kelayakan PKL';
+                break;
+            case 'siap':
+                color = 'yellow';
+                icon = 'clipboard-check';
+                desc = 'Memenuhi syarat kelayakan, siap memulai PKL';
+                break;
+            case 'aktif':
+                color = 'blue';
+                icon = 'play-circle';
+                desc = 'Sedang melaksanakan PKL di instansi';
+                break;
+            case 'selesai':
+                color = 'green';
+                icon = 'check-circle';
+                desc = 'Semua tahapan PKL telah selesai';
+                break;
+            default:
+                color = 'gray';
+                icon = 'file-alt';
+                desc = 'Belum memulai proses PKL';
+        }
+
+        // Update background color
+        parentDiv.className = `bg-gradient-to-r from-${color}-50 to-${color}-100 border border-${color}-200 rounded-lg p-6`;
+
+        // Update icon
+        const iconElement = parentDiv.querySelector('.flex-shrink-0 i');
+        if (iconElement) {
+            iconElement.className = `fas fa-${icon} text-5xl text-${color}-600`;
+        }
+
+        // Update header color
+        statusSection.className = `text-lg font-semibold text-${color}-800`;
+
+        // Update status text
+        const statusElement = statusSection.nextElementSibling;
+        if (statusElement && statusElement.tagName === 'P') {
+            statusElement.textContent = statusText;
+            statusElement.className = `text-2xl text-${color}-700 font-bold`;
+        }
+
+        // Update description
+        const descElement = statusElement?.nextElementSibling;
+        if (descElement && descElement.tagName === 'P') {
+            descElement.innerHTML = desc;
+            descElement.className = `text-sm text-${color}-600 mt-1`;
+        }
+
+        console.log(`✅ Updated Status Keaktifan PKL to: ${statusText}`);
+    } else {
+        console.log('❌ Status Keaktifan PKL section not found');
     }
 }
 
@@ -3030,19 +3091,19 @@ function saveDokumenPendukung() {
     const linkPkkmb = document.getElementById('link_pkkmb').value;
     const linkEnglish = document.getElementById('link_english').value;
     const linkSemasa = document.getElementById('link_semasa').value;
-    
-    // Simple validation
-    if (!linkPkkmb && !linkEnglish && !linkSemasa) {
-        alert('Minimal satu link harus diisi!');
+
+    // Validation: PKKMB dan English Course wajib diisi
+    if (!linkPkkmb || !linkEnglish) {
+        alert('Sertifikat PKKMB dan English Course wajib diisi!');
         return;
     }
-    
+
     // Show loading state
     const saveButton = document.querySelector('button[onclick="saveDokumenPendukung()"]');
     const originalText = saveButton.innerHTML;
     saveButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Menyimpan...';
     saveButton.disabled = true;
-    
+
     // Save to database
     fetch('{{ route("documents.save-gdrive-links") }}', {
         method: 'POST',
@@ -3060,6 +3121,8 @@ function saveDokumenPendukung() {
     .then(data => {
         if (data.success) {
             alert('Link dokumen pendukung berhasil disimpan!');
+            // Reload halaman untuk update status kelayakan
+            window.location.reload();
         } else {
             alert('Error: ' + data.message);
         }

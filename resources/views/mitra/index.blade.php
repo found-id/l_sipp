@@ -129,13 +129,16 @@
                             </div>
                         </div>
                     </div>
-                    
-                    <div class="mt-4 flex items-center justify-end">
-                        <div class="flex items-center text-sm text-gray-600">
-                            <i class="fas fa-users mr-1"></i>
-                            <span class="font-medium">{{ $m->mahasiswa_count }}</span>
-                            <span class="ml-1">mahasiswa</span>
-                        </div>
+                </div>
+            </div>
+
+            <!-- Jumlah Mahasiswa -->
+            <div class="mt-auto pt-4">
+                <div class="flex items-center justify-end">
+                    <div class="flex items-center text-sm text-gray-600">
+                        <i class="fas fa-users mr-1"></i>
+                        <span class="font-medium">{{ $m->mahasiswa_count }}</span>
+                        <span class="ml-1">mahasiswa</span>
                     </div>
                 </div>
             </div>
