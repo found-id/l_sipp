@@ -6,8 +6,18 @@
 <div class="space-y-6">
     <!-- Header -->
     <div class="bg-white shadow rounded-lg p-6">
-        <h1 class="text-2xl font-bold text-gray-900">Log Aktivitas</h1>
-        <p class="text-gray-600 mt-2">Riwayat aktivitas dalam sistem</p>
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-900">Log Aktivitas</h1>
+                <p class="text-gray-600 mt-2">Riwayat aktivitas dalam sistem</p>
+            </div>
+            @if(auth()->user()->role === 'admin')
+                <button onclick="confirmClearActivities()" class="inline-flex items-center px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition">
+                    <i class="fas fa-trash mr-2"></i>
+                    Bersihkan Semua Aktivitas
+                </button>
+            @endif
+        </div>
     </div>
 
     <!-- Search and Sort -->
@@ -148,11 +158,49 @@ function updateSort() {
     const sortBy = document.querySelector('select[name="sort_by"]').value;
     const sortOrder = document.querySelector('select[name="sort_order"]').value;
     const search = new URLSearchParams(window.location.search);
-    
+
     search.set('sort_by', sortBy);
     search.set('sort_order', sortOrder);
-    
+
     window.location.href = window.location.pathname + '?' + search.toString();
+}
+
+function confirmClearActivities() {
+    if (!confirm('Apakah Anda yakin ingin menghapus SEMUA log aktivitas? Tindakan ini tidak dapat dibatalkan!')) {
+        return;
+    }
+
+    // Show loading state
+    const button = event.target.closest('button');
+    const originalContent = button.innerHTML;
+    button.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Menghapus...';
+    button.disabled = true;
+
+    fetch('{{ route("activity.clear") }}', {
+        method: 'DELETE',
+        headers: {
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert(data.message);
+            window.location.reload();
+        } else {
+            alert('Gagal menghapus aktivitas: ' + data.message);
+            button.innerHTML = originalContent;
+            button.disabled = false;
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Terjadi kesalahan saat menghapus aktivitas');
+        button.innerHTML = originalContent;
+        button.disabled = false;
+    });
 }
 </script>
 @endsection

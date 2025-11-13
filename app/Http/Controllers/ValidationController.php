@@ -385,6 +385,9 @@ class ValidationController extends Controller
             'laporanPkl'
         ])->findOrFail($id);
 
+        // Load surat pengantar
+        $suratPengantar = \App\Models\SuratPengantar::where('mahasiswa_id', $id)->first();
+
         // Check authorization
         if ($user->role === 'dospem') {
             // Verify this mahasiswa is under this dospem
@@ -494,8 +497,77 @@ class ValidationController extends Controller
             'gdrive',
             'validationStatus',
             'statusPKL',
-            'jumlahDitolak'
+            'jumlahDitolak',
+            'suratPengantar'
         ));
+    }
+
+    /**
+     * Preview file mahasiswa untuk dospem
+     */
+    public function previewMahasiswaFile($mahasiswaId, $type, $filename)
+    {
+        try {
+            $user = Auth::user();
+
+            // Verify authorization
+            if ($user->role === 'dospem') {
+                $mahasiswa = User::whereHas('profilMahasiswa', function($q) use ($user) {
+                    $q->where('id_dospem', $user->id);
+                })->findOrFail($mahasiswaId);
+            } elseif ($user->role === 'admin') {
+                $mahasiswa = User::findOrFail($mahasiswaId);
+            } else {
+                abort(403);
+            }
+
+            // Validate type
+            if (!in_array($type, ['khs', 'surat-pengantar', 'surat-balasan', 'laporan'])) {
+                abort(404);
+            }
+
+            // Find the file
+            $file = null;
+            switch ($type) {
+                case 'khs':
+                    $file = $mahasiswa->khs()->where('file_path', 'LIKE', '%' . $filename)->first();
+                    break;
+                case 'surat-pengantar':
+                    $file = \App\Models\SuratPengantar::where('mahasiswa_id', $mahasiswaId)
+                        ->where('file_path', 'LIKE', '%' . $filename)
+                        ->first();
+                    break;
+                case 'surat-balasan':
+                    $file = $mahasiswa->suratBalasan()->where('file_path', 'LIKE', '%' . $filename)->first();
+                    break;
+                case 'laporan':
+                    $file = $mahasiswa->laporanPkl()->where('file_path', 'LIKE', '%' . $filename)->first();
+                    break;
+            }
+
+            if (!$file) {
+                abort(404, 'File not found');
+            }
+
+            $filePath = storage_path('app/public/' . $file->file_path);
+
+            if (!file_exists($filePath)) {
+                abort(404, 'File not found on disk');
+            }
+
+            return response()->file($filePath, [
+                'Content-Type' => 'application/pdf',
+                'Content-Disposition' => 'inline; filename="' . basename($filePath) . '"'
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Preview mahasiswa file error', [
+                'error' => $e->getMessage(),
+                'mahasiswa_id' => $mahasiswaId,
+                'type' => $type,
+                'filename' => $filename
+            ]);
+            abort(500, 'Error previewing file');
+        }
     }
 
     /**

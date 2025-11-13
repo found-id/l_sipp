@@ -60,4 +60,32 @@ class ActivityController extends Controller
         
         return view('activity.index', compact('activities'));
     }
+
+    public function clearAllActivities()
+    {
+        $user = Auth::user();
+
+        // Only admin can clear all activities
+        if ($user->role !== 'admin') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized'
+            ], 403);
+        }
+
+        try {
+            $count = HistoryAktivitas::count();
+            HistoryAktivitas::truncate();
+
+            return response()->json([
+                'success' => true,
+                'message' => "Berhasil menghapus {$count} log aktivitas"
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal menghapus aktivitas: ' . $e->getMessage()
+            ], 500);
+        }
+    }
 }

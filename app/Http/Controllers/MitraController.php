@@ -27,12 +27,11 @@ class MitraController extends Controller
         $isRankingSort = $request->query('sort') === 'ranking';
 
         if ($isRankingSort) {
-            $mitrasToRank = $query->get();
+            // Load with count before SAW calculation
+            $mitrasToRank = $query->withCount(['mahasiswaTerpilih as mahasiswa_count'])->get();
             if ($mitrasToRank->isNotEmpty()) {
                 $saw = new SawCalculationService($mitrasToRank);
-                $mitra = $saw->calculate(); // This is a sorted collection
-                // Manually load the count of students who selected this mitra
-                $mitra->loadCount('mahasiswaTerpilih as mahasiswa_count');
+                $mitra = $saw->calculate(); // This is a sorted collection with count already loaded
 
                 // Add rank number to each mitra
                 $rank = 1;

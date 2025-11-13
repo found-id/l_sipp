@@ -34,12 +34,15 @@ use App\Http\Controllers\HomeController;
         Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
         Route::get('mitra', [MitraController::class, 'index'])->name('mitra');
         Route::get('activity', [ActivityController::class, 'index'])->name('activity');
+        Route::delete('activity/clear', [ActivityController::class, 'clearAllActivities'])->middleware('role:admin')->name('activity.clear');
 
         // Document Management Routes
         Route::prefix('documents')->name('documents.')->group(function () {
             Route::get('/', [DocumentController::class, 'index'])->name('index');
             Route::post('/khs/upload', [DocumentController::class, 'uploadKhs'])->name('khs.upload');
             Route::post('/khs/upload/multiple', [DocumentController::class, 'uploadKhsMultiple'])->name('khs.upload.multiple');
+            Route::post('/surat-pengantar/upload', [DocumentController::class, 'uploadSuratPengantar'])->name('surat-pengantar.upload');
+            Route::delete('/surat-pengantar/{id}', [DocumentController::class, 'deleteSuratPengantar'])->name('surat-pengantar.delete');
             Route::post('/select-mitra', [DocumentController::class, 'selectMitra'])->name('select-mitra');
             Route::post('/surat/upload', [DocumentController::class, 'uploadSuratBalasan'])->name('surat.upload');
             Route::post('/laporan/upload', [DocumentController::class, 'uploadLaporan'])->name('laporan.upload');
@@ -140,6 +143,7 @@ Route::get('/jadwal/{filename}', function ($filename) {
         // Main validation page (mahasiswa list)
         Route::get('/validation', [\App\Http\Controllers\ValidationController::class, 'mahasiswaList'])->name('validation');
         Route::get('/mahasiswa/{id}/detail', [\App\Http\Controllers\ValidationController::class, 'mahasiswaDetail'])->name('mahasiswa.detail');
+        Route::get('/mahasiswa/{mahasiswaId}/preview/{type}/{filename}', [\App\Http\Controllers\ValidationController::class, 'previewMahasiswaFile'])->name('mahasiswa.preview');
 
         // New validation methods for 4 categories
         Route::put('/validate/{mahasiswaId}/kelayakan', [\App\Http\Controllers\ValidationController::class, 'validateKelayakan'])->name('validate.kelayakan');

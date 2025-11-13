@@ -7,11 +7,12 @@ use Illuminate\Database\Eloquent\Model;
 class HistoryAktivitas extends Model
 {
     protected $table = 'history_aktivitas';
+    protected $primaryKey = 'id_aktivitas';
     public $timestamps = false;
-    
+
     protected $fillable = [
         'id_user',
-        'id_mahasiswa', 
+        'id_mahasiswa',
         'tipe',
         'pesan',
         'tanggal_dibuat'

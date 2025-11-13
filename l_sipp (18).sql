@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Nov 06, 2025 at 10:33 PM
+-- Generation Time: Nov 13, 2025 at 11:35 PM
 -- Server version: 8.4.3
 -- PHP Version: 8.3.16
 
@@ -36,13 +36,6 @@ CREATE TABLE `assessment_responses` (
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
---
--- Dumping data for table `assessment_responses`
---
-
-INSERT INTO `assessment_responses` (`id`, `mahasiswa_user_id`, `dosen_user_id`, `is_final`, `created_at`, `updated_at`) VALUES
-(1, 6, 3, 1, '2025-10-16 15:08:22', '2025-10-16 15:09:11');
-
 -- --------------------------------------------------------
 
 --
@@ -59,18 +52,6 @@ CREATE TABLE `assessment_response_items` (
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
--- Dumping data for table `assessment_response_items`
---
-
-INSERT INTO `assessment_response_items` (`id`, `response_id`, `item_id`, `value_numeric`, `value_bool`, `value_text`, `created_at`, `updated_at`) VALUES
-(1, 1, 27, 85.00, NULL, NULL, '2025-10-16 15:09:11', '2025-10-16 15:09:11'),
-(2, 1, 28, 90.00, NULL, NULL, '2025-10-16 15:09:11', '2025-10-16 15:09:11'),
-(3, 1, 29, 88.00, NULL, NULL, '2025-10-16 15:09:11', '2025-10-16 15:09:11'),
-(4, 1, 30, 92.00, NULL, NULL, '2025-10-16 15:09:11', '2025-10-16 15:09:11'),
-(5, 1, 31, 87.00, NULL, NULL, '2025-10-16 15:09:11', '2025-10-16 15:09:11'),
-(6, 1, 32, NULL, NULL, 'Presentasi sangat baik, pemahaman materi sangat baik, hasil yang dicapai sesuai target, objektif dalam menanggapi pertanyaan, penulisan laporan sudah baik.', '2025-10-16 15:09:11', '2025-10-16 15:09:11');
 
 -- --------------------------------------------------------
 
@@ -89,12 +70,26 @@ CREATE TABLE `assessment_results` (
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- --------------------------------------------------------
+
 --
--- Dumping data for table `assessment_results`
+-- Table structure for table `dospems`
 --
 
-INSERT INTO `assessment_results` (`id`, `mahasiswa_user_id`, `total_percent`, `letter_grade`, `gpa_point`, `decided_by`, `created_at`, `updated_at`) VALUES
-(1, 6, 88.65, 'A', 4.00, 3, '2025-10-16 15:09:11', '2025-10-16 15:09:11');
+CREATE TABLE `dospems` (
+  `id` bigint UNSIGNED NOT NULL,
+  `user_id` bigint UNSIGNED NOT NULL,
+  `nip` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `dospems`
+--
+
+INSERT INTO `dospems` (`id`, `user_id`, `nip`, `created_at`, `updated_at`) VALUES
+(1, 3, '23423234244', '2025-11-07 14:00:56', '2025-11-07 14:00:56');
 
 -- --------------------------------------------------------
 
@@ -117,27 +112,12 @@ CREATE TABLE `history_aktivitas` (
 
 INSERT INTO `history_aktivitas` (`id_aktivitas`, `id_user`, `id_mahasiswa`, `tipe`, `pesan`, `tanggal_dibuat`) VALUES
 (2, 3, NULL, 'validasi_dokumen', '{\"action\": \"validasi_dokumen\", \"catatan\": null, \"mahasiswa\": \"bebeks\", \"new_status\": \"tervalidasi\", \"old_status\": \"menunggu\", \"document_type\": \"khs\"}', '2025-10-04 14:10:57'),
-(5, 17, 17, 'logout', '{\"role\": \"mahasiswa\", \"user\": \"Ayam Jago bingits\", \"action\": \"logout\"}', '2025-10-04 14:48:15'),
-(6, 17, 17, 'login', '{\"role\": \"mahasiswa\", \"user\": \"Ayam Jago bingits\", \"action\": \"login\"}', '2025-10-04 14:48:26'),
-(7, 17, 17, 'logout', '{\"role\": \"mahasiswa\", \"user\": \"Ayam Jago bingits\", \"action\": \"logout\"}', '2025-10-04 14:54:42'),
-(8, 6, 6, 'login', '{\"role\": \"mahasiswa\", \"user\": \"Mahasiswa 001\", \"action\": \"login\"}', '2025-10-04 15:05:52'),
-(9, 6, 6, 'logout', '{\"role\": \"mahasiswa\", \"user\": \"Mahasiswa 001\", \"action\": \"logout\"}', '2025-10-04 15:14:45'),
-(14, 6, 6, 'login', '{\"role\": \"mahasiswa\", \"user\": \"Mahasiswa 001\", \"action\": \"login\"}', '2025-10-04 16:05:20'),
-(15, 6, 6, 'logout', '{\"role\": \"mahasiswa\", \"user\": \"Mahasiswa 001\", \"action\": \"logout\"}', '2025-10-04 16:35:29'),
-(22, 6, 6, 'login', '{\"role\": \"mahasiswa\", \"user\": \"Mahasiswa 001\", \"action\": \"login\"}', '2025-10-04 17:01:20'),
-(23, 6, 6, 'logout', '{\"role\": \"mahasiswa\", \"user\": \"Mahasiswa 001\", \"action\": \"logout\"}', '2025-10-04 17:01:47'),
-(24, 6, 6, 'login', '{\"role\": \"mahasiswa\", \"user\": \"Mahasiswa 001\", \"action\": \"login\"}', '2025-10-04 17:01:54'),
-(25, 6, 6, 'logout', '{\"role\": \"mahasiswa\", \"user\": \"Mahasiswa 001\", \"action\": \"logout\"}', '2025-10-04 17:08:54'),
-(28, 6, 6, 'login', '{\"role\": \"mahasiswa\", \"user\": \"Mahasiswa 001\", \"action\": \"login\"}', '2025-10-04 17:13:16'),
 (29, 1, NULL, 'logout', '{\"role\": \"admin\", \"user\": \"First Atminnts\", \"action\": \"logout\"}', '2025-10-04 17:16:04'),
 (30, 3, NULL, 'login', '{\"role\": \"dospem\", \"user\": \"Dr. Ahmad Wijaya, S.T., M.T.\", \"action\": \"login\"}', '2025-10-04 17:16:18'),
-(31, 3, 6, 'validasi_dokumen', '{\"action\": \"validasi_dokumen\", \"catatan\": null, \"mahasiswa\": \"Mahasiswa 001\", \"new_status\": \"tervalidasi\", \"old_status\": \"belum_valid\", \"document_type\": \"khs\"}', '2025-10-04 17:16:34'),
-(32, 3, 6, 'validasi_dokumen', '{\"action\": \"validasi_dokumen\", \"catatan\": null, \"mahasiswa\": \"Mahasiswa 001\", \"new_status\": \"revisi\", \"old_status\": \"revisi\", \"document_type\": \"laporan_pkl\"}', '2025-10-04 17:17:10'),
-(33, 6, 6, 'logout', '{\"role\": \"mahasiswa\", \"user\": \"Mahasiswa 001\", \"action\": \"logout\"}', '2025-10-04 17:18:59'),
-(36, 6, 6, 'login', '{\"role\": \"mahasiswa\", \"user\": \"Mahasiswa 001\", \"action\": \"login\"}', '2025-10-04 17:33:35'),
+(31, 3, NULL, 'validasi_dokumen', '{\"action\": \"validasi_dokumen\", \"catatan\": null, \"mahasiswa\": \"Mahasiswa 001\", \"new_status\": \"tervalidasi\", \"old_status\": \"belum_valid\", \"document_type\": \"khs\"}', '2025-10-04 17:16:34'),
+(32, 3, NULL, 'validasi_dokumen', '{\"action\": \"validasi_dokumen\", \"catatan\": null, \"mahasiswa\": \"Mahasiswa 001\", \"new_status\": \"revisi\", \"old_status\": \"revisi\", \"document_type\": \"laporan_pkl\"}', '2025-10-04 17:17:10'),
 (37, 3, NULL, 'logout', '{\"role\": \"dospem\", \"user\": \"Dr. Ahmad Wijaya, S.T., M.T.\", \"action\": \"logout\"}', '2025-10-04 17:37:53'),
 (38, 1, NULL, 'login', '{\"role\": \"admin\", \"user\": \"First Atminnts\", \"action\": \"login\"}', '2025-10-04 17:38:10'),
-(39, 6, 6, 'logout', '{\"role\": \"mahasiswa\", \"user\": \"Mahasiswa 001\", \"action\": \"logout\"}', '2025-10-04 17:38:42'),
 (46, 1, NULL, 'logout', '{\"role\": \"admin\", \"user\": \"First Atminnts\", \"action\": \"logout\", \"message\": \"First Atminnts (Admin) melakukan logout\"}', '2025-10-04 19:02:07'),
 (47, 3, NULL, 'login', '{\"role\": \"dospem\", \"user\": \"Dr. Ahmad Wijaya, S.T., M.T.\", \"action\": \"login\", \"message\": \"Dr. Ahmad Wijaya, S.T., M.T. (Dospem) melakukan login\"}', '2025-10-04 19:02:19'),
 (48, 3, NULL, 'logout', '{\"role\": \"dospem\", \"user\": \"Dr. Ahmad Wijaya, S.T., M.T.\", \"action\": \"logout\", \"message\": \"Dr. Ahmad Wijaya, S.T., M.T. (Dospem) melakukan logout\"}', '2025-10-04 19:10:11'),
@@ -172,20 +152,9 @@ INSERT INTO `history_aktivitas` (`id_aktivitas`, `id_user`, `id_mahasiswa`, `tip
 (86, 3, NULL, 'login', '{\"role\": \"dospem\", \"user\": \"Dr. Ahmad Wijaya, S.T., M.T.\", \"action\": \"login\", \"message\": \"Dr. Ahmad Wijaya, S.T., M.T. (Dospem) melakukan login\"}', '2025-10-05 15:39:10'),
 (88, 1, NULL, 'login', '{\"role\": \"admin\", \"user\": \"First Atminnts\", \"action\": \"login\", \"message\": \"First Atminnts (Admin) melakukan login\"}', '2025-10-05 16:24:16'),
 (89, 3, NULL, 'logout', '{\"role\": \"dospem\", \"user\": \"Dr. Ahmad Wijaya, S.T., M.T.\", \"action\": \"logout\", \"message\": \"Dr. Ahmad Wijaya, S.T., M.T. (Dospem) melakukan logout\"}', '2025-10-05 17:30:22'),
-(90, 6, 6, 'login', '{\"role\": \"mahasiswa\", \"user\": \"Mahasiswa 001\", \"action\": \"login\", \"message\": \"Mahasiswa 001 (Mahasiswa) melakukan login\"}', '2025-10-05 17:30:36'),
-(91, 6, 6, 'upload_dokumen', '{\"action\": \"upload_dokumen\", \"file_name\": \"Surat_Balasan_Mahasiswa_001_TI23001_1759687484.pdf\", \"mahasiswa\": \"Mahasiswa 001\", \"document_type\": \"Surat Balasan\"}', '2025-10-05 18:04:44'),
-(92, 6, 6, 'upload_dokumen', '{\"action\": \"upload_dokumen\", \"file_name\": \"Surat_Balasan_Mahasiswa_001_TI23001_1759687511.pdf\", \"mahasiswa\": \"Mahasiswa 001\", \"document_type\": \"Surat Balasan\"}', '2025-10-05 18:05:11'),
-(93, 6, 6, 'logout', '{\"role\": \"mahasiswa\", \"user\": \"Mahasiswa 001\", \"action\": \"logout\", \"message\": \"Mahasiswa 001 (Mahasiswa) melakukan logout\"}', '2025-10-05 18:06:39'),
-(94, 6, 6, 'login', '{\"role\": \"mahasiswa\", \"user\": \"Mahasiswa 001\", \"action\": \"login\", \"message\": \"Mahasiswa 001 (Mahasiswa) melakukan login\"}', '2025-10-05 18:09:18'),
-(95, 6, 6, 'upload_dokumen', '{\"action\": \"upload_dokumen\", \"file_name\": \"KHS_Mahasiswa_001_TI23001_1759688154.pdf\", \"mahasiswa\": \"Mahasiswa 001\", \"document_type\": \"KHS\"}', '2025-10-05 18:15:54'),
-(96, 6, 6, 'logout', '{\"role\": \"mahasiswa\", \"user\": \"Mahasiswa 001\", \"action\": \"logout\", \"message\": \"Mahasiswa 001 (Mahasiswa) melakukan logout\"}', '2025-10-05 18:31:20'),
 (99, 1, NULL, 'logout', '{\"role\": \"admin\", \"user\": \"First Atminnts\", \"action\": \"logout\", \"message\": \"First Atminnts (Admin) melakukan logout\"}', '2025-10-05 18:54:56'),
 (100, 1, NULL, 'login', '{\"action\":\"login\",\"user\":\"First Atminnts\",\"role\":\"admin\",\"message\":\"First Atminnts (Admin) melakukan login\"}', '2025-10-06 09:33:31'),
 (101, 1, NULL, 'logout', '{\"action\":\"logout\",\"user\":\"First Atminnts\",\"role\":\"admin\",\"message\":\"First Atminnts (Admin) melakukan logout\"}', '2025-10-06 10:49:40'),
-(102, 6, 6, 'login', '{\"action\":\"login\",\"user\":\"Mahasiswa 001\",\"role\":\"mahasiswa\",\"message\":\"Mahasiswa 001 (Mahasiswa) melakukan login\"}', '2025-10-06 10:49:55'),
-(103, 6, 6, 'logout', '{\"action\":\"logout\",\"user\":\"Mahasiswa 001\",\"role\":\"mahasiswa\",\"message\":\"Mahasiswa 001 (Mahasiswa) melakukan logout\"}', '2025-10-06 10:54:09'),
-(104, 6, 6, 'login', '{\"action\":\"login\",\"user\":\"Mahasiswa 001\",\"role\":\"mahasiswa\",\"message\":\"Mahasiswa 001 (Mahasiswa) melakukan login\"}', '2025-10-06 10:56:46'),
-(105, 6, 6, 'logout', '{\"action\":\"logout\",\"user\":\"Mahasiswa 001\",\"role\":\"mahasiswa\",\"message\":\"Mahasiswa 001 (Mahasiswa) melakukan logout\"}', '2025-10-06 10:57:06'),
 (106, 1, NULL, 'login', '{\"action\":\"login\",\"user\":\"First Atminnts\",\"role\":\"admin\",\"message\":\"First Atminnts (Admin) melakukan login\"}', '2025-10-06 10:59:55'),
 (107, 1, NULL, 'login', '{\"action\":\"login\",\"user\":\"First Atminnts\",\"role\":\"admin\",\"message\":\"First Atminnts (Admin) melakukan login\"}', '2025-10-07 00:32:16'),
 (108, 1, NULL, 'logout', '{\"action\":\"logout\",\"user\":\"First Atminnts\",\"role\":\"admin\",\"message\":\"First Atminnts (Admin) melakukan logout\"}', '2025-10-07 00:46:54'),
@@ -255,9 +224,7 @@ INSERT INTO `history_aktivitas` (`id_aktivitas`, `id_user`, `id_mahasiswa`, `tip
 (217, 3, NULL, 'logout', '{\"action\":\"logout\",\"user\":\"Dr. Ahmad Wijaya, S.T., M.T.\",\"role\":\"dospem\",\"message\":\"Dr. Ahmad Wijaya, S.T., M.T. (Dospem) melakukan logout\"}', '2025-10-16 07:19:21'),
 (219, 3, NULL, 'login', '{\"action\":\"login\",\"user\":\"Dr. Ahmad Wijaya, S.T., M.T.\",\"role\":\"dospem\",\"message\":\"Dr. Ahmad Wijaya, S.T., M.T. (Dospem) melakukan login\"}', '2025-10-16 14:19:38'),
 (220, 1, NULL, 'login', '{\"action\":\"login\",\"user\":\"First Atminnts\",\"role\":\"admin\",\"message\":\"First Atminnts (Admin) melakukan login\"}', '2025-10-16 14:28:21'),
-(222, 6, 6, 'login', '{\"action\":\"login\",\"user\":\"Mahasiswa 001\",\"role\":\"mahasiswa\",\"message\":\"Mahasiswa 001 (Mahasiswa) melakukan login\"}', '2025-10-16 14:42:08'),
 (223, 3, NULL, 'login', '{\"action\":\"login\",\"user\":\"Dr. Ahmad Wijaya, S.T., M.T.\",\"role\":\"dospem\",\"message\":\"Dr. Ahmad Wijaya, S.T., M.T. (Dospem) melakukan login\"}', '2025-10-16 15:05:19'),
-(224, 6, 6, 'logout', '{\"action\":\"logout\",\"user\":\"Mahasiswa 001\",\"role\":\"mahasiswa\",\"message\":\"Mahasiswa 001 (Mahasiswa) melakukan logout\"}', '2025-10-16 15:11:14'),
 (251, 1, NULL, 'login', '{\"action\":\"login\",\"user\":\"First Atminnts\",\"role\":\"admin\",\"message\":\"First Atminnts (Admin) melakukan login\"}', '2025-10-17 12:57:50'),
 (252, 1, NULL, 'login', '{\"action\":\"login\",\"user\":\"First Atminnts\",\"role\":\"admin\",\"message\":\"First Atminnts (Admin) melakukan login\"}', '2025-10-18 11:44:19'),
 (255, 1, NULL, 'login', '{\"action\":\"login\",\"user\":\"First Atminnts\",\"role\":\"admin\",\"message\":\"First Atminnts (Admin) melakukan login\"}', '2025-10-21 08:57:17'),
@@ -272,78 +239,100 @@ INSERT INTO `history_aktivitas` (`id_aktivitas`, `id_user`, `id_mahasiswa`, `tip
 (277, 1, NULL, 'login', '{\"action\":\"login\",\"user\":\"First Atminnts\",\"role\":\"admin\",\"message\":\"First Atminnts (Admin) melakukan login\"}', '2025-10-21 13:40:01'),
 (284, 1, NULL, 'logout', '{\"action\":\"logout\",\"user\":\"First Atminnts\",\"role\":\"admin\",\"message\":\"First Atminnts (Admin) melakukan logout\"}', '2025-10-21 13:53:04'),
 (285, 1, NULL, 'login', '{\"action\":\"login\",\"user\":\"First Atminnts\",\"role\":\"admin\",\"message\":\"First Atminnts (Admin) melakukan login\"}', '2025-10-21 13:54:23'),
-(300, 56, 56, 'register', '{\"action\":\"register\",\"user\":\"2401301056 MUHAMMAD SODIQ\",\"role\":\"mahasiswa\",\"message\":\"2401301056 MUHAMMAD SODIQ telah melakukan registrasi via Google sebagai Mahasiswa\"}', '2025-10-21 14:13:48'),
-(301, 56, 56, 'logout', '{\"action\":\"logout\",\"user\":\"2401301056 MUHAMMAD SODIQ\",\"role\":\"mahasiswa\",\"message\":\"2401301056 MUHAMMAD SODIQ (Mahasiswa) melakukan logout\"}', '2025-10-21 14:15:13'),
-(302, 17, 17, 'login', '{\"action\":\"login\",\"user\":\"Ayam Jago bingits\",\"role\":\"mahasiswa\",\"message\":\"Ayam Jago bingits (Mahasiswa) melakukan login\"}', '2025-10-21 14:17:01'),
-(303, 17, 17, 'logout', '{\"action\":\"logout\",\"user\":\"Ayam Jago bingits\",\"role\":\"mahasiswa\",\"message\":\"Ayam Jago bingits (Mahasiswa) melakukan logout\"}', '2025-10-21 14:17:09'),
-(304, 56, 56, 'login', '{\"action\":\"login\",\"user\":\"2401301056 MUHAMMAD SODIQ\",\"role\":\"mahasiswa\",\"message\":\"2401301056 MUHAMMAD SODIQ (Mahasiswa) melakukan login via Google\"}', '2025-10-21 14:34:36'),
-(305, 56, 56, 'logout', '{\"action\":\"logout\",\"user\":\"2401301056 MUHAMMAD SODIQ\",\"role\":\"mahasiswa\",\"message\":\"2401301056 MUHAMMAD SODIQ (Mahasiswa) melakukan logout\"}', '2025-10-21 14:34:44'),
-(308, 56, 56, 'login', '{\"action\":\"login\",\"user\":\"2401301056 MUHAMMAD SODIQ\",\"role\":\"mahasiswa\",\"message\":\"2401301056 MUHAMMAD SODIQ (Mahasiswa) melakukan login via Google\"}', '2025-10-21 14:37:54'),
-(309, 56, 56, 'logout', '{\"action\":\"logout\",\"user\":\"2401301056 MUHAMMAD SODIQ\",\"role\":\"mahasiswa\",\"message\":\"2401301056 MUHAMMAD SODIQ (Mahasiswa) melakukan logout\"}', '2025-10-21 14:39:05'),
 (352, 1, NULL, 'login', '{\"action\":\"login\",\"user\":\"First Atminnts\",\"role\":\"admin\",\"message\":\"First Atminnts (Admin) melakukan login\"}', '2025-10-21 16:39:21'),
 (353, 1, NULL, 'logout', '{\"action\":\"logout\",\"user\":\"First Atminnts\",\"role\":\"admin\",\"message\":\"First Atminnts (Admin) melakukan logout\"}', '2025-10-21 16:39:41'),
 (354, 1, NULL, 'login', '{\"action\":\"login\",\"user\":\"First Atminnts\",\"role\":\"admin\",\"message\":\"First Atminnts (Admin) melakukan login\"}', '2025-10-21 16:42:18'),
 (355, 1, NULL, 'logout', '{\"action\":\"logout\",\"user\":\"First Atminnts\",\"role\":\"admin\",\"message\":\"First Atminnts (Admin) melakukan logout\"}', '2025-10-21 17:08:00'),
-(356, 17, 17, 'login', '{\"action\":\"login\",\"user\":\"Ayam Jago bingits\",\"role\":\"mahasiswa\",\"message\":\"Ayam Jago bingits (Mahasiswa) melakukan login\"}', '2025-10-21 17:08:10'),
-(357, 17, 17, 'login', '{\"action\":\"login\",\"user\":\"Ayam Jago bingits\",\"role\":\"mahasiswa\",\"message\":\"Ayam Jago bingits (Mahasiswa) melakukan login\"}', '2025-10-21 18:09:51'),
 (358, 1, NULL, 'login', '{\"action\":\"login\",\"user\":\"First Atminnts\",\"role\":\"admin\",\"message\":\"First Atminnts (Admin) melakukan login\"}', '2025-10-22 03:03:42'),
 (359, 1, NULL, 'login', '{\"action\":\"login\",\"user\":\"First Atminnts\",\"role\":\"admin\",\"message\":\"First Atminnts (Admin) melakukan login\"}', '2025-10-22 03:08:43'),
 (360, 1, NULL, 'logout', '{\"action\":\"logout\",\"user\":\"First Atminnts\",\"role\":\"admin\",\"message\":\"First Atminnts (Admin) melakukan logout\"}', '2025-10-22 03:25:03'),
-(361, 17, 17, 'login', '{\"action\":\"login\",\"user\":\"Ayam Jago bingits\",\"role\":\"mahasiswa\",\"message\":\"Ayam Jago bingits (Mahasiswa) melakukan login\"}', '2025-10-22 03:25:38'),
-(362, 17, 17, 'logout', '{\"action\":\"logout\",\"user\":\"Ayam Jago bingits\",\"role\":\"mahasiswa\",\"message\":\"Ayam Jago bingits (Mahasiswa) melakukan logout\"}', '2025-10-22 03:38:19'),
 (363, 1, NULL, 'logout', '{\"action\":\"logout\",\"user\":\"First Atminnts\",\"role\":\"admin\",\"message\":\"First Atminnts (Admin) melakukan logout\"}', '2025-10-22 03:38:30'),
 (364, 1, NULL, 'login', '{\"action\":\"login\",\"user\":\"First Atminnts\",\"role\":\"admin\",\"message\":\"First Atminnts (Admin) melakukan login\"}', '2025-10-22 03:38:38'),
-(365, 17, 17, 'login', '{\"action\":\"login\",\"user\":\"Ayam Jago bingits\",\"role\":\"mahasiswa\",\"message\":\"Ayam Jago bingits (Mahasiswa) melakukan login\"}', '2025-10-22 03:38:49'),
-(366, 17, 17, 'login', '{\"action\":\"login\",\"user\":\"Ayam Jago bingits\",\"role\":\"mahasiswa\",\"message\":\"Ayam Jago bingits (Mahasiswa) melakukan login\"}', '2025-10-22 03:55:02'),
-(367, 17, 17, 'login', '{\"action\":\"login\",\"user\":\"Ayam Jago bingits\",\"role\":\"mahasiswa\",\"message\":\"Ayam Jago bingits (Mahasiswa) melakukan login\"}', '2025-10-22 03:59:30'),
 (368, 1, NULL, 'logout', '{\"action\":\"logout\",\"user\":\"First Atminnts\",\"role\":\"admin\",\"message\":\"First Atminnts (Admin) melakukan logout\"}', '2025-10-22 05:09:28'),
 (369, 1, NULL, 'login', '{\"action\":\"login\",\"user\":\"First Atminnts\",\"role\":\"admin\",\"message\":\"First Atminnts (Admin) melakukan login\"}', '2025-10-22 05:10:53'),
 (370, 1, NULL, 'logout', '{\"action\":\"logout\",\"user\":\"First Atminnts\",\"role\":\"admin\",\"message\":\"First Atminnts (Admin) melakukan logout\"}', '2025-10-22 05:11:20'),
-(371, 56, 56, 'login', '{\"action\":\"login\",\"user\":\"2401301056 MUHAMMAD SODIQ\",\"role\":\"mahasiswa\",\"message\":\"2401301056 MUHAMMAD SODIQ (Mahasiswa) melakukan login via Google\"}', '2025-10-22 05:45:23'),
-(372, 56, 56, 'logout', '{\"action\":\"logout\",\"user\":\"2401301056 MUHAMMAD SODIQ\",\"role\":\"mahasiswa\",\"message\":\"2401301056 MUHAMMAD SODIQ (Mahasiswa) melakukan logout\"}', '2025-10-22 05:46:33'),
 (373, 1, NULL, 'login', '{\"action\":\"login\",\"user\":\"First Atminnts\",\"role\":\"admin\",\"message\":\"First Atminnts (Admin) melakukan login\"}', '2025-10-22 05:46:42'),
 (374, 1, NULL, 'logout', '{\"action\":\"logout\",\"user\":\"First Atminnts\",\"role\":\"admin\",\"message\":\"First Atminnts (Admin) melakukan logout\"}', '2025-10-22 05:53:37'),
-(375, 56, 56, 'login', '{\"action\":\"login\",\"user\":\"2401301056 MUHAMMAD SODIQ\",\"role\":\"mahasiswa\",\"message\":\"2401301056 MUHAMMAD SODIQ (Mahasiswa) melakukan login via Google\"}', '2025-10-22 05:55:00'),
-(376, 56, 56, 'logout', '{\"action\":\"logout\",\"user\":\"2401301056 MUHAMMAD SODIQ\",\"role\":\"mahasiswa\",\"message\":\"2401301056 MUHAMMAD SODIQ (Mahasiswa) melakukan logout\"}', '2025-10-22 05:55:22'),
-(377, 56, 56, 'login', '{\"action\":\"login\",\"user\":\"2401301056 MUHAMMAD SODIQ\",\"role\":\"mahasiswa\",\"message\":\"2401301056 MUHAMMAD SODIQ (Mahasiswa) melakukan login via Google\"}', '2025-10-22 05:55:46'),
-(378, 56, 56, 'logout', '{\"action\":\"logout\",\"user\":\"2401301056 MUHAMMAD SODIQ\",\"role\":\"mahasiswa\",\"message\":\"2401301056 MUHAMMAD SODIQ (Mahasiswa) melakukan logout\"}', '2025-10-22 06:00:58'),
 (379, 1, NULL, 'login', '{\"action\":\"login\",\"user\":\"First Atminnts\",\"role\":\"admin\",\"message\":\"First Atminnts (Admin) melakukan login\"}', '2025-10-22 06:01:25'),
-(380, 59, 59, 'register', '{\"action\":\"register\",\"user\":\"MUHAMMAD SHODIQ\",\"role\":\"mahasiswa\",\"message\":\"MUHAMMAD SHODIQ telah melakukan registrasi via Google sebagai Mahasiswa\"}', '2025-10-22 11:16:06'),
 (381, 1, NULL, 'login', '{\"action\":\"login\",\"user\":\"First Atminnts\",\"role\":\"admin\",\"message\":\"First Atminnts (Admin) melakukan login\"}', '2025-10-22 11:28:18'),
-(382, 59, 59, 'logout', '{\"action\":\"logout\",\"user\":\"MUHAMMAD SHODIQ\",\"role\":\"mahasiswa\",\"message\":\"MUHAMMAD SHODIQ (Mahasiswa) melakukan logout\"}', '2025-10-22 11:39:39'),
 (383, 1, NULL, 'login', '{\"action\":\"login\",\"user\":\"First Atminnts\",\"role\":\"admin\",\"message\":\"First Atminnts (Admin) melakukan login\"}', '2025-10-22 11:39:47'),
 (384, 1, NULL, 'login', '{\"action\":\"login\",\"user\":\"First Atminnts\",\"role\":\"admin\",\"message\":\"First Atminnts (Admin) melakukan login\"}', '2025-10-22 12:42:31'),
 (385, 1, NULL, 'logout', '{\"action\":\"logout\",\"user\":\"First Atminnts\",\"role\":\"admin\",\"message\":\"First Atminnts (Admin) melakukan logout\"}', '2025-10-22 12:43:38'),
-(386, 17, 17, 'login', '{\"action\":\"login\",\"user\":\"Testing Mahasiswa\",\"role\":\"mahasiswa\",\"message\":\"Testing Mahasiswa (Mahasiswa) melakukan login\"}', '2025-10-22 12:43:49'),
-(387, 17, 17, 'logout', '{\"action\":\"logout\",\"user\":\"Testing Mahasiswa\",\"role\":\"mahasiswa\",\"message\":\"Testing Mahasiswa (Mahasiswa) melakukan logout\"}', '2025-10-22 12:49:44'),
 (388, 3, NULL, 'login', '{\"action\":\"login\",\"user\":\"Dr. Ahmad Wijaya, S.T., M.T.\",\"role\":\"dospem\",\"message\":\"Dr. Ahmad Wijaya, S.T., M.T. (Dospem) melakukan login\"}', '2025-10-22 12:49:55'),
 (389, 1, NULL, 'login', '{\"action\":\"login\",\"user\":\"First Atminnts\",\"role\":\"admin\",\"message\":\"First Atminnts (Admin) melakukan login\"}', '2025-10-23 00:53:27'),
-(390, 17, 17, 'login', '{\"action\":\"login\",\"user\":\"Testing Mahasiswa\",\"role\":\"mahasiswa\",\"message\":\"Testing Mahasiswa (Mahasiswa) melakukan login\"}', '2025-11-06 10:05:32'),
 (391, 1, NULL, 'login', '{\"action\":\"login\",\"user\":\"First Atminnts\",\"role\":\"admin\",\"message\":\"First Atminnts (Admin) melakukan login\"}', '2025-11-06 10:21:55'),
 (392, 1, NULL, 'logout', '{\"action\":\"logout\",\"user\":\"First Atminnts\",\"role\":\"admin\",\"message\":\"First Atminnts (Admin) melakukan logout\"}', '2025-11-06 11:26:25'),
 (393, 3, NULL, 'login', '{\"action\":\"login\",\"user\":\"Dr. Ahmad Wijaya, S.T., M.T.\",\"role\":\"dospem\",\"message\":\"Dr. Ahmad Wijaya, S.T., M.T. (Dospem) melakukan login\"}', '2025-11-06 11:26:33'),
-(394, 17, 17, 'logout', '{\"action\":\"logout\",\"user\":\"Testing Mahasiswa\",\"role\":\"mahasiswa\",\"message\":\"Testing Mahasiswa (Mahasiswa) melakukan logout\"}', '2025-11-06 11:34:19'),
 (395, 3, NULL, 'logout', '{\"action\":\"logout\",\"user\":\"Dr. Ahmad Wijaya, S.T., M.T.\",\"role\":\"dospem\",\"message\":\"Dr. Ahmad Wijaya, S.T., M.T. (Dospem) melakukan logout\"}', '2025-11-06 11:41:31'),
 (396, 3, NULL, 'login', '{\"action\":\"login\",\"user\":\"Dr. Ahmad Wijaya, S.T., M.T.\",\"role\":\"dospem\",\"message\":\"Dr. Ahmad Wijaya, S.T., M.T. (Dospem) melakukan login\"}', '2025-11-06 11:41:42'),
 (397, 3, NULL, 'logout', '{\"action\":\"logout\",\"user\":\"Dr. Ahmad Wijaya, S.T., M.T.\",\"role\":\"dospem\",\"message\":\"Dr. Ahmad Wijaya, S.T., M.T. (Dospem) melakukan logout\"}', '2025-11-06 11:41:50'),
 (398, 1, NULL, 'login', '{\"action\":\"login\",\"user\":\"First Atminnts\",\"role\":\"admin\",\"message\":\"First Atminnts (Admin) melakukan login\"}', '2025-11-06 11:42:03'),
-(399, 72, 72, 'register', '{\"action\":\"register\",\"user\":\"Shodiq Found\",\"role\":\"mahasiswa\",\"message\":\"Shodiq Found telah melakukan registrasi via Google sebagai Mahasiswa\"}', '2025-11-06 11:49:50'),
 (400, 1, NULL, 'logout', '{\"action\":\"logout\",\"user\":\"First Atminnts\",\"role\":\"admin\",\"message\":\"First Atminnts (Admin) melakukan logout\"}', '2025-11-06 11:52:51'),
 (401, 3, NULL, 'login', '{\"action\":\"login\",\"user\":\"Dr. Ahmad Wijaya, S.T., M.T.\",\"role\":\"dospem\",\"message\":\"Dr. Ahmad Wijaya, S.T., M.T. (Dospem) melakukan login\"}', '2025-11-06 11:53:04'),
-(402, 72, 72, 'save_transcript_data', '{\"action\":\"save_transcript_data\",\"semester\":1,\"mahasiswa\":\"Huamusika\",\"transcript_data_length\":536}', '2025-11-06 11:55:50'),
-(403, 72, 72, 'upload_dokumen', '{\"action\":\"upload_dokumen\",\"document_type\":\"KHS\",\"semester\":\"1\",\"mahasiswa\":\"Huamusika\",\"file_name\":\"S1_KHS_Huamusika_455_1762430170_0.pdf\",\"upload_type\":\"multiple\"}', '2025-11-06 11:56:10'),
-(404, 72, 72, 'save_transcript_data', '{\"action\":\"save_transcript_data\",\"semester\":\"2\",\"mahasiswa\":\"Huamusika\",\"transcript_data_length\":547}', '2025-11-06 11:56:21'),
-(405, 72, 72, 'save_transcript_data', '{\"action\":\"save_transcript_data\",\"semester\":2,\"mahasiswa\":\"Huamusika\",\"transcript_data_length\":536}', '2025-11-06 11:56:21'),
-(406, 72, 72, 'save_transcript_data', '{\"action\":\"save_transcript_data\",\"semester\":3,\"mahasiswa\":\"Huamusika\",\"transcript_data_length\":536}', '2025-11-06 11:56:31'),
-(407, 72, 72, 'save_transcript_data', '{\"action\":\"save_transcript_data\",\"semester\":4,\"mahasiswa\":\"Huamusika\",\"transcript_data_length\":536}', '2025-11-06 11:56:33'),
-(408, 72, 72, 'save_transcript_data', '{\"action\":\"save_transcript_data\",\"semester\":5,\"mahasiswa\":\"Huamusika\",\"transcript_data_length\":536}', '2025-11-06 11:56:35'),
-(409, 72, 72, 'upload_dokumen', '{\"action\":\"upload_dokumen\",\"document_type\":\"KHS\",\"semester\":\"2\",\"mahasiswa\":\"Huamusika\",\"file_name\":\"S2_KHS_Huamusika_455_1762430204_0.pdf\",\"upload_type\":\"multiple\"}', '2025-11-06 11:56:44'),
-(410, 72, 72, 'save_gdrive_links', '{\"action\":\"save_gdrive_links\",\"mahasiswa\":\"Huamusika\",\"links_saved\":{\"pkkmb\":true,\"ecourse\":true,\"more\":true}}', '2025-11-06 11:57:14'),
-(411, 72, 72, 'upload_dokumen', '{\"action\":\"upload_dokumen\",\"document_type\":\"Surat Balasan\",\"mahasiswa\":\"Huamusika\",\"file_name\":\"Surat_Balasan_Huamusika_455_1762430257.pdf\"}', '2025-11-06 11:57:37'),
-(412, 72, 72, 'upload_dokumen', '{\"action\":\"upload_dokumen\",\"document_type\":\"Laporan PKL\",\"mahasiswa\":\"Huamusika\",\"file_name\":\"Laporan_PKL_Huamusika_455_1762430269.pdf\"}', '2025-11-06 11:57:49'),
-(413, 3, 72, 'validasi_dokumen', '{\"action\":\"validasi_dokumen\",\"document_type\":\"pemberkasan_kelayakan\",\"mahasiswa\":\"Huamusika\",\"old_status\":\"menunggu\",\"new_status\":\"tervalidasi\",\"catatan\":\"Mantap\"}', '2025-11-06 12:20:40'),
-(414, 72, 72, 'login', '{\"action\":\"login\",\"user\":\"Huamusika\",\"role\":\"mahasiswa\",\"message\":\"Huamusika (Mahasiswa) melakukan login via Google\"}', '2025-11-06 14:16:02'),
-(415, 72, 72, 'save_transcript_data', '{\"action\":\"save_transcript_data\",\"semester\":1,\"mahasiswa\":\"Huamusika\",\"transcript_data_length\":535}', '2025-11-06 14:17:15');
+(413, 3, NULL, 'validasi_dokumen', '{\"action\":\"validasi_dokumen\",\"document_type\":\"pemberkasan_kelayakan\",\"mahasiswa\":\"Huamusika\",\"old_status\":\"menunggu\",\"new_status\":\"tervalidasi\",\"catatan\":\"Mantap\"}', '2025-11-06 12:20:40'),
+(417, 3, NULL, 'login', '{\"action\":\"login\",\"user\":\"Dr. Ahmad Wijaya, S.T., M.T.\",\"role\":\"dospem\",\"message\":\"Dr. Ahmad Wijaya, S.T., M.T. (Dospem) melakukan login\"}', '2025-11-06 15:40:56'),
+(418, 3, NULL, 'validasi_dokumen', '{\"action\":\"validasi_dokumen\",\"document_type\":\"pemberkasan_instansi_mitra\",\"mahasiswa\":\"Huamusika\",\"old_status\":\"menunggu\",\"new_status\":\"revisi\",\"catatan\":null}', '2025-11-06 15:41:49'),
+(420, 3, NULL, 'login', '{\"action\":\"login\",\"user\":\"Dr. Ahmad Wijaya, S.T., M.T.\",\"role\":\"dospem\",\"message\":\"Dr. Ahmad Wijaya, S.T., M.T. (Dospem) melakukan login\"}', '2025-11-07 04:58:00'),
+(429, 74, 74, 'register', '{\"action\":\"register\",\"user\":\"Muhammad Fariz\",\"role\":\"mahasiswa\",\"message\":\"Muhammad Fariz telah melakukan registrasi sebagai Mahasiswa\"}', '2025-11-07 05:51:48'),
+(430, 74, 74, 'logout', '{\"action\":\"logout\",\"user\":\"Muhammad Fariz\",\"role\":\"mahasiswa\",\"message\":\"Muhammad Fariz (Mahasiswa) melakukan logout\"}', '2025-11-07 05:52:04'),
+(431, 3, NULL, 'login', '{\"action\":\"login\",\"user\":\"Dr. Ahmad Wijaya, S.T., M.T.\",\"role\":\"dospem\",\"message\":\"Dr. Ahmad Wijaya, S.T., M.T. (Dospem) melakukan login\"}', '2025-11-07 05:52:18'),
+(433, 3, NULL, 'login', '{\"action\":\"login\",\"user\":\"Dr. Ahmad Wijaya, S.T., M.T.\",\"role\":\"dospem\",\"message\":\"Dr. Ahmad Wijaya, S.T., M.T. (Dospem) melakukan login\"}', '2025-11-07 12:01:04'),
+(434, 1, NULL, 'login', '{\"action\":\"login\",\"user\":\"First Atminnts\",\"role\":\"admin\",\"message\":\"First Atminnts (Admin) melakukan login\"}', '2025-11-07 13:10:55'),
+(443, 3, NULL, 'logout', '{\"action\":\"logout\",\"user\":\"Dr. Ahmad Wijaya, S.T., M.T.\",\"role\":\"dospem\",\"message\":\"Dr. Ahmad Wijaya, S.T., M.T. (Dospem) melakukan logout\"}', '2025-11-07 14:21:33'),
+(450, 3, NULL, 'login', '{\"action\":\"login\",\"user\":\"Dr. Ahmad Wijaya, S.T., M.T.\",\"role\":\"dospem\",\"message\":\"Dr. Ahmad Wijaya, S.T., M.T. (Dospem) melakukan login\"}', '2025-11-07 15:09:44'),
+(452, 81, 81, 'register', '{\"action\":\"register\",\"user\":\"2401301056 MUHAMMAD SODIQ\",\"role\":\"mahasiswa\",\"message\":\"2401301056 MUHAMMAD SODIQ telah melakukan registrasi via Google sebagai Mahasiswa\"}', '2025-11-07 15:39:02'),
+(453, 81, 81, 'upload_dokumen', '{\"action\":\"upload_dokumen\",\"document_type\":\"KHS\",\"semester\":\"1\",\"mahasiswa\":\"Muhammad Sodiq\",\"file_name\":\"S1_KHS_Muhammad_Sodiq_2401301056_1762530026_0.pdf\",\"upload_type\":\"multiple\"}', '2025-11-07 15:40:26'),
+(454, 81, 81, 'upload_dokumen', '{\"action\":\"upload_dokumen\",\"document_type\":\"KHS\",\"semester\":\"2\",\"mahasiswa\":\"Muhammad Sodiq\",\"file_name\":\"S2_KHS_Muhammad_Sodiq_2401301056_1762530026_1.pdf\",\"upload_type\":\"multiple\"}', '2025-11-07 15:40:26'),
+(455, 81, 81, 'upload_dokumen', '{\"action\":\"upload_dokumen\",\"document_type\":\"KHS\",\"semester\":\"3\",\"mahasiswa\":\"Muhammad Sodiq\",\"file_name\":\"S3_KHS_Muhammad_Sodiq_2401301056_1762530026_2.pdf\",\"upload_type\":\"multiple\"}', '2025-11-07 15:40:26'),
+(456, 81, 81, 'upload_dokumen', '{\"action\":\"upload_dokumen\",\"document_type\":\"KHS\",\"semester\":\"4\",\"mahasiswa\":\"Muhammad Sodiq\",\"file_name\":\"S4_KHS_Muhammad_Sodiq_2401301056_1762530026_3.pdf\",\"upload_type\":\"multiple\"}', '2025-11-07 15:40:26'),
+(457, 81, 81, 'upload_dokumen', '{\"action\":\"upload_dokumen\",\"document_type\":\"KHS\",\"semester\":\"5\",\"mahasiswa\":\"Muhammad Sodiq\",\"file_name\":\"S5_KHS_Muhammad_Sodiq_2401301056_1762530026_4.pdf\",\"upload_type\":\"multiple\"}', '2025-11-07 15:40:26'),
+(458, 81, 81, 'save_transcript_data', '{\"action\":\"save_transcript_data\",\"semester\":1,\"mahasiswa\":\"Muhammad Sodiq\",\"transcript_data_length\":536}', '2025-11-07 15:42:01'),
+(459, 81, 81, 'save_transcript_data', '{\"action\":\"save_transcript_data\",\"semester\":2,\"mahasiswa\":\"Muhammad Sodiq\",\"transcript_data_length\":536}', '2025-11-07 15:42:07'),
+(460, 81, 81, 'save_transcript_data', '{\"action\":\"save_transcript_data\",\"semester\":2,\"mahasiswa\":\"Muhammad Sodiq\",\"transcript_data_length\":535}', '2025-11-07 15:42:09'),
+(461, 81, 81, 'save_transcript_data', '{\"action\":\"save_transcript_data\",\"semester\":3,\"mahasiswa\":\"Muhammad Sodiq\",\"transcript_data_length\":536}', '2025-11-07 15:42:11'),
+(462, 81, 81, 'save_transcript_data', '{\"action\":\"save_transcript_data\",\"semester\":3,\"mahasiswa\":\"Muhammad Sodiq\",\"transcript_data_length\":536}', '2025-11-07 15:42:14'),
+(463, 81, 81, 'save_transcript_data', '{\"action\":\"save_transcript_data\",\"semester\":4,\"mahasiswa\":\"Muhammad Sodiq\",\"transcript_data_length\":536}', '2025-11-07 15:42:15'),
+(464, 81, 81, 'save_transcript_data', '{\"action\":\"save_transcript_data\",\"semester\":5,\"mahasiswa\":\"Muhammad Sodiq\",\"transcript_data_length\":536}', '2025-11-07 15:42:24'),
+(465, 81, 81, 'save_gdrive_links', '{\"action\":\"save_gdrive_links\",\"mahasiswa\":\"Muhammad Sodiq\",\"links_saved\":{\"pkkmb\":true,\"ecourse\":true,\"more\":true}}', '2025-11-07 15:42:51'),
+(466, 81, 81, 'upload_dokumen', '{\"action\":\"upload_dokumen\",\"document_type\":\"Surat Balasan\",\"mahasiswa\":\"Muhammad Sodiq\",\"file_name\":\"Surat_Balasan_Muhammad_Sodiq_2401301056_1762530207.pdf\"}', '2025-11-07 15:43:27'),
+(467, 81, 81, 'upload_dokumen', '{\"action\":\"upload_dokumen\",\"document_type\":\"Laporan PKL\",\"mahasiswa\":\"Muhammad Sodiq\",\"file_name\":\"Laporan_PKL_Muhammad_Sodiq_2401301056_1762530216.pdf\"}', '2025-11-07 15:43:36'),
+(468, 81, 81, 'login', '{\"action\":\"login\",\"user\":\"Muhammad Sodiq\",\"role\":\"mahasiswa\",\"message\":\"Muhammad Sodiq (Mahasiswa) melakukan login via Google\"}', '2025-11-08 09:38:51'),
+(469, 81, 81, 'upload_dokumen', '{\"action\":\"upload_dokumen\",\"document_type\":\"KHS\",\"semester\":\"5\",\"mahasiswa\":\"Muhammad Sodiq\",\"file_name\":\"S5_KHS_Muhammad_Sodiq_2401301056_1762597830_0.pdf\",\"upload_type\":\"multiple\"}', '2025-11-08 10:30:30'),
+(470, 81, 81, 'save_gdrive_links', '{\"action\":\"save_gdrive_links\",\"mahasiswa\":\"Muhammad Sodiq\",\"links_saved\":{\"pkkmb\":true,\"ecourse\":true,\"more\":false}}', '2025-11-08 10:31:33'),
+(471, 81, 81, 'save_gdrive_links', '{\"action\":\"save_gdrive_links\",\"mahasiswa\":\"Muhammad Sodiq\",\"links_saved\":{\"pkkmb\":false,\"ecourse\":true,\"more\":false}}', '2025-11-08 10:31:50'),
+(472, 81, 81, 'save_gdrive_links', '{\"action\":\"save_gdrive_links\",\"mahasiswa\":\"Muhammad Sodiq\",\"links_saved\":{\"pkkmb\":true,\"ecourse\":true,\"more\":false}}', '2025-11-08 10:56:48'),
+(473, 81, 81, 'save_gdrive_links', '{\"action\":\"save_gdrive_links\",\"mahasiswa\":\"Muhammad Sodiq\",\"links_saved\":{\"pkkmb\":true,\"ecourse\":true,\"more\":true}}', '2025-11-08 11:00:51'),
+(474, 81, 81, 'save_gdrive_links', '{\"action\":\"save_gdrive_links\",\"mahasiswa\":\"Muhammad Sodiq\",\"links_saved\":{\"pkkmb\":true,\"ecourse\":true,\"more\":false}}', '2025-11-08 11:01:00'),
+(475, 81, 81, 'upload_dokumen', '{\"action\":\"upload_dokumen\",\"document_type\":\"KHS\",\"semester\":\"5\",\"mahasiswa\":\"Muhammad Sodiq\",\"file_name\":\"S5_KHS_Muhammad_Sodiq_2401301056_1762600934_0.pdf\",\"upload_type\":\"multiple\"}', '2025-11-08 11:22:14'),
+(476, 82, 82, 'register', '{\"action\":\"register\",\"user\":\"Shodiq Found\",\"role\":\"mahasiswa\",\"message\":\"Shodiq Found telah melakukan registrasi via Google sebagai Mahasiswa\"}', '2025-11-09 09:42:28'),
+(477, 82, 82, 'logout', '{\"action\":\"logout\",\"user\":\"Muhammad Sodiq\",\"role\":\"mahasiswa\",\"message\":\"Muhammad Sodiq (Mahasiswa) melakukan logout\"}', '2025-11-09 09:44:34'),
+(478, 81, 81, 'login', '{\"action\":\"login\",\"user\":\"Muhammad Sodiq\",\"role\":\"mahasiswa\",\"message\":\"Muhammad Sodiq (Mahasiswa) melakukan login via Google\"}', '2025-11-09 09:44:44'),
+(479, 3, NULL, 'login', '{\"action\":\"login\",\"user\":\"Dr. Ahmad Wijaya, S.T., M.T.\",\"role\":\"dospem\",\"message\":\"Dr. Ahmad Wijaya, S.T., M.T. (Dospem) melakukan login\"}', '2025-11-09 09:53:27'),
+(480, 1, NULL, 'login', '{\"action\":\"login\",\"user\":\"First Atminnts\",\"role\":\"admin\",\"message\":\"First Atminnts (Admin) melakukan login\"}', '2025-11-09 09:54:06'),
+(481, 81, 81, 'upload_dokumen', '{\"action\":\"upload_dokumen\",\"document_type\":\"KHS\",\"semester\":\"1\",\"mahasiswa\":\"Muhammad Sodiq\",\"file_name\":\"S1_KHS_Muhammad_Sodiq_2401301056_1762682263_0.pdf\",\"upload_type\":\"multiple\"}', '2025-11-09 09:57:43'),
+(482, 81, 81, 'logout', '{\"action\":\"logout\",\"user\":\"Muhammad Sodiq\",\"role\":\"mahasiswa\",\"message\":\"Muhammad Sodiq (Mahasiswa) melakukan logout\"}', '2025-11-09 13:10:16'),
+(483, 3, NULL, 'login', '{\"action\":\"login\",\"user\":\"Dr. Ahmad Wijaya, S.T., M.T.\",\"role\":\"dospem\",\"message\":\"Dr. Ahmad Wijaya, S.T., M.T. (Dospem) melakukan login\"}', '2025-11-09 15:58:07'),
+(484, 1, NULL, 'login', '{\"action\":\"login\",\"user\":\"First Atminnts\",\"role\":\"admin\",\"message\":\"First Atminnts (Admin) melakukan login\"}', '2025-11-10 06:43:13'),
+(485, 1, NULL, 'logout', '{\"action\":\"logout\",\"user\":\"First Atminnts\",\"role\":\"admin\",\"message\":\"First Atminnts (Admin) melakukan logout\"}', '2025-11-10 06:43:35'),
+(486, 81, 81, 'login', '{\"action\":\"login\",\"user\":\"Muhammad Sodiq\",\"role\":\"mahasiswa\",\"message\":\"Muhammad Sodiq (Mahasiswa) melakukan login via Google\"}', '2025-11-10 06:44:01'),
+(487, 1, NULL, 'login', '{\"action\":\"login\",\"user\":\"First Atminnts\",\"role\":\"admin\",\"message\":\"First Atminnts (Admin) melakukan login\"}', '2025-11-11 03:38:05'),
+(488, 1, NULL, 'logout', '{\"action\":\"logout\",\"user\":\"First Atminnts\",\"role\":\"admin\",\"message\":\"First Atminnts (Admin) melakukan logout\"}', '2025-11-11 03:38:33'),
+(489, 81, 81, 'login', '{\"action\":\"login\",\"user\":\"Muhammad Sodiq\",\"role\":\"mahasiswa\",\"message\":\"Muhammad Sodiq (Mahasiswa) melakukan login via Google\"}', '2025-11-11 03:39:20'),
+(490, 81, 81, 'logout', '{\"action\":\"logout\",\"user\":\"Muhammad Sodiq\",\"role\":\"mahasiswa\",\"message\":\"Muhammad Sodiq (Mahasiswa) melakukan logout\"}', '2025-11-11 03:40:52'),
+(491, 3, NULL, 'login', '{\"action\":\"login\",\"user\":\"Dr. Ahmad Wijaya, S.T., M.T.\",\"role\":\"dospem\",\"message\":\"Dr. Ahmad Wijaya, S.T., M.T. (Dospem) melakukan login\"}', '2025-11-11 03:41:10'),
+(492, 3, NULL, 'logout', '{\"action\":\"logout\",\"user\":\"Dr. Ahmad Wijaya, S.T., M.T.\",\"role\":\"dospem\",\"message\":\"Dr. Ahmad Wijaya, S.T., M.T. (Dospem) melakukan logout\"}', '2025-11-11 03:46:53'),
+(493, 81, 81, 'login', '{\"action\":\"login\",\"user\":\"Muhammad Sodiq\",\"role\":\"mahasiswa\",\"message\":\"Muhammad Sodiq (Mahasiswa) melakukan login via Google\"}', '2025-11-11 03:48:08'),
+(494, 3, NULL, 'login', '{\"action\":\"login\",\"user\":\"Dr. Ahmad Wijaya, S.T., M.T.\",\"role\":\"dospem\",\"message\":\"Dr. Ahmad Wijaya, S.T., M.T. (Dospem) melakukan login\"}', '2025-11-13 07:02:54'),
+(495, 3, NULL, 'logout', '{\"action\":\"logout\",\"user\":\"Dr. Ahmad Wijaya, S.T., M.T.\",\"role\":\"dospem\",\"message\":\"Dr. Ahmad Wijaya, S.T., M.T. (Dospem) melakukan logout\"}', '2025-11-13 07:04:06'),
+(496, 3, NULL, 'login', '{\"action\":\"login\",\"user\":\"Dr. Ahmad Wijaya, S.T., M.T.\",\"role\":\"dospem\",\"message\":\"Dr. Ahmad Wijaya, S.T., M.T. (Dospem) melakukan login\"}', '2025-11-13 07:38:15'),
+(497, 3, NULL, 'logout', '{\"action\":\"logout\",\"user\":\"Dr. Ahmad Wijaya, S.T., M.T.\",\"role\":\"dospem\",\"message\":\"Dr. Ahmad Wijaya, S.T., M.T. (Dospem) melakukan logout\"}', '2025-11-13 07:44:18'),
+(498, 81, 81, 'login', '{\"action\":\"login\",\"user\":\"Muhammad Sodiq\",\"role\":\"mahasiswa\",\"message\":\"Muhammad Sodiq (Mahasiswa) melakukan login via Google\"}', '2025-11-13 07:44:45'),
+(499, 81, 81, 'logout', '{\"action\":\"logout\",\"user\":\"Muhammad Sodiq\",\"role\":\"mahasiswa\",\"message\":\"Muhammad Sodiq (Mahasiswa) melakukan logout\"}', '2025-11-13 08:19:06'),
+(500, 81, 81, 'login', '{\"action\":\"login\",\"user\":\"Muhammad Sodiq\",\"role\":\"mahasiswa\",\"message\":\"Muhammad Sodiq (Mahasiswa) melakukan login via Google\"}', '2025-11-13 08:20:52'),
+(501, 81, 81, 'login', '{\"action\":\"login\",\"user\":\"Muhammad Sodiq\",\"role\":\"mahasiswa\",\"message\":\"Muhammad Sodiq (Mahasiswa) melakukan login via Google\"}', '2025-11-13 14:39:05'),
+(502, 81, 81, 'delete_transcript_data', '{\"action\":\"delete_transcript_data\",\"semester\":\"1\",\"mahasiswa\":\"Muhammad Sodiq\",\"deleted\":true}', '2025-11-13 14:39:31'),
+(503, 81, 81, 'save_transcript_data', '{\"action\":\"save_transcript_data\",\"semester\":1,\"mahasiswa\":\"Muhammad Sodiq\",\"transcript_data_length\":536}', '2025-11-13 14:39:44'),
+(504, 81, 81, 'save_transcript_data', '{\"action\":\"save_transcript_data\",\"semester\":\"1\",\"mahasiswa\":\"Muhammad Sodiq\",\"transcript_data_length\":547}', '2025-11-13 14:39:49');
 
 -- --------------------------------------------------------
 
@@ -369,8 +358,7 @@ CREATE TABLE `jadwal_seminar` (
 --
 
 INSERT INTO `jadwal_seminar` (`id`, `judul`, `subjudul`, `jenis`, `lokasi_file`, `url_eksternal`, `status_aktif`, `dibuat_oleh`, `created_at`, `updated_at`) VALUES
-(9, 'ok', 'ok', 'file', 'jadwal/jadwal_20251022_140633_68f87469168a2.pdf', NULL, 1, 1, '2025-10-22 06:06:33', '2025-10-22 06:06:33'),
-(10, 'gedung poltek', NULL, 'file', 'jadwal/jadwal_20251022_140842_68f874eaa22c9.png', NULL, 1, 1, '2025-10-22 06:08:42', '2025-10-22 06:08:42');
+(11, 'Alur Sistem yang Berjalan', NULL, 'file', 'jadwal/jadwal_20251107_211454_690df0ce35d32.jpg', NULL, 1, 1, '2025-11-07 13:14:54', '2025-11-07 13:14:54');
 
 -- --------------------------------------------------------
 
@@ -393,15 +381,11 @@ CREATE TABLE `khs` (
 --
 
 INSERT INTO `khs` (`id`, `mahasiswa_id`, `file_path`, `semester`, `status_validasi`, `created_at`, `updated_at`) VALUES
-(2, 9, 'documents/khs/khs_ti23004.pdf', NULL, 'belum_valid', '2025-10-04 05:00:55', '2025-10-04 05:00:55'),
-(3, 11, 'documents/khs/khs_ti23006.pdf', NULL, 'tervalidasi', '2025-10-04 05:00:55', '2025-10-04 05:00:55'),
-(4, 12, 'documents/khs/khs_ti23007.pdf', NULL, 'tervalidasi', '2025-10-04 05:00:55', '2025-10-22 11:28:52'),
-(5, 13, 'documents/khs/khs_ti23008.pdf', NULL, 'menunggu', '2025-10-04 05:00:55', '2025-10-04 05:00:55'),
-(6, 14, 'documents/khs/khs_ti23009.pdf', NULL, 'belum_valid', '2025-10-04 05:00:55', '2025-10-04 05:00:55'),
-(7, 15, 'documents/khs/khs_ti23010.pdf', NULL, 'menunggu', '2025-10-04 05:00:55', '2025-10-04 05:00:55'),
-(16, 6, 'documents/khs/KHS_Mahasiswa_001_TI23001_1759688154.pdf', NULL, 'tervalidasi', '2025-10-05 18:15:54', '2025-10-16 06:10:40'),
-(39, 72, 'documents/khs/72/S1_KHS_Huamusika_455_1762430170_0.pdf', 1, 'tervalidasi', '2025-11-06 11:56:10', '2025-11-06 12:20:40'),
-(40, 72, 'documents/khs/72/S2_KHS_Huamusika_455_1762430204_0.pdf', 2, 'tervalidasi', '2025-11-06 11:56:44', '2025-11-06 12:20:40');
+(42, 81, 'documents/khs/81/S2_KHS_Muhammad_Sodiq_2401301056_1762530026_1.pdf', 2, 'menunggu', '2025-11-07 15:40:26', '2025-11-07 15:40:26'),
+(43, 81, 'documents/khs/81/S3_KHS_Muhammad_Sodiq_2401301056_1762530026_2.pdf', 3, 'menunggu', '2025-11-07 15:40:26', '2025-11-07 15:40:26'),
+(44, 81, 'documents/khs/81/S4_KHS_Muhammad_Sodiq_2401301056_1762530026_3.pdf', 4, 'menunggu', '2025-11-07 15:40:26', '2025-11-07 15:40:26'),
+(47, 81, 'documents/khs/81/S5_KHS_Muhammad_Sodiq_2401301056_1762600934_0.pdf', 5, 'menunggu', '2025-11-08 11:22:14', '2025-11-08 11:22:14'),
+(48, 81, 'documents/khs/81/S1_KHS_Muhammad_Sodiq_2401301056_1762682263_0.pdf', 1, 'menunggu', '2025-11-09 09:57:43', '2025-11-09 09:57:43');
 
 -- --------------------------------------------------------
 
@@ -414,6 +398,11 @@ CREATE TABLE `khs_manual_transkrip` (
   `mahasiswa_id` bigint UNSIGNED NOT NULL,
   `semester` int NOT NULL,
   `transcript_data` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `ips` decimal(3,2) DEFAULT NULL,
+  `total_sks` int DEFAULT NULL,
+  `total_sks_d` int NOT NULL DEFAULT '0',
+  `has_e` tinyint(1) NOT NULL DEFAULT '0',
+  `eligible` tinyint(1) NOT NULL DEFAULT '0',
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -422,12 +411,12 @@ CREATE TABLE `khs_manual_transkrip` (
 -- Dumping data for table `khs_manual_transkrip`
 --
 
-INSERT INTO `khs_manual_transkrip` (`id`, `mahasiswa_id`, `semester`, `transcript_data`, `created_at`, `updated_at`) VALUES
-(10, 72, 1, 'No	Kode	Nama Mata Kuliah	SKS	Nilai Mutu	Bobot	Nilai	Keterangan	Transkrip\n1	AII232202	Statistika dan Probabilitas	2	2.50	5	D		\n2	AII232203	Aljabar Linier	2	3.50	7	B+		\n3	AIK232308	Pemrograman Web Dasar	2	4.00	8	A		\n4	AIK232207	Sistem Manajemen Basis Data	2	4.00	8	A		\n5	AIK232201	Arsitektur Komputer	2	4.00	8	A		\n6	AIK232306	Desain UI/UX	3	4.00	12	A		\n7	AIK232304	Struktur Data	3	4.00	12	A		\n8	PAP232209	Kewarganegaraan	2	3.50	7	B+		\n9	AIK232205	Perancangan Perangkat Lunak	2	4.00	8	A		\nTotal SKS	20	 	75	 \nIndeks Prestasi Semester	3.75', '2025-11-06 11:55:50', '2025-11-06 14:17:15'),
-(11, 72, 2, 'No	Kode	Nama Mata Kuliah	SKS	Nilai Mutu	Bobot	Nilai	Keterangan	Transkrip\n1	AII232202	Statistika dan Probabilitas	2	2.50	5	C+		\n2	AII232203	Aljabar Linier	2	3.50	7	B+		\n3	AIK232308	Pemrograman Web Dasar	2	4.00	8	A		\n4	AIK232207	Sistem Manajemen Basis Data	2	4.00	8	A		\n5	AIK232201	Arsitektur Komputer	2	4.00	8	A		\n6	AIK232306	Desain UI/UX	3	4.00	12	A		\n7	AIK232304	Struktur Data	3	4.00	12	A		\n8	PAP232209	Kewarganegaraan	2	3.50	7	B+		\n9	AIK232205	Perancangan Perangkat Lunak	2	4.00	8	A		\nTotal SKS	20	 	75	 \nIndeks Prestasi Semester	3.75', '2025-11-06 11:56:21', '2025-11-06 11:56:21'),
-(12, 72, 3, 'No	Kode	Nama Mata Kuliah	SKS	Nilai Mutu	Bobot	Nilai	Keterangan	Transkrip\n1	AII232202	Statistika dan Probabilitas	2	2.50	5	C+		\n2	AII232203	Aljabar Linier	2	3.50	7	B+		\n3	AIK232308	Pemrograman Web Dasar	2	4.00	8	A		\n4	AIK232207	Sistem Manajemen Basis Data	2	4.00	8	A		\n5	AIK232201	Arsitektur Komputer	2	4.00	8	A		\n6	AIK232306	Desain UI/UX	3	4.00	12	A		\n7	AIK232304	Struktur Data	3	4.00	12	A		\n8	PAP232209	Kewarganegaraan	2	3.50	7	B+		\n9	AIK232205	Perancangan Perangkat Lunak	2	4.00	8	A		\nTotal SKS	20	 	75	 \nIndeks Prestasi Semester	3.75', '2025-11-06 11:56:31', '2025-11-06 11:56:31'),
-(13, 72, 4, 'No	Kode	Nama Mata Kuliah	SKS	Nilai Mutu	Bobot	Nilai	Keterangan	Transkrip\n1	AII232202	Statistika dan Probabilitas	2	2.50	5	C+		\n2	AII232203	Aljabar Linier	2	3.50	7	B+		\n3	AIK232308	Pemrograman Web Dasar	2	4.00	8	A		\n4	AIK232207	Sistem Manajemen Basis Data	2	4.00	8	A		\n5	AIK232201	Arsitektur Komputer	2	4.00	8	A		\n6	AIK232306	Desain UI/UX	3	4.00	12	A		\n7	AIK232304	Struktur Data	3	4.00	12	A		\n8	PAP232209	Kewarganegaraan	2	3.50	7	B+		\n9	AIK232205	Perancangan Perangkat Lunak	2	4.00	8	A		\nTotal SKS	20	 	75	 \nIndeks Prestasi Semester	3.75', '2025-11-06 11:56:33', '2025-11-06 11:56:33'),
-(14, 72, 5, 'No	Kode	Nama Mata Kuliah	SKS	Nilai Mutu	Bobot	Nilai	Keterangan	Transkrip\n1	AII232202	Statistika dan Probabilitas	2	2.50	5	C+		\n2	AII232203	Aljabar Linier	2	3.50	7	B+		\n3	AIK232308	Pemrograman Web Dasar	2	4.00	8	A		\n4	AIK232207	Sistem Manajemen Basis Data	2	4.00	8	A		\n5	AIK232201	Arsitektur Komputer	2	4.00	8	A		\n6	AIK232306	Desain UI/UX	3	4.00	12	A		\n7	AIK232304	Struktur Data	3	4.00	12	A		\n8	PAP232209	Kewarganegaraan	2	3.50	7	B+		\n9	AIK232205	Perancangan Perangkat Lunak	2	4.00	8	A		\nTotal SKS	20	 	75	 \nIndeks Prestasi Semester	3.75', '2025-11-06 11:56:35', '2025-11-06 11:56:35');
+INSERT INTO `khs_manual_transkrip` (`id`, `mahasiswa_id`, `semester`, `transcript_data`, `ips`, `total_sks`, `total_sks_d`, `has_e`, `eligible`, `created_at`, `updated_at`) VALUES
+(17, 81, 2, 'No	Kode	Nama Mata Kuliah	SKS	Nilai Mutu	Bobot	Nilai	Keterangan	Transkrip\n1	AII232202	Statistika dan Probabilitas	2	2.50	5	C+		\n2	AII232203	Aljabar Linier	2	3.50	7	B+		\n3	AIK232308	Pemrograman Web Dasar	2	4.00	8	A		\n4	AIK232207	Sistem Manajemen Basis Data	2	4.00	8	A		\n5	AIK232201	Arsitektur Komputer	2	4.00	8	A		\n6	AIK232306	Desain UI/UX	3	4.00	12	A		\n7	AIK232304	Struktur Data	3	4.00	12	A		\n8	PAP232209	Kewarganegaraan	2	3.50	7	C		\n9	AIK232205	Perancangan Perangkat Lunak	2	4.00	8	A		\nTotal SKS	20	 	75	 \nIndeks Prestasi Semester	3.75', NULL, NULL, 0, 0, 0, '2025-11-07 15:42:07', '2025-11-07 15:42:09'),
+(18, 81, 3, 'No	Kode	Nama Mata Kuliah	SKS	Nilai Mutu	Bobot	Nilai	Keterangan	Transkrip\n1	AII232202	Statistika dan Probabilitas	2	2.50	5	C+		\n2	AII232203	Aljabar Linier	2	3.50	7	B+		\n3	AIK232308	Pemrograman Web Dasar	2	4.00	8	A		\n4	AIK232207	Sistem Manajemen Basis Data	2	4.00	8	A		\n5	AIK232201	Arsitektur Komputer	2	4.00	8	A		\n6	AIK232306	Desain UI/UX	3	4.00	12	A		\n7	AIK232304	Struktur Data	3	4.00	12	A		\n8	PAP232209	Kewarganegaraan	2	3.50	7	B+		\n9	AIK232205	Perancangan Perangkat Lunak	2	4.00	8	D		\nTotal SKS	20	 	75	 \nIndeks Prestasi Semester	3.75', NULL, NULL, 0, 0, 0, '2025-11-07 15:42:11', '2025-11-07 15:42:14'),
+(19, 81, 4, 'No	Kode	Nama Mata Kuliah	SKS	Nilai Mutu	Bobot	Nilai	Keterangan	Transkrip\n1	AII232202	Statistika dan Probabilitas	2	2.50	5	C+		\n2	AII232203	Aljabar Linier	2	3.50	7	B+		\n3	AIK232308	Pemrograman Web Dasar	2	4.00	8	A		\n4	AIK232207	Sistem Manajemen Basis Data	2	4.00	8	A		\n5	AIK232201	Arsitektur Komputer	2	4.00	8	A		\n6	AIK232306	Desain UI/UX	3	4.00	12	A		\n7	AIK232304	Struktur Data	3	4.00	12	A		\n8	PAP232209	Kewarganegaraan	2	3.50	7	B+		\n9	AIK232205	Perancangan Perangkat Lunak	2	4.00	8	A		\nTotal SKS	20	 	75	 \nIndeks Prestasi Semester	3.75', NULL, NULL, 0, 0, 0, '2025-11-07 15:42:15', '2025-11-07 15:42:15'),
+(20, 81, 5, 'No	Kode	Nama Mata Kuliah	SKS	Nilai Mutu	Bobot	Nilai	Keterangan	Transkrip\n1	AII232202	Statistika dan Probabilitas	2	2.50	5	C+		\n2	AII232203	Aljabar Linier	2	3.50	7	B+		\n3	AIK232308	Pemrograman Web Dasar	2	4.00	8	A		\n4	AIK232207	Sistem Manajemen Basis Data	2	4.00	8	A		\n5	AIK232201	Arsitektur Komputer	2	4.00	8	A		\n6	AIK232306	Desain UI/UX	3	4.00	12	A		\n7	AIK232304	Struktur Data	3	4.00	12	A		\n8	PAP232209	Kewarganegaraan	2	3.50	7	B+		\n9	AIK232205	Perancangan Perangkat Lunak	2	4.00	8	A		\nTotal SKS	20	 	75	 \nIndeks Prestasi Semester	3.75', NULL, NULL, 0, 0, 0, '2025-11-07 15:42:24', '2025-11-07 15:42:24'),
+(21, 81, 1, 'No	Kode	Nama Mata Kuliah	SKS	Nilai Mutu	Bobot	Nilai	Keterangan	Transkrip\r\n1	AII232202	Statistika dan Probabilitas	2	2.50	5	C+		\r\n2	AII232203	Aljabar Linier	2	3.50	7	B+		\r\n3	AIK232308	Pemrograman Web Dasar	2	4.00	8	A		\r\n4	AIK232207	Sistem Manajemen Basis Data	2	4.00	8	A		\r\n5	AIK232201	Arsitektur Komputer	2	4.00	8	A		\r\n6	AIK232306	Desain UI/UX	3	4.00	12	A		\r\n7	AIK232304	Struktur Data	3	4.00	12	A		\r\n8	PAP232209	Kewarganegaraan	2	3.50	7	B+		\r\n9	AIK232205	Perancangan Perangkat Lunak	2	4.00	8	A		\r\nTotal SKS	20	 	75	 \r\nIndeks Prestasi Semester	3.75', 3.75, 20, 0, 0, 1, '2025-11-13 14:39:44', '2025-11-13 14:39:49');
 
 -- --------------------------------------------------------
 
@@ -443,19 +432,6 @@ CREATE TABLE `laporan_pkl` (
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
--- Dumping data for table `laporan_pkl`
---
-
-INSERT INTO `laporan_pkl` (`id`, `mahasiswa_id`, `file_path`, `status_validasi`, `created_at`, `updated_at`) VALUES
-(1, 6, 'documents/laporan_pkl/laporan_ti23001.pdf', 'revisi', '2025-10-04 05:00:55', '2025-10-04 05:00:55'),
-(2, 7, 'documents/laporan_pkl/laporan_ti23002.pdf', 'menunggu', '2025-10-04 05:00:55', '2025-10-04 05:00:55'),
-(3, 9, 'documents/laporan_pkl/laporan_ti23004.pdf', 'tervalidasi', '2025-10-04 05:00:55', '2025-10-04 05:00:55'),
-(4, 10, 'documents/laporan_pkl/laporan_ti23005.pdf', 'tervalidasi', '2025-10-04 05:00:55', '2025-10-04 05:00:55'),
-(5, 11, 'documents/laporan_pkl/laporan_ti23006.pdf', 'tervalidasi', '2025-10-04 05:00:55', '2025-10-04 05:00:55'),
-(6, 12, 'documents/laporan_pkl/laporan_ti23007.pdf', 'revisi', '2025-10-04 05:00:55', '2025-10-04 05:00:55'),
-(9, 72, 'documents/laporan_pkl/Laporan_PKL_Huamusika_455_1762430269.pdf', 'menunggu', '2025-11-06 11:57:49', '2025-11-06 11:57:49');
 
 -- --------------------------------------------------------
 
@@ -522,7 +498,12 @@ INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES
 (52, '2025_10_17_005837_drop_decided_at_from_assessment_results', 11),
 (53, '2025_10_17_014156_drop_submitted_at_from_assessment_responses', 12),
 (54, '2025_10_22_003919_add_mitra_selected_to_profil_mahasiswa_table', 13),
-(55, '2025_11_06_182117_update_mitra_criteria_to_scale_one_to_five', 14);
+(55, '2025_11_06_182117_update_mitra_criteria_to_scale_one_to_five', 14),
+(56, '2025_11_07_133211_create_riwayat_penggantian_mitra_table', 15),
+(57, '2025_11_07_133916_create_dospems_table', 16),
+(59, '2025_11_08_004250_add_calculated_fields_to_khs_manual_transkrip_table', 17),
+(60, '2025_11_13_084753_create_surat_pengantar_table', 17),
+(61, '2025_11_13_165744_add_max_mahasiswa_to_mitra_table', 18);
 
 -- --------------------------------------------------------
 
@@ -540,6 +521,7 @@ CREATE TABLE `mitra` (
   `fasilitas` tinyint NOT NULL DEFAULT '1',
   `kesesuaian_jurusan` tinyint NOT NULL DEFAULT '1',
   `tingkat_kebersihan` tinyint NOT NULL DEFAULT '1',
+  `max_mahasiswa` int NOT NULL DEFAULT '4' COMMENT 'Maksimal jumlah mahasiswa yang bisa memilih mitra ini',
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -548,19 +530,19 @@ CREATE TABLE `mitra` (
 -- Dumping data for table `mitra`
 --
 
-INSERT INTO `mitra` (`id`, `nama`, `alamat`, `kontak`, `jarak`, `honor`, `fasilitas`, `kesesuaian_jurusan`, `tingkat_kebersihan`, `created_at`, `updated_at`) VALUES
-(1, 'PT. Teknologi Digital Indonesia', 'Jl. Teknologi No. 123, Jakarta', '021-12345678', 0, 1, 1, 1, 1, '2025-10-04 05:00:55', '2025-10-04 05:00:55'),
-(2, 'Restu Guru Promosindo Cabang Banjarbaru', 'Jl.A Yani Km.38,7 No. 62 Martapura', '08115136404', 50, 3, 1, 3, 3, '2025-10-04 05:00:55', '2025-10-16 05:44:22'),
-(3, 'PT. Sistem Informasi Global', 'Jl. Sistem No. 789, Surabaya', '031-11223344', 0, 1, 1, 3, 3, '2025-10-04 05:00:55', '2025-10-15 03:22:12'),
-(5, 'PT. Wahyu Putra Ramadhan', 'Jl. A. Yani KM 122 RT 16 Desa Simpang 4 Sei Baru Kec. Jorong Kab. Tanah Laut', '083123456789', 2, 1, 3, 3, 3, '2025-10-14 07:45:15', '2025-10-16 05:49:40'),
-(9, 'PT Arutmin Indonesia Site Asam-Asam', 'Jalan A Yani KM 121 RT 12. Simpang Empat Sungai Baru', NULL, 63, 3, 3, 3, 3, '2025-10-15 03:16:12', '2025-10-16 05:47:58'),
-(10, 'Koperasi Sawit Makmur', NULL, NULL, 0, 1, 3, 1, 3, '2025-10-22 11:40:37', '2025-10-22 11:41:37'),
-(11, 'LPP TVRI STASIUN Kalimantan Selatan', NULL, NULL, 0, 3, 3, 1, 3, '2025-10-22 11:40:58', '2025-10-22 11:41:53'),
-(12, 'Politeknik Negeri Tanah Laut', NULL, NULL, 0, 1, 3, 3, 3, '2025-10-22 11:41:07', '2025-10-22 11:42:03'),
-(13, 'ULP PLN Banjarbaru', NULL, NULL, 0, 1, 1, 1, 1, '2025-10-22 11:41:19', '2025-10-22 11:41:19'),
-(14, 'RSUD KH. Mansyur', NULL, NULL, 0, 3, 1, 3, 1, '2025-10-22 11:42:23', '2025-10-22 11:42:23'),
-(15, 'KOPERASI BORNEO AGROSINDO SENTOSA', NULL, NULL, 0, 3, 3, 1, 1, '2025-10-22 11:42:35', '2025-10-22 11:42:35'),
-(16, 'dashbhdabjhb', 'mana saja', '1212', 1, 5, 4, 3, 2, '2025-11-06 10:23:10', '2025-11-06 10:38:56');
+INSERT INTO `mitra` (`id`, `nama`, `alamat`, `kontak`, `jarak`, `honor`, `fasilitas`, `kesesuaian_jurusan`, `tingkat_kebersihan`, `max_mahasiswa`, `created_at`, `updated_at`) VALUES
+(1, 'PT. Teknologi Digital Indonesia', 'Jl. Teknologi No. 123, Jakarta', '021-12345678', 0, 1, 1, 1, 1, 4, '2025-10-04 05:00:55', '2025-10-04 05:00:55'),
+(2, 'Restu Guru Promosindo Cabang Banjarbaru', 'Jl.A Yani Km.38,7 No. 62 Martapura', '08115136404', 50, 3, 1, 3, 3, 4, '2025-10-04 05:00:55', '2025-10-16 05:44:22'),
+(3, 'PT. Sistem Informasi Global', 'Jl. Sistem No. 789, Surabaya', '031-11223344', 0, 1, 1, 3, 3, 4, '2025-10-04 05:00:55', '2025-10-15 03:22:12'),
+(5, 'PT. Wahyu Putra Ramadhan', 'Jl. A. Yani KM 122 RT 16 Desa Simpang 4 Sei Baru Kec. Jorong Kab. Tanah Laut', '083123456789', 2, 1, 3, 3, 3, 4, '2025-10-14 07:45:15', '2025-10-16 05:49:40'),
+(9, 'PT Arutmin Indonesia Site Asam-Asam', 'Jalan A Yani KM 121 RT 12. Simpang Empat Sungai Baru', NULL, 63, 3, 3, 3, 3, 4, '2025-10-15 03:16:12', '2025-10-16 05:47:58'),
+(10, 'Koperasi Sawit Makmur', NULL, NULL, 0, 1, 3, 1, 3, 4, '2025-10-22 11:40:37', '2025-10-22 11:41:37'),
+(11, 'LPP TVRI STASIUN Kalimantan Selatan', NULL, NULL, 0, 3, 3, 1, 3, 4, '2025-10-22 11:40:58', '2025-10-22 11:41:53'),
+(12, 'Politeknik Negeri Tanah Laut', NULL, NULL, 0, 1, 3, 3, 3, 4, '2025-10-22 11:41:07', '2025-10-22 11:42:03'),
+(13, 'ULP PLN Banjarbaru', NULL, NULL, 0, 1, 1, 1, 1, 4, '2025-10-22 11:41:19', '2025-10-22 11:41:19'),
+(14, 'RSUD KH. Mansyur', NULL, NULL, 0, 3, 1, 3, 1, 4, '2025-10-22 11:42:23', '2025-10-22 11:42:23'),
+(15, 'KOPERASI BORNEO AGROSINDO SENTOSA', NULL, NULL, 0, 3, 3, 1, 1, 4, '2025-10-22 11:42:35', '2025-10-22 11:42:35'),
+(16, 'dashbhdabjhb', 'mana saja', '1212', 1, 5, 4, 3, 2, 4, '2025-11-06 10:23:10', '2025-11-06 10:38:56');
 
 -- --------------------------------------------------------
 
@@ -593,39 +575,47 @@ CREATE TABLE `profil_mahasiswa` (
 --
 
 INSERT INTO `profil_mahasiswa` (`id_mahasiswa`, `nim`, `prodi`, `semester`, `no_whatsapp`, `jenis_kelamin`, `ipk`, `cek_min_semester`, `cek_ipk_nilaisks`, `cek_valid_biodata`, `id_dospem`, `mitra_selected`, `created_at`, `updated_at`, `gdrive_pkkmb`, `gdrive_ecourse`, `gdrive_more`) VALUES
-(6, 'TI23001', 'Teknologi Informasi', 3, '081234567001', 'L', 3.08, 1, 1, 1, 3, NULL, '2025-10-04 05:00:55', '2025-10-04 05:51:08', NULL, NULL, NULL),
-(7, 'TI23002', 'Teknologi Informasi', 5, '081234567002', 'P', 3.18, 1, 1, 1, 4, NULL, '2025-10-04 05:00:55', '2025-10-04 05:00:55', NULL, NULL, NULL),
-(8, 'TI23003', 'Teknologi Informasi', 5, '081234567003', 'L', 3.10, 1, 1, 1, 5, NULL, '2025-10-04 05:00:55', '2025-10-04 05:00:55', NULL, NULL, NULL),
-(9, 'TI23004', 'Teknologi Informasi', 5, '081234567004', 'P', 3.32, 1, 1, 1, 3, NULL, '2025-10-04 05:00:55', '2025-10-04 05:00:55', NULL, NULL, NULL),
-(10, 'TI23005', 'Teknologi Informasi', 5, '081234567005', 'L', 3.21, 1, 1, 1, 4, NULL, '2025-10-04 05:00:55', '2025-10-04 05:00:55', NULL, NULL, NULL),
-(11, 'TI23006', 'Teknologi Informasi', 5, '081234567006', 'P', 3.47, 1, 1, 1, 5, NULL, '2025-10-04 05:00:55', '2025-10-04 05:00:55', NULL, NULL, NULL),
-(12, 'TI23007', 'Teknologi Informasi', 5, '081234567007', 'L', 3.04, 1, 1, 1, 3, NULL, '2025-10-04 05:00:55', '2025-10-04 05:00:55', NULL, NULL, NULL),
-(13, 'TI23008', 'Teknologi Informasi', 5, '081234567008', 'P', 3.32, 1, 1, 1, 4, NULL, '2025-10-04 05:00:55', '2025-10-04 05:00:55', NULL, NULL, NULL),
-(14, 'TI23009', 'Teknologi Informasi', 5, '081234567009', 'L', 3.25, 1, 1, 1, 5, NULL, '2025-10-04 05:00:55', '2025-10-04 05:00:55', NULL, NULL, NULL),
-(15, 'TI23010', 'Teknologi Informasi', 5, '081234567010', 'P', 3.10, 1, 1, 1, 3, NULL, '2025-10-04 05:00:55', '2025-10-04 05:00:55', NULL, NULL, NULL),
-(16, '666', 'Teknologi Informasi', 5, NULL, NULL, NULL, 0, 0, 0, 3, NULL, '2025-10-04 05:44:01', '2025-10-04 05:44:01', NULL, NULL, NULL),
-(17, NULL, 'Teknologi Informasi', 5, NULL, NULL, NULL, 0, 0, 0, 3, 16, '2025-10-04 14:30:08', '2025-11-06 10:44:20', NULL, NULL, NULL),
-(19, '443', 'D3 Agroindustri', 5, '083838383833333', 'P', NULL, 0, 0, 0, 3, NULL, '2025-10-04 16:55:57', '2025-10-07 00:46:18', NULL, NULL, NULL),
-(20, '555', 'D3 Teknologi Informasi', 1, '088383838338', 'L', NULL, 0, 0, 0, 3, NULL, '2025-10-04 17:09:58', '2025-10-16 01:46:37', NULL, NULL, NULL),
-(25, '234', 'D3 Teknologi Informasi', 5, '5464564564', 'L', NULL, 1, 1, 0, 4, NULL, '2025-10-04 17:19:43', '2025-10-04 19:49:28', NULL, NULL, NULL),
-(26, '234444444444', 'Teknologi Informasi', 5, '08388883333', 'L', 2.59, 0, 0, 0, 3, NULL, '2025-10-04 18:43:29', '2025-10-04 18:48:02', NULL, NULL, NULL),
 (27, '2401301059', 'Teknologi Informasi', 5, '83844879985', 'L', 3.90, 1, 1, 0, 3, NULL, '2025-10-05 09:21:43', '2025-10-05 10:33:54', NULL, NULL, NULL),
-(28, '3', 'Teknologi Informasi', 5, '093283274234', 'L', NULL, 0, 0, 0, NULL, NULL, '2025-10-05 14:47:53', '2025-10-05 14:47:53', NULL, NULL, NULL),
 (31, '2401301099', 'D3 Teknologi Informasi', 6, '83119465702', 'L', NULL, 0, 0, 0, NULL, NULL, '2025-10-07 03:07:58', '2025-10-07 03:07:58', NULL, NULL, NULL),
 (37, 'TEST001', 'Teknologi Informasi', 5, NULL, NULL, NULL, 0, 0, 0, 3, NULL, '2025-10-16 15:16:23', '2025-10-16 15:16:23', NULL, NULL, NULL),
-(56, '123', 'D3 Agroindustri', 5, '83844879985', 'L', 3.50, 1, 1, 1, 3, 9, '2025-10-21 14:14:43', '2025-10-22 05:46:14', NULL, NULL, NULL),
-(59, '2401301056', 'D3 Teknologi Informasi', 5, '83844879985', 'L', 3.80, 0, 0, 0, 3, NULL, '2025-10-22 11:17:38', '2025-10-22 11:17:38', NULL, NULL, NULL),
-(62, '2301301092', 'TEKNOLOGI INFORMASI', 5, '085393749800', 'P', 3.81, 0, 0, 0, NULL, NULL, '2025-10-22 12:38:12', '2025-10-22 12:38:12', NULL, NULL, NULL),
-(63, '2301301073', 'TEKNOLOGI INFORMASI', 5, '082252316600', 'L', 3.20, 0, 0, 0, NULL, NULL, '2025-10-22 12:38:12', '2025-10-22 12:38:12', NULL, NULL, NULL),
-(64, '2301301114', 'TEKNOLOGI INFORMASI', 5, '085752813800', 'L', 3.86, 0, 0, 0, NULL, NULL, '2025-10-22 12:38:13', '2025-10-22 12:38:13', NULL, NULL, NULL),
-(65, '2301301029', 'TEKNOLOGI INFORMASI', 5, '085951194100', 'L', 3.70, 0, 0, 0, NULL, NULL, '2025-10-22 12:38:13', '2025-10-22 12:38:13', NULL, NULL, NULL),
-(66, '2301301100', 'TEKNOLOGI INFORMASI', 5, '082250657900', 'L', 3.50, 0, 0, 0, NULL, NULL, '2025-10-22 12:38:14', '2025-10-22 12:38:14', NULL, NULL, NULL),
-(67, '2301301093', 'TEKNOLOGI INFORMASI', 5, '083824320100', 'P', 3.71, 0, 0, 0, NULL, NULL, '2025-10-22 12:38:14', '2025-10-22 12:38:14', NULL, NULL, NULL),
-(68, '2301301121', 'TEKNOLOGI INFORMASI', 5, '081251784500', 'P', 3.50, 0, 0, 0, NULL, NULL, '2025-10-22 12:38:14', '2025-10-22 12:38:14', NULL, NULL, NULL),
-(69, '2301301094', 'TEKNOLOGI INFORMASI', 5, '085248131800', 'L', 4.00, 0, 0, 0, NULL, NULL, '2025-10-22 12:38:15', '2025-10-22 12:38:15', NULL, NULL, NULL),
-(70, '2301301062', 'TEKNOLOGI INFORMASI', 5, '085754152200', 'L', 3.75, 0, 0, 0, NULL, NULL, '2025-10-22 12:38:15', '2025-10-22 12:38:15', NULL, NULL, NULL),
-(71, '2301301075', 'TEKNOLOGI INFORMASI', 5, '083862166800', 'P', 3.31, 0, 0, 0, NULL, NULL, '2025-10-22 12:38:15', '2025-10-22 12:38:15', NULL, NULL, NULL),
-(72, '455', 'D3 Agroindustri', 5, '83844879985', 'L', 3.90, 1, 0, 0, 3, 16, '2025-11-06 11:50:45', '2025-11-06 12:11:11', 'https://drive.google.com/file/d/...aaa', 'https://drive.google.com/file/d/...sdss', 'https://drive.google.com/file/d/...sdfsdf');
+(62, '2301301092', 'TEKNOLOGI INFORMASI', 5, '085393749800', 'P', 3.81, 0, 0, 0, 5, NULL, '2025-10-22 12:38:12', '2025-11-07 15:47:39', NULL, NULL, NULL),
+(63, '2301301073', 'TEKNOLOGI INFORMASI', 5, '082252316600', 'L', 3.20, 0, 0, 0, 3, NULL, '2025-10-22 12:38:12', '2025-11-07 15:47:11', NULL, NULL, NULL),
+(64, '2301301114', 'TEKNOLOGI INFORMASI', 5, '085752813800', 'L', 3.86, 0, 0, 0, 4, NULL, '2025-10-22 12:38:13', '2025-11-07 15:47:28', NULL, NULL, NULL),
+(65, '2301301029', 'TEKNOLOGI INFORMASI', 5, '085951194100', 'L', 3.70, 0, 0, 0, 4, NULL, '2025-10-22 12:38:13', '2025-11-07 15:47:28', NULL, NULL, NULL),
+(66, '2301301100', 'TEKNOLOGI INFORMASI', 5, '082250657900', 'L', 3.50, 0, 0, 0, 4, NULL, '2025-10-22 12:38:14', '2025-11-07 15:47:28', NULL, NULL, NULL),
+(67, '2301301093', 'TEKNOLOGI INFORMASI', 5, '083824320100', 'P', 3.71, 0, 0, 0, 3, NULL, '2025-10-22 12:38:14', '2025-11-07 15:47:11', NULL, NULL, NULL),
+(68, '2301301121', 'TEKNOLOGI INFORMASI', 5, '081251784500', 'P', 3.50, 0, 0, 0, 4, NULL, '2025-10-22 12:38:14', '2025-11-07 15:47:28', NULL, NULL, NULL),
+(69, '2301301094', 'TEKNOLOGI INFORMASI', 5, '085248131800', 'L', 4.00, 0, 0, 0, 3, NULL, '2025-10-22 12:38:15', '2025-11-07 15:47:11', NULL, NULL, NULL),
+(70, '2301301062', 'TEKNOLOGI INFORMASI', 5, '085754152200', 'L', 3.75, 0, 0, 0, 3, NULL, '2025-10-22 12:38:15', '2025-11-07 15:47:11', NULL, NULL, NULL),
+(71, '2301301075', 'TEKNOLOGI INFORMASI', 5, '083862166800', 'P', 3.31, 0, 0, 0, 3, NULL, '2025-10-22 12:38:15', '2025-11-07 15:47:11', NULL, NULL, NULL),
+(81, '2401301056', 'D3 Teknologi Informasi', 5, '83844879985', 'L', 3.90, 0, 0, 0, 3, 15, '2025-11-07 15:39:32', '2025-11-13 14:51:00', 'https://drive.google.com/file/d/...', 'https://drive.google.com/file/d/...', NULL),
+(82, '2401301057', 'D3 Teknologi Informasi', 5, '83844879985', 'L', 3.80, 0, 0, 0, 3, NULL, '2025-11-09 09:43:19', '2025-11-09 09:43:19', NULL, NULL, NULL);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `riwayat_penggantian_mitra`
+--
+
+CREATE TABLE `riwayat_penggantian_mitra` (
+  `id` bigint UNSIGNED NOT NULL,
+  `mahasiswa_id` bigint UNSIGNED NOT NULL,
+  `mitra_lama_id` bigint UNSIGNED DEFAULT NULL,
+  `mitra_baru_id` bigint UNSIGNED NOT NULL,
+  `jenis_alasan` enum('ditolak','alasan_tertentu','pilihan_pribadi') COLLATE utf8mb4_unicode_ci NOT NULL,
+  `alasan_lengkap` text COLLATE utf8mb4_unicode_ci,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `riwayat_penggantian_mitra`
+--
+
+INSERT INTO `riwayat_penggantian_mitra` (`id`, `mahasiswa_id`, `mitra_lama_id`, `mitra_baru_id`, `jenis_alasan`, `alasan_lengkap`, `created_at`, `updated_at`) VALUES
+(3, 81, 16, 15, 'ditolak', NULL, '2025-11-11 03:40:16', '2025-11-11 03:40:16'),
+(4, 81, 15, 10, 'ditolak', NULL, '2025-11-11 03:40:43', '2025-11-11 03:40:43'),
+(5, 81, 10, 15, 'ditolak', NULL, '2025-11-13 14:51:00', '2025-11-13 14:51:00');
 
 -- --------------------------------------------------------
 
@@ -647,36 +637,8 @@ CREATE TABLE `sessions` (
 --
 
 INSERT INTO `sessions` (`id`, `user_id`, `ip_address`, `user_agent`, `payload`, `last_activity`) VALUES
-('1ZbfhuyQZhdwcvRRAWtCjKeUFKSY7Dqfl1Y0NLmt', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36', 'YTozOntzOjY6Il90b2tlbiI7czo0MDoiWU5NUms4TXplTEZWNzdCdmNqMGNlcFJpdUVhUFRwWGMxdHNTNmV5SSI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6Mzk6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9hZG1pbi9uaWxhaS1ha2hpciI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fX0=', 1762428642),
-('24DvLynHOPPZR7Chz5HQyaXNpOoADAd7e9VPyPfH', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36', 'YTozOntzOjY6Il90b2tlbiI7czo0MDoiVXgzWElFeGNNNHFoRVhWSlpLUmNiMU5tMUdkUTdoSnhxY1RXSG84TiI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6Mzk6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9kb3NwZW0vdmFsaWRhdGlvbiI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fX0=', 1762432054),
-('7TbIB76ScqQTuAlkwcWWpozofIm3vyGvfU8wh34L', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36', 'YTozOntzOjY6Il90b2tlbiI7czo0MDoibVp4aHhMT3FXblVPc3pmU0hQdk92NzREdGNpYkhVMnhhMmF2SmkxRiI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6Mjc6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9sb2dpbiI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fX0=', 1762428634),
-('8msyhtyhovmxBIsZbyhsl9yyt29t6CVNzbbiQBwn', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36', 'YTozOntzOjY6Il90b2tlbiI7czo0MDoidWo5ZjFIdGhYSHRJSldpQno4V3hRVktsQzZuUURvaFZwYWNEQk51ZSI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6Mjc6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9sb2dpbiI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fX0=', 1762428638),
-('ae36Z82kC00msNn6MbP8P3jr0Cd9AmBxz4uvNuDD', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36', 'YTozOntzOjY6Il90b2tlbiI7czo0MDoiN2dnSWdrdm11VHZCM0hPYms1bUlzdm04YzNoSzROSEpONFNZcmNsaSI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6Mjc6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9sb2dpbiI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fX0=', 1762434161),
-('bjCDhTCZ27je46pWgEPTAl1D321NbUrK6pv9jVcM', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36', 'YTozOntzOjY6Il90b2tlbiI7czo0MDoieTBXVzQ0T2pYV0VKVUhDa1c5UGNQOURyMVVwbWtDcXZJV0pLZ0dvcCI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6Mzg6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9hZG1pbi9ydWJyaWs/bT03Ijt9czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319fQ==', 1762432938),
-('CfLl1o4u3Afji7VKA7Wunfr2aMu5jZ2k7ho487pL', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36', 'YTo0OntzOjY6Il90b2tlbiI7czo0MDoiOW9BclNVcGFmejFPTzBXSmdjNEpSYXB0b0ZzMHUyblMyVjdTencyayI7czozOiJ1cmwiO2E6MTp7czo4OiJpbnRlbmRlZCI7czo0MDoiaHR0cDovLzEyNy4wLjAuMTo4MDAwL21pdHJhP3NvcnQ9cmFua2luZyI7fXM6OToiX3ByZXZpb3VzIjthOjE6e3M6MzoidXJsIjtzOjQwOiJodHRwOi8vMTI3LjAuMC4xOjgwMDAvbWl0cmE/c29ydD1yYW5raW5nIjt9czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319fQ==', 1762424458),
-('dHXIeCV8G37rVQRFAVPj74rKspxmVndVsZeemPxp', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36', 'YTozOntzOjY6Il90b2tlbiI7czo0MDoiOVlsUGcyaXFQd1RlOUVhOUJPZ1JtWnptSDNZeHpmUUo5bEZGUVdTNCI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6Mjc6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9sb2dpbiI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fX0=', 1762428643),
-('FopcXBgG0xDwfeTFe0AzL43wpiJtt7wgXSfRAYEL', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36', 'YTo0OntzOjY6Il90b2tlbiI7czo0MDoidTBjeHhuZFc0WHNPeENoaXF4VFlvRmp3eXhsMDFxTXNPanNmY2lTOSI7czozOiJ1cmwiO2E6MTp7czo4OiJpbnRlbmRlZCI7czozMToiaHR0cDovLzEyNy4wLjAuMTo4MDAwL2Rhc2hib2FyZCI7fXM6OToiX3ByZXZpb3VzIjthOjE6e3M6MzoidXJsIjtzOjMxOiJodHRwOi8vMTI3LjAuMC4xOjgwMDAvZGFzaGJvYXJkIjt9czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319fQ==', 1762428377),
-('gpkcpmrlTZS12jxxyzVkEsUybcWngFfFIkFfPBsL', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36', 'YTozOntzOjY6Il90b2tlbiI7czo0MDoiajJBdHdZNzlTWktyajU2cEx5dGY5Qm1tcHMwTm1lYUw0N1Nrd0dkeCI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6Mjc6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9sb2dpbiI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fX0=', 1762428384),
-('GZD8wnnC875OfS8QnWz4n8BwMsTYpkuDyM7HSXy7', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36', 'YTo3OntzOjY6Il90b2tlbiI7czo0MDoiek5DYWZoWEd5YmJMeXk5R0VCZ0hRUkcwcWc3YmExeWt4ZndEaHVETiI7czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6MzM6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9hdXRoL2dvb2dsZSI7fXM6MzoidXJsIjthOjE6e3M6ODoiaW50ZW5kZWQiO3M6MzE6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9kb2N1bWVudHMiO31zOjE4OiJnb29nbGVfb2F1dGhfc3RhdGUiO3M6MzI6Ijc1MjMzMmQ4YjlhNDE2Y2NmYTFlNGJhY2YyZWRiZGNmIjtzOjIyOiJnb29nbGVfb2F1dGhfdGltZXN0YW1wIjtpOjE3NjI0Mjk3NzA7czo1OiJzdGF0ZSI7czo0MDoicDJOTHR0ZjVOSnhmR0NmNUlmYVhOZzZTNDhRNGQzZ3F1OHltT3hoSiI7fQ==', 1762429770),
-('ii8INd2ZqNOZkkm3jz5YLtqb0WVxNyD0kntrAQ7m', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36', 'YTozOntzOjY6Il90b2tlbiI7czo0MDoiQTd3aUN0VkdLMW04cDlGVTRtT0dFZ2lPMHYzc1dNZDk2UzdaalR1ciI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6NDM6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9hZG1pbi9wZW5pbGFpYW4tZG9zZW4iO31zOjY6Il9mbGFzaCI7YToyOntzOjM6Im9sZCI7YTowOnt9czozOiJuZXciO2E6MDp7fX19', 1762428637),
-('Jv4681xvNJtgFnweeqFqwbYU6rTgUaeGYnEqo0OY', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36', 'YTozOntzOjY6Il90b2tlbiI7czo0MDoia3FjNVdnNjBNZHZIa21hbXp5djI4enRsT0lFckFOVDBMdzlQNkhYRiI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6NDc6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9kb3NwZW0vbWFoYXNpc3dhLzYvZGV0YWlsIjt9czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319fQ==', 1762433623),
-('NEvDs4j5iKOwqFDzkGnCmA1mG2NS07HePN9KykQq', 72, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36', 'YTo1OntzOjY6Il90b2tlbiI7czo0MDoiUW5BOWR6TUkwaG5DdnA4SzRCbEt5TGw0WDV1eU9UZzhFV2JkUVU0dCI7czozOiJ1cmwiO2E6MTp7czo4OiJpbnRlbmRlZCI7czozMToiaHR0cDovL2xvY2FsaG9zdDo4MDAwL2RvY3VtZW50cyI7fXM6OToiX3ByZXZpb3VzIjthOjE6e3M6MzoidXJsIjtzOjQ5OiJodHRwOi8vbG9jYWxob3N0OjgwMDAvZG9jdW1lbnRzL2xvYWQtZ2RyaXZlLWxpbmtzIjt9czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czo1MDoibG9naW5fd2ViXzU5YmEzNmFkZGMyYjJmOTQwMTU4MGYwMTRjN2Y1OGVhNGUzMDk4OWQiO2k6NzI7fQ==', 1762438635),
-('ogZV8rdg6RnKz0l8nFHxRGuSClzXWtsmAQa0UviE', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36', 'YTozOntzOjY6Il90b2tlbiI7czo0MDoiOEVsbnp4VXZJck9WSnVrWDVXVlNMZ1o3U0pRQVB0YUdJYXk4Uld2MSI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6Mjc6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9sb2dpbiI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fX0=', 1762431992),
-('oJZhDSwhchECjlG7vX4FXTdjEzocGIsdOhcjFrpT', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36', 'YTozOntzOjY6Il90b2tlbiI7czo0MDoiNjl1TmppRG9YdDhSSk51dlhEOWFMSGdmTml1QmhTamtKc1pMQkpQZSI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6NDg6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9kb3NwZW0vbWFoYXNpc3dhLzcyL2RldGFpbCI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fX0=', 1762434160),
-('owUiFK1CwS6vd6Q6LuLbKD32AExNYPYhQrdyCszh', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36', 'YTozOntzOjY6Il90b2tlbiI7czo0MDoiREZYMXBWSGRvbWRtNDRBU1FnaUt0RkJyWUlBM2hxN29kUU1hVHhTUCI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6Mjc6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9sb2dpbiI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fX0=', 1762433623),
-('qhlGsUiTq6fRrLWhzIEy6Pzd1B2JkWnUayLBegde', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36', 'YTozOntzOjY6Il90b2tlbiI7czo0MDoiS0RXWDVVZlNVbTI4cEM2NzlqaXNKa2JoT3pGVFprRHlkMEUxWTJUMSI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6NDM6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9hZG1pbi9zeXN0ZW0tc2V0dGluZ3MiO31zOjY6Il9mbGFzaCI7YToyOntzOjM6Im9sZCI7YTowOnt9czozOiJuZXciO2E6MDp7fX19', 1762428382),
-('rKv7BCpWOIBNiZk8l4aZ7hkLMg39lMMnm4L5eYTZ', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36', 'YTozOntzOjY6Il90b2tlbiI7czo0MDoiYmg0eWhtV1pYWDRUZW5FOU12ZDIyTENGeWhObDFFT1A3WENQdnFCMCI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6Mjc6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9sb2dpbiI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fX0=', 1762428629),
-('s5UTCLNeAHk60DzHCaCuWnfRr2fcRjmjLELgxSGu', 72, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36', 'YTo0OntzOjY6Il90b2tlbiI7czo0MDoib1JZdHY5Mm1TN0NoMFdBcWVyZHZZY0hGeml5dVFWVG1DelV1R21OZSI7czo2OiJfZmxhc2giO2E6Mjp7czozOiJuZXciO2E6MDp7fXM6Mzoib2xkIjthOjA6e319czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6ODE6Imh0dHA6Ly9sb2NhbGhvc3Q6ODAwMC9kb2N1bWVudHMvcHJldmlldy9raHMvUzJfS0hTX0h1YW11c2lrYV80NTVfMTc2MjQzMDIwNF8wLnBkZiI7fXM6NTA6ImxvZ2luX3dlYl81OWJhMzZhZGRjMmIyZjk0MDE1ODBmMDE0YzdmNThlYTRlMzA5ODlkIjtpOjcyO30=', 1762431169),
-('Sr2SAWLR5ZbP5SaGIhgPjxtQiHvyxwhxjbWEt5Rg', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36', 'YTozOntzOjY6Il90b2tlbiI7czo0MDoiYkUxMjlRNklPU3Jjelk5bE1Bd0hNS3pYUVdDZ1NVcFNaZHBsaUMwMCI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6Mjc6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9sb2dpbiI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fX0=', 1762428389),
-('UKWC5LuFuaypYQBOje4ZY0ig2w79RRxjscBHfLMU', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36', 'YTozOntzOjY6Il90b2tlbiI7czo0MDoib0pmM2tIekZYeWd1Nm4zMHpOeEVhSUN5SWQzdW9sNGZVNFk0UTZjWSI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6Mzg6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9hZG1pbi9ydWJyaWs/bT02Ijt9czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319fQ==', 1762428633),
-('UwKVVBJIPNBWbpsTSxaxbwIUUYy2iIWrjQshtcUc', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36', 'YTozOntzOjY6Il90b2tlbiI7czo0MDoiNUFTU3BnaUVSTzNkS3pKTE5HdjVyMVlEdnNsYmxxZU52aHdXSk1LTCI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6Mjc6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9sb2dpbiI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fX0=', 1762432939),
-('VnFjeNy55OMbNRekqVuhRi2rlGJYsiJlHPuxjp6A', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36', 'YTozOntzOjY6Il90b2tlbiI7czo0MDoiZGx4NWM4WDQ0WHV1OWQ0S0xPVUlzRG9QTTJPR2JkWDFnTWRrV0VEdCI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6Mjc6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9sb2dpbiI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fX0=', 1762428378),
-('VzblvyhGBRf8POVxr8drZWqEinwQzJNz5WlZJwkZ', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36', 'YTozOntzOjY6Il90b2tlbiI7czo0MDoicms4bjd5V2JtTjZ6U1ZKRTN1RU9kU3paNHpadEt2RVY5ODc2QnJTMSI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6Mzg6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9wcm9maWxlL3NldHRpbmdzIjt9czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319fQ==', 1762431996),
-('wN6b5tAH4ZBSiDyYwNdQ5dcq7TFLxMNUjCQSMTcz', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36', 'YTozOntzOjY6Il90b2tlbiI7czo0MDoiMXlrbTNTYzh5YXB6N0tRdnVtcjhVcHdFd05RM0tYMW1VRHdBVERueSI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6MzQ6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9hZG1pbi9ydWJyaWsiO31zOjY6Il9mbGFzaCI7YToyOntzOjM6Im9sZCI7YTowOnt9czozOiJuZXciO2E6MDp7fX19', 1762428628),
-('xLT2j3CbllJNMcapPOAxNq9sLWlk5ziQbfCpIrt7', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36', 'YTozOntzOjY6Il90b2tlbiI7czo0MDoidFVtRzdEWVNVYWF5RUZKT3BDSzAzdTdSWXlmeXhOWFoydUVMbVZndCI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6NDA6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9hZG1pbi9rZWxvbGEtbWl0cmEiO31zOjY6Il9mbGFzaCI7YToyOntzOjM6Im9sZCI7YTowOnt9czozOiJuZXciO2E6MDp7fX19', 1762428388),
-('YaOaI18nBfeX0IPFHO6U9XBsmYoyYwhAWFHuSB68', 3, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36', 'YTo0OntzOjY6Il90b2tlbiI7czo0MDoiQVU4OUpYN0FscllUQmdLdUhxT3Q4QzExSzZhejVxOEVramV5QUZ2QyI7czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6NDg6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9kb3NwZW0vbWFoYXNpc3dhLzcyL2RldGFpbCI7fXM6NTA6ImxvZ2luX3dlYl81OWJhMzZhZGRjMmIyZjk0MDE1ODBmMDE0YzdmNThlYTRlMzA5ODlkIjtpOjM7fQ==', 1762439448),
-('yI1OyJ0d3PaqqDTM0CQMdiMN1Va9I4kCTo2OPyPL', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36', 'YTozOntzOjY6Il90b2tlbiI7czo0MDoiV0w0Q2l2azFJOWZEaEV3djdJZk1rclRsb21BTERiTmpkQjhDNmJFMSI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6Mjk6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9wcm9maWxlIjt9czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319fQ==', 1762431991),
-('ywADnA5hYtunjtGUVR6GFojRjYUVe0kVt0JARwKf', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36', 'YTozOntzOjY6Il90b2tlbiI7czo0MDoiV3pMM1RDb0lOM1NNcFM3cm9ZYm9oVW5hVE5rYVF3UHRTdkZwNElxOCI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6Mjc6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9sb2dpbiI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fX0=', 1762432055);
+('jTRVIJ6yrZefNk7kjpDFEEkWJkImi4LySdqUbca9', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36', 'YTo2OntzOjY6Il90b2tlbiI7czo0MDoiUlA5SGxTSWZpNXlhdzMxS0ZoM3p4UFFWQnJ3b0pYRUcwdVZDeElheCI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6MzM6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9hdXRoL2dvb2dsZSI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fXM6MTg6Imdvb2dsZV9vYXV0aF9zdGF0ZSI7czozMjoiNGVhMGQ5YTBhNmQyY2JiYWY3NDYwYTJkOGI0ZjQ0NTUiO3M6MjI6Imdvb2dsZV9vYXV0aF90aW1lc3RhbXAiO2k6MTc2MzA0NDcyNztzOjU6InN0YXRlIjtzOjQwOiJKdXJHcThoNll1OEVPT1ZjeUgyWTVhSDRpVkZYUXVrcE5kMmxUa2VtIjt9', 1763044728),
+('wNtTcQpi3qU9gtj5hXKUV5wZmB7IPzyI3UxxesSc', 81, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36', 'YTo0OntzOjY6Il90b2tlbiI7czo0MDoiVEZWdE1PdmRTYktycGoyNmViZXFlYVh3cklZTnRlYXdmaFlVaVhOUiI7czo2OiJfZmxhc2giO2E6Mjp7czozOiJuZXciO2E6MDp7fXM6Mzoib2xkIjthOjA6e319czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6NDk6Imh0dHA6Ly9sb2NhbGhvc3Q6ODAwMC9kb2N1bWVudHMvbG9hZC1nZHJpdmUtbGlua3MiO31zOjUwOiJsb2dpbl93ZWJfNTliYTM2YWRkYzJiMmY5NDAxNTgwZjAxNGM3ZjU4ZWE0ZTMwOTg5ZCI7aTo4MTt9', 1763048057);
 
 -- --------------------------------------------------------
 
@@ -700,14 +662,22 @@ CREATE TABLE `surat_balasan` (
 --
 
 INSERT INTO `surat_balasan` (`id`, `mahasiswa_id`, `mitra_id`, `mitra_nama_custom`, `file_path`, `status_validasi`, `created_at`, `updated_at`) VALUES
-(1, 7, 3, NULL, 'documents/surat_balasan/surat_ti23002.pdf', 'menunggu', '2025-10-04 05:00:55', '2025-10-04 05:00:55'),
-(2, 8, 3, NULL, 'documents/surat_balasan/surat_ti23003.pdf', 'menunggu', '2025-10-04 05:00:55', '2025-10-04 05:00:55'),
-(3, 10, 2, NULL, 'documents/surat_balasan/surat_ti23005.pdf', 'tervalidasi', '2025-10-04 05:00:55', '2025-10-04 05:00:55'),
-(4, 11, 3, NULL, 'documents/surat_balasan/surat_ti23006.pdf', 'menunggu', '2025-10-04 05:00:55', '2025-10-04 05:00:55'),
-(5, 14, 2, NULL, 'documents/surat_balasan/surat_ti23009.pdf', 'menunggu', '2025-10-04 05:00:55', '2025-10-04 05:00:55'),
-(6, 15, 3, NULL, 'documents/surat_balasan/surat_ti23010.pdf', 'tervalidasi', '2025-10-04 05:00:55', '2025-10-04 05:00:55'),
-(10, 6, 1, 'a', 'documents/surat_balasan/Surat_Balasan_Mahasiswa_001_TI23001_1759687511.pdf', 'menunggu', '2025-10-05 18:05:11', '2025-10-05 18:05:11'),
-(11, 72, 16, NULL, 'documents/surat_balasan/Surat_Balasan_Huamusika_455_1762430257.pdf', 'menunggu', '2025-11-06 11:57:37', '2025-11-06 11:57:37');
+(13, 81, 16, NULL, 'documents/surat_balasan/Surat_Balasan_Muhammad_Sodiq_2401301056_1762530207.pdf', 'menunggu', '2025-11-07 15:43:27', '2025-11-07 15:43:27');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `surat_pengantar`
+--
+
+CREATE TABLE `surat_pengantar` (
+  `id` bigint UNSIGNED NOT NULL,
+  `mahasiswa_id` bigint UNSIGNED NOT NULL,
+  `file_path` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `status_validasi` enum('menunggu','belum_valid','tervalidasi','revisi') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'menunggu',
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
 
@@ -729,12 +699,12 @@ CREATE TABLE `system_settings` (
 --
 
 INSERT INTO `system_settings` (`id`, `key`, `value`, `description`, `created_at`, `updated_at`) VALUES
-(1, 'laporan_pkl_enabled', '1', 'Toggle untuk mengaktifkan/menonaktifkan fitur upload Laporan PKL untuk mahasiswa', '2025-10-05 10:05:06', '2025-10-07 00:33:19'),
-(2, 'penilaian_enabled', '1', 'Toggle untuk mengaktifkan/menonaktifkan fitur Penilaian untuk dosen pembimbing', '2025-10-05 17:20:11', '2025-10-05 17:40:13'),
-(3, 'jadwal_seminar_enabled', '1', 'Toggle untuk mengaktifkan/menonaktifkan fitur Jadwal Seminar', '2025-10-05 17:20:11', '2025-10-05 17:44:30'),
-(4, 'instansi_mitra_enabled', '1', 'Toggle untuk mengaktifkan/menonaktifkan fitur Instansi Mitra', '2025-10-05 17:40:13', '2025-10-05 17:44:14'),
-(5, 'dokumen_pemberkasan_enabled', '1', 'Toggle untuk mengaktifkan/menonaktifkan fitur upload dokumen pemberkasan (KHS, Surat Balasan)', '2025-10-05 17:40:13', '2025-10-05 18:03:43'),
-(6, 'registration_enabled', '1', 'Toggle untuk mengaktifkan/menonaktifkan pendaftaran akun baru (termasuk Google OAuth)', '2025-10-05 17:56:31', '2025-10-22 05:11:13');
+(1, 'laporan_pkl_enabled', '1', 'Toggle untuk mengaktifkan/menonaktifkan fitur upload Laporan PKL untuk mahasiswa', '2025-10-05 10:05:06', '2025-11-09 10:52:25'),
+(2, 'penilaian_enabled', '1', 'Toggle untuk mengaktifkan/menonaktifkan fitur Penilaian untuk dosen pembimbing', '2025-10-05 17:20:11', '2025-11-09 10:52:25'),
+(3, 'jadwal_seminar_enabled', '1', 'Toggle untuk mengaktifkan/menonaktifkan fitur Jadwal Seminar', '2025-10-05 17:20:11', '2025-11-09 10:52:25'),
+(4, 'instansi_mitra_enabled', '1', 'Toggle untuk mengaktifkan/menonaktifkan fitur Instansi Mitra', '2025-10-05 17:40:13', '2025-11-09 10:52:25'),
+(5, 'dokumen_pemberkasan_enabled', '1', 'Toggle untuk mengaktifkan/menonaktifkan fitur upload dokumen pemberkasan (KHS, Surat Balasan)', '2025-10-05 17:40:13', '2025-11-09 10:52:25'),
+(6, 'registration_enabled', '1', 'Toggle untuk mengaktifkan/menonaktifkan pendaftaran akun baru (termasuk Google OAuth)', '2025-10-05 17:56:31', '2025-11-10 06:43:21');
 
 -- --------------------------------------------------------
 
@@ -763,23 +733,9 @@ CREATE TABLE `users` (
 
 INSERT INTO `users` (`id`, `name`, `email`, `photo`, `google_linked`, `google_email`, `email_verified_at`, `password`, `role`, `remember_token`, `created_at`, `updated_at`) VALUES
 (1, 'First Atminnts', 'admin1@gmail.com', NULL, 0, NULL, NULL, '$2y$12$pZmg5OlGrdFDOKngawDFJ.wgQqR/NNXyBbIdOLNkeTG71Unb7d34S', 'admin', NULL, '2025-10-04 05:00:50', '2025-10-04 05:51:29'),
-(2, 'Admin SIPP 2', 'admin2@gmail.com', NULL, 0, NULL, NULL, '$2y$12$aJ93UXvHfKDXZ9c7zPQqLu1IJdDH3G4kLrTMkVWTOZooC81SC81iy', 'admin', NULL, '2025-10-04 05:00:51', '2025-10-04 05:00:51'),
 (3, 'Dr. Ahmad Wijaya, S.T., M.T.', 'dospem1@gmail.com', NULL, 0, NULL, NULL, '$2y$12$BZPpFv8/USLtNzGMMmVksOLqtayhOhXOjaVRoYEIFT408RYva/szy', 'dospem', NULL, '2025-10-04 05:00:51', '2025-10-04 05:00:51'),
 (4, 'Dr. Siti Nurhaliza, S.T., M.T.', 'dospem2@gmail.com', NULL, 0, NULL, NULL, '$2y$12$MyycmSjzZxnn2xai8OPzx.aCTTvc4O8YTpVQ5mrGcdsFJadJxxjze', 'dospem', NULL, '2025-10-04 05:00:51', '2025-10-04 05:00:51'),
 (5, 'Dr. Budi Santoso, S.T., M.T.', 'dospem3@gmail.com', NULL, 0, NULL, NULL, '$2y$12$RJG9TfUM9Dhv8eIVwFPU2exZs8as25GW4f.hP4/grC2zM2XZSJp9O', 'dospem', NULL, '2025-10-04 05:00:52', '2025-10-04 05:00:52'),
-(6, 'Mahasiswa 001', 'mhs001@gmail.com', NULL, 0, NULL, NULL, '$2y$12$rbneaAk9sCeLZa8t0lbKtOYHONan37fC94MY/mtJzVO3BTgf31dw.', 'mahasiswa', NULL, '2025-10-04 05:00:52', '2025-10-04 17:02:10'),
-(7, 'Mahasiswa 002', 'mhs002@gmail.com', NULL, 0, NULL, NULL, '$2y$12$oUR7IMKwJMimYPx5JeFYuuLco8DCfrffEpywPUq/733FAnxoWDvaG', 'mahasiswa', NULL, '2025-10-04 05:00:52', '2025-10-04 05:00:52'),
-(8, 'Mahasiswa 003', 'mhs003@gmail.com', NULL, 0, NULL, NULL, '$2y$12$0TwMS3hxFPLyxB3sE6ROWueTL.EwV.RdCYqhlewSWjbJ8z1ekcMRa', 'mahasiswa', NULL, '2025-10-04 05:00:52', '2025-10-04 05:00:52'),
-(9, 'Mahasiswa 004', 'mhs004@gmail.com', NULL, 0, NULL, NULL, '$2y$12$XaPRXXIzAnu12KAa/6ZvF.kn9pv4Det4zQyie4WFlWXjKZtWYiqzC', 'mahasiswa', NULL, '2025-10-04 05:00:53', '2025-10-04 05:00:53'),
-(10, 'Mahasiswa 005', 'mhs005@gmail.com', NULL, 0, NULL, NULL, '$2y$12$0bdWKNNtLT/9xCYr1S2qvuA0n7AQ80HYs4.Jes.UFYXi/WpJMdE.m', 'mahasiswa', NULL, '2025-10-04 05:00:53', '2025-10-04 05:00:53'),
-(11, 'Mahasiswa 006', 'mhs006@gmail.com', NULL, 0, NULL, NULL, '$2y$12$Aft5cWHjXNojvBE7U8ackeLCF2zshv3TO5zNkqwtcxg3RVs8PwkVy', 'mahasiswa', NULL, '2025-10-04 05:00:54', '2025-10-04 05:00:54'),
-(12, 'Mahasiswa 007', 'mhs007@gmail.com', NULL, 0, NULL, NULL, '$2y$12$uAH4WCuqU1S1lG8gVfzS/OjANRkJzSIbdtw0ZFVWm3D8ljFZ7nqlu', 'mahasiswa', NULL, '2025-10-04 05:00:54', '2025-10-04 05:00:54'),
-(13, 'Mahasiswa 008', 'mhs008@gmail.com', NULL, 0, NULL, NULL, '$2y$12$DdMQIMW4pJ8pO9APOm2zPOhOEgcsKRkcrox6qIMzKx7LaqO2sj8S2', 'mahasiswa', NULL, '2025-10-04 05:00:54', '2025-10-04 05:00:54'),
-(14, 'Mahasiswa 009', 'mhs009@gmail.com', NULL, 0, NULL, NULL, '$2y$12$yw4OAUWU.BaqGnJYAw9Hte2MTbWcO8UQbnIIgJXj768DZI22oPQDa', 'mahasiswa', NULL, '2025-10-04 05:00:55', '2025-10-04 05:00:55'),
-(15, 'Mahasiswa 010', 'mhs010@gmail.com', NULL, 0, NULL, NULL, '$2y$12$6IihaeQjcn9wlDX/i5kv3eoz4unZwt5WM40PAf4aTj530ruUih/wy', 'mahasiswa', NULL, '2025-10-04 05:00:55', '2025-10-04 05:00:55'),
-(17, 'Testing Mahasiswa', 'ayam@gmail.com', NULL, 0, NULL, NULL, '$2y$12$FwPd.hUm/wGSgSEp02vnFuPgNM.TjJLXZGbji/ZKiWVNhhX2M9Ffy', 'mahasiswa', NULL, '2025-10-04 14:28:20', '2025-10-22 11:30:08'),
-(56, '2401301056 MUHAMMAD SODIQ', 'muhammad.sodiq@mhs.politala.ac.id', 'https://lh3.googleusercontent.com/a/ACg8ocKt-H91MRh9uvV4aVnrWLobdMar4Aliqo_0xRRIK7Vq_XuG_xg=s96-c', 1, 'muhammad.sodiq@mhs.politala.ac.id', NULL, '$2y$12$oGdSboI7n4Zl11.BC4cDKOpr/n2GXsZU9.d/TzCI7TU9mieYEd3HO', 'mahasiswa', NULL, '2025-10-21 14:13:48', '2025-10-21 14:13:48'),
-(59, 'MUHAMMAD SHODIQ', 'mhmmdshodiq2774@gmail.com', 'https://lh3.googleusercontent.com/a/ACg8ocLjFLSHje36r7Rr_MhTVr8VQMBx3ex2WEYugymatsNNicQZnFU=s96-c', 1, 'mhmmdshodiq2774@gmail.com', NULL, '$2y$12$.6I7MFr7FnlaMvtxPm4F2uO0Ms7MaOeiLFvIpPQ5Q2urTVFSDyMSK', 'mahasiswa', NULL, '2025-10-22 11:16:06', '2025-10-22 11:16:06'),
 (62, 'Sayyidah Nafisah', 'sayyidahnafisah23@mhs.politala.ac.id', NULL, 0, NULL, NULL, '$2y$12$NYYyR3Q6z.YEqz1iYesoA.EnE5qhJYI9R3Er17Vq6I5Ju4rtcsxv6', 'mahasiswa', NULL, '2025-10-22 12:31:21', '2025-10-22 12:31:21'),
 (63, 'muhammad widigda', 'muhammadwidigdapratama23@mhs.politala.ac.id', NULL, 0, NULL, NULL, '$2y$12$y.ruXrIm0Fnu8lm7NGE3I.dEhvkRRgC9it8IdbveLwBFxcg8IRdHa', 'mahasiswa', NULL, '2025-10-22 12:38:12', '2025-10-22 12:38:12'),
 (64, 'M. Zainal Akli', 'mzainalakli23@mhs.politala.ac.id', NULL, 0, NULL, NULL, '$2y$12$d6TVce9aWynenUoF2UpzwO0rzBnfdHGBBVeb8QZqTdjT.GOljaTiC', 'mahasiswa', NULL, '2025-10-22 12:38:13', '2025-10-22 12:38:13'),
@@ -790,7 +746,9 @@ INSERT INTO `users` (`id`, `name`, `email`, `photo`, `google_linked`, `google_em
 (69, 'Muhammad Aditya', 'muhammadaditya23@mhs.politala.ac.id', NULL, 0, NULL, NULL, '$2y$12$OYLlQ1spnB2RHi2bQJM/R.VTPmgRyaibn7.pZxSpFbZk7ZwuGEFQO', 'mahasiswa', NULL, '2025-10-22 12:38:15', '2025-10-22 12:38:15'),
 (70, 'Muhammad Rifani', 'muhammadrifani23@mhs.politala.ac.id', NULL, 0, NULL, NULL, '$2y$12$OekvZgi1PEY8fisuTM.9s.CHYiLDWvWtqvYXyQw/DD14XUa5q0Vlm', 'mahasiswa', NULL, '2025-10-22 12:38:15', '2025-10-22 12:38:15'),
 (71, 'Ani Khairiyah', 'anikhairiyah23@mhs.politala.ac.id', NULL, 0, NULL, NULL, '$2y$12$2ZbRtWmbv9CyAJYKEx39/.iqhRFYMWVhvsGkWe9MUxcj07gOrZ0SW', 'mahasiswa', NULL, '2025-10-22 12:38:15', '2025-10-22 12:38:15'),
-(72, 'Huamusika', 'huamusika@gmail.com', 'https://lh3.googleusercontent.com/a/ACg8ocKRq6fBvVxw5dReLzK_26_KLbA8jrc4YEZgYquHKwTeo9Rmhw=s96-c', 1, 'huamusika@gmail.com', NULL, '$2y$12$dtngANyeXvuIFM3gXv/LsegOziupaZQpCMKLzcUhAxZf25BX5DLca', 'mahasiswa', NULL, '2025-11-06 11:49:50', '2025-11-06 11:50:45');
+(74, 'Muhammad Fariz', 'fariz@gmail.com', NULL, 0, NULL, NULL, '$2y$12$RRwW4YRCN3to2d6Dnbpq4e5XJxjQxNwIdX.AQYmcqta4W7OFwrqWG', 'mahasiswa', NULL, '2025-11-07 05:51:48', '2025-11-07 05:51:48'),
+(81, 'Muhammad Sodiq', 'muhammad.sodiq@mhs.politala.ac.id', 'https://lh3.googleusercontent.com/a/ACg8ocKt-H91MRh9uvV4aVnrWLobdMar4Aliqo_0xRRIK7Vq_XuG_xg=s96-c', 1, 'muhammad.sodiq@mhs.politala.ac.id', NULL, '$2y$12$Z.fEr2zFSP0.uMDKNQFV.O2AWBBgE03xaGIlZKEY3uMgzQNT.hnu6', 'mahasiswa', NULL, '2025-11-07 15:39:02', '2025-11-07 15:39:32'),
+(82, 'Muhammad Sodiq', 'huamusika@gmail.com', 'https://lh3.googleusercontent.com/a/ACg8ocKRq6fBvVxw5dReLzK_26_KLbA8jrc4YEZgYquHKwTeo9Rmhw=s96-c', 1, 'huamusika@gmail.com', NULL, '$2y$12$1orZh3g48.gjYz4joLRJIOPWMFvogiuN9wJBSiYX1MjhJX7cOIk.K', 'mahasiswa', NULL, '2025-11-09 09:42:28', '2025-11-09 09:43:19');
 
 --
 -- Indexes for dumped tables
@@ -818,6 +776,14 @@ ALTER TABLE `assessment_results`
   ADD PRIMARY KEY (`id`),
   ADD KEY `assessment_results_mahasiswa_user_id_foreign` (`mahasiswa_user_id`),
   ADD KEY `assessment_results_decided_by_foreign` (`decided_by`);
+
+--
+-- Indexes for table `dospems`
+--
+ALTER TABLE `dospems`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `dospems_nip_unique` (`nip`),
+  ADD KEY `dospems_user_id_foreign` (`user_id`);
 
 --
 -- Indexes for table `history_aktivitas`
@@ -877,6 +843,15 @@ ALTER TABLE `profil_mahasiswa`
   ADD KEY `profil_mahasiswa_mitra_selected_foreign` (`mitra_selected`);
 
 --
+-- Indexes for table `riwayat_penggantian_mitra`
+--
+ALTER TABLE `riwayat_penggantian_mitra`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `riwayat_penggantian_mitra_mahasiswa_id_foreign` (`mahasiswa_id`),
+  ADD KEY `riwayat_penggantian_mitra_mitra_lama_id_foreign` (`mitra_lama_id`),
+  ADD KEY `riwayat_penggantian_mitra_mitra_baru_id_foreign` (`mitra_baru_id`);
+
+--
 -- Indexes for table `sessions`
 --
 ALTER TABLE `sessions`
@@ -891,6 +866,13 @@ ALTER TABLE `surat_balasan`
   ADD PRIMARY KEY (`id`),
   ADD KEY `surat_balasan_mahasiswa_id_foreign` (`mahasiswa_id`),
   ADD KEY `surat_balasan_mitra_id_foreign` (`mitra_id`);
+
+--
+-- Indexes for table `surat_pengantar`
+--
+ALTER TABLE `surat_pengantar`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `surat_pengantar_mahasiswa_id_foreign` (`mahasiswa_id`);
 
 --
 -- Indexes for table `system_settings`
@@ -914,19 +896,25 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `assessment_responses`
 --
 ALTER TABLE `assessment_responses`
-  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `assessment_response_items`
 --
 ALTER TABLE `assessment_response_items`
-  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=31;
 
 --
 -- AUTO_INCREMENT for table `assessment_results`
 --
 ALTER TABLE `assessment_results`
-  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+
+--
+-- AUTO_INCREMENT for table `dospems`
+--
+ALTER TABLE `dospems`
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `history_aktivitas`
@@ -938,31 +926,31 @@ ALTER TABLE `history_aktivitas`
 -- AUTO_INCREMENT for table `jadwal_seminar`
 --
 ALTER TABLE `jadwal_seminar`
-  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- AUTO_INCREMENT for table `khs`
 --
 ALTER TABLE `khs`
-  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=41;
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=49;
 
 --
 -- AUTO_INCREMENT for table `khs_manual_transkrip`
 --
 ALTER TABLE `khs_manual_transkrip`
-  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
 
 --
 -- AUTO_INCREMENT for table `laporan_pkl`
 --
 ALTER TABLE `laporan_pkl`
-  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT for table `migrations`
 --
 ALTER TABLE `migrations`
-  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=56;
+  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=62;
 
 --
 -- AUTO_INCREMENT for table `mitra`
@@ -974,13 +962,25 @@ ALTER TABLE `mitra`
 -- AUTO_INCREMENT for table `profil_mahasiswa`
 --
 ALTER TABLE `profil_mahasiswa`
-  MODIFY `id_mahasiswa` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=73;
+  MODIFY `id_mahasiswa` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=83;
+
+--
+-- AUTO_INCREMENT for table `riwayat_penggantian_mitra`
+--
+ALTER TABLE `riwayat_penggantian_mitra`
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `surat_balasan`
 --
 ALTER TABLE `surat_balasan`
-  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+
+--
+-- AUTO_INCREMENT for table `surat_pengantar`
+--
+ALTER TABLE `surat_pengantar`
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `system_settings`
@@ -992,7 +992,7 @@ ALTER TABLE `system_settings`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=73;
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=83;
 
 --
 -- Constraints for dumped tables
@@ -1017,6 +1017,12 @@ ALTER TABLE `assessment_response_items`
 ALTER TABLE `assessment_results`
   ADD CONSTRAINT `assessment_results_decided_by_foreign` FOREIGN KEY (`decided_by`) REFERENCES `users` (`id`) ON DELETE CASCADE,
   ADD CONSTRAINT `assessment_results_mahasiswa_user_id_foreign` FOREIGN KEY (`mahasiswa_user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `dospems`
+--
+ALTER TABLE `dospems`
+  ADD CONSTRAINT `dospems_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `history_aktivitas`
@@ -1057,11 +1063,25 @@ ALTER TABLE `profil_mahasiswa`
   ADD CONSTRAINT `profil_mahasiswa_mitra_selected_foreign` FOREIGN KEY (`mitra_selected`) REFERENCES `mitra` (`id`) ON DELETE SET NULL;
 
 --
+-- Constraints for table `riwayat_penggantian_mitra`
+--
+ALTER TABLE `riwayat_penggantian_mitra`
+  ADD CONSTRAINT `riwayat_penggantian_mitra_mahasiswa_id_foreign` FOREIGN KEY (`mahasiswa_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `riwayat_penggantian_mitra_mitra_baru_id_foreign` FOREIGN KEY (`mitra_baru_id`) REFERENCES `mitra` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `riwayat_penggantian_mitra_mitra_lama_id_foreign` FOREIGN KEY (`mitra_lama_id`) REFERENCES `mitra` (`id`) ON DELETE SET NULL;
+
+--
 -- Constraints for table `surat_balasan`
 --
 ALTER TABLE `surat_balasan`
   ADD CONSTRAINT `surat_balasan_mahasiswa_id_foreign` FOREIGN KEY (`mahasiswa_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
   ADD CONSTRAINT `surat_balasan_mitra_id_foreign` FOREIGN KEY (`mitra_id`) REFERENCES `mitra` (`id`) ON DELETE SET NULL;
+
+--
+-- Constraints for table `surat_pengantar`
+--
+ALTER TABLE `surat_pengantar`
+  ADD CONSTRAINT `surat_pengantar_mahasiswa_id_foreign` FOREIGN KEY (`mahasiswa_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

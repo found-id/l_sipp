@@ -16,37 +16,80 @@
     <style>
         .nav-link {
             color: #6b7280;
-            transition: all 0.2s;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
             display: flex;
             align-items: center;
-            padding: 8px 12px;
-            border-radius: 6px;
+            padding: 10px 16px;
+            border-radius: 10px;
             text-decoration: none;
             font-weight: 500;
+            font-size: 0.9375rem;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
             max-width: 200px;
         }
-        .nav-link:hover { color: #2563eb; background-color: #f8fafc; }
+        .nav-link i {
+            font-size: 1.125rem;
+            transition: transform 0.3s ease;
+        }
+        .nav-link:hover {
+            color: #2563eb;
+            background-color: #f1f5f9;
+            transform: translateY(-1px);
+        }
+        .nav-link:hover i {
+            transform: scale(1.1);
+        }
         .nav-link.active {
-            color: #1e40af; background-color: #eff6ff; font-weight: 600;
+            color: #ffffff;
+            background-color: #1770ff;
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
         }
-        .nav-link.active::after {
-            content: '';
-            position: absolute; bottom: -2px; left: 50%;
-            transform: translateX(-50%);
-            width: calc(100% - 24px); height: 3px;
-            background-color: #2563eb; border-radius: 2px;
+        .nav-link.active i {
+            color: #ffffff;
         }
-        .nav-container { display: flex; align-items: center; gap: 8px; }
+        .nav-container {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .logo-text {
+            color: #1e40af;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+        }
+        .profile-icon {
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            color: #6b7280;
+            transition: all 0.3s ease;
+            background-color: #f8fafc;
+            overflow: hidden;
+        }
+        .profile-icon:hover {
+            color: #2563eb;
+            background-color: #eff6ff;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+        }
+        .profile-icon img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
     </style>
 </head>
 <body class="bg-gray-50">
     @auth
     <!-- Navigation -->
-    <nav class="fixed top-0 left-0 right-0 z-50 bg-white shadow-sm border-b">
+    <nav class="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-sm shadow-sm border-b border-gray-100">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16">
                 <div class="flex items-center">
@@ -127,21 +170,31 @@
                     </div>
                 </div>
                 
-                <div class="flex items-center space-x-4">
+                <div class="flex items-center space-x-2">
                     <!-- Profile Button -->
-                    <a href="{{ route('profile.index') }}" class="text-gray-500 hover:text-gray-700" title="Profile">
-                        <i class="fas fa-user"></i>
+                    <a href="{{ route('profile.index') }}" class="profile-icon" title="Profile">
+                        @if(auth()->user()->photo)
+                            @if(auth()->user()->google_linked)
+                                <img src="{{ auth()->user()->photo }}" alt="Profile" class="h-8 w-8 rounded-full object-cover" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';">
+                                <i class="fas fa-user" style="display: none;"></i>
+                            @else
+                                <img src="{{ asset('storage/' . auth()->user()->photo) }}" alt="Profile" class="h-8 w-8 rounded-full object-cover" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';">
+                                <i class="fas fa-user" style="display: none;"></i>
+                            @endif
+                        @else
+                            <i class="fas fa-user"></i>
+                        @endif
                     </a>
-                    
+
                     <!-- Activity Log Button (Hidden for Mahasiswa) -->
                     @if(auth()->user()->role !== 'mahasiswa')
-                    <a href="{{ route('activity') }}" class="text-gray-500 hover:text-gray-700" title="Log Aktivitas">
+                    <a href="{{ route('activity') }}" class="profile-icon" title="Log Aktivitas">
                         <i class="fas fa-history"></i>
                     </a>
                     @endif
-                    
+
                     <!-- Settings Button -->
-                    <a href="{{ route('profile.settings') }}" class="text-gray-500 hover:text-gray-700" title="Pengaturan">
+                    <a href="{{ route('profile.settings') }}" class="profile-icon" title="Pengaturan">
                         <i class="fas fa-cog"></i>
                     </a>
                 </div>

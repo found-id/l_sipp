@@ -11,14 +11,16 @@
 
 <div class="space-y-6">
     <!-- Header -->
-    <div class="bg-gradient-to-r from-blue-600 to-indigo-700 rounded-lg shadow-lg p-6 text-white">
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
         <div class="flex items-center">
             <div class="flex-shrink-0">
-                <i class="fas fa-file-upload text-3xl"></i>
+                <div class="w-12 h-12 rounded-lg bg-blue-600 flex items-center justify-center">
+                    <i class="fas fa-file-upload text-xl text-white"></i>
+                </div>
             </div>
             <div class="ml-4">
-                <h1 class="text-2xl font-bold">Pemberkasan Dokumen PKL</h1>
-                <p class="text-blue-100 mt-1">Upload dan kelola dokumen yang diperlukan untuk PKL</p>
+                <h1 class="text-2xl font-bold text-gray-900">Pemberkasan Dokumen PKL</h1>
+                <p class="text-gray-600 mt-1">Upload dan kelola dokumen yang diperlukan untuk PKL</p>
             </div>
         </div>
     </div>
@@ -167,38 +169,48 @@
     </div>
 
     <!-- Tab Navigation -->
-    <div class="bg-white shadow rounded-lg">
-        <div class="border-b border-gray-200">
-            <nav class="-mb-px flex space-x-8" aria-label="Tabs">
-                <button onclick="showTab('pemberkasan')" id="tab-pemberkasan" class="tab-button active py-4 px-6 border-b-2 font-medium text-sm border-blue-500 text-blue-600 transition-colors duration-200">
-                    <i class="fas fa-file-alt mr-2"></i>Pemberkasan Kelayakan
-                </button>
-                <button onclick="showTab('dokumen-pendukung')" id="tab-dokumen-pendukung" class="tab-button py-4 px-6 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 transition-colors duration-200">
-                    <i class="fab fa-google-drive mr-2"></i>Pemberkasan Dokumen Pendukung
-                </button>
-                <button onclick="showTab('surat-balasan')" id="tab-surat-balasan" class="tab-button py-4 px-6 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 transition-colors duration-200 {{ !$dokumenPemberkasanEnabled ? 'opacity-50 cursor-not-allowed' : '' }}"
-                        {{ !$dokumenPemberkasanEnabled ? 'disabled' : '' }}>
-                    <i class="fas fa-envelope mr-2"></i>Pemberkasan Instansi Mitra
+    <div class="bg-white shadow-sm rounded-xl border border-gray-100 p-4">
+        <nav class="flex space-x-3" aria-label="Tabs">
+            <button onclick="showTab('pemberkasan')" id="tab-pemberkasan" class="tab-button active flex-1 py-3.5 px-4 rounded-lg font-medium text-sm transition-all duration-200 bg-blue-600 text-white shadow-md hover:shadow-lg">
+                <div class="flex items-center justify-center">
+                    <i class="fas fa-file-alt mr-2 text-base"></i>
+                    <span>Pemberkasan Kelayakan</span>
+                </div>
+            </button>
+            <button onclick="showTab('dokumen-pendukung')" id="tab-dokumen-pendukung" class="tab-button flex-1 py-3.5 px-4 rounded-lg font-medium text-sm transition-all duration-200 bg-white text-gray-600 border border-gray-200 hover:bg-blue-50 hover:border-blue-200 hover:text-blue-700">
+                <div class="flex items-center justify-center">
+                    <i class="fab fa-google-drive mr-2 text-base"></i>
+                    <span>Pemberkasan Dokumen Pendukung</span>
+                </div>
+            </button>
+            <button onclick="showTab('surat-balasan')" id="tab-surat-balasan" class="tab-button flex-1 py-3.5 px-4 rounded-lg font-medium text-sm transition-all duration-200 bg-white text-gray-600 border border-gray-200 hover:bg-blue-50 hover:border-blue-200 hover:text-blue-700 {{ !$dokumenPemberkasanEnabled ? 'opacity-50 cursor-not-allowed' : '' }}"
+                    {{ !$dokumenPemberkasanEnabled ? 'disabled' : '' }}>
+                <div class="flex items-center justify-center">
+                    <i class="fas fa-envelope mr-2 text-base"></i>
+                    <span>Pemberkasan Instansi Mitra</span>
                     @if(!$dokumenPemberkasanEnabled)
-                        <i class="fas fa-lock ml-2 text-gray-400"></i>
+                        <i class="fas fa-lock ml-2 text-gray-400 text-xs"></i>
                     @endif
-                </button>
-                @php
-                    // Check if instansi mitra selected and surat balasan uploaded
-                    $hasMitraSelected = !empty($user->profilMahasiswa->mitra_selected ?? '');
-                    $hasSuratBalasan = $suratBalasan && is_object($suratBalasan);
-                    // Pemberkasan Akhir requires: eligible, mitra selected, and surat balasan uploaded
-                    $canAccessPemberkasanAkhir = $laporanPklEnabled && $isEligibleForPkl && $hasMitraSelected && $hasSuratBalasan;
-                @endphp
-                <button onclick="showTab('laporan')" id="tab-laporan" class="tab-button py-4 px-6 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 transition-colors duration-200 {{ !$laporanPklEnabled ? 'opacity-50 cursor-not-allowed' : '' }}"
-                        {{ !$laporanPklEnabled ? 'disabled' : '' }}>
-                    <i class="fas fa-book mr-2"></i>Pemberkasan Akhir
+                </div>
+            </button>
+            @php
+                // Check if instansi mitra selected and surat balasan uploaded
+                $hasMitraSelected = !empty($user->profilMahasiswa->mitra_selected ?? '');
+                $hasSuratBalasan = $suratBalasan && is_object($suratBalasan);
+                // Pemberkasan Akhir requires: eligible, mitra selected, and surat balasan uploaded
+                $canAccessPemberkasanAkhir = $laporanPklEnabled && $isEligibleForPkl && $hasMitraSelected && $hasSuratBalasan;
+            @endphp
+            <button onclick="showTab('laporan')" id="tab-laporan" class="tab-button flex-1 py-3.5 px-4 rounded-lg font-medium text-sm transition-all duration-200 bg-white text-gray-600 border border-gray-200 hover:bg-blue-50 hover:border-blue-200 hover:text-blue-700 {{ !$laporanPklEnabled ? 'opacity-50 cursor-not-allowed' : '' }}"
+                    {{ !$laporanPklEnabled ? 'disabled' : '' }}>
+                <div class="flex items-center justify-center">
+                    <i class="fas fa-book mr-2 text-base"></i>
+                    <span>Pemberkasan Akhir</span>
                     @if(!$laporanPklEnabled)
-                        <i class="fas fa-lock ml-2 text-gray-400"></i>
+                        <i class="fas fa-lock ml-2 text-gray-400 text-xs"></i>
                     @endif
-                </button>
-            </nav>
-        </div>
+                </div>
+            </button>
+        </nav>
     </div>
 
     <!-- Tab Content -->
@@ -730,21 +742,21 @@ function showTab(tabName) {
     // Remove active class from all tab buttons
     const tabButtons = document.querySelectorAll('.tab-button');
     tabButtons.forEach(button => {
-        button.classList.remove('border-blue-500', 'text-blue-600');
-        button.classList.add('border-transparent', 'text-gray-500');
+        button.classList.remove('active', 'bg-blue-600', 'text-white', 'shadow-md');
+        button.classList.add('bg-white', 'text-gray-600', 'border', 'border-gray-200');
     });
-    
+
     // Show selected tab content with smooth transition
     const selectedContent = document.getElementById(`content-${tabName}`);
     if (selectedContent) {
         selectedContent.classList.remove('hidden');
     }
-    
+
     // Add active class to selected tab button
     const selectedButton = document.getElementById(`tab-${tabName}`);
     if (selectedButton) {
-        selectedButton.classList.remove('border-transparent', 'text-gray-500');
-        selectedButton.classList.add('border-blue-500', 'text-blue-600');
+        selectedButton.classList.remove('bg-white', 'text-gray-600', 'border', 'border-gray-200');
+        selectedButton.classList.add('active', 'bg-blue-600', 'text-white', 'shadow-md');
     }
 }
 
@@ -974,7 +986,9 @@ window.previewFile = function(filePath) {
     
     const filename = filePath.split('/').pop();
     let fileType = 'khs';
-    if (filePath.includes('surat_balasan')) {
+    if (filePath.includes('surat_pengantar')) {
+        fileType = 'surat-pengantar';
+    } else if (filePath.includes('surat_balasan')) {
         fileType = 'surat-balasan';
     } else if (filePath.includes('laporan')) {
         fileType = 'laporan';
@@ -1005,7 +1019,9 @@ window.downloadPdf = function(filePath) {
     
     const filename = filePath.split('/').pop();
     let fileType = 'khs';
-    if (filePath.includes('surat_balasan')) {
+    if (filePath.includes('surat_pengantar')) {
+        fileType = 'surat-pengantar';
+    } else if (filePath.includes('surat_balasan')) {
         fileType = 'surat-balasan';
     } else if (filePath.includes('laporan')) {
         fileType = 'laporan';
@@ -1041,6 +1057,8 @@ window.deleteFile = function(type, id) {
     let url = '';
     if (type === 'khs') {
         url = '{{ route("documents.khs.delete", ":id") }}'.replace(':id', id);
+    } else if (type === 'surat-pengantar') {
+        url = '{{ route("documents.surat-pengantar.delete", ":id") }}'.replace(':id', id);
     } else if (type === 'surat-balasan') {
         url = '{{ route("documents.surat-balasan.delete", ":id") }}'.replace(':id', id);
     } else if (type === 'laporan') {
@@ -2488,65 +2506,218 @@ function renderTable(rows, container) {
             <!-- Pemberkasan Instansi Mitra Content -->
             <div class="max-w-5xl mx-auto mt-6" style="max-width: 76rem;">
                 <div class="grid grid-cols-1 gap-6">
-                <!-- Row 1: Pilih Instansi Mitra -->
-                <div class="bg-white shadow-lg rounded-xl border border-gray-100 overflow-hidden">
-                    <div class="bg-gradient-to-r from-blue-500 to-blue-600 px-6 py-4">
-                        <div class="flex items-center">
-                            <div class="flex-shrink-0">
-                                <i class="fas fa-building text-2xl text-white"></i>
+
+                <!-- Row 1: Surat Pengantar -->
+                <div class="bg-white shadow-sm rounded-xl border border-gray-200 overflow-hidden">
+                    <div class="bg-blue-600 px-6 py-4">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0">
+                                    <div class="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center">
+                                        <i class="fas fa-file-alt text-xl text-white"></i>
+                                    </div>
+                                </div>
+                                <div class="ml-3">
+                                    <h3 class="text-lg font-semibold text-white">1. Surat Pengantar</h3>
+                                    <p class="text-blue-100 text-sm">Upload surat pengantar dari kampus</p>
+                                </div>
                             </div>
-                            <div class="ml-3">
-                                <h3 class="text-lg font-semibold text-white">Pilih Instansi Mitra</h3>
-                                <p class="text-blue-100 text-sm">Pilih instansi mitra untuk PKL</p>
+                            <span class="bg-white/20 text-white text-xs font-medium px-3 py-1 rounded-full">Step 1</span>
+                        </div>
+                    </div>
+
+                    <div class="p-6">
+                        @if($suratPengantar ?? false)
+                            <div class="mb-4 p-4 bg-gray-50 rounded-lg border">
+                                <div class="flex items-start justify-between">
+                                    <div class="flex-1">
+                                        <div class="flex items-center justify-between mb-2">
+                                            <div class="flex items-center">
+                                                <i class="fas fa-file-pdf text-red-500 mr-2"></i>
+                                                <p class="text-sm font-medium text-gray-900">{{ basename($suratPengantar->file_path) }}</p>
+                                            </div>
+                                            <div class="flex space-x-2">
+                                                <button type="button" onclick="window.previewFile('{{ $suratPengantar->file_path }}')" class="text-blue-600 hover:text-blue-800 text-sm px-2 py-1 rounded hover:bg-blue-50">
+                                                    <i class="fas fa-eye mr-1"></i>Lihat
+                                                </button>
+                                                <button type="button" onclick="window.deleteFile('surat-pengantar', {{ $suratPengantar->id }})" class="text-red-600 hover:text-red-800 text-sm px-2 py-1 rounded hover:bg-red-50">
+                                                    <i class="fas fa-trash mr-1"></i>Hapus
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <p class="text-xs text-gray-500 mb-2">Uploaded: {{ $suratPengantar->created_at->format('d M Y H:i') }}</p>
+                                        <div class="flex items-center">
+                                            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium
+                                                @if($suratPengantar->status_validasi === 'tervalidasi') bg-green-100 text-green-800
+                                                @elseif($suratPengantar->status_validasi === 'belum_valid') bg-red-100 text-red-800
+                                                @elseif($suratPengantar->status_validasi === 'revisi') bg-yellow-100 text-yellow-800
+                                                @else bg-gray-100 text-gray-800 @endif">
+                                                @if($suratPengantar->status_validasi === 'tervalidasi')
+                                                    <i class="fas fa-check-circle mr-1"></i>Tervalidasi
+                                                @elseif($suratPengantar->status_validasi === 'belum_valid')
+                                                    <i class="fas fa-times-circle mr-1"></i>Belum Valid
+                                                @elseif($suratPengantar->status_validasi === 'revisi')
+                                                    <i class="fas fa-exclamation-triangle mr-1"></i>Perlu Revisi
+                                                @else
+                                                    <i class="fas fa-clock mr-1"></i>Menunggu Validasi
+                                                @endif
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
+                        @endif
+
+                        <form action="{{ route('documents.surat-pengantar.upload') }}" method="POST" enctype="multipart/form-data" class="space-y-4">
+                            @csrf
+                            <div>
+                                <label for="surat_pengantar_file" class="block text-sm font-medium text-gray-700 mb-2">Pilih File Surat Pengantar</label>
+                                <input type="file" id="surat_pengantar_file" name="file" accept=".pdf" required
+                                       class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 border border-gray-300 rounded-lg cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <p class="mt-2 text-xs text-gray-500 flex items-center">
+                                    <i class="fas fa-info-circle mr-1"></i>
+                                    Format: PDF, Maksimal: 10MB
+                                </p>
+                            </div>
+                            <button type="submit" class="w-full bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors font-medium">
+                                <i class="fas fa-upload mr-2"></i>{{ ($suratPengantar ?? false) ? 'Update Surat Pengantar' : 'Upload Surat Pengantar' }}
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Row 2: Pilih Instansi Mitra -->
+                <div class="bg-white shadow-sm rounded-xl border border-gray-200 overflow-hidden">
+                    <div class="bg-indigo-600 px-6 py-4">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0">
+                                    <div class="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center">
+                                        <i class="fas fa-building text-xl text-white"></i>
+                                    </div>
+                                </div>
+                                <div class="ml-3">
+                                    <h3 class="text-lg font-semibold text-white">2. Pilih Instansi Mitra</h3>
+                                    <p class="text-indigo-100 text-sm">Pilih instansi mitra untuk PKL</p>
+                                </div>
+                            </div>
+                            <span class="bg-white/20 text-white text-xs font-medium px-3 py-1 rounded-full">Step 2</span>
                         </div>
                     </div>
                     
                     <div class="p-6">
                         @if($user->profilMahasiswa && $user->profilMahasiswa->mitraSelected)
-                            <!-- Selected Mitra Display -->
-                            <div class="p-4 bg-blue-50 rounded-lg border border-blue-200">
-                                <div class="flex items-center justify-between">
-                                    <div class="flex items-center">
-                                        <div class="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center mr-3">
-                                            <i class="fas fa-building text-blue-600"></i>
+                            @php
+                                $selectedMitra = $user->profilMahasiswa->mitraSelected;
+                                $selectedMitra->loadCount('mahasiswaTerpilih as mahasiswa_count');
+                            @endphp
+                            <!-- Selected Mitra Display with Full Details -->
+                            <div class="border border-blue-200 rounded-lg overflow-hidden">
+                                <div class="bg-blue-50 px-4 py-3 border-b border-blue-200">
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex items-center">
+                                            <div class="h-12 w-12 rounded-lg bg-blue-600 flex items-center justify-center mr-3 shadow">
+                                                <i class="fas fa-building text-white text-lg"></i>
+                                            </div>
+                                            <div>
+                                                <h4 class="text-base font-semibold text-gray-900">{{ $selectedMitra->nama }}</h4>
+                                                <p class="text-xs text-gray-600 flex items-center mt-1">
+                                                    <i class="fas fa-map-marker-alt mr-1.5 text-blue-600"></i>{{ $selectedMitra->alamat }}
+                                                </p>
+                                            </div>
                                         </div>
-                                        <div>
-                                            <h4 class="text-sm font-medium text-gray-900">{{ $user->profilMahasiswa->mitraSelected->nama }}</h4>
-                                            <p class="text-xs text-gray-600">{{ $user->profilMahasiswa->mitraSelected->alamat }}</p>
+                                        <a href="{{ route('mitra') }}" class="px-3 py-1.5 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 text-sm font-medium transition">
+                                            <i class="fas fa-edit mr-1"></i>Ganti
+                                        </a>
+                                    </div>
+                                </div>
+                                <div class="p-4 bg-white">
+                                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                        <div class="flex items-start space-x-2">
+                                            <div class="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center flex-shrink-0">
+                                                <i class="fas fa-phone text-gray-600 text-sm"></i>
+                                            </div>
+                                            <div class="min-w-0">
+                                                <p class="text-xs text-gray-500 font-medium">Kontak</p>
+                                                <p class="text-sm text-gray-900 font-semibold truncate">{{ $selectedMitra->kontak ?? '-' }}</p>
+                                            </div>
+                                        </div>
+                                        <div class="flex items-start space-x-2">
+                                            <div class="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center flex-shrink-0">
+                                                <i class="fas fa-road text-gray-600 text-sm"></i>
+                                            </div>
+                                            <div>
+                                                <p class="text-xs text-gray-500 font-medium">Jarak</p>
+                                                <p class="text-sm text-gray-900 font-semibold">{{ $selectedMitra->jarak ?? 0 }} km</p>
+                                            </div>
+                                        </div>
+                                        <div class="flex items-start space-x-2">
+                                            <div class="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center flex-shrink-0">
+                                                <i class="fas fa-users text-gray-600 text-sm"></i>
+                                            </div>
+                                            <div>
+                                                <p class="text-xs text-gray-500 font-medium">Kuota</p>
+                                                <p class="text-sm text-gray-900 font-semibold">{{ $selectedMitra->mahasiswa_count ?? 0 }}/{{ $selectedMitra->max_mahasiswa ?? 4 }}</p>
+                                            </div>
+                                        </div>
+                                        <div class="flex items-start space-x-2">
+                                            <div class="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center flex-shrink-0">
+                                                <i class="fas fa-money-bill-wave text-gray-600 text-sm"></i>
+                                            </div>
+                                            <div>
+                                                <p class="text-xs text-gray-500 font-medium">Honor</p>
+                                                <p class="text-sm text-gray-900 font-semibold">{{ $selectedMitra->honor_label ?? '-' }}</p>
+                                            </div>
                                         </div>
                                     </div>
-                                    <div class="flex space-x-2">
-                                        <button type="button" onclick="changeMitra()" class="text-blue-600 hover:text-blue-800 text-sm font-medium">
-                                            <i class="fas fa-edit mr-1"></i>Ganti
-                                        </button>
+                                    <div class="mt-4 pt-4 border-t border-gray-100">
+                                        <div class="grid grid-cols-3 gap-3 text-center">
+                                            <div class="px-3 py-2 bg-gray-50 rounded-lg">
+                                                <p class="text-xs text-gray-500 mb-1">Fasilitas</p>
+                                                <p class="text-sm font-semibold text-gray-900">{{ $selectedMitra->fasilitas_label ?? '-' }}</p>
+                                            </div>
+                                            <div class="px-3 py-2 bg-gray-50 rounded-lg">
+                                                <p class="text-xs text-gray-500 mb-1">Kesesuaian</p>
+                                                <p class="text-sm font-semibold text-gray-900">{{ $selectedMitra->kesesuaian_jurusan_label ?? '-' }}</p>
+                                            </div>
+                                            <div class="px-3 py-2 bg-gray-50 rounded-lg">
+                                                <p class="text-xs text-gray-500 mb-1">Kebersihan</p>
+                                                <p class="text-sm font-semibold text-gray-900">{{ $selectedMitra->tingkat_kebersihan_label ?? '-' }}</p>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         @else
                             <!-- No Mitra Selected -->
-                            <div class="p-4 bg-gray-50 rounded-lg border border-gray-200 text-center">
-                                <i class="fas fa-building text-2xl text-gray-400 mb-2"></i>
-                                <p class="text-sm text-gray-600 mb-3">Belum ada instansi mitra yang dipilih</p>
-                                <button type="button" onclick="searchMitra()" class="bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors duration-200 font-medium">
-                                    <i class="fas fa-search mr-2"></i>Cari Instansi/Mitra
-                                </button>
+                            <div class="p-8 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300 text-center">
+                                <i class="fas fa-building text-4xl text-gray-400 mb-3"></i>
+                                <p class="text-sm text-gray-700 font-medium mb-2">Belum Ada Instansi Mitra</p>
+                                <p class="text-xs text-gray-500 mb-4">Pilih instansi mitra terlebih dahulu untuk melanjutkan</p>
+                                <a href="{{ route('mitra') }}" class="inline-flex items-center bg-blue-600 text-white py-2.5 px-6 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors font-medium">
+                                    <i class="fas fa-search mr-2"></i>Cari Instansi Mitra
+                                </a>
                             </div>
                         @endif
                     </div>
                 </div>
 
-                <!-- Row 2: Surat Balasan -->
-                <div class="bg-white shadow-lg rounded-xl border border-gray-100 overflow-hidden">
-                <div class="bg-gradient-to-r from-green-500 to-green-600 px-6 py-4">
-                    <div class="flex items-center">
-                        <div class="flex-shrink-0">
-                            <i class="fas fa-envelope text-2xl text-white"></i>
+                <!-- Row 3: Surat Balasan -->
+                <div class="bg-white shadow-sm rounded-xl border border-gray-200 overflow-hidden">
+                <div class="bg-green-600 px-6 py-4">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0">
+                                <div class="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center">
+                                    <i class="fas fa-envelope text-xl text-white"></i>
+                                </div>
+                            </div>
+                            <div class="ml-3">
+                                <h3 class="text-lg font-semibold text-white">3. Surat Balasan</h3>
+                                    <p class="text-green-100 text-sm">Upload surat balasan dari instansi</p>
+                            </div>
                         </div>
-                        <div class="ml-3">
-                            <h3 class="text-lg font-semibold text-white">Surat Balasan</h3>
-                                <p class="text-green-100 text-sm">Upload surat balasan dari instansi</p>
-                        </div>
+                        <span class="bg-white/20 text-white text-xs font-medium px-3 py-1 rounded-full">Step 3</span>
                     </div>
                 </div>
                 
@@ -2767,10 +2938,10 @@ function showTab(tabName) {
     
     // Remove active class from all tabs
     document.querySelectorAll('.tab-button').forEach(button => {
-        button.classList.remove('active', 'border-blue-500', 'text-blue-600');
-        button.classList.add('border-transparent', 'text-gray-500');
+        button.classList.remove('active', 'bg-blue-600', 'text-white', 'shadow-md');
+        button.classList.add('bg-white', 'text-gray-600', 'border', 'border-gray-200');
     });
-    
+
     // Show selected tab content with smooth transition
     setTimeout(() => {
         const targetContent = document.getElementById('content-' + tabName);
@@ -2780,11 +2951,11 @@ function showTab(tabName) {
             targetContent.style.opacity = '1';
         }, 50);
     }, 150);
-    
+
     // Add active class to selected tab
     const activeTab = document.getElementById('tab-' + tabName);
-    activeTab.classList.add('active', 'border-blue-500', 'text-blue-600');
-    activeTab.classList.remove('border-transparent', 'text-gray-500');
+    activeTab.classList.remove('bg-white', 'text-gray-600', 'border', 'border-gray-200');
+    activeTab.classList.add('active', 'bg-blue-600', 'text-white', 'shadow-md');
 }
 
 // Semester tab switching functionality with fade animation
@@ -2866,7 +3037,9 @@ window.previewFile = function(filePath) {
     
     const filename = filePath.split('/').pop();
     let fileType = 'khs';
-    if (filePath.includes('surat_balasan')) {
+    if (filePath.includes('surat_pengantar')) {
+        fileType = 'surat-pengantar';
+    } else if (filePath.includes('surat_balasan')) {
         fileType = 'surat-balasan';
     } else if (filePath.includes('laporan')) {
         fileType = 'laporan';
@@ -2897,7 +3070,9 @@ window.downloadPdf = function(filePath) {
     
     const filename = filePath.split('/').pop();
     let fileType = 'khs';
-    if (filePath.includes('surat_balasan')) {
+    if (filePath.includes('surat_pengantar')) {
+        fileType = 'surat-pengantar';
+    } else if (filePath.includes('surat_balasan')) {
         fileType = 'surat-balasan';
     } else if (filePath.includes('laporan')) {
         fileType = 'laporan';
@@ -2933,6 +3108,8 @@ window.deleteFile = function(type, id) {
     let url = '';
     if (type === 'khs') {
         url = '{{ route("documents.khs.delete", ":id") }}'.replace(':id', id);
+    } else if (type === 'surat-pengantar') {
+        url = '{{ route("documents.surat-pengantar.delete", ":id") }}'.replace(':id', id);
     } else if (type === 'surat-balasan') {
         url = '{{ route("documents.surat-balasan.delete", ":id") }}'.replace(':id', id);
     } else if (type === 'laporan') {

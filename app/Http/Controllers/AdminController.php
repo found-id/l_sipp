@@ -343,6 +343,7 @@ class AdminController extends Controller
             'fasilitas' => 'required|integer|in:1,2,3,4,5',
             'kesesuaian_jurusan' => 'required|integer|in:1,2,3,4,5',
             'tingkat_kebersihan' => 'required|integer|in:1,2,3,4,5',
+            'max_mahasiswa' => 'required|integer|min:1|max:20',
         ]);
 
         Mitra::create($request->all());
@@ -363,6 +364,7 @@ class AdminController extends Controller
             'fasilitas' => 'required|integer|in:1,2,3,4,5',
             'kesesuaian_jurusan' => 'required|integer|in:1,2,3,4,5',
             'tingkat_kebersihan' => 'required|integer|in:1,2,3,4,5',
+            'max_mahasiswa' => 'required|integer|min:1|max:20',
         ]);
 
         $mitra->update($request->all());

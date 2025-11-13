@@ -5,51 +5,74 @@
 @section('content')
 <div class="space-y-6">
     <!-- Header -->
-    <div class="bg-white shadow rounded-lg p-6">
-        <h1 class="text-2xl font-bold text-gray-900">Instansi Mitra</h1>
-        <p class="text-gray-600 mt-2">Daftar instansi mitra PKL</p>
-        
+    <div class="bg-gradient-to-r from-blue-600 to-blue-700 shadow-lg rounded-xl p-6 text-white">
+        <div class="flex items-center justify-between mb-6">
+            <div>
+                <h1 class="text-3xl font-bold flex items-center gap-3">
+                    <i class="fas fa-building"></i>
+                    Instansi Mitra PKL
+                </h1>
+                <p class="text-blue-100 mt-2">Pilih instansi mitra terbaik untuk PKL Anda</p>
+            </div>
+            @if($profilMahasiswa && $profilMahasiswa->mitra_selected)
+                @php
+                    $selectedMitra = \App\Models\Mitra::find($profilMahasiswa->mitra_selected);
+                @endphp
+                @if($selectedMitra)
+                <div class="bg-white/10 backdrop-blur-sm border-2 border-white/30 rounded-lg px-4 py-3">
+                    <div class="flex items-center gap-2">
+                        <i class="fas fa-check-circle text-green-300"></i>
+                        <div>
+                            <p class="text-xs text-blue-100 uppercase tracking-wide">Mitra Terpilih</p>
+                            <p class="font-semibold text-white">{{ $selectedMitra->nama }}</p>
+                        </div>
+                    </div>
+                </div>
+                @endif
+            @endif
+        </div>
+
         <!-- Search Box -->
-        <div class="mt-4">
+        <div>
             <form method="GET" action="{{ route('mitra') }}" class="flex gap-2">
                 <div class="flex-1">
-                    <input type="text" 
-                           name="search" 
+                    <input type="text"
+                           name="search"
                            id="searchInput"
                            value="{{ request('search') }}"
                            placeholder="Cari berdasarkan nama, alamat, atau kontak..."
-                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                           class="w-full px-4 py-3 border-0 rounded-lg focus:ring-2 focus:ring-white text-gray-900 placeholder-gray-400">
                 </div>
-                <button type="submit" 
-                        class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors">
+                <button type="submit"
+                        class="px-6 py-3 bg-white text-blue-600 rounded-lg hover:bg-blue-50 font-medium transition-all hover:scale-105">
                     <i class="fas fa-search mr-2"></i>Cari
                 </button>
 
                 @if(request('sort') === 'ranking')
-                    <a href="{{ request()->fullUrlWithQuery(['sort' => null]) }}" 
-                       class="px-6 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors">
-                        <i class="fas fa-font mr-2"></i>Urutkan Abjad
+                    <a href="{{ request()->fullUrlWithQuery(['sort' => null]) }}"
+                       class="px-6 py-3 bg-white/20 backdrop-blur-sm text-white rounded-lg hover:bg-white/30 font-medium transition-all">
+                        <i class="fas fa-font mr-2"></i>Abjad
                     </a>
                 @else
-                    <a href="{{ request()->fullUrlWithQuery(['sort' => 'ranking']) }}" 
-                       class="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors">
-                        <i class="fas fa-star mr-2"></i>Urutkan Peringkat
+                    <a href="{{ request()->fullUrlWithQuery(['sort' => 'ranking']) }}"
+                       class="px-6 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600 font-medium transition-all hover:scale-105">
+                        <i class="fas fa-star mr-2"></i>Peringkat
                     </a>
                 @endif
 
                 @if(request('search'))
-                <a href="{{ route('mitra') }}" 
-                   class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors">
-                    <i class="fas fa-times mr-2"></i>Reset
+                <a href="{{ route('mitra') }}"
+                   class="px-4 py-3 bg-white/20 backdrop-blur-sm text-white rounded-lg hover:bg-white/30 transition-all">
+                    <i class="fas fa-times"></i>
                 </a>
                 @endif
             </form>
         </div>
-        
+
         @if(request('search'))
         <div class="mt-3">
-            <p class="text-sm text-gray-600">
-                Hasil pencarian untuk: <span class="font-medium">"{{ request('search') }}"</span>
+            <p class="text-sm text-blue-100">
+                Hasil pencarian untuk: <span class="font-medium text-white">"{{ request('search') }}"</span>
             </p>
         </div>
         @endif
@@ -58,7 +81,16 @@
     <!-- Mitra List -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         @forelse($mitra as $m)
-        <div class="relative bg-white shadow rounded-lg p-6 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 group flex flex-col {{ $isRankingSort && isset($m->rank) && $m->rank <= 3 ? 'ring-2 ' . ($m->rank == 1 ? 'ring-yellow-400' : ($m->rank == 2 ? 'ring-gray-400' : 'ring-amber-600')) : '' }}">
+        <div class="relative bg-white shadow rounded-lg p-6 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 group flex flex-col
+            {{ $profilMahasiswa && $profilMahasiswa->mitra_selected == $m->id ? 'ring-4 ring-green-400 shadow-xl' : '' }}
+            {{ $isRankingSort && isset($m->rank) && $m->rank <= 3 ? 'ring-2 ' . ($m->rank == 1 ? 'ring-yellow-400' : ($m->rank == 2 ? 'ring-gray-400' : 'ring-amber-600')) : '' }}">
+
+            @if($profilMahasiswa && $profilMahasiswa->mitra_selected == $m->id)
+            <div class="absolute -top-3 -left-3 bg-green-500 text-white px-3 py-1 rounded-full shadow-lg flex items-center gap-1 text-xs font-bold">
+                <i class="fas fa-check-circle"></i>
+                <span>Pilihan Anda</span>
+            </div>
+            @endif
             @if($isRankingSort && isset($m->rank))
             <div class="absolute -top-3 -right-3 w-12 h-12 rounded-full flex items-center justify-center font-bold text-lg shadow-lg
                 {{ $m->rank == 1 ? 'bg-gradient-to-br from-yellow-400 to-yellow-600 text-white' :
@@ -140,11 +172,10 @@
                     $kuotaPenuh = $m->mahasiswa_count >= $m->max_mahasiswa;
                 @endphp
                 <div class="space-y-2">
-                    <div class="flex items-center justify-between text-sm">
-                        <span class="text-gray-600">Kuota Mahasiswa:</span>
-                        <div class="flex items-center">
-                            <i class="fas fa-users mr-1 {{ $kuotaPenuh ? 'text-red-500' : ($sisaKuota <= 1 ? 'text-yellow-500' : 'text-green-500') }}"></i>
-                            <span class="font-bold {{ $kuotaPenuh ? 'text-red-600' : ($sisaKuota <= 1 ? 'text-yellow-600' : 'text-green-600') }}">
+                    <div class="flex items-center justify-center">
+                        <div class="flex items-center gap-2 px-3 py-1.5 rounded-lg {{ $kuotaPenuh ? 'bg-red-50' : ($sisaKuota <= 1 ? 'bg-yellow-50' : 'bg-green-50') }}">
+                            <i class="fas fa-users {{ $kuotaPenuh ? 'text-red-500' : ($sisaKuota <= 1 ? 'text-yellow-500' : 'text-green-500') }}"></i>
+                            <span class="font-bold text-lg {{ $kuotaPenuh ? 'text-red-600' : ($sisaKuota <= 1 ? 'text-yellow-600' : 'text-green-600') }}">
                                 {{ $m->mahasiswa_count }}/{{ $m->max_mahasiswa }}
                             </span>
                         </div>
@@ -155,15 +186,15 @@
                              style="width: {{ min($persentaseTerisi, 100) }}%"></div>
                     </div>
                     @if($kuotaPenuh)
-                        <p class="text-xs text-red-600 font-medium">
+                        <p class="text-xs text-red-600 font-medium text-center">
                             <i class="fas fa-exclamation-circle mr-1"></i>Kuota penuh
                         </p>
                     @elseif($sisaKuota == 1)
-                        <p class="text-xs text-yellow-600 font-medium">
+                        <p class="text-xs text-yellow-600 font-medium text-center">
                             <i class="fas fa-exclamation-triangle mr-1"></i>Sisa 1 kuota
                         </p>
                     @else
-                        <p class="text-xs text-gray-500">
+                        <p class="text-xs text-gray-500 text-center">
                             Sisa {{ $sisaKuota }} kuota tersedia
                         </p>
                     @endif

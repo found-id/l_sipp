@@ -120,7 +120,7 @@
                             {{ $m->created_at->format('d M Y') }}
                         </td>
                         <td class="px-4 py-4 text-sm font-medium whitespace-nowrap text-center sticky right-0 bg-white z-10 hover:bg-gray-50 transition-colors shadow-[-4px_0_6px_-1px_rgba(0,0,0,0.1)]">
-                            <button onclick="openEditModal({{ $m->id }}, '{{ addslashes($m->nama) }}', '{{ addslashes($m->alamat) }}', '{{ addslashes($m->kontak) }}', {{ $m->jarak ?? 0 }}, {{ $m->honor ?? 0 }}, {{ $m->fasilitas ?? 0 }}, {{ $m->kesesuaian_jurusan ?? 0 }}, {{ $m->tingkat_kebersihan ?? 0 }})"
+                            <button onclick="openEditModal({{ $m->id }}, '{{ addslashes($m->nama) }}', '{{ addslashes($m->alamat) }}', '{{ addslashes($m->kontak) }}', {{ $m->jarak ?? 0 }}, {{ $m->honor ?? 0 }}, {{ $m->fasilitas ?? 0 }}, {{ $m->kesesuaian_jurusan ?? 0 }}, {{ $m->tingkat_kebersihan ?? 0 }}, {{ $m->max_mahasiswa ?? 4 }})"
                                     class="text-blue-600 hover:text-blue-900 mr-3 inline-flex items-center">
                                 <i class="fas fa-edit mr-1"></i>Edit
                             </button>
@@ -224,8 +224,15 @@
                             <option value="5">Luar Biasa</option>
                         </select>
                     </div>
+                    <div>
+                        <label for="max_mahasiswa" class="block text-sm font-medium text-gray-700">Maksimal Mahasiswa</label>
+                        <input type="number" id="max_mahasiswa" name="max_mahasiswa" required value="4" min="1" max="20"
+                               class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                               placeholder="Maksimal mahasiswa (default: 4)">
+                        <p class="mt-1 text-xs text-gray-500">Jumlah maksimal mahasiswa yang dapat memilih mitra ini</p>
+                    </div>
                 </div>
-                
+
                 <div class="flex justify-end space-x-3 mt-6">
                     <button type="button" onclick="closeCreateModal()" 
                             class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400">
@@ -314,8 +321,15 @@
                             <option value="5">Luar Biasa</option>
                         </select>
                     </div>
+                    <div>
+                        <label for="edit_max_mahasiswa" class="block text-sm font-medium text-gray-700">Maksimal Mahasiswa</label>
+                        <input type="number" id="edit_max_mahasiswa" name="max_mahasiswa" required value="4" min="1" max="20"
+                               class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                               placeholder="Maksimal mahasiswa (default: 4)">
+                        <p class="mt-1 text-xs text-gray-500">Jumlah maksimal mahasiswa yang dapat memilih mitra ini</p>
+                    </div>
                 </div>
-                
+
                 <div class="flex justify-end space-x-3 mt-6">
                     <button type="button" onclick="closeEditModal()" 
                             class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400">
@@ -340,7 +354,7 @@ function closeCreateModal() {
     document.getElementById('createModal').classList.add('hidden');
 }
 
-function openEditModal(id, nama, alamat, kontak, jarak, honor, fasilitas, kesesuaian_jurusan, tingkat_kebersihan) {
+function openEditModal(id, nama, alamat, kontak, jarak, honor, fasilitas, kesesuaian_jurusan, tingkat_kebersihan, max_mahasiswa) {
     document.getElementById('editForm').action = `/admin/kelola-mitra/${id}`;
     document.getElementById('edit_nama').value = nama;
     document.getElementById('edit_alamat').value = alamat;
@@ -350,6 +364,7 @@ function openEditModal(id, nama, alamat, kontak, jarak, honor, fasilitas, kesesu
     document.getElementById('edit_fasilitas').value = fasilitas;
     document.getElementById('edit_kesesuaian_jurusan').value = kesesuaian_jurusan;
     document.getElementById('edit_tingkat_kebersihan').value = tingkat_kebersihan;
+    document.getElementById('edit_max_mahasiswa').value = max_mahasiswa || 4;
     document.getElementById('editModal').classList.remove('hidden');
 }
 

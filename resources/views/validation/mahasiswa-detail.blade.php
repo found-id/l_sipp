@@ -411,7 +411,7 @@
                                         </span>
                                     @endif
 
-                                    <a href="{{ asset('storage/' . $khs->file_path) }}" target="_blank"
+                                    <a href="{{ route('dospem.mahasiswa.preview', ['mahasiswaId' => $mahasiswa->id, 'type' => 'khs', 'filename' => basename($khs->file_path)]) }}" target="_blank"
                                        class="inline-flex items-center px-3 py-1.5 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition">
                                         <i class="fas fa-eye mr-2"></i> Lihat PDF
                                     </a>
@@ -673,6 +673,58 @@
             <!-- Instansi Mitra Tab -->
             <div id="content-mitra" class="tab-content hidden">
                 <div class="space-y-6">
+                    <!-- Surat Pengantar -->
+                    <div>
+                        <h2 class="text-lg font-semibold text-gray-900 mb-4">Surat Pengantar</h2>
+                        <p class="text-sm text-gray-600 mb-4">Surat pengantar dari kampus untuk instansi mitra</p>
+
+                        @if($suratPengantar)
+                            <div class="border border-gray-200 rounded-lg p-4 hover:border-blue-300 transition">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center space-x-4">
+                                        <div class="h-12 w-12 rounded-lg bg-red-100 flex items-center justify-center">
+                                            <i class="fas fa-file-pdf text-red-600 text-xl"></i>
+                                        </div>
+                                        <div>
+                                            <h3 class="text-base font-medium text-gray-900">Surat Pengantar</h3>
+                                            <p class="text-sm text-gray-500 mt-1">{{ basename($suratPengantar->file_path) }}</p>
+                                            <p class="text-xs text-gray-400 mt-1">Diupload: {{ $suratPengantar->created_at->format('d M Y, H:i') }}</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center space-x-3">
+                                        @if($suratPengantar->status_validasi === 'tervalidasi')
+                                            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                                <i class="fas fa-check mr-1"></i> Tervalidasi
+                                            </span>
+                                        @elseif($suratPengantar->status_validasi === 'menunggu')
+                                            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                                <i class="fas fa-clock mr-1"></i> Menunggu
+                                            </span>
+                                        @elseif($suratPengantar->status_validasi === 'revisi')
+                                            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
+                                                <i class="fas fa-redo mr-1"></i> Revisi
+                                            </span>
+                                        @else
+                                            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                                <i class="fas fa-times mr-1"></i> Belum Valid
+                                            </span>
+                                        @endif
+
+                                        <a href="{{ route('dospem.mahasiswa.preview', ['mahasiswaId' => $mahasiswa->id, 'type' => 'surat-pengantar', 'filename' => basename($suratPengantar->file_path)]) }}" target="_blank"
+                                           class="inline-flex items-center px-3 py-1.5 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition">
+                                            <i class="fas fa-eye mr-2"></i> Lihat PDF
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        @else
+                            <div class="text-center py-12 border border-gray-200 rounded-lg">
+                                <i class="fas fa-file text-gray-300 text-5xl mb-4"></i>
+                                <p class="text-gray-500">Mahasiswa belum upload surat pengantar</p>
+                            </div>
+                        @endif
+                    </div>
+
                     <!-- Instansi Mitra yang Dipilih -->
                     <div>
                         <h2 class="text-lg font-semibold text-gray-900 mb-4">Instansi Mitra yang Dipilih</h2>
@@ -790,7 +842,7 @@
                                                 </span>
                                             @endif
 
-                                            <a href="{{ asset('storage/' . $surat->file_path) }}" target="_blank"
+                                            <a href="{{ route('dospem.mahasiswa.preview', ['mahasiswaId' => $mahasiswa->id, 'type' => 'surat-balasan', 'filename' => basename($surat->file_path)]) }}" target="_blank"
                                                class="inline-flex items-center px-3 py-1.5 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition">
                                                 <i class="fas fa-eye mr-2"></i> Lihat PDF
                                             </a>
@@ -897,7 +949,7 @@
                                         </span>
                                     @endif
 
-                                    <a href="{{ asset('storage/' . $laporan->file_path) }}" target="_blank"
+                                    <a href="{{ route('dospem.mahasiswa.preview', ['mahasiswaId' => $mahasiswa->id, 'type' => 'laporan', 'filename' => basename($laporan->file_path)]) }}" target="_blank"
                                        class="inline-flex items-center px-3 py-1.5 bg-purple-600 text-white text-sm rounded-lg hover:bg-purple-700 transition">
                                         <i class="fas fa-eye mr-2"></i> Lihat PDF
                                     </a>

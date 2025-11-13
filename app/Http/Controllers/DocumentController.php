@@ -30,18 +30,20 @@ class DocumentController extends Controller
                 ->count('semester');
             $khsManualTranskrip = $user->khsManualTranskrip()->get();
 
+            $suratPengantar = \App\Models\SuratPengantar::where('mahasiswa_id', $user->id)->latest()->first();
             $suratBalasan = $user->suratBalasan()->latest()->first();
             $laporanPkl = $user->laporanPkl()->latest()->first();
             $mitra = Mitra::all();
             
             return view('documents.index', compact(
                 'user',
-                'khs', 
-                'suratBalasan', 
-                'laporanPkl', 
-                'mitra', 
-                'khsFiles', 
-                'khsFileCount', 
+                'khs',
+                'suratPengantar',
+                'suratBalasan',
+                'laporanPkl',
+                'mitra',
+                'khsFiles',
+                'khsFileCount',
                 'khsManualTranskrip'
             ));
         }
@@ -192,6 +194,49 @@ class DocumentController extends Controller
                 'message' => 'Gagal mengupload file. ' . implode(', ', $errors)
             ], 400);
         }
+    }
+
+    public function uploadSuratPengantar(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|file|mimes:pdf|max:10240', // 10MB max
+        ]);
+
+        $user = Auth::user();
+
+        // Delete old surat pengantar if exists
+        $oldSurat = \App\Models\SuratPengantar::where('mahasiswa_id', $user->id)->first();
+        if ($oldSurat) {
+            Storage::disk('public')->delete($oldSurat->file_path);
+            $oldSurat->delete();
+        }
+
+        $file = $request->file('file');
+        $nim = optional($user->profilMahasiswa)->nim ?? $user->id;
+        $nama = str_replace(' ', '_', $user->name);
+        $filename = 'Surat_Pengantar_' . $nama . '_' . $nim . '_' . time() . '.' . $file->getClientOriginalExtension();
+        $path = $file->storeAs('documents/surat_pengantar', $filename, 'public');
+
+        \App\Models\SuratPengantar::create([
+            'mahasiswa_id' => $user->id,
+            'file_path' => $path,
+            'status_validasi' => 'menunggu',
+        ]);
+
+        \App\Models\HistoryAktivitas::create([
+            'id_user' => $user->id,
+            'id_mahasiswa' => $user->id,
+            'tipe' => 'upload_dokumen',
+            'pesan' => json_encode([
+                'action' => 'upload_surat_pengantar',
+                'user' => $user->name,
+                'mahasiswa' => optional($user->profilMahasiswa)->nim ?? $user->id,
+                'filename' => $filename,
+                'document_type' => 'surat_pengantar'
+            ])
+        ]);
+
+        return redirect()->back()->with('success', 'Surat Pengantar berhasil diupload!');
     }
 
     public function selectMitra(Request $request)
@@ -419,16 +464,21 @@ class DocumentController extends Controller
             ]);
             
             // Validate type
-            if (!in_array($type, ['khs', 'surat-balasan', 'laporan'])) {
+            if (!in_array($type, ['khs', 'surat-pengantar', 'surat-balasan', 'laporan'])) {
                 Log::error('Invalid file type', ['type' => $type]);
                 abort(404);
             }
-            
+
             // Find the file based on type and user
             $file = null;
             switch ($type) {
                 case 'khs':
                     $file = $user->khs()->where('file_path', 'LIKE', '%' . $filename)->first();
+                    break;
+                case 'surat-pengantar':
+                    $file = \App\Models\SuratPengantar::where('mahasiswa_id', $user->id)
+                        ->where('file_path', 'LIKE', '%' . $filename)
+                        ->first();
                     break;
                 case 'surat-balasan':
                     $file = $user->suratBalasan()->where('file_path', 'LIKE', '%' . $filename)->first();
@@ -486,16 +536,21 @@ class DocumentController extends Controller
             ]);
             
             // Validate type
-            if (!in_array($type, ['khs', 'surat-balasan', 'laporan'])) {
+            if (!in_array($type, ['khs', 'surat-pengantar', 'surat-balasan', 'laporan'])) {
                 Log::error('Invalid file type', ['type' => $type]);
                 abort(404);
             }
-            
+
             // Find the file based on type and user
             $file = null;
             switch ($type) {
                 case 'khs':
                     $file = $user->khs()->where('file_path', 'LIKE', '%' . $filename)->first();
+                    break;
+                case 'surat-pengantar':
+                    $file = \App\Models\SuratPengantar::where('mahasiswa_id', $user->id)
+                        ->where('file_path', 'LIKE', '%' . $filename)
+                        ->first();
                     break;
                 case 'surat-balasan':
                     $file = $user->suratBalasan()->where('file_path', 'LIKE', '%' . $filename)->first();
@@ -722,6 +777,34 @@ class DocumentController extends Controller
             return response()->json(['success' => true, 'message' => 'File Surat Balasan berhasil dihapus']);
         } catch (\Exception $e) {
             Log::error('Error deleting Surat Balasan: ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => 'Gagal menghapus file'], 500);
+        }
+    }
+
+    public function deleteSuratPengantar($id)
+    {
+        try {
+            $user = Auth::user();
+            $suratPengantar = \App\Models\SuratPengantar::where('id', $id)->where('mahasiswa_id', $user->id)->first();
+
+            if (!$suratPengantar) {
+                return response()->json(['success' => false, 'message' => 'File tidak ditemukan'], 404);
+            }
+
+            // Delete file from storage
+            if ($suratPengantar->file_path) {
+                $fullPath = storage_path('app/public/' . $suratPengantar->file_path);
+                if (file_exists($fullPath)) {
+                    unlink($fullPath);
+                }
+            }
+
+            // Delete record
+            $suratPengantar->delete();
+
+            return response()->json(['success' => true, 'message' => 'Surat Pengantar berhasil dihapus']);
+        } catch (\Exception $e) {
+            Log::error('Error deleting Surat Pengantar: ' . $e->getMessage());
             return response()->json(['success' => false, 'message' => 'Gagal menghapus file'], 500);
         }
     }

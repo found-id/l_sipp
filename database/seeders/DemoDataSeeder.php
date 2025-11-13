@@ -94,6 +94,7 @@ class DemoDataSeeder extends Seeder
             'fasilitas' => 4,          // Sangat Bagus
             'kesesuaian_jurusan' => 5, // Luar Biasa
             'tingkat_kebersihan' => 4, // Sangat Bagus
+            'max_mahasiswa' => 4,      // Maksimal 4 mahasiswa per mitra
         ]);
 
         $mitra2 = Mitra::create([
@@ -105,6 +106,7 @@ class DemoDataSeeder extends Seeder
             'fasilitas' => 3,          // Bagus
             'kesesuaian_jurusan' => 4, // Sangat Bagus
             'tingkat_kebersihan' => 3, // Bagus
+            'max_mahasiswa' => 4,      // Maksimal 4 mahasiswa per mitra
         ]);
 
         $mitra3 = Mitra::create([
@@ -116,6 +118,7 @@ class DemoDataSeeder extends Seeder
             'fasilitas' => 5,          // Luar Biasa
             'kesesuaian_jurusan' => 3, // Bagus
             'tingkat_kebersihan' => 5, // Luar Biasa
+            'max_mahasiswa' => 4,      // Maksimal 4 mahasiswa per mitra
         ]);
 
         // Create sample documents for some mahasiswa
