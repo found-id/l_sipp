@@ -210,9 +210,24 @@ class DocumentController extends Controller
 
         if ($profilMahasiswa && $profilMahasiswa->mitra_selected) {
             $mitraLamaId = $profilMahasiswa->mitra_selected;
+        }
+
+        // Validasi kuota mitra
+        if ($request->mitra_id) {
+            $mitraBaru = Mitra::find($request->mitra_id);
+
+            // Cek kuota hanya jika mahasiswa memilih mitra baru atau mengganti ke mitra yang berbeda
+            if ($mitraLamaId != $request->mitra_id) {
+                if ($mitraBaru->isKuotaPenuh()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Maaf, kuota mahasiswa untuk mitra ' . $mitraBaru->nama . ' sudah penuh (maksimal ' . $mitraBaru->max_mahasiswa . ' mahasiswa). Silakan pilih mitra lain.'
+                    ], 422);
+                }
+            }
 
             // Jika ada penggantian mitra (dari mitra lama ke mitra baru)
-            if ($mitraLamaId != $request->mitra_id && $request->mitra_id) {
+            if ($mitraLamaId && $mitraLamaId != $request->mitra_id) {
                 // Simpan riwayat penggantian
                 \App\Models\RiwayatPengantianMitra::create([
                     'mahasiswa_id' => $user->id,

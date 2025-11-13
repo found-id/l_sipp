@@ -132,14 +132,41 @@
                 </div>
             </div>
 
-            <!-- Jumlah Mahasiswa -->
+            <!-- Jumlah Mahasiswa & Kuota -->
             <div class="mt-auto pt-4">
-                <div class="flex items-center justify-end">
-                    <div class="flex items-center text-sm text-gray-600">
-                        <i class="fas fa-users mr-1"></i>
-                        <span class="font-medium">{{ $m->mahasiswa_count }}</span>
-                        <span class="ml-1">mahasiswa</span>
+                @php
+                    $sisaKuota = $m->max_mahasiswa - $m->mahasiswa_count;
+                    $persentaseTerisi = $m->max_mahasiswa > 0 ? ($m->mahasiswa_count / $m->max_mahasiswa) * 100 : 0;
+                    $kuotaPenuh = $m->mahasiswa_count >= $m->max_mahasiswa;
+                @endphp
+                <div class="space-y-2">
+                    <div class="flex items-center justify-between text-sm">
+                        <span class="text-gray-600">Kuota Mahasiswa:</span>
+                        <div class="flex items-center">
+                            <i class="fas fa-users mr-1 {{ $kuotaPenuh ? 'text-red-500' : ($sisaKuota <= 1 ? 'text-yellow-500' : 'text-green-500') }}"></i>
+                            <span class="font-bold {{ $kuotaPenuh ? 'text-red-600' : ($sisaKuota <= 1 ? 'text-yellow-600' : 'text-green-600') }}">
+                                {{ $m->mahasiswa_count }}/{{ $m->max_mahasiswa }}
+                            </span>
+                        </div>
                     </div>
+                    <!-- Progress Bar -->
+                    <div class="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+                        <div class="h-2 rounded-full transition-all duration-300 {{ $persentaseTerisi >= 100 ? 'bg-red-500' : ($persentaseTerisi >= 75 ? 'bg-yellow-500' : 'bg-green-500') }}"
+                             style="width: {{ min($persentaseTerisi, 100) }}%"></div>
+                    </div>
+                    @if($kuotaPenuh)
+                        <p class="text-xs text-red-600 font-medium">
+                            <i class="fas fa-exclamation-circle mr-1"></i>Kuota penuh
+                        </p>
+                    @elseif($sisaKuota == 1)
+                        <p class="text-xs text-yellow-600 font-medium">
+                            <i class="fas fa-exclamation-triangle mr-1"></i>Sisa 1 kuota
+                        </p>
+                    @else
+                        <p class="text-xs text-gray-500">
+                            Sisa {{ $sisaKuota }} kuota tersedia
+                        </p>
+                    @endif
                 </div>
             </div>
 
@@ -149,6 +176,11 @@
                     <button disabled
                             class="w-full bg-green-100 text-green-800 py-2 px-4 rounded-lg cursor-not-allowed font-medium border-2 border-green-300">
                         <i class="fas fa-check-circle mr-2"></i>Telah dipilih
+                    </button>
+                @elseif($kuotaPenuh)
+                    <button disabled
+                            class="w-full bg-red-100 text-red-800 py-2 px-4 rounded-lg cursor-not-allowed font-medium border-2 border-red-300">
+                        <i class="fas fa-times-circle mr-2"></i>Kuota Penuh
                     </button>
                 @else
                     <button onclick="selectMitra({{ $m->id }}, '{{ $m->nama }}')"

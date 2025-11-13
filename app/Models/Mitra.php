@@ -17,6 +17,7 @@ class Mitra extends Model
         'fasilitas',
         'kesesuaian_jurusan',
         'tingkat_kebersihan',
+        'max_mahasiswa',
     ];
 
     // Relationships
@@ -90,5 +91,30 @@ class Mitra extends Model
     public function getTingkatKebersihanLabelAttribute()
     {
         return self::getCriteriaLabel($this->tingkat_kebersihan);
+    }
+
+    /**
+     * Get jumlah mahasiswa yang sudah memilih mitra ini
+     */
+    public function getJumlahMahasiswaTerpilihAttribute()
+    {
+        return $this->mahasiswaTerpilih()->count();
+    }
+
+    /**
+     * Cek apakah kuota mitra sudah penuh
+     */
+    public function isKuotaPenuh()
+    {
+        return $this->mahasiswaTerpilih()->count() >= $this->max_mahasiswa;
+    }
+
+    /**
+     * Get sisa kuota mahasiswa
+     */
+    public function getSisaKuotaAttribute()
+    {
+        $sisa = $this->max_mahasiswa - $this->mahasiswaTerpilih()->count();
+        return max(0, $sisa);
     }
 }
