@@ -24,6 +24,10 @@
             border-radius: 6px;
             text-decoration: none;
             font-weight: 500;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 200px;
         }
         .nav-link:hover { color: #2563eb; background-color: #f8fafc; }
         .nav-link.active {

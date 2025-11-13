@@ -78,18 +78,19 @@ class DashboardController extends Controller
     public function mahasiswa()
     {
         $user = Auth::user();
-        
+
         $progressBerkas = $this->getProgressBerkas($user);
         $completed = $progressBerkas['completed'];
         $total = $progressBerkas['total'];
         $percentage = $progressBerkas['percentage'];
-        
+
         $stats = [
             'progress_berkas' => $completed . '/' . $total,
             'progress_percentage' => $percentage,
-            'khs_status' => $this->getKhsStatus($user),
-            'surat_status' => $this->getSuratStatus($user),
-            'laporan_status' => $this->getLaporanStatus($user),
+            'kelayakan_status' => $this->getKelayakanStatus($user),
+            'dokumen_pendukung_status' => $this->getDokumenPendukungStatus($user),
+            'instansi_mitra_status' => $this->getInstansiMitraStatus($user),
+            'pemberkasan_akhir_status' => $this->getPemberkasanAkhirStatus($user),
             'dosen_pembimbing' => $user->profilMahasiswa->dosenPembimbing ?? null,
         ];
 
@@ -116,13 +117,21 @@ class DashboardController extends Controller
 
     private function getProgressBerkas($mahasiswa)
     {
-        $total = 3; // KHS, Surat Balasan, Laporan
+        $total = 4; // Kelayakan, Dokumen Pendukung, Instansi Mitra, Pemberkasan Akhir
         $completed = 0;
-        
-        if ($mahasiswa->khs()->tervalidasi()->exists()) $completed++;
-        if ($mahasiswa->suratBalasan()->tervalidasi()->exists()) $completed++;
-        if ($mahasiswa->laporanPkl()->tervalidasi()->exists()) $completed++;
-        
+
+        // 1. Kelayakan - Check if eligible based on KHS
+        if ($this->getKelayakanStatus($mahasiswa) === 'layak') $completed++;
+
+        // 2. Dokumen Pendukung - Check if Google Drive links are filled
+        if ($this->getDokumenPendukungStatus($mahasiswa) === 'lengkap') $completed++;
+
+        // 3. Instansi Mitra - Check if mitra selected and surat balasan uploaded & validated
+        if ($this->getInstansiMitraStatus($mahasiswa) === 'tervalidasi') $completed++;
+
+        // 4. Pemberkasan Akhir - Check if laporan uploaded & validated
+        if ($this->getPemberkasanAkhirStatus($mahasiswa) === 'tervalidasi') $completed++;
+
         return [
             'completed' => $completed,
             'total' => $total,
@@ -130,21 +139,56 @@ class DashboardController extends Controller
         ];
     }
 
-    private function getKhsStatus($mahasiswa)
+    private function getKelayakanStatus($mahasiswa)
     {
-        $khs = $mahasiswa->khs()->latest()->first();
-        return $khs ? $khs->status_validasi : 'belum_upload';
+        $profil = $mahasiswa->profilMahasiswa;
+        if (!$profil) return 'belum_lengkap';
+
+        // Check if all required semesters (1-4) have KHS uploaded
+        $khsCount = \App\Models\KhsManualTranskrip::where('mahasiswa_id', $mahasiswa->id)
+            ->whereIn('semester', [1, 2, 3, 4])
+            ->count();
+
+        if ($khsCount < 4) return 'belum_lengkap';
+
+        // Check eligibility based on profil checks
+        if ($profil->cek_min_semester && $profil->cek_ipk_nilaisks && $profil->cek_valid_biodata) {
+            return 'layak';
+        }
+
+        return 'tidak_layak';
     }
 
-    private function getSuratStatus($mahasiswa)
+    private function getDokumenPendukungStatus($mahasiswa)
     {
+        $profil = $mahasiswa->profilMahasiswa;
+        if (!$profil) return 'belum_lengkap';
+
+        // Check if all required Google Drive links are filled
+        if ($profil->gdrive_pkkmb && $profil->gdrive_ecourse) {
+            return 'lengkap';
+        }
+
+        return 'belum_lengkap';
+    }
+
+    private function getInstansiMitraStatus($mahasiswa)
+    {
+        $profil = $mahasiswa->profilMahasiswa;
+        if (!$profil || !$profil->mitra_selected) return 'belum_pilih';
+
+        // Check if surat balasan uploaded and validated
         $surat = $mahasiswa->suratBalasan()->latest()->first();
-        return $surat ? $surat->status_validasi : 'belum_upload';
+        if (!$surat) return 'belum_upload';
+
+        return $surat->status_validasi;
     }
 
-    private function getLaporanStatus($mahasiswa)
+    private function getPemberkasanAkhirStatus($mahasiswa)
     {
         $laporan = $mahasiswa->laporanPkl()->latest()->first();
-        return $laporan ? $laporan->status_validasi : 'belum_upload';
+        if (!$laporan) return 'belum_upload';
+
+        return $laporan->status_validasi;
     }
 }
