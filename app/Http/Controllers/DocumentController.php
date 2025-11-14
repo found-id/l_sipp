@@ -460,7 +460,8 @@ class DocumentController extends Controller
             Log::info('Preview file request', [
                 'type' => $type,
                 'filename' => $filename,
-                'user_id' => $user->id
+                'user_id' => $user->id,
+                'user_role' => $user->role
             ]);
             
             // Validate type
@@ -471,21 +472,40 @@ class DocumentController extends Controller
 
             // Find the file based on type and user
             $file = null;
-            switch ($type) {
-                case 'khs':
-                    $file = $user->khs()->where('file_path', 'LIKE', '%' . $filename)->first();
-                    break;
-                case 'surat-pengantar':
-                    $file = \App\Models\SuratPengantar::where('mahasiswa_id', $user->id)
-                        ->where('file_path', 'LIKE', '%' . $filename)
-                        ->first();
-                    break;
-                case 'surat-balasan':
-                    $file = $user->suratBalasan()->where('file_path', 'LIKE', '%' . $filename)->first();
-                    break;
-                case 'laporan':
-                    $file = $user->laporanPkl()->where('file_path', 'LIKE', '%' . $filename)->first();
-                    break;
+            if ($user->role === 'admin') {
+                // Admin can view any file
+                switch ($type) {
+                    case 'khs':
+                        $file = \App\Models\Khs::where('file_path', 'LIKE', '%' . $filename)->first();
+                        break;
+                    case 'surat-pengantar':
+                        $file = \App\Models\SuratPengantar::where('file_path', 'LIKE', '%' . $filename)->first();
+                        break;
+                    case 'surat-balasan':
+                        $file = \App\Models\SuratBalasan::where('file_path', 'LIKE', '%' . $filename)->first();
+                        break;
+                    case 'laporan':
+                        $file = \App\Models\LaporanPkl::where('file_path', 'LIKE', '%' . $filename)->first();
+                        break;
+                }
+            } else {
+                // Mahasiswa can only view their own files
+                switch ($type) {
+                    case 'khs':
+                        $file = $user->khs()->where('file_path', 'LIKE', '%' . $filename)->first();
+                        break;
+                    case 'surat-pengantar':
+                        $file = \App\Models\SuratPengantar::where('mahasiswa_id', $user->id)
+                            ->where('file_path', 'LIKE', '%' . $filename)
+                            ->first();
+                        break;
+                    case 'surat-balasan':
+                        $file = $user->suratBalasan()->where('file_path', 'LIKE', '%' . $filename)->first();
+                        break;
+                    case 'laporan':
+                        $file = $user->laporanPkl()->where('file_path', 'LIKE', '%' . $filename)->first();
+                        break;
+                }
             }
             
             if (!$file) {

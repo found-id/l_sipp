@@ -390,15 +390,17 @@ class AdminController extends Controller
         $khs = \App\Models\Khs::with(['mahasiswa.profilMahasiswa.dosenPembimbing'])->get();
         $suratBalasan = \App\Models\SuratBalasan::with(['mahasiswa.profilMahasiswa.dosenPembimbing'])->get();
         $laporanPkl = \App\Models\LaporanPkl::with(['mahasiswa.profilMahasiswa.dosenPembimbing'])->get();
+        $suratPengantar = \App\Models\SuratPengantar::with(['mahasiswa.profilMahasiswa.dosenPembimbing'])->get();
         
         // Debug: Log the counts
         Log::info('Admin Validation Data:', [
             'khs_count' => $khs->count(),
             'surat_count' => $suratBalasan->count(),
-            'laporan_count' => $laporanPkl->count()
+            'laporan_count' => $laporanPkl->count(),
+            'surat_pengantar_count' => $suratPengantar->count()
         ]);
         
-        return view('admin.validation', compact('khs', 'suratBalasan', 'laporanPkl'));
+        return view('admin.validation', compact('khs', 'suratBalasan', 'laporanPkl', 'suratPengantar'));
     }
 
     public function validateKhs(Request $request, $id)
@@ -424,6 +426,15 @@ class AdminController extends Controller
         $laporanPkl = \App\Models\LaporanPkl::findOrFail($id);
         $laporanPkl->status_validasi = $request->status;
         $laporanPkl->save();
+
+        return response()->json(['success' => true]);
+    }
+
+    public function validateSuratPengantar(Request $request, $id)
+    {
+        $suratPengantar = \App\Models\SuratPengantar::findOrFail($id);
+        $suratPengantar->status_validasi = $request->status;
+        $suratPengantar->save();
 
         return response()->json(['success' => true]);
     }

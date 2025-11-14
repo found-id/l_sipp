@@ -112,6 +112,8 @@ Route::get('/jadwal/{filename}', function ($filename) {
         Route::post('/validation/khs/{id}', [\App\Http\Controllers\AdminController::class, 'validateKhs'])->name('validation.khs');
         Route::post('/validation/surat-balasan/{id}', [\App\Http\Controllers\AdminController::class, 'validateSuratBalasan'])->name('validation.surat-balasan');
         Route::post('/validation/laporan/{id}', [\App\Http\Controllers\AdminController::class, 'validateLaporan'])->name('validation.laporan');
+        Route::post('/validation/surat-pengantar/{id}', [\App\Http\Controllers\AdminController::class, 'validateSuratPengantar'])->name('validation.surat-pengantar');
+        Route::get('/mahasiswa/{id}/detail', [\App\Http\Controllers\ValidationController::class, 'mahasiswaDetail'])->name('mahasiswa.detail');
         
         // Penilaian dan Nilai Akhir
         Route::get('/penilaian-dosen', [\App\Http\Controllers\AdminController::class, 'penilaianDosen'])->name('penilaian-dosen');

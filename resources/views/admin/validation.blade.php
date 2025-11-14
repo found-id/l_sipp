@@ -58,6 +58,9 @@
                             {{ $k->created_at->format('d M Y H:i') }}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+                            <a href="{{ route('documents.preview', ['type' => 'khs', 'filename' => basename($k->file_path)]) }}" target="_blank" class="text-gray-600 hover:text-gray-900">
+                                <i class="fas fa-eye mr-1"></i>Lihat File
+                            </a>
                             <button onclick="openBiodataModal('{{ $k->mahasiswa->name }}', '{{ $k->mahasiswa->profilMahasiswa->nim ?? 'N/A' }}', '{{ $k->mahasiswa->profilMahasiswa->prodi ?? 'N/A' }}', '{{ $k->mahasiswa->profilMahasiswa->semester ?? 'N/A' }}', '{{ $k->mahasiswa->profilMahasiswa->dosenPembimbing->name ?? 'Belum ditentukan' }}')" 
                                     class="text-blue-600 hover:text-blue-900">
                                 <i class="fas fa-user mr-1"></i>Lihat Biodata
@@ -130,6 +133,9 @@
                             {{ $sb->created_at->format('d M Y H:i') }}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+                            <a href="{{ route('documents.preview', ['type' => 'surat-balasan', 'filename' => basename($sb->file_path)]) }}" target="_blank" class="text-gray-600 hover:text-gray-900">
+                                <i class="fas fa-eye mr-1"></i>Lihat File
+                            </a>
                             <button onclick="openBiodataModal('{{ $sb->mahasiswa->name }}', '{{ $sb->mahasiswa->profilMahasiswa->nim ?? 'N/A' }}', '{{ $sb->mahasiswa->profilMahasiswa->prodi ?? 'N/A' }}', '{{ $sb->mahasiswa->profilMahasiswa->semester ?? 'N/A' }}', '{{ $sb->mahasiswa->profilMahasiswa->dosenPembimbing->name ?? 'Belum ditentukan' }}')" 
                                     class="text-blue-600 hover:text-blue-900">
                                 <i class="fas fa-user mr-1"></i>Lihat Biodata
@@ -202,6 +208,9 @@
                             {{ $lp->created_at->format('d M Y H:i') }}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+                            <a href="{{ route('documents.preview', ['type' => 'laporan', 'filename' => basename($lp->file_path)]) }}" target="_blank" class="text-gray-600 hover:text-gray-900">
+                                <i class="fas fa-eye mr-1"></i>Lihat File
+                            </a>
                             <button onclick="openBiodataModal('{{ $lp->mahasiswa->name }}', '{{ $lp->mahasiswa->profilMahasiswa->nim ?? 'N/A' }}', '{{ $lp->mahasiswa->profilMahasiswa->prodi ?? 'N/A' }}', '{{ $lp->mahasiswa->profilMahasiswa->semester ?? 'N/A' }}', '{{ $lp->mahasiswa->profilMahasiswa->dosenPembimbing->name ?? 'Belum ditentukan' }}')" 
                                     class="text-blue-600 hover:text-blue-900">
                                 <i class="fas fa-user mr-1"></i>Lihat Biodata
@@ -221,6 +230,81 @@
                     @empty
                     <tr>
                         <td colspan="5" class="px-6 py-4 text-center text-gray-500">Tidak ada Laporan PKL</td>
+                    </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Surat Pengantar Section -->
+    <div class="bg-white shadow rounded-lg overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h3 class="text-lg font-medium text-gray-900">Surat Pengantar</h3>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Mahasiswa</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Dosen Pembimbing</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tanggal Upload</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    @forelse($suratPengantar as $sp)
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="flex items-center">
+                                <div class="h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center">
+                                    <i class="fas fa-user text-gray-600"></i>
+                                </div>
+                                <div class="ml-4">
+                                    <div class="text-sm font-medium text-gray-900">{{ $sp->mahasiswa->name }}</div>
+                                    <div class="text-sm text-gray-500">{{ $sp->mahasiswa->profilMahasiswa->nim ?? 'N/A' }}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {{ $sp->mahasiswa->profilMahasiswa->dosenPembimbing->name ?? 'Belum ditentukan' }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                                @if($sp->status_validasi === 'menunggu') bg-yellow-100 text-yellow-800
+                                @elseif($sp->status_validasi === 'tervalidasi') bg-green-100 text-green-800
+                                @elseif($sp->status_validasi === 'belum_valid') bg-red-100 text-red-800
+                                @else bg-gray-100 text-gray-800 @endif">
+                                {{ ucfirst(str_replace('_', ' ', $sp->status_validasi)) }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {{ $sp->created_at->format('d M Y H:i') }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+                            <a href="{{ route('documents.preview', ['type' => 'surat-pengantar', 'filename' => basename($sp->file_path)]) }}" target="_blank" class="text-gray-600 hover:text-gray-900">
+                                <i class="fas fa-eye mr-1"></i>Lihat File
+                            </a>
+                            <button onclick="openBiodataModal('{{ $sp->mahasiswa->name }}', '{{ $sp->mahasiswa->profilMahasiswa->nim ?? 'N/A' }}', '{{ $sp->mahasiswa->profilMahasiswa->prodi ?? 'N/A' }}', '{{ $sp->mahasiswa->profilMahasiswa->semester ?? 'N/A' }}', '{{ $sp->mahasiswa->profilMahasiswa->dosenPembimbing->name ?? 'Belum ditentukan' }}')" 
+                                    class="text-blue-600 hover:text-blue-900">
+                                <i class="fas fa-user mr-1"></i>Lihat Biodata
+                            </button>
+                            @if($sp->status_validasi === 'menunggu')
+                                <button onclick="validateSuratPengantar({{ $sp->id }}, 'tervalidasi')" 
+                                        class="text-green-600 hover:text-green-900">
+                                    <i class="fas fa-check mr-1"></i>Validasi
+                                </button>
+                                <button onclick="validateSuratPengantar({{ $sp->id }}, 'belum_valid')" 
+                                        class="text-red-600 hover:text-red-900">
+                                    <i class="fas fa-times mr-1"></i>Tolak
+                                </button>
+                            @endif
+                        </td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="5" class="px-6 py-4 text-center text-gray-500">Tidak ada Surat Pengantar</td>
                     </tr>
                     @endforelse
                 </tbody>
@@ -342,6 +426,27 @@ function validateLaporan(id, status) {
                 location.reload();
             } else {
                 alert('Gagal memvalidasi Laporan PKL');
+            }
+        });
+    }
+}
+
+function validateSuratPengantar(id, status) {
+    if (confirm('Apakah Anda yakin ingin ' + (status === 'tervalidasi' ? 'memvalidasi' : 'menolak') + ' Surat Pengantar ini?')) {
+        fetch(`/admin/validation/surat-pengantar/${id}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            },
+            body: JSON.stringify({ status: status })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Gagal memvalidasi Surat Pengantar');
             }
         });
     }

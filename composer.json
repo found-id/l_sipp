@@ -76,7 +76,7 @@
     "config": {
         "secure-http": true,
         "platform": {
-            "php": "8.3.0"
+            "php": "8.2.12"
         },
         "optimize-autoloader": true,
         "preferred-install": "dist",
@@ -84,7 +84,8 @@
         "allow-plugins": {
             "pestphp/pest-plugin": true,
             "php-http/discovery": true
-        }
+        },
+        "disable-tls": false
     },
 
     "minimum-stability": "stable",
