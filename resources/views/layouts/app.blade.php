@@ -15,7 +15,7 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         .nav-link {
-            color: #6b7280;
+            color: rgba(0, 0, 0, 0.55);
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
             display: flex;
@@ -68,14 +68,14 @@
             align-items: center;
             justify-content: center;
             border-radius: 10px;
-            color: #6b7280;
+            color: rgba(0, 0, 0, 0.603);
             transition: all 0.3s ease;
-            background-color: #f8fafc;
+            background-color: #0000000c;
             overflow: hidden;
         }
         .profile-icon:hover {
             color: #2563eb;
-            background-color: #eff6ff;
+            background-color: #ffffff;
             transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
         }
@@ -89,7 +89,7 @@
 <body class="bg-gray-50">
     @auth
     <!-- Navigation -->
-    <nav class="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-sm shadow-sm border-b border-gray-100">
+    <nav class="fixed top-0 left-0 right-0 z-50 bg-white/85 backdrop-blur-3xl shadow-sm border-b border-gray-100">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16">
                 <div class="flex items-center">
