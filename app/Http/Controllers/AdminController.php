@@ -385,22 +385,44 @@ class AdminController extends Controller
         return view('admin.kelola-data');
     }
 
-    public function validation()
+    public function validation(Request $request)
     {
+        // Get all mahasiswa with their related data
+        $query = ProfilMahasiswa::with(['user', 'dosenPembimbing']);
+
+        // Search functionality
+        if ($request->has('search') && $request->search) {
+            $searchTerm = $request->search;
+            $query->whereHas('user', function($q) use ($searchTerm) {
+                $q->where('name', 'like', '%' . $searchTerm . '%');
+            })->orWhere('nim', 'like', '%' . $searchTerm . '%');
+        }
+
+        // Sort functionality
+        $sortBy = $request->get('sort', 'name');
+        $sortOrder = $request->get('order', 'asc');
+
+        if ($sortBy === 'name') {
+            $query->join('users', 'profil_mahasiswa.id_mahasiswa', '=', 'users.id')
+                  ->orderBy('users.name', $sortOrder)
+                  ->select('profil_mahasiswa.*');
+        } elseif ($sortBy === 'nim') {
+            $query->orderBy('nim', $sortOrder);
+        } elseif ($sortBy === 'semester') {
+            $query->orderBy('semester', $sortOrder);
+        } elseif ($sortBy === 'ipk') {
+            $query->orderBy('ipk', $sortOrder);
+        }
+
+        $mahasiswa = $query->get();
+
+        // Legacy data for backward compatibility (if needed)
         $khs = \App\Models\Khs::with(['mahasiswa.profilMahasiswa.dosenPembimbing'])->get();
         $suratBalasan = \App\Models\SuratBalasan::with(['mahasiswa.profilMahasiswa.dosenPembimbing'])->get();
         $laporanPkl = \App\Models\LaporanPkl::with(['mahasiswa.profilMahasiswa.dosenPembimbing'])->get();
         $suratPengantar = \App\Models\SuratPengantar::with(['mahasiswa.profilMahasiswa.dosenPembimbing'])->get();
-        
-        // Debug: Log the counts
-        Log::info('Admin Validation Data:', [
-            'khs_count' => $khs->count(),
-            'surat_count' => $suratBalasan->count(),
-            'laporan_count' => $laporanPkl->count(),
-            'surat_pengantar_count' => $suratPengantar->count()
-        ]);
-        
-        return view('admin.validation', compact('khs', 'suratBalasan', 'laporanPkl', 'suratPengantar'));
+
+        return view('admin.validation', compact('mahasiswa', 'khs', 'suratBalasan', 'laporanPkl', 'suratPengantar'));
     }
 
     public function validateKhs(Request $request, $id)
