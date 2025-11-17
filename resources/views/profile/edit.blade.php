@@ -29,7 +29,7 @@
     </div>
 
     <!-- Edit Form -->
-    <form action="{{ route('profile.update') }}" method="POST" class="space-y-6">
+    <form id="profileForm" action="{{ route('profile.update') }}" method="POST" class="space-y-6">
         @csrf
         @method('PUT')
 
@@ -120,8 +120,12 @@
                         <i class="fas fa-graduation-cap text-gray-400 mr-2"></i>Program Studi
                     </label>
                     <input type="text" id="prodi" name="prodi" value="{{ old('prodi', $profil->prodi ?? '') }}" required
-                           class="block w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200"
-                           placeholder="Contoh: Teknik Informatika">
+                           class="block w-full px-4 py-3 border border-gray-300 rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent cursor-not-allowed"
+                           placeholder="Contoh: Teknik Informatika" readonly>
+                    <p class="mt-2 text-xs text-gray-500 flex items-center">
+                        <i class="fas fa-lock text-gray-400 mr-1"></i>
+                        Program Studi tidak dapat diubah
+                    </p>
                 </div>
 
                 <div>
@@ -180,21 +184,23 @@
                     <label for="id_dospem" class="block text-sm font-semibold text-gray-700 mb-2">
                         <i class="fas fa-chalkboard-teacher text-gray-400 mr-2"></i>Dosen Pembimbing
                     </label>
-                    <select id="id_dospem" name="id_dospem"
-                            class="block w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200">
-                        <option value="">-- Pilih Dosen Pembimbing --</option>
-                        @foreach($dosenPembimbingList as $dosen)
-                            <option value="{{ $dosen->id }}" {{ old('id_dospem', $profil->id_dospem ?? '') == $dosen->id ? 'selected' : '' }}>
-                                {{ $dosen->name }}
-                            </option>
-                        @endforeach
-                    </select>
+                    @php
+                        $currentDospem = $dosenPembimbingList->firstWhere('id', $profil->id_dospem ?? null);
+                    @endphp
+                    <input type="text" value="{{ $currentDospem ? $currentDospem->name : 'Belum ditentukan' }}"
+                           class="block w-full px-4 py-3 border border-gray-300 rounded-xl bg-gray-50 focus:outline-none cursor-not-allowed"
+                           readonly>
+                    <input type="hidden" name="id_dospem" value="{{ $profil->id_dospem ?? '' }}">
+                    <p class="mt-2 text-xs text-gray-500 flex items-center">
+                        <i class="fas fa-lock text-gray-400 mr-1"></i>
+                        Dosen Pembimbing ditentukan oleh Admin
+                    </p>
                 </div>
             </div>
         </div>
 
         <!-- Checkboxes -->
-        <div class="bg-white shadow-lg rounded-2xl p-6 border border-gray-100">
+        <div id="konfirmasi-persyaratan" class="bg-white shadow-lg rounded-2xl p-6 border border-gray-100">
             <div class="flex items-center mb-6">
                 <div class="w-12 h-12 bg-gradient-to-br from-orange-500 to-red-600 rounded-xl flex items-center justify-center">
                     <i class="fas fa-check-double text-white text-xl"></i>
@@ -202,45 +208,46 @@
                 <h3 class="text-xl font-bold text-gray-900 ml-3">Konfirmasi Persyaratan</h3>
             </div>
             <div class="space-y-4">
-                <div class="bg-gradient-to-br from-blue-50 to-indigo-50 p-5 rounded-xl border border-blue-100">
+                <div class="bg-gray-50 p-5 rounded-xl border border-gray-200">
                     <div class="flex items-start">
                         <div class="flex items-center h-6">
                             <input type="checkbox" id="cek_min_semester" name="cek_min_semester" value="1"
                                    {{ old('cek_min_semester', $profil->cek_min_semester ?? false) ? 'checked' : '' }}
-                                   class="h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                                   class="h-5 w-5 text-green-600 focus:ring-green-500 border-gray-300 rounded" required>
                         </div>
                         <label for="cek_min_semester" class="ml-4 text-sm text-gray-700 font-medium">
-                            Telah menempuh minimal 4 semester (D-3) atau 5 semester (D-4)
+                            Telah menempuh minimal 4 semester (D-3) atau 5 semester (D-4) <span class="text-red-500">*</span>
                         </label>
                     </div>
                 </div>
 
-                <div class="bg-gradient-to-br from-green-50 to-emerald-50 p-5 rounded-xl border border-green-100">
+                <div class="bg-gray-50 p-5 rounded-xl border border-gray-200">
                     <div class="flex items-start">
                         <div class="flex items-center h-6">
                             <input type="checkbox" id="cek_ipk_nilaisks" name="cek_ipk_nilaisks" value="1"
                                    {{ old('cek_ipk_nilaisks', $profil->cek_ipk_nilaisks ?? false) ? 'checked' : '' }}
-                                   class="h-5 w-5 text-green-600 focus:ring-green-500 border-gray-300 rounded">
+                                   class="h-5 w-5 text-green-600 focus:ring-green-500 border-gray-300 rounded" required>
                         </div>
                         <label for="cek_ipk_nilaisks" class="ml-4 text-sm text-gray-700 font-medium">
-                            IPK tidak di bawah 2,50, tanpa nilai E, nilai D maksimal 9 SKS
+                            IPK tidak di bawah 2,50, tanpa nilai E, nilai D maksimal 9 SKS <span class="text-red-500">*</span>
                         </label>
                     </div>
                 </div>
 
-                <div class="bg-gradient-to-br from-purple-50 to-pink-50 p-5 rounded-xl border border-purple-100">
+                <div class="bg-gray-50 p-5 rounded-xl border border-gray-200">
                     <div class="flex items-start">
                         <div class="flex items-center h-6">
                             <input type="checkbox" id="cek_valid_biodata" name="cek_valid_biodata" value="1"
                                    {{ old('cek_valid_biodata', $profil->cek_valid_biodata ?? false) ? 'checked' : '' }}
-                                   class="h-5 w-5 text-purple-600 focus:ring-purple-500 border-gray-300 rounded">
+                                   class="h-5 w-5 text-green-600 focus:ring-green-500 border-gray-300 rounded" required>
                         </div>
                         <label for="cek_valid_biodata" class="ml-4 text-sm text-gray-700 font-medium">
-                            Biodata yang saya masukkan valid dan dapat dipertanggungjawabkan
+                            Biodata yang saya masukkan valid dan dapat dipertanggungjawabkan <span class="text-red-500">*</span>
                         </label>
                     </div>
                 </div>
             </div>
+            <p class="mt-3 text-xs text-gray-500"><span class="text-red-500">*</span> Wajib dicentang</p>
         </div>
         @endif
 
@@ -249,10 +256,73 @@
             <a href="{{ route('profile.index') }}" class="px-6 py-3 bg-gray-200 text-gray-700 rounded-xl hover:bg-gray-300 transition-all duration-200 font-semibold">
                 <i class="fas fa-times mr-2"></i>Batal
             </a>
-            <button type="submit" class="px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-700 text-white rounded-xl hover:from-green-700 hover:to-emerald-800 focus:outline-none focus:ring-4 focus:ring-green-300 shadow-lg hover:shadow-xl transition-all duration-200 font-semibold">
+            <button type="button" onclick="confirmSaveChanges()" class="px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-700 text-white rounded-xl hover:from-green-700 hover:to-emerald-800 focus:outline-none focus:ring-4 focus:ring-green-300 shadow-lg hover:shadow-xl transition-all duration-200 font-semibold">
                 <i class="fas fa-save mr-2"></i>Simpan Perubahan
             </button>
         </div>
     </form>
 </div>
+
+<!-- Confirmation Modal -->
+<div id="confirmModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+    <div class="bg-white rounded-xl shadow-2xl p-8 max-w-md w-full mx-4 transform transition-all">
+        <div class="text-center">
+            <i class="fas fa-question-circle text-5xl text-blue-500 mb-4"></i>
+            <h3 class="text-xl font-bold text-gray-900 mb-3">Konfirmasi Perubahan</h3>
+            <p class="text-gray-600 mb-6">Apakah Anda yakin ingin menyimpan perubahan profil?</p>
+            <div class="flex justify-center space-x-3">
+                <button onclick="closeConfirmModal()" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-2.5 px-6 rounded-lg transition-all duration-200">
+                    Batal
+                </button>
+                <button onclick="submitForm()" class="bg-green-600 hover:bg-green-700 text-white font-semibold py-2.5 px-6 rounded-lg transition-all duration-200">
+                    Ya, Simpan
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function confirmSaveChanges() {
+    // Validate form first
+    const form = document.getElementById('profileForm');
+    if (!form.checkValidity()) {
+        form.reportValidity();
+        return;
+    }
+
+    // Show confirmation modal
+    const modal = document.getElementById('confirmModal');
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+}
+
+function closeConfirmModal() {
+    const modal = document.getElementById('confirmModal');
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+}
+
+function submitForm() {
+    closeConfirmModal();
+    document.getElementById('profileForm').submit();
+}
+
+// Scroll to section if hash is present
+document.addEventListener('DOMContentLoaded', function() {
+    if (window.location.hash === '#konfirmasi-persyaratan') {
+        const element = document.getElementById('konfirmasi-persyaratan');
+        if (element) {
+            setTimeout(() => {
+                element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                // Highlight the section
+                element.classList.add('ring-4', 'ring-orange-300');
+                setTimeout(() => {
+                    element.classList.remove('ring-4', 'ring-orange-300');
+                }, 3000);
+            }, 500);
+        }
+    }
+});
+</script>
 @endsection

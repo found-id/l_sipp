@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Log;
 use App\Models\Khs;
 use App\Models\KhsManualTranskrip;
 use App\Models\SuratBalasan;
+use App\Models\SuratPengantar;
 use App\Models\LaporanPkl;
 use App\Models\Mitra;
 use App\Models\ProfilMahasiswa;
@@ -34,7 +35,18 @@ class DocumentController extends Controller
             $suratBalasan = $user->suratBalasan()->latest()->first();
             $laporanPkl = $user->laporanPkl()->latest()->first();
             $mitra = Mitra::all();
-            
+
+            // Get profil mahasiswa for status_pkl
+            $profilMahasiswa = ProfilMahasiswa::where('id_mahasiswa', $user->id)->first();
+            $statusPkl = $profilMahasiswa ? $profilMahasiswa->status_pkl : 'siap';
+            $hasMitraSelected = $profilMahasiswa && $profilMahasiswa->mitra_selected ? true : false;
+
+            // Check if all requirements are checked
+            $requirementsChecked = $profilMahasiswa &&
+                $profilMahasiswa->cek_min_semester &&
+                $profilMahasiswa->cek_ipk_nilaisks &&
+                $profilMahasiswa->cek_valid_biodata;
+
             return view('documents.index', compact(
                 'user',
                 'khs',
@@ -44,7 +56,10 @@ class DocumentController extends Controller
                 'mitra',
                 'khsFiles',
                 'khsFileCount',
-                'khsManualTranskrip'
+                'khsManualTranskrip',
+                'statusPkl',
+                'hasMitraSelected',
+                'requirementsChecked'
             ));
         }
 
@@ -1028,6 +1043,172 @@ class DocumentController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Gagal menyimpan link: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function activatePklStatus(Request $request)
+    {
+        try {
+            $user = Auth::user();
+
+            // Verify that all requirements are met
+            $hasSuratPengantar = SuratPengantar::where('mahasiswa_id', $user->id)->exists();
+            $hasMitraSelected = ProfilMahasiswa::where('id_mahasiswa', $user->id)
+                ->whereNotNull('mitra_selected')
+                ->exists();
+            $hasSuratBalasan = SuratBalasan::where('mahasiswa_id', $user->id)->exists();
+
+            if (!$hasSuratPengantar || !$hasMitraSelected || !$hasSuratBalasan) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Semua dokumen (Surat Pengantar, Instansi Mitra, dan Surat Balasan) harus lengkap terlebih dahulu.'
+                ], 400);
+            }
+
+            // Update status PKL to aktif
+            $profile = ProfilMahasiswa::where('id_mahasiswa', $user->id)->first();
+            if ($profile) {
+                $profile->status_pkl = 'aktif';
+                $profile->save();
+            }
+
+            // Log activity
+            \App\Models\HistoryAktivitas::create([
+                'id_user' => $user->id,
+                'id_mahasiswa' => $user->id,
+                'tipe' => 'activate_pkl_status',
+                'pesan' => [
+                    'action' => 'activate_pkl_status',
+                    'mahasiswa' => $user->name,
+                    'new_status' => 'aktif',
+                ],
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Status PKL berhasil diaktifkan!'
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Error activating PKL status: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal mengaktifkan status PKL: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function deactivatePklStatus(Request $request)
+    {
+        try {
+            $user = Auth::user();
+
+            // Update status PKL back to siap
+            $profile = ProfilMahasiswa::where('id_mahasiswa', $user->id)->first();
+            if ($profile) {
+                $profile->status_pkl = 'siap';
+                $profile->save();
+            }
+
+            // Log activity
+            \App\Models\HistoryAktivitas::create([
+                'id_user' => $user->id,
+                'id_mahasiswa' => $user->id,
+                'tipe' => 'deactivate_pkl_status',
+                'pesan' => [
+                    'action' => 'deactivate_pkl_status',
+                    'mahasiswa' => $user->name,
+                    'new_status' => 'siap',
+                ],
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Status PKL berhasil dihentikan!'
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Error deactivating PKL status: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal menghentikan status PKL: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function completePklStatus(Request $request)
+    {
+        try {
+            $user = Auth::user();
+
+            // Update status PKL to selesai
+            $profile = ProfilMahasiswa::where('id_mahasiswa', $user->id)->first();
+            if ($profile) {
+                $profile->status_pkl = 'selesai';
+                $profile->save();
+            }
+
+            // Log activity
+            \App\Models\HistoryAktivitas::create([
+                'id_user' => $user->id,
+                'id_mahasiswa' => $user->id,
+                'tipe' => 'complete_pkl_status',
+                'pesan' => [
+                    'action' => 'complete_pkl_status',
+                    'mahasiswa' => $user->name,
+                    'new_status' => 'selesai',
+                ],
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Selamat! Anda telah menyelesaikan PKL.'
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Error completing PKL status: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal menyelesaikan PKL: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function revertPklStatus(Request $request)
+    {
+        try {
+            $user = Auth::user();
+
+            // Update status PKL back to aktif
+            $profile = ProfilMahasiswa::where('id_mahasiswa', $user->id)->first();
+            if ($profile) {
+                $profile->status_pkl = 'aktif';
+                $profile->save();
+            }
+
+            // Log activity
+            \App\Models\HistoryAktivitas::create([
+                'id_user' => $user->id,
+                'id_mahasiswa' => $user->id,
+                'tipe' => 'revert_pkl_status',
+                'pesan' => [
+                    'action' => 'revert_pkl_status',
+                    'mahasiswa' => $user->name,
+                    'new_status' => 'aktif',
+                ],
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Status PKL berhasil dikembalikan ke Aktif PKL!'
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Error reverting PKL status: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal mengubah status PKL: ' . $e->getMessage()
             ], 500);
         }
     }

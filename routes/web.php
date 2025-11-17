@@ -55,6 +55,10 @@ use App\Http\Controllers\HomeController;
             Route::post('/delete-semester-data', [DocumentController::class, 'deleteSemesterData'])->name('delete-semester-data');
             Route::post('/save-gdrive-links', [DocumentController::class, 'saveGdriveLinks'])->name('save-gdrive-links');
             Route::get('/load-gdrive-links', [DocumentController::class, 'loadGdriveLinks'])->name('load-gdrive-links');
+            Route::post('/activate-pkl-status', [DocumentController::class, 'activatePklStatus'])->name('activate-pkl-status');
+            Route::post('/deactivate-pkl-status', [DocumentController::class, 'deactivatePklStatus'])->name('deactivate-pkl-status');
+            Route::post('/complete-pkl-status', [DocumentController::class, 'completePklStatus'])->name('complete-pkl-status');
+            Route::post('/revert-pkl-status', [DocumentController::class, 'revertPklStatus'])->name('revert-pkl-status');
         });
     });
     

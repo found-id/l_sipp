@@ -117,20 +117,32 @@ class DashboardController extends Controller
 
     private function getProgressBerkas($mahasiswa)
     {
-        $total = 4; // Kelayakan, Dokumen Pendukung, Instansi Mitra, Pemberkasan Akhir
+        $total = 4; // 4 tabs: Kelayakan, Dokumen Pendukung, Instansi Mitra, Pemberkasan Akhir
         $completed = 0;
 
-        // 1. Kelayakan - Check if eligible based on KHS
-        if ($this->getKelayakanStatus($mahasiswa) === 'layak') $completed++;
+        // 1. Tab Pemberkasan Kelayakan - KHS transkrip 5 semester + KHS file 5 file
+        $khsTranskrip = \App\Models\KhsManualTranskrip::where('mahasiswa_id', $mahasiswa->id)->count();
+        $khsFileCount = $mahasiswa->khs()->whereBetween('semester', [1, 5])->distinct()->count('semester');
+        if ($khsTranskrip >= 5 && $khsFileCount >= 5) {
+            $completed++;
+        }
 
-        // 2. Dokumen Pendukung - Check if Google Drive links are filled
-        if ($this->getDokumenPendukungStatus($mahasiswa) === 'lengkap') $completed++;
+        // 2. Tab Pemberkasan Dokumen Pendukung - PKKMB + E-Course filled
+        $profil = $mahasiswa->profilMahasiswa;
+        if ($profil && $profil->gdrive_pkkmb && $profil->gdrive_ecourse) {
+            $completed++;
+        }
 
-        // 3. Instansi Mitra - Check if mitra selected and surat balasan uploaded & validated
-        if ($this->getInstansiMitraStatus($mahasiswa) === 'tervalidasi') $completed++;
+        // 3. Tab Pemberkasan Instansi Mitra - Surat Pengantar uploaded = lengkap
+        $hasSuratPengantar = \App\Models\SuratPengantar::where('mahasiswa_id', $mahasiswa->id)->exists();
+        if ($hasSuratPengantar) {
+            $completed++;
+        }
 
-        // 4. Pemberkasan Akhir - Check if laporan uploaded & validated
-        if ($this->getPemberkasanAkhirStatus($mahasiswa) === 'tervalidasi') $completed++;
+        // 4. Tab Pemberkasan Akhir - Laporan PKL uploaded = lengkap
+        if ($mahasiswa->laporanPkl()->exists()) {
+            $completed++;
+        }
 
         return [
             'completed' => $completed,
@@ -144,15 +156,31 @@ class DashboardController extends Controller
         $profil = $mahasiswa->profilMahasiswa;
         if (!$profil) return 'belum_lengkap';
 
-        // Check if all required semesters (1-4) have KHS uploaded
-        $khsCount = \App\Models\KhsManualTranskrip::where('mahasiswa_id', $mahasiswa->id)
-            ->whereIn('semester', [1, 2, 3, 4])
-            ->count();
+        // Check if all required semesters (1-5) have KHS transkrip uploaded
+        $khsTranskrip = \App\Models\KhsManualTranskrip::where('mahasiswa_id', $mahasiswa->id)->get();
+        $totalSemesters = $khsTranskrip->count();
 
-        if ($khsCount < 4) return 'belum_lengkap';
+        if ($totalSemesters < 5) return 'belum_lengkap';
 
-        // Check eligibility based on profil checks
-        if ($profil->cek_min_semester && $profil->cek_ipk_nilaisks && $profil->cek_valid_biodata) {
+        // Check KHS file uploads (5 files required)
+        $khsFileCount = $mahasiswa->khs()
+            ->whereBetween('semester', [1, 5])
+            ->distinct()
+            ->count('semester');
+
+        if ($khsFileCount < 5) return 'belum_lengkap';
+
+        // Calculate IPK and check eligibility criteria
+        $totalIps = $khsTranskrip->sum('ips');
+        $totalSksD = $khsTranskrip->sum('total_sks_d');
+        $totalE = $khsTranskrip->where('has_e', true)->count();
+        $finalIpk = $totalSemesters > 0 ? $totalIps / $totalSemesters : 0;
+
+        // Check Google Drive links (only PKKMB and E-Course are required, Semasa is optional)
+        $hasDokumenPendukung = $profil->gdrive_pkkmb && $profil->gdrive_ecourse;
+
+        // Check all eligibility criteria
+        if ($totalSemesters >= 5 && $khsFileCount >= 5 && $finalIpk >= 2.5 && $totalSksD <= 9 && $totalE == 0 && $hasDokumenPendukung) {
             return 'layak';
         }
 
@@ -164,9 +192,14 @@ class DashboardController extends Controller
         $profil = $mahasiswa->profilMahasiswa;
         if (!$profil) return 'belum_lengkap';
 
-        // Check if all required Google Drive links are filled
+        // Check if required Google Drive links are filled (PKKMB and E-Course are required)
         if ($profil->gdrive_pkkmb && $profil->gdrive_ecourse) {
             return 'lengkap';
+        }
+
+        // Check if partially filled
+        if ($profil->gdrive_pkkmb || $profil->gdrive_ecourse) {
+            return 'sebagian';
         }
 
         return 'belum_lengkap';
@@ -177,11 +210,12 @@ class DashboardController extends Controller
         $profil = $mahasiswa->profilMahasiswa;
         if (!$profil || !$profil->mitra_selected) return 'belum_pilih';
 
-        // Check if surat balasan uploaded and validated
+        // Check if surat balasan uploaded - if exists, it's complete
         $surat = $mahasiswa->suratBalasan()->latest()->first();
         if (!$surat) return 'belum_upload';
 
-        return $surat->status_validasi;
+        // If surat balasan exists, mark as lengkap
+        return 'lengkap';
     }
 
     private function getPemberkasanAkhirStatus($mahasiswa)
@@ -189,6 +223,7 @@ class DashboardController extends Controller
         $laporan = $mahasiswa->laporanPkl()->latest()->first();
         if (!$laporan) return 'belum_upload';
 
-        return $laporan->status_validasi;
+        // If laporan PKL exists, mark as lengkap
+        return 'lengkap';
     }
 }

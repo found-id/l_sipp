@@ -8,9 +8,19 @@
     <div class="bg-white shadow rounded-lg p-6">
         <div class="flex items-center justify-between">
             <div class="flex items-center space-x-4">
-                <div class="h-16 w-16 rounded-full bg-blue-100 flex items-center justify-center">
-                    <i class="fas fa-user text-2xl text-blue-600"></i>
-                </div>
+                @if($mahasiswa->photo && $mahasiswa->google_linked)
+                    <img src="{{ $mahasiswa->photo }}"
+                         alt="{{ $mahasiswa->name }}"
+                         class="h-16 w-16 rounded-full object-cover border-2 border-blue-200"
+                         onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="h-16 w-16 rounded-full bg-blue-100 items-center justify-center hidden">
+                        <i class="fas fa-user text-2xl text-blue-600"></i>
+                    </div>
+                @else
+                    <div class="h-16 w-16 rounded-full bg-blue-100 flex items-center justify-center">
+                        <i class="fas fa-user text-2xl text-blue-600"></i>
+                    </div>
+                @endif
                 <div>
                     <h1 class="text-2xl font-bold text-gray-900">{{ $mahasiswa->name }}</h1>
                     <p class="text-gray-600 mt-1">NIM: {{ $mahasiswa->nim }}</p>
@@ -117,21 +127,27 @@
 
         <!-- Status PKL Card -->
         @php
-            $pklStatus = 'Persiapan PKL';
-            $pklColor = 'blue';
-            if ($statusPKL === 'Lengkap') {
-                $pklStatus = 'PKL Selesai';
+            $dbStatusPkl = $mahasiswa->profilMahasiswa->status_pkl ?? 'siap';
+
+            if ($dbStatusPkl === 'selesai') {
+                $pklStatus = 'Selesai PKL';
                 $pklColor = 'green';
-            } elseif ($mahasiswa->profilMahasiswa && $mahasiswa->profilMahasiswa->mitra_selected) {
-                $pklStatus = 'Sedang PKL';
-                $pklColor = 'purple';
+                $pklIcon = 'fa-check-circle';
+            } elseif ($dbStatusPkl === 'aktif') {
+                $pklStatus = 'Aktif PKL';
+                $pklColor = 'blue';
+                $pklIcon = 'fa-building';
+            } else {
+                $pklStatus = 'Siap PKL';
+                $pklColor = 'yellow';
+                $pklIcon = 'fa-clipboard-check';
             }
         @endphp
         <div class="bg-white overflow-hidden shadow rounded-lg">
             <div class="p-5">
                 <div class="flex items-center">
                     <div class="flex-shrink-0">
-                        <i class="fas fa-briefcase text-2xl text-{{ $pklColor }}-600"></i>
+                        <i class="fas {{ $pklIcon }} text-2xl text-{{ $pklColor }}-600"></i>
                     </div>
                     <div class="ml-4 w-0 flex-1">
                         <dl>
@@ -345,7 +361,7 @@
                 </div>
 
                 <div class="mt-6 pt-6 border-t border-gray-200">
-                    <h3 class="text-base font-medium text-gray-900 mb-3">Status Kelayakan</h3>
+                    <h3 class="text-base font-medium text-gray-900 mb-3">Konfirmasi Persyaratan PKL</h3>
                     <div class="flex flex-wrap gap-2">
                         @if($mahasiswa->profilMahasiswa->cek_valid_biodata)
                             <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
@@ -453,7 +469,7 @@
                     <div class="semester-tab-contents">
                         @foreach($mahasiswa->khsManualTranskrip->sortBy('semester') as $index => $transkrip)
                         <div id="semester-content-{{ $transkrip->semester }}"
-                             class="semester-tab-content {{ $index !== 0 ? 'hidden' : '' }}">
+                             class="semester-tab-content transition-opacity duration-300 {{ $index !== 0 ? 'hidden' : '' }}">
                             <div class="border border-gray-200 rounded-lg overflow-hidden">
                                 <div class="p-4">
                                     @if($transkrip->transcript_data)
@@ -1046,11 +1062,16 @@ function showTab(tabName) {
     activeButton.classList.add('border-blue-500', 'text-blue-600');
 }
 
-// Semester tab switching function
+// Semester tab switching function with fade animation
 function showSemesterTab(semesterNumber) {
-    // Hide all semester tab contents
+    // Hide all semester tab contents with fade out
     const semesterContents = document.querySelectorAll('.semester-tab-content');
-    semesterContents.forEach(content => content.classList.add('hidden'));
+    semesterContents.forEach(content => {
+        content.style.opacity = '0';
+        setTimeout(() => {
+            content.classList.add('hidden');
+        }, 150);
+    });
 
     // Remove active state from all semester tab buttons
     const semesterButtons = document.querySelectorAll('.semester-tab-button');
@@ -1059,11 +1080,17 @@ function showSemesterTab(semesterNumber) {
         button.classList.add('border-transparent', 'text-gray-500');
     });
 
-    // Show selected semester content
-    const selectedContent = document.getElementById('semester-content-' + semesterNumber);
-    if (selectedContent) {
-        selectedContent.classList.remove('hidden');
-    }
+    // Show selected semester content with fade in
+    setTimeout(() => {
+        const selectedContent = document.getElementById('semester-content-' + semesterNumber);
+        if (selectedContent) {
+            selectedContent.classList.remove('hidden');
+            selectedContent.style.opacity = '0';
+            // Trigger reflow
+            selectedContent.offsetHeight;
+            selectedContent.style.opacity = '1';
+        }
+    }, 150);
 
     // Activate selected semester tab button
     const activeButton = document.getElementById('semester-tab-' + semesterNumber);

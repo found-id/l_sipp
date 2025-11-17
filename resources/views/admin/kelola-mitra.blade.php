@@ -61,7 +61,7 @@
             <table class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50">
                     <tr>
-                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-64 sticky left-0 bg-gray-50 z-10">Nama Mitra</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-80 sticky left-0 bg-gray-50 z-10">Nama Mitra</th>
                         <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-64">Alamat</th>
                         <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-32">Kontak</th>
                         <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-24">Jarak</th>
@@ -82,7 +82,7 @@
                                     <i class="fas fa-building text-blue-600"></i>
                                 </div>
                                 <div class="ml-3">
-                                    <div class="text-sm font-medium text-gray-900">{{ Str::limit($m->nama, 40) }}</div>
+                                    <div class="text-sm font-medium text-gray-900">{{ Str::limit($m->nama, 50) }}</div>
                                     <div class="text-xs text-gray-500">ID: {{ $m->id }}</div>
                                 </div>
                             </div>

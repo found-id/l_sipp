@@ -480,7 +480,7 @@ class ValidationController extends Controller
         // Get validation status for each category
         $validationStatus = [
             'kelayakan' => $this->getKelayakanStatus($mahasiswa),
-            'dokumen_pendukung' => $this->getDokumenPendukungStatus($gdrive),
+            'dokumen_pendukung' => $this->getDokumenPendukungStatus($mahasiswa, $gdrive),
             'instansi_mitra' => $this->getInstansiMitraStatus($mahasiswa),
             'akhir' => $this->getAkhirStatus($mahasiswa),
         ];
@@ -601,17 +601,28 @@ class ValidationController extends Controller
     /**
      * Get validation status for Pemberkasan Dokumen Pendukung
      */
-    private function getDokumenPendukungStatus($gdrive)
+    private function getDokumenPendukungStatus($mahasiswa, $gdrive)
     {
         $hasAll = $gdrive['pkkmb'] && $gdrive['ecourse'] && $gdrive['more'];
         $hasAny = $gdrive['pkkmb'] || $gdrive['ecourse'] || $gdrive['more'];
 
-        if ($hasAll) {
-            return ['status' => 'lengkap', 'label' => 'Lengkap', 'color' => 'green'];
-        } elseif ($hasAny) {
-            return ['status' => 'sebagian', 'label' => 'Sebagian', 'color' => 'yellow'];
-        } else {
+        if (!$hasAny) {
             return ['status' => 'belum_upload', 'label' => 'Belum Upload', 'color' => 'gray'];
+        }
+
+        // Check validation status from database
+        $statusValidasi = $mahasiswa->profilMahasiswa->status_dokumen_pendukung ?? 'menunggu';
+
+        if ($statusValidasi === 'tervalidasi') {
+            return ['status' => 'tervalidasi', 'label' => 'Tervalidasi', 'color' => 'green'];
+        } elseif ($statusValidasi === 'revisi') {
+            return ['status' => 'revisi', 'label' => 'Perlu Revisi', 'color' => 'orange'];
+        } elseif ($statusValidasi === 'belum_valid') {
+            return ['status' => 'belum_valid', 'label' => 'Belum Valid', 'color' => 'red'];
+        } elseif ($hasAll) {
+            return ['status' => 'menunggu', 'label' => 'Menunggu Validasi', 'color' => 'yellow'];
+        } else {
+            return ['status' => 'sebagian', 'label' => 'Sebagian', 'color' => 'yellow'];
         }
     }
 
@@ -749,8 +760,12 @@ class ValidationController extends Controller
         }
 
         // Update profil mahasiswa with validation status
-        // We'll add a new column for this, or store in existing structure
-        // For now, we'll log the activity
+        if ($mahasiswa->profilMahasiswa) {
+            $mahasiswa->profilMahasiswa->status_dokumen_pendukung = $request->status_validasi;
+            $mahasiswa->profilMahasiswa->save();
+        }
+
+        // Log activity
         $this->logValidationActivity(
             'pemberkasan_dokumen_pendukung',
             $mahasiswaId,

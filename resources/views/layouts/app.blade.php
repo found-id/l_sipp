@@ -89,7 +89,7 @@
 <body class="bg-gray-50">
     @auth
     <!-- Navigation -->
-    <nav class="fixed top-0 left-0 right-0 z-50 bg-white/1 backdrop-blur-3xl shadow-sm border-b border-gray-100">
+    <nav class="fixed top-0 left-0 right-0 z-50 bg-white/85 backdrop-blur-3xl shadow-sm border-b border-gray-100">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16">
                 <div class="flex items-center">

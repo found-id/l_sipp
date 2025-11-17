@@ -83,25 +83,25 @@
     <!-- Security Actions -->
     <div class="bg-white shadow-lg rounded-2xl p-6 border border-gray-100">
         <div class="flex items-center mb-6">
-            <div class="w-12 h-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center">
-                <i class="fas fa-shield-alt text-white text-xl"></i>
+            <div class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
+                <i class="fas fa-shield-alt text-gray-600 text-lg"></i>
             </div>
             <h3 class="text-xl font-bold text-gray-900 ml-3">Keamanan</h3>
         </div>
         <div class="space-y-4">
-            <div class="group bg-gradient-to-br from-indigo-50 to-purple-50 p-6 rounded-xl border-2 border-indigo-100 hover:border-indigo-300 transition-all duration-300 hover:shadow-lg">
+            <div class="bg-gray-50 p-5 rounded-xl border border-gray-200 hover:border-gray-300 transition-all duration-200">
                 <div class="flex items-center justify-between">
-                    <div class="flex items-start">
-                        <div class="w-12 h-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center mr-4 group-hover:scale-110 transition-transform duration-300">
-                            <i class="fas fa-key text-white text-xl"></i>
+                    <div class="flex items-center">
+                        <div class="w-10 h-10 bg-gray-200 rounded-lg flex items-center justify-center mr-4">
+                            <i class="fas fa-key text-gray-600"></i>
                         </div>
                         <div>
-                            <h4 class="font-bold text-gray-900 text-lg">Ubah Password</h4>
-                            <p class="text-sm text-gray-600 mt-1">Perbarui password Anda untuk meningkatkan keamanan akun</p>
+                            <h4 class="font-semibold text-gray-900">Ubah Password</h4>
+                            <p class="text-sm text-gray-500 mt-0.5">Perbarui password untuk keamanan akun</p>
                         </div>
                     </div>
-                    <button onclick="openPasswordModal()" class="ml-4 bg-gradient-to-r from-indigo-600 to-purple-700 text-white px-6 py-3 rounded-xl hover:from-indigo-700 hover:to-purple-800 transition-all duration-200 shadow-md hover:shadow-lg font-semibold">
-                        <i class="fas fa-key mr-2"></i>Ubah Password
+                    <button onclick="openPasswordModal()" class="bg-gray-600 hover:bg-gray-700 text-white px-5 py-2.5 rounded-lg transition-all duration-200 font-medium text-sm">
+                        <i class="fas fa-key mr-2"></i>Ubah
                     </button>
                 </div>
             </div>
@@ -111,26 +111,26 @@
     <!-- Account Actions -->
     <div class="bg-white shadow-lg rounded-2xl p-6 border border-gray-100">
         <div class="flex items-center mb-6">
-            <div class="w-12 h-12 bg-gradient-to-br from-red-500 to-pink-600 rounded-xl flex items-center justify-center">
-                <i class="fas fa-exclamation-triangle text-white text-xl"></i>
+            <div class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
+                <i class="fas fa-cog text-gray-600 text-lg"></i>
             </div>
             <h3 class="text-xl font-bold text-gray-900 ml-3">Aksi Akun</h3>
         </div>
         <div class="space-y-4">
-            <div class="group bg-gradient-to-br from-red-50 to-pink-50 p-6 rounded-xl border-2 border-red-200 hover:border-red-300 transition-all duration-300 hover:shadow-lg">
+            <div class="bg-gray-50 p-5 rounded-xl border border-gray-200 hover:border-gray-300 transition-all duration-200">
                 <div class="flex items-center justify-between">
-                    <div class="flex items-start">
-                        <div class="w-12 h-12 bg-gradient-to-br from-red-500 to-pink-600 rounded-lg flex items-center justify-center mr-4 group-hover:scale-110 transition-transform duration-300">
-                            <i class="fas fa-sign-out-alt text-white text-xl"></i>
+                    <div class="flex items-center">
+                        <div class="w-10 h-10 bg-gray-200 rounded-lg flex items-center justify-center mr-4">
+                            <i class="fas fa-sign-out-alt text-gray-600"></i>
                         </div>
                         <div>
-                            <h4 class="font-bold text-red-900 text-lg">Logout dari Akun</h4>
-                            <p class="text-sm text-red-600 mt-1">Keluar dari akun Anda dengan aman</p>
+                            <h4 class="font-semibold text-gray-900">Logout dari Akun</h4>
+                            <p class="text-sm text-gray-500 mt-0.5">Keluar dari akun Anda dengan aman</p>
                         </div>
                     </div>
-                    <form action="{{ route('logout') }}" method="POST" class="inline ml-4">
+                    <form id="logoutForm" action="{{ route('logout') }}" method="POST" class="inline">
                         @csrf
-                        <button type="submit" class="bg-gradient-to-r from-red-600 to-pink-700 text-white px-6 py-3 rounded-xl hover:from-red-700 hover:to-pink-800 transition-all duration-200 shadow-md hover:shadow-lg font-semibold">
+                        <button type="button" onclick="confirmLogout()" class="bg-gray-600 hover:bg-gray-700 text-white px-5 py-2.5 rounded-lg transition-all duration-200 font-medium text-sm">
                             <i class="fas fa-sign-out-alt mr-2"></i>Logout
                         </button>
                     </form>
@@ -232,7 +232,51 @@ document.getElementById('passwordModal').addEventListener('click', function(e) {
 document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') {
         closePasswordModal();
+        closeLogoutModal();
+    }
+});
+
+// Logout confirmation modal functions
+function confirmLogout() {
+    document.getElementById('logoutModal').classList.remove('hidden');
+    document.getElementById('logoutModal').classList.add('flex');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeLogoutModal() {
+    document.getElementById('logoutModal').classList.add('hidden');
+    document.getElementById('logoutModal').classList.remove('flex');
+    document.body.style.overflow = 'auto';
+}
+
+function proceedLogout() {
+    document.getElementById('logoutForm').submit();
+}
+
+// Close logout modal when clicking outside
+document.getElementById('logoutModal')?.addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeLogoutModal();
     }
 });
 </script>
+
+<!-- Logout Confirmation Modal -->
+<div id="logoutModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+    <div class="bg-white rounded-xl shadow-2xl p-8 max-w-md w-full mx-4">
+        <div class="text-center">
+            <i class="fas fa-sign-out-alt text-5xl text-gray-500 mb-4"></i>
+            <h3 class="text-xl font-bold text-gray-900 mb-3">Konfirmasi Logout</h3>
+            <p class="text-gray-600 mb-6">Apakah Anda yakin ingin keluar dari akun?</p>
+            <div class="flex justify-center space-x-3">
+                <button onclick="closeLogoutModal()" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-2.5 px-6 rounded-lg transition-all duration-200">
+                    Batal
+                </button>
+                <button onclick="proceedLogout()" class="bg-gray-600 hover:bg-gray-700 text-white font-semibold py-2.5 px-6 rounded-lg transition-all duration-200">
+                    Ya, Logout
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
 @endsection

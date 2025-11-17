@@ -87,53 +87,168 @@
                 </div>
             </div>
         </div>
-        <ul class="divide-y divide-gray-200">
-            @forelse($stats['mahasiswa_bimbingan_list'] as $profil)
-            <li class="px-6 py-4">
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center">
-                        <div class="flex-shrink-0 h-10 w-10">
-                            @if($profil->user && $profil->user->photo && $profil->user->google_linked)
-                                <img src="{{ $profil->user->photo }}"
-                                     alt="{{ $profil->user->name }}"
-                                     class="h-10 w-10 rounded-full object-cover"
-                                     onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                                <div class="h-10 w-10 rounded-full bg-gray-300 items-center justify-center hidden">
-                                    <i class="fas fa-user text-gray-600"></i>
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-12">
+                            No
+                        </th>
+                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Mahasiswa
+                        </th>
+                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-32">
+                            Semester
+                        </th>
+                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-36">
+                            Status PKL
+                        </th>
+                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-20">
+                            IPK
+                        </th>
+                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-40">
+                            Status
+                        </th>
+                        <th scope="col" class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider w-24">
+                            Aksi
+                        </th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    @forelse($stats['mahasiswa_bimbingan_list'] as $index => $profil)
+                    <tr class="hover:bg-gray-50 transition-colors">
+                        <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {{ $index + 1 }}
+                        </td>
+                        <td class="px-4 py-4 whitespace-nowrap">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0 h-10 w-10">
+                                    @if($profil->user && $profil->user->photo && $profil->user->google_linked)
+                                        <img src="{{ $profil->user->photo }}"
+                                             alt="{{ $profil->user->name }}"
+                                             class="h-10 w-10 rounded-full object-cover"
+                                             onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                        <div class="h-10 w-10 rounded-full bg-blue-100 items-center justify-center hidden">
+                                            <i class="fas fa-user text-blue-600"></i>
+                                        </div>
+                                    @else
+                                        <div class="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
+                                            <i class="fas fa-user text-blue-600"></i>
+                                        </div>
+                                    @endif
                                 </div>
+                                <div class="ml-4">
+                                    <div class="text-sm font-medium text-gray-900">{{ $profil->user->name ?? 'N/A' }}</div>
+                                    <div class="text-sm text-gray-500">NIM: {{ $profil->nim ?? 'N/A' }}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-4 py-4 whitespace-nowrap">
+                            <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-purple-100 text-purple-800">
+                                <i class="fas fa-graduation-cap mr-1"></i>
+                                Semester {{ $profil->semester ?? '-' }}
+                            </span>
+                        </td>
+                        <td class="px-4 py-4 whitespace-nowrap">
+                            @php
+                                $dbStatusPkl = $profil->status_pkl ?? 'siap';
+                                if ($dbStatusPkl === 'selesai') {
+                                    $statusPKL = 'Selesai PKL';
+                                    $statusColor = 'green';
+                                    $statusIcon = 'fa-check-circle';
+                                } elseif ($dbStatusPkl === 'aktif') {
+                                    $statusPKL = 'Aktif PKL';
+                                    $statusColor = 'blue';
+                                    $statusIcon = 'fa-building';
+                                } else {
+                                    $statusPKL = 'Menyiapkan Berkas';
+                                    $statusColor = 'gray';
+                                    $statusIcon = 'fa-file-alt';
+                                }
+                            @endphp
+                            <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-{{ $statusColor }}-100 text-{{ $statusColor }}-800">
+                                <i class="fas {{ $statusIcon }} mr-1"></i>
+                                {{ $statusPKL }}
+                            </span>
+                        </td>
+                        <td class="px-4 py-4 whitespace-nowrap">
+                            @if($profil->ipk)
+                                <span class="text-sm font-semibold {{ $profil->ipk >= 3.0 ? 'text-green-600' : 'text-orange-600' }}">
+                                    {{ number_format($profil->ipk, 2) }}
+                                </span>
                             @else
-                                <div class="h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center">
-                                    <i class="fas fa-user text-gray-600"></i>
-                                </div>
+                                <span class="text-sm text-gray-400">-</span>
                             @endif
-                        </div>
-                        <div class="ml-4">
-                            <div class="text-sm font-medium text-gray-900">{{ $profil->user->name ?? 'N/A' }}</div>
-                            <div class="text-sm text-gray-500">NIM: {{ $profil->nim ?? 'N/A' }} • Prodi: {{ $profil->prodi ?? 'N/A' }}</div>
-                        </div>
-                    </div>
-                    <div class="flex items-center space-x-2">
-                        @php
-                            $completed = 0;
-                            if($profil->user && $profil->user->khs()->tervalidasi()->exists()) $completed++;
-                            if($profil->user && $profil->user->suratBalasan()->tervalidasi()->exists()) $completed++;
-                            if($profil->user && $profil->user->laporanPkl()->tervalidasi()->exists()) $completed++;
-                        @endphp
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
-                            @if($completed == 3) bg-green-100 text-green-800 @else bg-yellow-100 text-yellow-800 @endif">
-                            <i class="fas fa-check mr-1"></i>
-                            {{ $completed }}/3 berkas
-                        </span>
-                        <a href="{{ route('dospem.validation') }}" class="text-blue-600 hover:text-blue-800 text-sm">
-                            <i class="fas fa-eye mr-1"></i>
-                            Detail
-                        </a>
-                    </div>
-                </div>
-            </li>
-            @empty
-            <li class="px-6 py-4 text-center text-gray-500">Tidak ada mahasiswa bimbingan</li>
-            @endforelse
-        </ul>
+                        </td>
+                        <td class="px-4 py-4 whitespace-nowrap">
+                            @php
+                                $user = $profil->user;
+
+                                // Pemberkasan Kelayakan (KHS Files)
+                                $kelayakanStatus = 'incomplete';
+                                if ($user) {
+                                    $khsCount = $user->khs()->count();
+                                    if ($khsCount > 0) {
+                                        $hasValidated = $user->khs()->where('status_validasi', 'tervalidasi')->exists();
+                                        $kelayakanStatus = $hasValidated ? 'validated' : 'complete';
+                                    }
+                                }
+
+                                // Dokumen Pendukung (Google Drive)
+                                $dokumenStatus = 'incomplete';
+                                $hasPkkmb = !empty($profil->gdrive_pkkmb ?? '');
+                                $hasEcourse = !empty($profil->gdrive_ecourse ?? '');
+                                if ($hasPkkmb && $hasEcourse) {
+                                    $statusDokPendukung = $profil->status_dokumen_pendukung ?? 'menunggu';
+                                    $dokumenStatus = $statusDokPendukung === 'tervalidasi' ? 'validated' : 'complete';
+                                }
+
+                                // Instansi Mitra (Surat Balasan)
+                                $mitraStatus = 'incomplete';
+                                if ($user) {
+                                    $suratBalasan = $user->suratBalasan()->latest()->first();
+                                    if ($suratBalasan) {
+                                        $mitraStatus = $suratBalasan->status_validasi === 'tervalidasi' ? 'validated' : 'complete';
+                                    }
+                                }
+
+                                // Pemberkasan Akhir (Laporan PKL)
+                                $akhirStatus = 'incomplete';
+                                if ($user) {
+                                    $laporan = $user->laporanPkl()->latest()->first();
+                                    if ($laporan) {
+                                        $akhirStatus = $laporan->status_validasi === 'tervalidasi' ? 'validated' : 'complete';
+                                    }
+                                }
+                            @endphp
+                            <div class="flex items-center space-x-2">
+                                <!-- Pemberkasan Kelayakan -->
+                                <i class="fas fa-file-alt text-lg @if($kelayakanStatus === 'validated') text-blue-600 @elseif($kelayakanStatus === 'complete') text-green-600 @else text-gray-400 @endif" title="Pemberkasan Kelayakan"></i>
+                                <!-- Dokumen Pendukung -->
+                                <i class="fab fa-google-drive text-lg @if($dokumenStatus === 'validated') text-blue-600 @elseif($dokumenStatus === 'complete') text-green-600 @else text-gray-400 @endif" title="Dokumen Pendukung"></i>
+                                <!-- Instansi Mitra -->
+                                <i class="fas fa-envelope text-lg @if($mitraStatus === 'validated') text-blue-600 @elseif($mitraStatus === 'complete') text-green-600 @else text-gray-400 @endif" title="Instansi Mitra"></i>
+                                <!-- Pemberkasan Akhir -->
+                                <i class="fas fa-book text-lg @if($akhirStatus === 'validated') text-blue-600 @elseif($akhirStatus === 'complete') text-green-600 @else text-gray-400 @endif" title="Pemberkasan Akhir"></i>
+                            </div>
+                        </td>
+                        <td class="px-4 py-4 whitespace-nowrap text-center">
+                            <a href="{{ route('dospem.mahasiswa.detail', $profil->user->id ?? 0) }}" class="inline-flex items-center px-3 py-1.5 bg-blue-600 text-white text-xs rounded-lg hover:bg-blue-700 transition">
+                                <i class="fas fa-eye mr-1"></i>
+                                Detail
+                            </a>
+                        </td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="7" class="px-6 py-8 text-center text-gray-500">
+                            <i class="fas fa-users text-gray-300 text-4xl mb-3"></i>
+                            <p>Tidak ada mahasiswa bimbingan</p>
+                        </td>
+                    </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>

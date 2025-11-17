@@ -183,34 +183,47 @@
                         </td>
                         <td class="px-4 py-4 whitespace-nowrap">
                             @php
-                                // Determine PKL Status
-                                $user = $m->user;
-                                if ($user) {
-                                    $khsCount = $user->khs()->where('status_validasi', 'tervalidasi')->count();
-                                    $hasSuratBalasan = $user->suratBalasan()->where('status_validasi', 'tervalidasi')->exists();
-                                    $hasLaporan = $user->laporanPkl()->where('status_validasi', 'tervalidasi')->exists();
+                                // Determine PKL Status from database
+                                $dbStatusPkl = $m->status_pkl ?? 'siap';
 
-                                    if ($khsCount >= 5 && $hasSuratBalasan && $hasLaporan) {
-                                        $statusPKL = 'Selesai';
-                                        $statusColor = 'green';
-                                        $statusIcon = 'fa-check-circle';
-                                    } elseif ($hasSuratBalasan) {
-                                        $statusPKL = 'Berlangsung';
-                                        $statusColor = 'blue';
-                                        $statusIcon = 'fa-sync';
-                                    } elseif ($khsCount > 0 || $m->cek_valid_biodata) {
-                                        $statusPKL = 'Persiapan';
-                                        $statusColor = 'yellow';
-                                        $statusIcon = 'fa-clock';
-                                    } else {
-                                        $statusPKL = 'Belum Mulai';
-                                        $statusColor = 'gray';
-                                        $statusIcon = 'fa-hourglass-start';
-                                    }
+                                if ($dbStatusPkl === 'selesai') {
+                                    $statusPKL = 'Selesai PKL';
+                                    $statusColor = 'green';
+                                    $statusIcon = 'fa-check-circle';
+                                } elseif ($dbStatusPkl === 'aktif') {
+                                    $statusPKL = 'Aktif PKL';
+                                    $statusColor = 'blue';
+                                    $statusIcon = 'fa-building';
                                 } else {
-                                    $statusPKL = 'Belum Mulai';
-                                    $statusColor = 'gray';
-                                    $statusIcon = 'fa-hourglass-start';
+                                    // Check if eligible for PKL
+                                    $user = $m->user;
+                                    if ($user) {
+                                        $khsCount = $user->khs()->whereBetween('semester', [1, 5])->distinct()->count('semester');
+                                        $hasPkkmb = !empty($m->gdrive_pkkmb ?? '');
+                                        $hasEcourse = !empty($m->gdrive_ecourse ?? '');
+                                        $hasDokumenPendukung = $hasPkkmb && $hasEcourse;
+
+                                        $isEligible = $khsCount >= 5 &&
+                                                      ($m->ipk ?? 0) >= 2.5 &&
+                                                      $m->cek_min_semester &&
+                                                      $m->cek_ipk_nilaisks &&
+                                                      $m->cek_valid_biodata &&
+                                                      $hasDokumenPendukung;
+
+                                        if ($isEligible) {
+                                            $statusPKL = 'Siap PKL';
+                                            $statusColor = 'yellow';
+                                            $statusIcon = 'fa-clipboard-check';
+                                        } else {
+                                            $statusPKL = 'Menyiapkan Berkas';
+                                            $statusColor = 'gray';
+                                            $statusIcon = 'fa-file-alt';
+                                        }
+                                    } else {
+                                        $statusPKL = 'Menyiapkan Berkas';
+                                        $statusColor = 'gray';
+                                        $statusIcon = 'fa-file-alt';
+                                    }
                                 }
                             @endphp
                             <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-{{ $statusColor }}-100 text-{{ $statusColor }}-800">
@@ -233,28 +246,81 @@
                         </td>
                         @endif
                         <td class="px-4 py-4 whitespace-nowrap">
-                            <div class="flex flex-col space-y-1">
-                                @if($m->cek_valid_biodata)
-                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
-                                        <i class="fas fa-check mr-1"></i> Biodata Valid
-                                    </span>
-                                @else
-                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800">
-                                        <i class="fas fa-times mr-1"></i> Biodata Belum Valid
-                                    </span>
-                                @endif
+                            @php
+                                $user = $m->user;
 
-                                @if($m->cek_ipk_nilaisks)
-                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
-                                        <i class="fas fa-check mr-1"></i> IPK Memenuhi
-                                    </span>
-                                @endif
+                                // 1. Pemberkasan Kelayakan (KHS)
+                                $khsCount = $user ? $user->khs()->whereBetween('semester', [1, 5])->distinct()->count('semester') : 0;
+                                $hasValidatedKhs = $user ? $user->khs()->where('status_validasi', 'tervalidasi')->exists() : false;
+                                $kelayakanStatus = $khsCount >= 5 ? ($hasValidatedKhs ? 'validated' : 'complete') : 'incomplete';
 
-                                @if($m->cek_min_semester)
-                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
-                                        <i class="fas fa-check mr-1"></i> Semester Memenuhi
-                                    </span>
-                                @endif
+                                // 2. Dokumen Pendukung (PKKMB & English Course)
+                                $hasPkkmb = !empty($m->gdrive_pkkmb ?? '');
+                                $hasEcourse = !empty($m->gdrive_ecourse ?? '');
+                                $dokPendukungComplete = $hasPkkmb && $hasEcourse;
+                                $statusDokPendukung = $m->status_dokumen_pendukung ?? 'menunggu';
+                                if (!$dokPendukungComplete) {
+                                    $dokPendukungStatus = 'incomplete';
+                                } elseif ($statusDokPendukung === 'tervalidasi') {
+                                    $dokPendukungStatus = 'validated';
+                                } else {
+                                    $dokPendukungStatus = 'complete';
+                                }
+
+                                // 3. Instansi Mitra (Surat Balasan)
+                                $hasSuratBalasan = $user ? $user->suratBalasan()->exists() : false;
+                                $hasValidatedSuratBalasan = $user ? $user->suratBalasan()->where('status_validasi', 'tervalidasi')->exists() : false;
+                                $instansiMitraStatus = $hasSuratBalasan ? ($hasValidatedSuratBalasan ? 'validated' : 'complete') : 'incomplete';
+
+                                // 4. Pemberkasan Akhir (Laporan PKL)
+                                $hasLaporan = $user ? $user->laporanPkl()->exists() : false;
+                                $hasValidatedLaporan = $user ? $user->laporanPkl()->where('status_validasi', 'tervalidasi')->exists() : false;
+                                $akhirStatus = $hasLaporan ? ($hasValidatedLaporan ? 'validated' : 'complete') : 'incomplete';
+                            @endphp
+                            <div class="flex items-center space-x-2">
+                                <!-- Pemberkasan Kelayakan -->
+                                <div class="relative group">
+                                    <i class="fas fa-file-alt text-lg
+                                        @if($kelayakanStatus === 'validated') text-blue-600
+                                        @elseif($kelayakanStatus === 'complete') text-green-600
+                                        @else text-gray-400 @endif"></i>
+                                    <div class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-20">
+                                        Kelayakan
+                                    </div>
+                                </div>
+
+                                <!-- Dokumen Pendukung -->
+                                <div class="relative group">
+                                    <i class="fab fa-google-drive text-lg
+                                        @if($dokPendukungStatus === 'validated') text-blue-600
+                                        @elseif($dokPendukungStatus === 'complete') text-green-600
+                                        @else text-gray-400 @endif"></i>
+                                    <div class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-20">
+                                        Dok. Pendukung
+                                    </div>
+                                </div>
+
+                                <!-- Instansi Mitra -->
+                                <div class="relative group">
+                                    <i class="fas fa-envelope text-lg
+                                        @if($instansiMitraStatus === 'validated') text-blue-600
+                                        @elseif($instansiMitraStatus === 'complete') text-green-600
+                                        @else text-gray-400 @endif"></i>
+                                    <div class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-20">
+                                        Instansi Mitra
+                                    </div>
+                                </div>
+
+                                <!-- Pemberkasan Akhir -->
+                                <div class="relative group">
+                                    <i class="fas fa-book text-lg
+                                        @if($akhirStatus === 'validated') text-blue-600
+                                        @elseif($akhirStatus === 'complete') text-green-600
+                                        @else text-gray-400 @endif"></i>
+                                    <div class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-20">
+                                        Akhir
+                                    </div>
+                                </div>
                             </div>
                         </td>
                         <td class="px-4 py-4 whitespace-nowrap text-center text-sm font-medium sticky right-0 bg-white z-10 hover:bg-gray-50 transition-colors shadow-[-4px_0_6px_-1px_rgba(0,0,0,0.1)]">

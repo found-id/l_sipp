@@ -83,10 +83,19 @@
             // Determine PKL Activity Status (4 tahap)
             // 1. Menyiapkan Berkas - belum layak
             // 2. Siap untuk PKL - sudah layak, belum ada dokumen tervalidasi
-            // 3. Aktif PKL - sudah layak, KHS dan Surat Balasan tervalidasi
+            // 3. Aktif PKL - sudah layak, status diaktifkan mahasiswa
             // 4. PKL Selesai - semua dokumen tervalidasi
 
-            if (!$isEligibleForPkl) {
+            // Use database status_pkl if available
+            $dbStatusPkl = $statusPkl ?? 'siap';
+
+            if ($dbStatusPkl === 'selesai') {
+                // Tahap 4: PKL Selesai (dari database)
+                $pklStatus = 'selesai';
+                $pklStatusText = 'Selesai PKL';
+                $pklStatusColor = 'green';
+                $pklStatusIcon = 'check-circle';
+            } elseif (!$isEligibleForPkl) {
                 // Tahap 1: Menyiapkan Berkas (belum layak)
                 $pklStatus = 'menyiapkan_berkas';
                 $pklStatusText = 'Menyiapkan Berkas';
@@ -95,17 +104,18 @@
             } elseif ($isEligibleForPkl && $hasValidKhs && $hasValidSuratBalasan && $hasValidLaporan) {
                 // Tahap 4: PKL Selesai
                 $pklStatus = 'selesai';
-                $pklStatusText = 'PKL Selesai';
+                $pklStatusText = 'Selesai PKL';
                 $pklStatusColor = 'green';
                 $pklStatusIcon = 'check-circle';
-            } elseif ($isEligibleForPkl && $hasValidKhs && $hasValidSuratBalasan) {
-                // Tahap 3: Aktif PKL
+            } elseif ($dbStatusPkl === 'aktif') {
+                // Tahap 3: Aktif PKL (status diaktifkan oleh mahasiswa)
                 $pklStatus = 'aktif';
                 $pklStatusText = 'Aktif PKL';
                 $pklStatusColor = 'blue';
-                $pklStatusIcon = 'play-circle';
+                $pklStatusIcon = 'building';
+                $mitraName = $user->profilMahasiswa->mitraSelected->nama ?? 'Instansi Mitra';
             } else {
-                // Tahap 2: Siap untuk PKL (layak tapi belum semua dokumen tervalidasi)
+                // Tahap 2: Siap untuk PKL (layak tapi belum mengaktifkan status)
                 $pklStatus = 'siap';
                 $pklStatusText = 'Siap untuk PKL';
                 $pklStatusColor = 'yellow';
@@ -113,6 +123,34 @@
             }
             @endphp
 
+        @if($pklStatus === 'selesai')
+        <!-- Only show Status Keaktifan PKL when PKL is complete -->
+        <div class="grid grid-cols-1 gap-6">
+            <!-- PKL Activity Status - Full Width -->
+            <div class="bg-gradient-to-r from-{{ $pklStatusColor }}-50 to-{{ $pklStatusColor }}-100 border border-{{ $pklStatusColor }}-200 rounded-lg p-6">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <div class="w-16 h-16 bg-green-600 rounded-full flex items-center justify-center">
+                                <i class="fas fa-{{ $pklStatusIcon }} text-3xl text-white"></i>
+                            </div>
+                        </div>
+                        <div class="ml-4">
+                            <h4 class="text-lg font-semibold text-{{ $pklStatusColor }}-800">Status Keaktifan PKL</h4>
+                            <p class="text-2xl text-{{ $pklStatusColor }}-700 font-bold">{{ $pklStatusText }}</p>
+                            <p class="text-sm text-{{ $pklStatusColor }}-600 mt-1">
+                                Selamat! Anda telah menyelesaikan PKL. Silahkan lanjut ke tahap pemberkasan akhir.
+                            </p>
+                        </div>
+                    </div>
+                    <button onclick="revertPklStatus()" class="bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-2.5 px-6 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg flex items-center">
+                        <i class="fas fa-undo mr-2"></i>
+                        Kembali ke Status Aktif PKL
+                    </button>
+                </div>
+            </div>
+        </div>
+        @else
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <!-- PKL Eligibility Status -->
             <div class="bg-gradient-to-r from-{{ $isEligibleForPkl ? 'green' : 'red' }}-50 to-{{ $isEligibleForPkl ? 'green' : 'red' }}-100 border border-{{ $isEligibleForPkl ? 'green' : 'red' }}-200 rounded-lg p-6">
@@ -157,7 +195,7 @@
                             @elseif($pklStatus === 'siap')
                                 Memenuhi syarat kelayakan, siap memulai PKL
                             @elseif($pklStatus === 'aktif')
-                                Sedang melaksanakan PKL di instansi
+                                Aktif di {{ $mitraName ?? 'Instansi Mitra' }}
                             @else
                                 Semua tahapan PKL telah selesai
                             @endif
@@ -166,7 +204,51 @@
                 </div>
             </div>
         </div>
+        @endif
     </div>
+
+    <!-- Button to Activate/Deactivate PKL Status -->
+    @php
+        $hasSuratPengantarUploaded = $suratPengantar && is_object($suratPengantar);
+        $hasMitraSelectedCheck = $hasMitraSelected ?? false;
+        $hasSuratBalasanUploaded = $suratBalasan && is_object($suratBalasan);
+        $canActivatePkl = $hasSuratPengantarUploaded && $hasMitraSelectedCheck && $hasSuratBalasanUploaded && $pklStatus === 'siap';
+        $canDeactivatePkl = $pklStatus === 'aktif';
+    @endphp
+
+    @if($canActivatePkl)
+    <div class="bg-gradient-to-r from-blue-50 to-blue-100 border border-blue-200 rounded-xl p-4 mb-4">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center">
+                <i class="fas fa-info-circle text-blue-600 text-xl mr-3"></i>
+                <div>
+                    <h4 class="text-blue-800 font-semibold">Dokumen Instansi Mitra Lengkap</h4>
+                    <p class="text-blue-600 text-sm">Surat Pengantar, Instansi Mitra, dan Surat Balasan telah tersedia. Anda dapat mengaktifkan status PKL Anda.</p>
+                </div>
+            </div>
+            <button onclick="activatePklStatus()" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 px-6 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg flex items-center">
+                <i class="fas fa-check-circle mr-2"></i>
+                Aktifkan Status Aktif PKL Saya
+            </button>
+        </div>
+    </div>
+    @elseif($canDeactivatePkl)
+    <div class="bg-gradient-to-r from-gray-50 to-gray-100 border border-gray-200 rounded-xl p-4 mb-4">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center">
+                <i class="fas fa-info-circle text-gray-600 text-xl mr-3"></i>
+                <div>
+                    <h4 class="text-gray-800 font-semibold">Status PKL Aktif</h4>
+                    <p class="text-gray-600 text-sm">Status PKL Anda sedang aktif. Anda dapat menghentikan status jika diperlukan.</p>
+                </div>
+            </div>
+            <button onclick="deactivatePklStatus()" class="bg-gray-600 hover:bg-gray-700 text-white font-semibold py-2.5 px-6 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg flex items-center">
+                <i class="fas fa-stop-circle mr-2"></i>
+                Hentikan Status PKL
+            </button>
+        </div>
+    </div>
+    @endif
 
     <!-- Tab Navigation -->
     <div class="bg-white shadow-sm rounded-xl border border-gray-100 p-4">
@@ -1852,7 +1934,17 @@ function calculateFinalIpk() {
     document.getElementById('totalSksD').textContent = totalSksD;
     document.getElementById('totalE').textContent = totalE;
     document.getElementById('uploadKhs').textContent = `${khsFileCount}/5`;
-    
+
+    // Update Status PKL based on Kelengkapan Transkrip and Upload Berkas KHS
+    const pklStatusEl = document.getElementById('pklStatus');
+    if (totalSemester >= 5 && khsFileCount >= 5) {
+        pklStatusEl.textContent = 'Lengkap';
+        pklStatusEl.className = 'text-3xl font-bold text-green-600 mb-1';
+    } else {
+        pklStatusEl.textContent = 'Belum Lengkap';
+        pklStatusEl.className = 'text-3xl font-bold text-red-600 mb-1';
+    }
+
     // Update PKL status with new logic (4 tahap)
     const pklStatusElement = document.getElementById('pklStatus');
 
@@ -1870,10 +1962,24 @@ function calculateFinalIpk() {
     console.log(`- isEligibleForPkl: ${isEligibleForPkl}`);
 
     // Update Kelayakan PKL status
+    // Get current database status
+    const dbStatusPkl = '{{ $statusPkl ?? "siap" }}';
+
+    // If status is 'selesai', don't update anything - respect the completed status
+    if (dbStatusPkl === 'selesai') {
+        console.log('PKL status is selesai, skipping status updates');
+        return;
+    }
+
     if (isEligibleForPkl) {
         updateKelayakanPklStatus('LAYAK', true);
-        // Update Status Keaktifan: Siap untuk PKL (karena baru layak, belum aktif)
-        updateStatusKeaktifanPkl('Siap untuk PKL', 'siap');
+        // Respect database status - don't override if already 'aktif'
+        if (dbStatusPkl === 'aktif') {
+            const mitraName = '{{ $user->profilMahasiswa->mitraSelected->nama ?? "Instansi Mitra" }}';
+            updateStatusKeaktifanPkl('Aktif PKL', 'aktif', mitraName);
+        } else {
+            updateStatusKeaktifanPkl('Siap untuk PKL', 'siap');
+        }
     } else {
         updateKelayakanPklStatus('BELUM LAYAK', false);
         // Update Status Keaktifan: Menyiapkan Berkas
@@ -1947,7 +2053,7 @@ function updateKelayakanPklStatus(statusText, isEligible) {
 }
 
 // Function to update Status Keaktifan PKL
-function updateStatusKeaktifanPkl(statusText, statusType) {
+function updateStatusKeaktifanPkl(statusText, statusType, mitraName = '') {
     console.log(`Updating Status Keaktifan PKL to: ${statusText} (${statusType})`);
 
     // Find the Status Keaktifan PKL section
@@ -1982,8 +2088,8 @@ function updateStatusKeaktifanPkl(statusText, statusType) {
                 break;
             case 'aktif':
                 color = 'blue';
-                icon = 'play-circle';
-                desc = 'Sedang melaksanakan PKL di instansi';
+                icon = 'building';
+                desc = mitraName ? `Aktif di ${mitraName}` : 'Sedang melaksanakan PKL di instansi';
                 break;
             case 'selesai':
                 color = 'green';
@@ -3345,5 +3451,271 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
+// Custom Modal Functions
+function showModal(title, message, type = 'info', onConfirm = null) {
+    const modal = document.getElementById('customModal');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalMessage = document.getElementById('modalMessage');
+    const modalIcon = document.getElementById('modalIcon');
+    const confirmBtn = document.getElementById('modalConfirmBtn');
+    const cancelBtn = document.getElementById('modalCancelBtn');
+
+    modalTitle.textContent = title;
+    modalMessage.textContent = message;
+
+    // Set icon and colors based on type
+    if (type === 'confirm') {
+        modalIcon.className = 'fas fa-question-circle text-5xl text-blue-500 mb-4';
+        confirmBtn.className = 'bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 px-6 rounded-lg transition-all duration-200';
+        confirmBtn.textContent = 'Ya, Lanjutkan';
+        cancelBtn.style.display = 'inline-block';
+    } else if (type === 'success') {
+        modalIcon.className = 'fas fa-check-circle text-5xl text-green-500 mb-4';
+        confirmBtn.className = 'bg-green-600 hover:bg-green-700 text-white font-semibold py-2.5 px-6 rounded-lg transition-all duration-200';
+        confirmBtn.textContent = 'OK';
+        cancelBtn.style.display = 'none';
+    } else if (type === 'error') {
+        modalIcon.className = 'fas fa-times-circle text-5xl text-red-500 mb-4';
+        confirmBtn.className = 'bg-red-600 hover:bg-red-700 text-white font-semibold py-2.5 px-6 rounded-lg transition-all duration-200';
+        confirmBtn.textContent = 'OK';
+        cancelBtn.style.display = 'none';
+    } else {
+        modalIcon.className = 'fas fa-info-circle text-5xl text-blue-500 mb-4';
+        confirmBtn.className = 'bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 px-6 rounded-lg transition-all duration-200';
+        confirmBtn.textContent = 'OK';
+        cancelBtn.style.display = 'none';
+    }
+
+    // Store callback
+    window.modalConfirmCallback = onConfirm;
+
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+}
+
+function closeModal() {
+    const modal = document.getElementById('customModal');
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+    window.modalConfirmCallback = null;
+}
+
+function confirmModal() {
+    if (window.modalConfirmCallback) {
+        window.modalConfirmCallback();
+    }
+    closeModal();
+}
+
+// Function to activate PKL status
+function activatePklStatus() {
+    showModal(
+        'Konfirmasi Aktivasi',
+        'Apakah Anda yakin ingin mengaktifkan status Aktif PKL? Status ini akan menandakan bahwa Anda telah memulai kegiatan PKL.',
+        'confirm',
+        () => {
+            fetch('{{ route("documents.activate-pkl-status") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showModal('Berhasil', data.message, 'success', () => {
+                        window.location.reload();
+                    });
+                } else {
+                    showModal('Gagal', data.message, 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showModal('Error', 'Terjadi kesalahan saat mengaktifkan status PKL.', 'error');
+            });
+        }
+    );
+}
+
+// Function to deactivate PKL status
+function deactivatePklStatus() {
+    showPklOptionsModal();
+}
+
+// Function to show PKL options modal
+function showPklOptionsModal() {
+    const modal = document.getElementById('pklOptionsModal');
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+}
+
+// Function to close PKL options modal
+function closePklOptionsModal() {
+    const modal = document.getElementById('pklOptionsModal');
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+}
+
+// Function to handle stop PKL status
+function stopPklStatus() {
+    closePklOptionsModal();
+    showModal(
+        'Konfirmasi Penghentian',
+        'Apakah Anda yakin ingin menghentikan status Aktif PKL? Status akan kembali ke "Siap untuk PKL".',
+        'confirm',
+        () => {
+            fetch('{{ route("documents.deactivate-pkl-status") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showModal('Berhasil', data.message, 'success', () => {
+                        window.location.reload();
+                    });
+                } else {
+                    showModal('Gagal', data.message, 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showModal('Error', 'Terjadi kesalahan saat menghentikan status PKL.', 'error');
+            });
+        }
+    );
+}
+
+// Function to handle complete PKL
+function completePklStatus() {
+    closePklOptionsModal();
+    showModal(
+        'Konfirmasi Menyelesaikan PKL',
+        'Apakah Anda yakin ingin menyelesaikan PKL?',
+        'confirm',
+        () => {
+            fetch('{{ route("documents.complete-pkl-status") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showModal('Selamat!', 'Anda telah menyelesaikan PKL. Silahkan lanjut ke tahap pemberkasan akhir.', 'success', () => {
+                        window.location.reload();
+                    });
+                } else {
+                    showModal('Gagal', data.message, 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showModal('Error', 'Terjadi kesalahan saat menyelesaikan PKL.', 'error');
+            });
+        }
+    );
+}
+
+// Function to revert PKL status back to aktif
+function revertPklStatus() {
+    showModal(
+        'Konfirmasi Kembali ke Status Aktif',
+        'Apakah Anda yakin ingin mengubah status PKL kembali ke "Aktif PKL"?',
+        'confirm',
+        () => {
+            fetch('{{ route("documents.revert-pkl-status") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showModal('Berhasil', data.message, 'success', () => {
+                        window.location.reload();
+                    });
+                } else {
+                    showModal('Gagal', data.message, 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showModal('Error', 'Terjadi kesalahan saat mengubah status PKL.', 'error');
+            });
+        }
+    );
+}
+
 </script>
+
+<!-- PKL Options Modal -->
+<div id="pklOptionsModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+    <div class="bg-white rounded-xl shadow-2xl p-8 max-w-lg w-full mx-4 transform transition-all">
+        <div class="text-center">
+            <i class="fas fa-question-circle text-5xl text-blue-500 mb-4"></i>
+            <h3 class="text-xl font-bold text-gray-900 mb-3">Pilih Aksi PKL</h3>
+            <p class="text-gray-600 mb-6">Pilih salah satu opsi di bawah ini:</p>
+            <div class="space-y-3">
+                <button onclick="stopPklStatus()" class="w-full bg-gray-600 hover:bg-gray-700 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 flex items-center justify-center">
+                    <i class="fas fa-stop-circle mr-2"></i>
+                    Hentikan Status PKL
+                </button>
+                <button onclick="completePklStatus()" class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 flex items-center justify-center">
+                    <i class="fas fa-check-circle mr-2"></i>
+                    Menyelesaikan PKL
+                </button>
+                <button onclick="closePklOptionsModal()" class="w-full bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-3 px-6 rounded-lg transition-all duration-200">
+                    Batal
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Custom Modal -->
+<div id="customModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+    <div class="bg-white rounded-xl shadow-2xl p-8 max-w-md w-full mx-4 transform transition-all">
+        <div class="text-center">
+            <i id="modalIcon" class="fas fa-info-circle text-5xl text-blue-500 mb-4"></i>
+            <h3 id="modalTitle" class="text-xl font-bold text-gray-900 mb-3"></h3>
+            <p id="modalMessage" class="text-gray-600 mb-6"></p>
+            <div class="flex justify-center space-x-3">
+                <button id="modalCancelBtn" onclick="closeModal()" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-2.5 px-6 rounded-lg transition-all duration-200">
+                    Batal
+                </button>
+                <button id="modalConfirmBtn" onclick="confirmModal()" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 px-6 rounded-lg transition-all duration-200">
+                    OK
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Requirements Not Checked Modal -->
+@if(!($requirementsChecked ?? true))
+<div id="requirementsModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white rounded-xl shadow-2xl p-8 max-w-md w-full mx-4 transform transition-all">
+        <div class="text-center">
+            <i class="fas fa-exclamation-triangle text-5xl text-yellow-500 mb-4"></i>
+            <h3 class="text-xl font-bold text-gray-900 mb-3">Perhatian</h3>
+            <p class="text-gray-600 mb-6">Silahkan setujui persyaratan PKL terlebih dahulu sebelum melanjutkan pemberkasan.</p>
+            <div class="flex justify-center">
+                <a href="{{ route('profile.edit') }}#konfirmasi-persyaratan" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 px-6 rounded-lg transition-all duration-200">
+                    <i class="fas fa-edit mr-2"></i>Lengkapi Persyaratan
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+@endif
 @endsection

@@ -3,10 +3,18 @@
 @section('title', 'Penilaian Mahasiswa')
 
 @section('content')
-<div class="container mx-auto px-4 py-8">
-    <div class="mb-6">
-        <h1 class="text-3xl font-bold text-gray-900">Penilaian Mahasiswa</h1>
-        <p class="text-gray-600 mt-2">Penilaian mahasiswa bimbingan berdasarkan rubrik yang telah ditetapkan</p>
+<div class="space-y-6">
+    <!-- Header -->
+    <div class="bg-white shadow rounded-lg p-6">
+        <div class="flex items-center space-x-4">
+            <div class="h-12 w-12 rounded-lg bg-blue-100 flex items-center justify-center">
+                <i class="fas fa-clipboard-check text-blue-600 text-xl"></i>
+            </div>
+            <div>
+                <h1 class="text-2xl font-bold text-gray-900">Penilaian Mahasiswa</h1>
+                <p class="text-gray-600 mt-1">Penilaian mahasiswa bimbingan berdasarkan rubrik yang telah ditetapkan</p>
+            </div>
+        </div>
     </div>
 
     @if(!$form)
@@ -23,85 +31,84 @@
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <!-- Student Selection -->
             <div class="lg:col-span-1">
-                <div class="bg-white rounded-lg shadow p-6">
-                    <div class="flex justify-between items-center mb-4">
-                        <h3 class="text-lg font-semibold text-gray-900">Pilih Mahasiswa</h3>
-
+                <div class="bg-white rounded-lg shadow overflow-hidden">
+                    <div class="px-6 py-4 border-b border-gray-200 bg-white">
+                        <h3 class="text-base font-semibold text-gray-900">Pilih Mahasiswa</h3>
+                        <p class="text-xs text-gray-500 mt-1">{{ $students->count() }} mahasiswa bimbingan</p>
                     </div>
-                    
+
                     @if(isset($students) && $students->count() > 0)
-                        <div class="space-y-2">
+                        <!-- Search Input -->
+                        <div class="px-4 py-3 border-b border-gray-100">
+                            <div class="relative">
+                                <input type="text"
+                                       id="searchStudent"
+                                       placeholder="Cari mahasiswa..."
+                                       class="w-full pl-10 pr-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                            </div>
+                        </div>
+
+                        <div id="studentList" class="divide-y divide-gray-100 max-h-[600px] overflow-y-auto">
                             @foreach($students as $student)
-                                <a href="{{ route('dospem.penilaian', ['m' => $student->id]) }}" 
-                                   class="block p-4 rounded-lg border {{ $selectedStudent && $selectedStudent->id == $student->id ? 'bg-blue-50 border-blue-200' : 'bg-gray-50 border-gray-200 hover:bg-gray-100' }} transition-colors">
+                                <a href="{{ route('dospem.penilaian', ['m' => $student->id]) }}"
+                                   class="block p-4 hover:bg-gray-50 transition-colors {{ $selectedStudent && $selectedStudent->id == $student->id ? 'bg-blue-50 border-l-4 border-blue-500' : '' }}">
                                     <div class="flex items-center space-x-3">
                                         <!-- Profile Photo -->
                                         <div class="flex-shrink-0">
                                             @if($student->photo && $student->google_linked)
                                                 <img src="{{ $student->photo }}"
                                                      alt="{{ $student->name }}"
-                                                     class="h-12 w-12 rounded-full object-cover"
+                                                     class="h-10 w-10 rounded-full object-cover"
                                                      onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                                                <div class="h-12 w-12 rounded-full bg-gray-300 items-center justify-center hidden">
-                                                    <i class="fas fa-user text-gray-600"></i>
+                                                <div class="h-10 w-10 rounded-full bg-blue-100 items-center justify-center hidden">
+                                                    <i class="fas fa-user text-blue-600"></i>
                                                 </div>
                                             @else
-                                                <div class="h-12 w-12 rounded-full bg-gray-300 flex items-center justify-center">
-                                                    <i class="fas fa-user text-gray-600"></i>
+                                                <div class="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
+                                                    <i class="fas fa-user text-blue-600"></i>
                                                 </div>
                                             @endif
                                         </div>
-                                        
+
                                         <!-- Student Info -->
                                         <div class="flex-1 min-w-0">
-                                            <div class="flex items-center justify-between gap-3">
-                                                <div class="flex-1 min-w-0">
-                                                    <div class="font-medium text-gray-900 truncate max-w-[200px]" title="{{ $student->name }}">
-                                                        {{ $student->name }}
-                                                    </div>
-                                                    <div class="text-sm text-gray-500 truncate">
-                                                        NIM: {{ $student->profilMahasiswa->nim ?? 'N/A' }} •
-                                                        Prodi: {{ $student->profilMahasiswa->prodi ?? 'N/A' }}
-                                                    </div>
-                                                </div>
-                                                
-                                                <!-- Assessment Status -->
-                                                <div class="flex flex-col items-end space-y-2">
-                                                    @if($allResults && $allResults->has($student->id))
-                                                        @php
-                                                            $studentResult = $allResults->get($student->id);
-                                                        @endphp
-                                                        <div class="flex items-center space-x-2">
-                                                            <div class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center" title="Sudah dinilai">
-                                                                <i class="fas fa-check text-green-600 text-sm"></i>
-                                                            </div>
-                                                        </div>
-                                                        @if($studentResult)
-                                                            <div class="text-right">
-                                                                <div class="text-sm font-medium text-gray-900">
-                                                                    Total: {{ $studentResult->total_percent ?? 0 }}%
-                                                                </div>
-                                                                <div class="text-xs text-gray-600">
-                                                                    Grade: <span class="font-medium text-blue-600">{{ $studentResult->letter_grade ?? 'N/A' }}</span>
-                                                                </div>
-                                                            </div>
-                                                        @endif
-                                                    @else
-                                                        <div class="w-8 h-8 rounded-full bg-yellow-100 flex items-center justify-center" title="Belum dinilai">
-                                                            <i class="fas fa-clock text-yellow-600 text-sm"></i>
-                                                        </div>
-                                                    @endif
-                                                </div>
+                                            <div class="text-sm font-medium text-gray-900 truncate">
+                                                {{ $student->name }}
                                             </div>
+                                            <div class="text-xs text-gray-500">
+                                                {{ $student->profilMahasiswa->nim ?? 'N/A' }}
+                                            </div>
+                                        </div>
+
+                                        <!-- Assessment Status -->
+                                        <div class="flex-shrink-0">
+                                            @if($allResults && $allResults->has($student->id))
+                                                @php
+                                                    $studentResult = $allResults->get($student->id);
+                                                @endphp
+                                                <div class="text-right">
+                                                    <div class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                                        {{ $studentResult->letter_grade ?? 'N/A' }}
+                                                    </div>
+                                                    <div class="text-xs text-gray-500 mt-1">
+                                                        {{ $studentResult->total_percent ?? 0 }}%
+                                                    </div>
+                                                </div>
+                                            @else
+                                                <div class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
+                                                    <i class="fas fa-clock mr-1"></i> Pending
+                                                </div>
+                                            @endif
                                         </div>
                                     </div>
                                 </a>
                             @endforeach
                         </div>
                     @else
-                        <div class="text-center py-8">
-                            <i class="fas fa-user-graduate text-gray-400 text-4xl mb-4"></i>
-                            <p class="text-gray-500">Belum ada mahasiswa bimbingan</p>
+                        <div class="text-center py-12">
+                            <i class="fas fa-user-graduate text-gray-300 text-4xl mb-3"></i>
+                            <p class="text-gray-500 text-sm">Belum ada mahasiswa bimbingan</p>
                         </div>
                     @endif
                 </div>
@@ -110,87 +117,117 @@
             <!-- Assessment Form -->
             <div class="lg:col-span-2">
                 @if($selectedStudent)
-                    <div class="bg-white rounded-lg shadow">
-                        <div class="p-6 border-b border-gray-200">
-                            <h3 class="text-lg font-semibold text-gray-900">Penilaian: {{ $selectedStudent->name }}</h3>
-                            <p class="text-sm text-gray-600 mt-1">
-                                NIM: {{ $selectedStudent->profilMahasiswa->nim ?? 'N/A' }} • 
-                                Prodi: {{ $selectedStudent->profilMahasiswa->prodi ?? 'N/A' }}
-                            </p>
+                    <div class="bg-white rounded-lg shadow overflow-hidden">
+                        <div class="px-6 py-4 border-b border-gray-200 bg-white">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center space-x-3">
+                                    <!-- Profile Photo -->
+                                    <div class="flex-shrink-0">
+                                        @if($selectedStudent->photo && $selectedStudent->google_linked)
+                                            <img src="{{ $selectedStudent->photo }}"
+                                                 alt="{{ $selectedStudent->name }}"
+                                                 class="h-12 w-12 rounded-full object-cover border-2 border-blue-200"
+                                                 onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                            <div class="h-12 w-12 rounded-full bg-blue-100 items-center justify-center hidden">
+                                                <i class="fas fa-user text-blue-600"></i>
+                                            </div>
+                                        @else
+                                            <div class="h-12 w-12 rounded-full bg-blue-100 flex items-center justify-center">
+                                                <i class="fas fa-user text-blue-600"></i>
+                                            </div>
+                                        @endif
+                                    </div>
+                                    <div>
+                                        <h3 class="text-base font-semibold text-gray-900">{{ $selectedStudent->name }}</h3>
+                                        <p class="text-xs text-gray-500 mt-1">
+                                            {{ $selectedStudent->profilMahasiswa->nim ?? 'N/A' }} &bull;
+                                            {{ $selectedStudent->profilMahasiswa->prodi ?? 'N/A' }}
+                                        </p>
+                                    </div>
+                                </div>
+                                @if($allResults && $allResults->has($selectedStudent->id))
+                                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                        <i class="fas fa-check mr-1"></i> Sudah Dinilai
+                                    </span>
+                                @endif
+                            </div>
                         </div>
 
                         <div class="p-6">
-                            <form action="{{ route('dospem.penilaian.store') }}" method="POST">
+                            <form action="{{ route('dospem.penilaian.store') }}" method="POST" id="penilaianForm">
                                 @csrf
                                 <input type="hidden" name="mahasiswa_id" value="{{ $selectedStudent->id }}">
-                                <div class="mb-6">
-                                    <h4 class="text-md font-medium text-gray-900 mb-2">{{ $form['name'] }}</h4>
-                                    @if($form['description'])
-                                    <p class="text-sm text-gray-600">{{ $form['description'] }}</p>
-                                    @endif
-                                </div>
 
-                                <div class="space-y-6">
-                                    @foreach($form['items'] as $item)
-                                        <div class="border border-gray-200 rounded-lg p-4">
-                                            <div class="flex items-center justify-between mb-3">
-                                                <label class="text-sm font-medium text-gray-900">
+                                <div class="space-y-4">
+                                    @foreach($form['items'] as $index => $item)
+                                        <div class="bg-gray-50 rounded-lg p-4">
+                                            <div class="flex items-start justify-between mb-3">
+                                                <label class="text-sm font-medium text-gray-900 flex items-center">
+                                                    <span class="bg-blue-600 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center mr-2">{{ $index + 1 }}</span>
                                                     {{ $item['label'] }}
                                                     @if($item['required'])
-                                                        <span class="text-red-500">*</span>
+                                                        <span class="text-red-500 ml-1">*</span>
                                                     @endif
                                                 </label>
-                                                <span class="text-xs text-gray-500">Bobot: {{ $item['weight'] }}%</span>
+                                                <span class="text-xs font-medium text-blue-600 bg-blue-50 px-2 py-1 rounded">{{ $item['weight'] }}%</span>
                                             </div>
 
                                             @if($item['type'] === 'numeric')
-                                                <div class="flex items-center space-x-4">
-                                                    <input type="number" 
-                                                           name="items[{{ $item['id'] }}]" 
+                                                <div class="flex items-center space-x-3">
+                                                    <input type="range"
+                                                           id="range_{{ $item['id'] }}"
+                                                           min="0"
+                                                           max="100"
+                                                           value="{{ $responses->get($item['id'])->value_numeric ?? 0 }}"
+                                                           class="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                                                           oninput="document.getElementById('input_{{ $item['id'] }}').value = this.value; updateRangeColor(this);">
+                                                    <input type="number"
+                                                           id="input_{{ $item['id'] }}"
+                                                           name="items[{{ $item['id'] }}]"
                                                            value="{{ $responses->get($item['id'])->value_numeric ?? '' }}"
-                                                           min="0" 
-                                                           max="100" 
+                                                           min="0"
+                                                           max="100"
                                                            step="0.1"
-                                                           class="w-24 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                           class="w-20 px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-center"
+                                                           oninput="document.getElementById('range_{{ $item['id'] }}').value = this.value; updateRangeColor(document.getElementById('range_{{ $item['id'] }}'));"
                                                            required>
-                                                    <span class="text-sm text-gray-500">/ 100</span>
                                                 </div>
                                             @elseif($item['type'] === 'boolean')
-                                                <div class="flex items-center space-x-4">
-                                                    <label class="flex items-center">
-                                                        <input type="radio" 
-                                                               name="items[{{ $item['id'] }}]" 
+                                                <div class="flex items-center space-x-6">
+                                                    <label class="flex items-center cursor-pointer">
+                                                        <input type="radio"
+                                                               name="items[{{ $item['id'] }}]"
                                                                value="1"
                                                                {{ ($responses->get($item['id'])->value_bool ?? false) ? 'checked' : '' }}
-                                                               class="mr-2">
-                                                        <span class="text-sm">Ya</span>
+                                                               class="w-4 h-4 text-green-600 focus:ring-green-500">
+                                                        <span class="ml-2 text-sm text-gray-700">Ya</span>
                                                     </label>
-                                                    <label class="flex items-center">
-                                                        <input type="radio" 
-                                                               name="items[{{ $item['id'] }}]" 
+                                                    <label class="flex items-center cursor-pointer">
+                                                        <input type="radio"
+                                                               name="items[{{ $item['id'] }}]"
                                                                value="0"
                                                                {{ !($responses->get($item['id'])->value_bool ?? false) ? 'checked' : '' }}
-                                                               class="mr-2">
-                                                        <span class="text-sm">Tidak</span>
+                                                               class="w-4 h-4 text-red-600 focus:ring-red-500">
+                                                        <span class="ml-2 text-sm text-gray-700">Tidak</span>
                                                     </label>
                                                 </div>
                                             @else
-                                                <textarea name="items[{{ $item['id'] }}]" 
+                                                <textarea name="items[{{ $item['id'] }}]"
                                                           rows="3"
-                                                          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                          class="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                                                           placeholder="Masukkan penilaian...">{{ $responses->get($item['id'])->value_text ?? '' }}</textarea>
                                             @endif
                                         </div>
                                     @endforeach
                                 </div>
 
-                                <div class="mt-8 flex justify-end space-x-4">
-                                    <a href="{{ route('dospem.penilaian') }}" 
-                                       class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">
+                                <div class="mt-6 flex justify-end space-x-3">
+                                    <a href="{{ route('dospem.penilaian') }}"
+                                       class="px-4 py-2 text-sm border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition">
                                         Batal
                                     </a>
-                                    <button type="submit" 
-                                            class="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <button type="submit"
+                                            class="px-6 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
                                         <i class="fas fa-save mr-2"></i>
                                         Simpan Penilaian
                                     </button>
@@ -198,51 +235,147 @@
                             </form>
                         </div>
                     </div>
-                    
+
                     <!-- Hasil Akhir Section -->
                     @if($allResults && $allResults->has($selectedStudent->id))
                         @php
                             $studentResult = $allResults->get($selectedStudent->id);
                         @endphp
-                        <div class="mt-6 bg-white rounded-lg shadow">
-                            <div class="px-6 py-4 border-b border-gray-200">
-                                <h3 class="text-lg font-semibold text-gray-900">Hasil Akhir</h3>
+                        <div class="mt-6 bg-white rounded-lg shadow overflow-hidden">
+                            <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
+                                <h3 class="text-base font-semibold text-gray-900">Hasil Penilaian</h3>
                             </div>
                             <div class="p-6">
-                                <div class="bg-gray-50 rounded-lg p-4">
-                                    <div class="flex justify-between items-center">
-                                        <div>
-                                            <h4 class="text-md font-medium text-gray-900">Hasil Saat Ini</h4>
-                                            <p class="text-sm text-gray-600 mt-1">
-                                                Ditetapkan: {{ $studentResult->created_at ? $studentResult->created_at->format('Y-m-d H:i:s') : 'N/A' }}
-                                            </p>
+                                <div class="grid grid-cols-3 gap-4">
+                                    <div class="text-center p-4 bg-blue-50 rounded-lg">
+                                        <div class="text-2xl font-bold text-blue-600">
+                                            {{ $studentResult->total_percent ?? 0 }}%
                                         </div>
-                                        <div class="text-right">
-                                            <div class="text-2xl font-bold text-blue-600">
-                                                Total: {{ $studentResult->total_percent ?? 0 }}%
-                                            </div>
-                                            <div class="text-lg font-medium text-gray-700">
-                                                Grade: {{ $studentResult->letter_grade ?? 'N/A' }}
-                                            </div>
-                                            <div class="text-sm text-gray-500">
-                                                Poin: {{ $studentResult->gpa_point ?? 'N/A' }}
-                                            </div>
-                                        </div>
+                                        <div class="text-xs text-gray-600 mt-1">Total Skor</div>
                                     </div>
-
+                                    <div class="text-center p-4 bg-green-50 rounded-lg">
+                                        <div class="text-2xl font-bold text-green-600">
+                                            {{ $studentResult->letter_grade ?? 'N/A' }}
+                                        </div>
+                                        <div class="text-xs text-gray-600 mt-1">Grade</div>
+                                    </div>
+                                    <div class="text-center p-4 bg-purple-50 rounded-lg">
+                                        <div class="text-2xl font-bold text-purple-600">
+                                            {{ $studentResult->gpa_point ?? 'N/A' }}
+                                        </div>
+                                        <div class="text-xs text-gray-600 mt-1">Poin</div>
+                                    </div>
+                                </div>
+                                <div class="mt-4 text-xs text-gray-500 text-center">
+                                    <i class="fas fa-clock mr-1"></i>
+                                    Terakhir diperbarui: {{ $studentResult->updated_at ? $studentResult->updated_at->format('d M Y, H:i') : 'N/A' }}
                                 </div>
                             </div>
                         </div>
                     @endif
                 @else
-                    <div class="bg-white rounded-lg shadow p-8 text-center">
-                        <i class="fas fa-user-graduate text-gray-400 text-4xl mb-4"></i>
+                    <div class="bg-white rounded-lg shadow p-12 text-center">
+                        <i class="fas fa-hand-pointer text-gray-300 text-5xl mb-4"></i>
                         <h3 class="text-lg font-medium text-gray-900 mb-2">Pilih Mahasiswa</h3>
-                        <p class="text-gray-600">Pilih mahasiswa dari daftar di sebelah kiri untuk mulai penilaian</p>
+                        <p class="text-sm text-gray-600">Pilih mahasiswa dari daftar di sebelah kiri untuk mulai penilaian</p>
                     </div>
                 @endif
             </div>
         </div>
     @endif
 </div>
+
+<style>
+/* Custom Range Slider Thumb */
+input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    height: 8px;
+    border-radius: 4px;
+    outline: none;
+}
+
+/* Thumb untuk Chrome, Safari, Opera */
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;          /* Ukuran lebar */
+    height: 20px;         /* Ukuran tinggi */
+    border-radius: 50%;   /* Bentuk bulat */
+    background: #FFFFFF;  /* Warna putih */
+    border: 3px solid #3B82F6;  /* Stroke biru */
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Thumb untuk Firefox */
+input[type="range"]::-moz-range-thumb {
+    width: 20px;          /* Ukuran lebar */
+    height: 20px;         /* Ukuran tinggi */
+    border-radius: 50%;   /* Bentuk bulat */
+    background: #FFFFFF;  /* Warna putih */
+    border: 3px solid #3B82F6;  /* Stroke biru */
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Track untuk Firefox */
+input[type="range"]::-moz-range-track {
+    height: 8px;
+    border-radius: 4px;
+}
+</style>
+
+<script>
+function updateRangeColor(rangeInput) {
+    const value = rangeInput.value;
+    const percentage = (value / 100) * 100;
+    rangeInput.style.background = `linear-gradient(to right, #3B82F6 0%, #3B82F6 ${percentage}%, #E5E7EB ${percentage}%, #E5E7EB 100%)`;
+}
+
+// Initialize range colors on page load
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('input[type="range"]').forEach(function(range) {
+        updateRangeColor(range);
+    });
+
+    // Search functionality
+    const searchInput = document.getElementById('searchStudent');
+    const studentList = document.getElementById('studentList');
+
+    if (searchInput && studentList) {
+        searchInput.addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            const studentItems = studentList.querySelectorAll('a');
+
+            studentItems.forEach(function(item) {
+                const name = item.querySelector('.text-sm.font-medium').textContent.toLowerCase();
+                const nim = item.querySelector('.text-xs.text-gray-500').textContent.toLowerCase();
+
+                if (name.includes(searchTerm) || nim.includes(searchTerm)) {
+                    item.style.display = 'block';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        });
+    }
+
+    // Preserve scroll position
+    const savedScrollPosition = sessionStorage.getItem('studentListScrollPosition');
+    if (savedScrollPosition && studentList) {
+        studentList.scrollTop = parseInt(savedScrollPosition);
+    }
+
+    // Save scroll position before navigating
+    if (studentList) {
+        const studentLinks = studentList.querySelectorAll('a');
+        studentLinks.forEach(function(link) {
+            link.addEventListener('click', function() {
+                sessionStorage.setItem('studentListScrollPosition', studentList.scrollTop);
+            });
+        });
+    }
+});
+</script>
 @endsection

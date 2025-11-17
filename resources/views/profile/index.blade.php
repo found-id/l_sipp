@@ -112,6 +112,20 @@
                         </div>
                     </div>
                 </div>
+
+                @if($user->role === 'dospem' && $user->dospem && $user->dospem->nip)
+                <div class="bg-gradient-to-br from-green-50 to-emerald-50 p-5 rounded-xl border border-green-100">
+                    <div class="flex items-start">
+                        <div class="w-6 h-6 bg-green-500 rounded-lg flex items-center justify-center mr-3 mt-1 flex-shrink-0">
+                            <i class="fas fa-id-card text-white text-xs"></i>
+                        </div>
+                        <div class="flex-1">
+                            <p class="text-sm font-semibold text-gray-700">NIP</p>
+                            <p class="text-base text-gray-900 font-medium mt-1">{{ $user->dospem->nip }}</p>
+                        </div>
+                    </div>
+                </div>
+                @endif
             </div>
         </div>
 
@@ -131,6 +145,9 @@
                     </div>
                     <div class="ml-4">
                         <div class="text-lg font-bold text-gray-900">{{ $dosenPembimbing->name }}</div>
+                        @if($dosenPembimbing->dospem && $dosenPembimbing->dospem->nip)
+                        <div class="text-sm text-gray-700 mt-1">NIP: {{ $dosenPembimbing->dospem->nip }}</div>
+                        @endif
                         <div class="text-sm text-gray-600 mt-1">Dosen Pembimbing PKL Anda</div>
                     </div>
                 </div>
@@ -138,22 +155,6 @@
         </div>
         @endif
     </div>
-
-    <!-- Biodata Dosen -->
-    @if($user->role === 'dospem' && isset($dospem))
-    <div class="bg-white shadow-lg rounded-2xl p-6 border border-gray-100">
-        <div class="flex items-center mb-6">
-            <div class="w-12 h-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center">
-                <i class="fas fa-user-tie text-white text-xl"></i>
-            </div>
-            <h3 class="text-xl font-bold text-gray-900 ml-3">Biodata Dosen</h3>
-        </div>
-        <div class="bg-gradient-to-br from-indigo-50 to-purple-50 p-5 rounded-xl border border-indigo-100">
-            <label class="block text-sm font-semibold text-gray-700">NIP</label>
-            <p class="mt-2 text-lg text-gray-900 font-medium">{{ $dospem->nip ?? 'Belum diisi' }}</p>
-        </div>
-    </div>
-    @endif
 
     <!-- Biodata Information (for Mahasiswa) -->
     @if($user->role === 'mahasiswa' && $profil)
@@ -166,30 +167,46 @@
         </div>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div class="space-y-4">
-                <div class="bg-gradient-to-br from-blue-50 to-cyan-50 p-5 rounded-xl border border-blue-100">
-                    <label class="block text-sm font-semibold text-gray-700">NIM</label>
+                <div class="bg-gray-50 p-5 rounded-xl border border-gray-200">
+                    <label class="block text-sm font-semibold text-gray-700">
+                        <i class="fas fa-id-card text-gray-400 mr-2"></i>NIM
+                    </label>
                     <p class="mt-2 text-base text-gray-900 font-medium">{{ $profil->nim ?? 'Belum diisi' }}</p>
                 </div>
 
-                <div class="bg-gradient-to-br from-purple-50 to-pink-50 p-5 rounded-xl border border-purple-100">
-                    <label class="block text-sm font-semibold text-gray-700">Program Studi</label>
+                <div class="bg-gray-50 p-5 rounded-xl border border-gray-200">
+                    <label class="block text-sm font-semibold text-gray-700">
+                        <i class="fas fa-graduation-cap text-gray-400 mr-2"></i>Program Studi
+                    </label>
                     <p class="mt-2 text-base text-gray-900 font-medium">{{ $profil->prodi ?: 'Belum diisi' }}</p>
                 </div>
 
-                <div class="bg-gradient-to-br from-orange-50 to-amber-50 p-5 rounded-xl border border-orange-100">
-                    <label class="block text-sm font-semibold text-gray-700">Semester</label>
+                <div class="bg-gray-50 p-5 rounded-xl border border-gray-200">
+                    <label class="block text-sm font-semibold text-gray-700">
+                        <i class="fas fa-calendar-alt text-gray-400 mr-2"></i>Semester
+                    </label>
                     <p class="mt-2 text-base text-gray-900 font-medium">{{ $profil->semester ?: 'Belum diisi' }}</p>
                 </div>
 
-                <div class="bg-gradient-to-br from-green-50 to-emerald-50 p-5 rounded-xl border border-green-100">
-                    <label class="block text-sm font-semibold text-gray-700">No. WhatsApp</label>
-                    <p class="mt-2 text-base text-gray-900 font-medium">{{ $profil->no_whatsapp ?? 'Belum diisi' }}</p>
+                <div class="bg-gray-50 p-5 rounded-xl border border-gray-200">
+                    <label class="block text-sm font-semibold text-gray-700">
+                        <i class="fab fa-whatsapp text-gray-400 mr-2"></i>No. WhatsApp
+                    </label>
+                    <p class="mt-2 text-base text-gray-900 font-medium">
+                        @if($profil->no_whatsapp)
+                            +62{{ $profil->no_whatsapp }}
+                        @else
+                            Belum diisi
+                        @endif
+                    </p>
                 </div>
             </div>
 
             <div class="space-y-4">
-                <div class="bg-gradient-to-br from-pink-50 to-rose-50 p-5 rounded-xl border border-pink-100">
-                    <label class="block text-sm font-semibold text-gray-700">Jenis Kelamin</label>
+                <div class="bg-gray-50 p-5 rounded-xl border border-gray-200">
+                    <label class="block text-sm font-semibold text-gray-700">
+                        <i class="fas fa-venus-mars text-gray-400 mr-2"></i>Jenis Kelamin
+                    </label>
                     <p class="mt-2 text-base text-gray-900 font-medium">
                         @if($profil->jenis_kelamin === 'L') Laki-laki
                         @elseif($profil->jenis_kelamin === 'P') Perempuan
@@ -197,13 +214,17 @@
                     </p>
                 </div>
 
-                <div class="bg-gradient-to-br from-indigo-50 to-blue-50 p-5 rounded-xl border border-indigo-100">
-                    <label class="block text-sm font-semibold text-gray-700">IPK</label>
+                <div class="bg-gray-50 p-5 rounded-xl border border-gray-200">
+                    <label class="block text-sm font-semibold text-gray-700">
+                        <i class="fas fa-chart-line text-gray-400 mr-2"></i>IPK
+                    </label>
                     <p class="mt-2 text-base text-gray-900 font-medium">{{ $profil->ipk ?: 'Belum diisi' }}</p>
                 </div>
 
-                <div class="bg-gradient-to-br from-gray-50 to-slate-50 p-5 rounded-xl border border-gray-200">
-                    <label class="block text-sm font-semibold text-gray-700 mb-3">Status Validasi</label>
+                <div class="bg-gray-50 p-5 rounded-xl border border-gray-200">
+                    <label class="block text-sm font-semibold text-gray-700 mb-3">
+                        <i class="fas fa-check-square text-gray-400 mr-2"></i>Persyaratan yang Disetujui
+                    </label>
                     <div class="space-y-3">
                         <div class="flex items-start">
                             <div class="flex items-center h-5">

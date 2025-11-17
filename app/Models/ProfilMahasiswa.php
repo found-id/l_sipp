@@ -25,6 +25,8 @@ class ProfilMahasiswa extends Model
         'gdrive_pkkmb',
         'gdrive_ecourse',
         'gdrive_more',
+        'status_dokumen_pendukung',
+        'status_pkl',
     ];
 
     protected function casts(): array
