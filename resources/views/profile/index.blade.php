@@ -11,7 +11,15 @@
             <div class="flex justify-between items-center">
                 <div class="flex items-center">
                     @if($user->photo && $user->google_linked)
-                        <img src="{{ $user->photo }}" alt="Profile" class="h-20 w-20 rounded-full object-cover border-4 border-white/30 shadow-xl" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                        @php
+                            $photoUrl = $user->photo;
+                            // Tambahkan parameter ukuran untuk Google photos
+                            if (str_contains($photoUrl, 'googleusercontent.com')) {
+                                $photoUrl = preg_replace('/=s\d+-c/', '', $photoUrl);
+                                $photoUrl .= '=s200-c';
+                            }
+                        @endphp
+                        <img src="{{ $photoUrl }}" alt="Profile" class="h-20 w-20 rounded-full object-cover border-4 border-white/30 shadow-xl" referrerpolicy="no-referrer" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
                         <div class="h-20 w-20 rounded-full bg-white/20 backdrop-blur-sm border-4 border-white/30 flex items-center justify-center shadow-xl" style="display: none;">
                             <i class="fas fa-user text-white text-3xl"></i>
                         </div>

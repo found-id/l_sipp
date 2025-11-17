@@ -69,6 +69,9 @@
                         @endphp
 
                         @if(in_array($ext, ['jpg', 'jpeg', 'png']))
+                            @php
+                                $fileExists = \Storage::disk('public')->exists($j->lokasi_file);
+                            @endphp
                             <div class="bg-white p-6 rounded-xl border-2 border-gray-200" id="image-container-{{ $j->id }}">
                                 <div class="flex justify-between items-center mb-4">
                                     <div class="flex items-center">
@@ -77,10 +80,17 @@
                                         </div>
                                         <h4 class="text-sm font-semibold text-gray-900">Pratinjau Gambar</h4>
                                     </div>
-                                    <a href="{{ $url }}" target="_blank" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all duration-200 shadow-md hover:shadow-lg text-sm font-medium">
-                                        <i class="fas fa-external-link-alt mr-2"></i>
-                                        Lihat Penuh
-                                    </a>
+                                    @if($fileExists)
+                                        <a href="{{ $url }}" target="_blank" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all duration-200 shadow-md hover:shadow-lg text-sm font-medium">
+                                            <i class="fas fa-external-link-alt mr-2"></i>
+                                            Lihat Penuh
+                                        </a>
+                                    @else
+                                        <button disabled class="inline-flex items-center px-4 py-2 bg-gray-300 text-gray-500 rounded-lg cursor-not-allowed text-sm font-medium">
+                                            <i class="fas fa-external-link-alt mr-2"></i>
+                                            Lihat Penuh
+                                        </button>
+                                    @endif
                                 </div>
                                 <div class="bg-white rounded-lg p-4 shadow-inner">
                                     <img src="{{ $url }}"
@@ -97,6 +107,9 @@
                                 </div>
                             </div>
                         @elseif($ext === 'pdf')
+                            @php
+                                $fileExists = \Storage::disk('public')->exists($j->lokasi_file);
+                            @endphp
                             <div class="bg-white p-6 rounded-xl border-2 border-gray-200" id="pdf-container-{{ $j->id }}">
                                 <div class="flex justify-between items-center mb-4">
                                     <div class="flex items-center">
@@ -105,10 +118,17 @@
                                         </div>
                                         <h4 class="text-sm font-semibold text-gray-900">Pratinjau Dokumen PDF</h4>
                                     </div>
-                                    <a href="{{ $url }}" target="_blank" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-red-600 to-red-700 text-white rounded-lg hover:from-red-700 hover:to-red-800 transition-all duration-200 shadow-md hover:shadow-lg text-sm font-medium">
-                                        <i class="fas fa-file-pdf mr-2"></i>
-                                        Lihat Penuh
-                                    </a>
+                                    @if($fileExists)
+                                        <a href="{{ $url }}" target="_blank" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-red-600 to-red-700 text-white rounded-lg hover:from-red-700 hover:to-red-800 transition-all duration-200 shadow-md hover:shadow-lg text-sm font-medium">
+                                            <i class="fas fa-file-pdf mr-2"></i>
+                                            Lihat Penuh
+                                        </a>
+                                    @else
+                                        <button disabled class="inline-flex items-center px-4 py-2 bg-gray-300 text-gray-500 rounded-lg cursor-not-allowed text-sm font-medium">
+                                            <i class="fas fa-file-pdf mr-2"></i>
+                                            Lihat Penuh
+                                        </button>
+                                    @endif
                                 </div>
                                 <div class="bg-white rounded-lg shadow-inner overflow-hidden">
                                     <iframe src="{{ $url }}"

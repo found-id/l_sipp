@@ -89,7 +89,7 @@
 <body class="bg-gray-50">
     @auth
     <!-- Navigation -->
-    <nav class="fixed top-0 left-0 right-0 z-50 bg-white/85 backdrop-blur-3xl shadow-sm border-b border-gray-100">
+    <nav class="fixed top-0 left-0 right-0 z-50 bg-white/1 backdrop-blur-3xl shadow-sm border-b border-gray-100">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16">
                 <div class="flex items-center">
@@ -172,10 +172,18 @@
                 
                 <div class="flex items-center space-x-2">
                     <!-- Profile Button -->
-                    <a href="{{ route('profile.index') }}" class="profile-icon" title="Profile">
+                    <a href="{{ route('profile.index') }}" class="profile-icon {{ auth()->user()->photo ? 'rounded-full' : '' }}" title="Profile">
                         @if(auth()->user()->photo)
                             @if(auth()->user()->google_linked)
-                                <img src="{{ auth()->user()->photo }}" alt="Profile" class="h-8 w-8 rounded-full object-cover" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';">
+                                @php
+                                    $photoUrl = auth()->user()->photo;
+                                    // Tambahkan parameter ukuran untuk Google photos
+                                    if (str_contains($photoUrl, 'googleusercontent.com')) {
+                                        $photoUrl = preg_replace('/=s\d+-c/', '', $photoUrl);
+                                        $photoUrl .= '=s96-c';
+                                    }
+                                @endphp
+                                <img src="{{ $photoUrl }}" alt="Profile" class="h-8 w-8 rounded-full object-cover" referrerpolicy="no-referrer" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';">
                                 <i class="fas fa-user" style="display: none;"></i>
                             @else
                                 <img src="{{ asset('storage/' . auth()->user()->photo) }}" alt="Profile" class="h-8 w-8 rounded-full object-cover" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';">

@@ -1879,7 +1879,7 @@ function calculateFinalIpk() {
         // Update Status Keaktifan: Menyiapkan Berkas
         updateStatusKeaktifanPkl('Menyiapkan Berkas', 'menyiapkan_berkas');
     }
-    
+
     console.log('=== FINAL IPK CALCULATION COMPLETED ===');
 }
 

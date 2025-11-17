@@ -114,9 +114,30 @@
                         </td>
                         <td class="px-4 py-4 whitespace-nowrap sticky left-12 bg-white z-10 hover:bg-gray-50 transition-colors">
                             <div class="flex items-center">
-                                <div class="h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center">
-                                    <i class="fas fa-user text-gray-600"></i>
-                                </div>
+                                @if($user->photo)
+                                    @if($user->google_linked)
+                                        @php
+                                            $photoUrl = $user->photo;
+                                            if (str_contains($photoUrl, 'googleusercontent.com')) {
+                                                $photoUrl = preg_replace('/=s\d+-c/', '', $photoUrl);
+                                                $photoUrl .= '=s96-c';
+                                            }
+                                        @endphp
+                                        <img src="{{ $photoUrl }}" alt="Profile" class="h-10 w-10 rounded-full object-cover" referrerpolicy="no-referrer" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                        <div class="h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center" style="display: none;">
+                                            <i class="fas fa-user text-gray-600"></i>
+                                        </div>
+                                    @else
+                                        <img src="{{ asset('storage/' . $user->photo) }}" alt="Profile" class="h-10 w-10 rounded-full object-cover" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                        <div class="h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center" style="display: none;">
+                                            <i class="fas fa-user text-gray-600"></i>
+                                        </div>
+                                    @endif
+                                @else
+                                    <div class="h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center">
+                                        <i class="fas fa-user text-gray-600"></i>
+                                    </div>
+                                @endif
                                 <div class="ml-4">
                                     <div class="text-sm font-medium text-gray-900 flex items-center">
                                         {{ $user->name }}

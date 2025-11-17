@@ -14,10 +14,11 @@ class ProfileController extends Controller
 {
     public function index()
     {
-        $user = Auth::user()->load('dospem');
-        if (!$user) {
+        if (!Auth::check()) {
             return redirect()->route('login');
         }
+
+        $user = Auth::user()->load('dospem');
         $profil = $user->profilMahasiswa;
         $dospem = $user->dospem;
 
@@ -65,7 +66,7 @@ class ProfileController extends Controller
             if ($user->role === 'dospem') {
                 // Only validate NIP for dospem
                 $ignoreId = optional($user->dospem)->id;
-                $rules['nip'] = 'nullable|string|max:50|unique:dospems,nip,' . ($ignoreId ?? 'NULL') . ',id';
+                $rules['nip'] = 'nullable|string|max:50|unique:dospem,nip,' . ($ignoreId ?? 'NULL') . ',id';
             } elseif ($user->role === 'mahasiswa') {
                 // Mahasiswa-specific validations
                 $rules = array_merge($rules, [

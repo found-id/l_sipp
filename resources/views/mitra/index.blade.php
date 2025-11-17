@@ -143,10 +143,12 @@
                                 <i class="fas fa-road text-gray-400 mr-2 w-4 text-center"></i>
                                 <p class="text-sm text-gray-600">Jarak: <span class="font-semibold">{{ $m->jarak }} km</span></p>
                             </div>
+                            @if($m->honor > 0)
                             <div class="flex items-center">
                                 <i class="fas fa-money-bill-wave text-gray-400 mr-2 w-4 text-center"></i>
-                                <p class="text-sm text-gray-600">Honor: <span class="font-semibold {{ $m->honor >= 4 ? 'text-green-600' : ($m->honor >= 3 ? 'text-blue-600' : 'text-orange-600') }}">{{ $m->honor_label }}</span></p>
+                                <p class="text-sm text-gray-600">Honor: <span class="font-semibold text-green-600">Ada</span></p>
                             </div>
+                            @endif
                             <div class="flex items-center">
                                 <i class="fas fa-couch text-gray-400 mr-2 w-4 text-center"></i>
                                 <p class="text-sm text-gray-600">Fasilitas: <span class="font-semibold {{ $m->fasilitas >= 4 ? 'text-green-600' : ($m->fasilitas >= 3 ? 'text-blue-600' : 'text-orange-600') }}">{{ $m->fasilitas_label }}</span></p>
@@ -172,17 +174,15 @@
                     $kuotaPenuh = $m->mahasiswa_count >= $m->max_mahasiswa;
                 @endphp
                 <div class="space-y-2">
-                    <div class="flex items-center justify-center">
-                        <div class="flex items-center gap-2 px-3 py-1.5 rounded-lg {{ $kuotaPenuh ? 'bg-red-50' : ($sisaKuota <= 1 ? 'bg-yellow-50' : 'bg-green-50') }}">
-                            <i class="fas fa-users {{ $kuotaPenuh ? 'text-red-500' : ($sisaKuota <= 1 ? 'text-yellow-500' : 'text-green-500') }}"></i>
-                            <span class="font-bold text-lg {{ $kuotaPenuh ? 'text-red-600' : ($sisaKuota <= 1 ? 'text-yellow-600' : 'text-green-600') }}">
-                                {{ $m->mahasiswa_count }}/{{ $m->max_mahasiswa }}
-                            </span>
-                        </div>
+                    <!-- Jumlah mahasiswa - rata kanan dan kecil -->
+                    <div class="flex justify-end">
+                        <span class="text-xs text-gray-500">
+                            {{ $m->mahasiswa_count }}/{{ $m->max_mahasiswa }}
+                        </span>
                     </div>
-                    <!-- Progress Bar -->
+                    <!-- Progress Bar - warna abu-abu -->
                     <div class="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
-                        <div class="h-2 rounded-full transition-all duration-300 {{ $persentaseTerisi >= 100 ? 'bg-red-500' : ($persentaseTerisi >= 75 ? 'bg-yellow-500' : 'bg-green-500') }}"
+                        <div class="h-2 rounded-full transition-all duration-300 bg-gray-400"
                              style="width: {{ min($persentaseTerisi, 100) }}%"></div>
                     </div>
                     @if($kuotaPenuh)
@@ -193,7 +193,7 @@
                         <p class="text-xs text-yellow-600 font-medium text-center">
                             <i class="fas fa-exclamation-triangle mr-1"></i>Sisa 1 kuota
                         </p>
-                    @else
+                    @elseif($m->mahasiswa_count >= 2)
                         <p class="text-xs text-gray-500 text-center">
                             Sisa {{ $sisaKuota }} kuota tersedia
                         </p>
@@ -292,13 +292,7 @@
 </div>
 
 <script>
-// Auto-focus search input when page loads
 document.addEventListener('DOMContentLoaded', function() {
-    const searchInput = document.getElementById('searchInput');
-    if (searchInput) {
-        searchInput.focus();
-    }
-
     // Enable/disable textarea based on radio selection
     const radioButtons = document.querySelectorAll('input[name="jenis_alasan"]');
     radioButtons.forEach(radio => {

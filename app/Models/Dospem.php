@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Dospem extends Model
 {
-    protected $table = 'dospen';
+    protected $table = 'dospem';
 
     protected $fillable = [
         'user_id',

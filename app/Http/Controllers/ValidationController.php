@@ -350,9 +350,12 @@ class ValidationController extends Controller
                 $query->orderBy('semester', $sortOrder);
                 break;
             case 'ipk':
-                $query->orderBy('ipk', $sortOrder);
+                // IPK: jika asc, tampilkan dari tertinggi (desc), jika desc tampilkan dari terendah (asc)
+                $ipkOrder = $sortOrder === 'asc' ? 'desc' : 'asc';
+                $query->orderBy('ipk', $ipkOrder);
                 break;
             case 'nim':
+                // NIM: tetap gunakan order normal (asc = dari terkecil, desc = dari terbesar)
                 $query->orderBy('nim', $sortOrder);
                 break;
             default:
