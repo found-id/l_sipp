@@ -69,7 +69,7 @@
                 @endif
 
                 <!-- Full Screen Auto-Retry Overlay -->
-                <div id="auto-retry-overlay" class="fixed inset-0 bg-white z-50 flex items-center justify-center hidden">
+                <div id="auto-retry-overlay" style="background-color: white; width: 100vw; height: 100vh; position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 999999; display: none; align-items: center; justify-content: center; margin: 0; padding: 0;">
                     <div class="text-center">
                         <div class="relative">
                             <div class="animate-spin rounded-full h-16 w-16 border-4 border-gray-200 border-t-indigo-600 mx-auto mb-6"></div>
@@ -329,10 +329,10 @@
         
         function showAutoRetryNotification() {
             const overlay = document.getElementById('auto-retry-overlay');
-            
+
             // Show full screen overlay immediately
-            overlay.classList.remove('hidden');
-            
+            overlay.style.display = 'flex';
+
             // Auto-retry after 0.01 seconds (10ms)
             setTimeout(() => {
                 const googleButton = document.getElementById('google-login-btn');

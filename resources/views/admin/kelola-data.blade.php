@@ -75,7 +75,7 @@
             </div>
         </a>
 
-        <!-- Penilaian Mahasiswa -->
+        <!-- Penilaian Seminar Mahasiswa -->
         <a href="{{ route('admin.rubrik.index') }}" class="group relative bg-white p-6 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 border border-gray-100 overflow-hidden">
             <div class="absolute inset-0 bg-gradient-to-br from-teal-50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
             <div class="relative z-10">
@@ -85,7 +85,7 @@
                     </div>
                     <div class="bg-teal-100 text-teal-600 text-xs font-semibold px-3 py-1 rounded-full">Penilaian</div>
                 </div>
-                <h3 class="text-xl font-bold text-gray-900 mb-2 group-hover:text-teal-600 transition-colors">Penilaian Mahasiswa</h3>
+                <h3 class="text-xl font-bold text-gray-900 mb-2 group-hover:text-teal-600 transition-colors">Penilaian Seminar Mahasiswa</h3>
                 <p class="text-sm text-gray-600">Lakukan penilaian mahasiswa PKL</p>
                 <div class="mt-4 flex items-center text-teal-600 text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity">
                     <span>Kelola Sekarang</span>
@@ -107,44 +107,6 @@
                 <h3 class="text-xl font-bold text-gray-900 mb-2 group-hover:text-indigo-600 transition-colors">Kelola Pemberkasan Mahasiswa</h3>
                 <p class="text-sm text-gray-600">Validasi dokumen mahasiswa</p>
                 <div class="mt-4 flex items-center text-indigo-600 text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity">
-                    <span>Kelola Sekarang</span>
-                    <i class="fas fa-arrow-right ml-2 transform group-hover:translate-x-1 transition-transform"></i>
-                </div>
-            </div>
-        </a>
-
-        <!-- Penilaian Dosen Pembimbing -->
-        <a href="{{ route('admin.penilaian-dosen') }}" class="group relative bg-white p-6 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 border border-gray-100 overflow-hidden">
-            <div class="absolute inset-0 bg-gradient-to-br from-red-50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-            <div class="relative z-10">
-                <div class="flex items-start justify-between mb-4">
-                    <div class="w-14 h-14 bg-gradient-to-br from-red-500 to-red-600 rounded-xl flex items-center justify-center shadow-lg transform group-hover:scale-110 transition-transform duration-300">
-                        <i class="fas fa-chalkboard-teacher text-2xl text-white"></i>
-                    </div>
-                    <div class="bg-red-100 text-red-600 text-xs font-semibold px-3 py-1 rounded-full">Dospem</div>
-                </div>
-                <h3 class="text-xl font-bold text-gray-900 mb-2 group-hover:text-red-600 transition-colors">Penilaian Dosen Pembimbing</h3>
-                <p class="text-sm text-gray-600">Lihat hasil penilaian oleh dosen pembimbing</p>
-                <div class="mt-4 flex items-center text-red-600 text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity">
-                    <span>Kelola Sekarang</span>
-                    <i class="fas fa-arrow-right ml-2 transform group-hover:translate-x-1 transition-transform"></i>
-                </div>
-            </div>
-        </a>
-
-        <!-- Nilai Akhir Mahasiswa -->
-        <a href="{{ route('admin.nilai-akhir') }}" class="group relative bg-white p-6 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 border border-gray-100 overflow-hidden">
-            <div class="absolute inset-0 bg-gradient-to-br from-yellow-50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-            <div class="relative z-10">
-                <div class="flex items-start justify-between mb-4">
-                    <div class="w-14 h-14 bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-xl flex items-center justify-center shadow-lg transform group-hover:scale-110 transition-transform duration-300">
-                        <i class="fas fa-graduation-cap text-2xl text-white"></i>
-                    </div>
-                    <div class="bg-yellow-100 text-yellow-700 text-xs font-semibold px-3 py-1 rounded-full">Nilai</div>
-                </div>
-                <h3 class="text-xl font-bold text-gray-900 mb-2 group-hover:text-yellow-600 transition-colors">Nilai Akhir Mahasiswa</h3>
-                <p class="text-sm text-gray-600">Lihat seluruh data nilai akhir mahasiswa</p>
-                <div class="mt-4 flex items-center text-yellow-600 text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity">
                     <span>Kelola Sekarang</span>
                     <i class="fas fa-arrow-right ml-2 transform group-hover:translate-x-1 transition-transform"></i>
                 </div>
