@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Validasi Dokumen - SIPP PKL')
+@section('title', 'Validasi Dokumen - SIP PKL')
 
 @section('content')
 <div class="space-y-6">

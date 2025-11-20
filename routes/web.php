@@ -144,13 +144,17 @@ Route::get('/jadwal/{filename}', function ($filename) {
 
         // (catatan: kamu punya dua set /validation di admin sebelumnya — aku biarkan yang di atas saja agar tidak ganda)
     });
-    
+
+    // Preview file route - accessible by both admin and dospem
+    Route::middleware(['role:admin,dospem'])->prefix('dospem')->name('dospem.')->group(function () {
+        Route::get('/mahasiswa/{mahasiswaId}/preview/{type}/{filename}', [\App\Http\Controllers\ValidationController::class, 'previewMahasiswaFile'])->name('mahasiswa.preview');
+    });
+
     // Dosen Pembimbing routes
     Route::middleware(['role:dospem'])->prefix('dospem')->name('dospem.')->group(function () {
         // Main validation page (mahasiswa list)
         Route::get('/validation', [\App\Http\Controllers\ValidationController::class, 'mahasiswaList'])->name('validation');
         Route::get('/mahasiswa/{id}/detail', [\App\Http\Controllers\ValidationController::class, 'mahasiswaDetail'])->name('mahasiswa.detail');
-        Route::get('/mahasiswa/{mahasiswaId}/preview/{type}/{filename}', [\App\Http\Controllers\ValidationController::class, 'previewMahasiswaFile'])->name('mahasiswa.preview');
 
         // New validation methods for 4 categories
         Route::put('/validate/{mahasiswaId}/kelayakan', [\App\Http\Controllers\ValidationController::class, 'validateKelayakan'])->name('validate.kelayakan');

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FAQ - SIPP PKL</title>
+    <title>FAQ - SIP PKL</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
@@ -15,7 +15,7 @@
                 <div class="flex items-center">
                     <a href="{{ route('welcome') }}" class="flex items-center">
                         <i class="fas fa-graduation-cap text-2xl text-indigo-600 mr-3"></i>
-                        <span class="text-xl font-bold text-gray-900">SIPP PKL</span>
+                        <span class="text-xl font-bold text-gray-900">SIP PKL</span>
                     </a>
                 </div>
                 <div class="flex items-center space-x-4">
@@ -56,8 +56,8 @@
                     
                     <div class="space-y-4">
                         <div class="border-l-4 border-indigo-500 pl-4">
-                            <h3 class="font-medium text-gray-900 mb-2">Apa itu SIPP PKL?</h3>
-                            <p class="text-gray-600">SIPP PKL adalah Sistem Informasi Pengelolaan Praktik Kerja Lapangan yang membantu mahasiswa, dosen pembimbing, dan admin dalam mengelola proses PKL secara digital.</p>
+                            <h3 class="font-medium text-gray-900 mb-2">Apa itu SIP PKL?</h3>
+                            <p class="text-gray-600">SIP PKL adalah Sistem Informasi Pengelolaan Praktik Kerja Lapangan yang membantu mahasiswa, dosen pembimbing, dan admin dalam mengelola proses PKL secara digital.</p>
                         </div>
 
                         <div class="border-l-4 border-indigo-500 pl-4">
@@ -195,7 +195,7 @@
         <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
             <div class="flex flex-col md:flex-row justify-between items-center">
                 <p class="text-sm text-gray-500">
-                    © {{ date('Y') }} SIPP PKL. All rights reserved.
+                    © {{ date('Y') }} SIP PKL. All rights reserved.
                 </p>
                 <div class="flex space-x-4 mt-2 md:mt-0">
                     <a href="{{ route('faq') }}" class="text-sm text-gray-500 hover:text-indigo-600 transition-colors">

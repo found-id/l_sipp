@@ -99,7 +99,6 @@ class AuthController extends Controller
             'role' => 'required|in:mahasiswa,dospem,admin',
             // Biodata validation for mahasiswa
             'nim' => 'required_if:role,mahasiswa|regex:/^\\d+$/|max:20|unique:profil_mahasiswa,nim',
-            'prodi' => 'required_if:role,mahasiswa|string|max:100',
             'semester' => 'required_if:role,mahasiswa|integer|min:5|max:8',
             'jenis_kelamin' => 'required_if:role,mahasiswa|string|in:L,P',
             'no_wa' => 'required_if:role,mahasiswa|string|regex:/^8\d{8,11}$/',
@@ -120,7 +119,7 @@ class AuthController extends Controller
                 $profilData = [
                     'id_mahasiswa' => $user->id,
                     'nim' => $request->nim,
-                    'prodi' => $request->prodi,
+                    'prodi' => '-', // Default value karena field prodi dihapus dari form
                     'semester' => $request->semester,
                     'jenis_kelamin' => $request->jenis_kelamin,
                     'no_whatsapp' => $request->no_wa,
@@ -130,7 +129,7 @@ class AuthController extends Controller
                     'cek_ipk_nilaisks' => false,
                     'cek_valid_biodata' => false,
                 ];
-                
+
                 \App\Models\ProfilMahasiswa::create($profilData);
             } catch (\Exception $e) {
                 // Log the error
@@ -181,7 +180,7 @@ class AuthController extends Controller
         }
 
         // Redirect to dashboard for all roles
-        return redirect()->route('dashboard')->with('success', 'Akun berhasil dibuat! Selamat datang di SIPP PKL.');
+        return redirect()->route('dashboard')->with('success', 'Akun berhasil dibuat! Selamat datang di SIP PKL.');
     }
 
     public function logout(Request $request)
@@ -299,7 +298,6 @@ class AuthController extends Controller
         $request->validate([
             'name' => 'required|string|max:100|regex:/^[^0-9]+$/',
             'nim' => 'required|regex:/^\\d+$/|max:20|unique:profil_mahasiswa,nim',
-            'prodi' => 'required|string|max:100',
             'semester' => 'required|integer|min:5|max:14',
             'jenis_kelamin' => 'required|string|in:L,P',
             'no_whatsapp' => 'required|string|regex:/^8\d{8,11}$/',
@@ -316,7 +314,7 @@ class AuthController extends Controller
         \App\Models\ProfilMahasiswa::create([
             'id_mahasiswa' => $user->id,
             'nim' => $request->nim,
-            'prodi' => $request->prodi,
+            'prodi' => '-', // Default value karena field prodi dihapus dari form
             'semester' => $request->semester,
             'jenis_kelamin' => $request->jenis_kelamin,
             'no_whatsapp' => $request->no_whatsapp,

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lengkapi Biodata - SIPP PKL</title>
+    <title>Lengkapi Biodata - SIP PKL</title>
 
     <!-- Favicons -->
     <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}">
@@ -69,25 +69,6 @@
                     </div>
                     
                     <div>
-                        <label for="prodi" class="block text-sm font-medium text-gray-700">Program Studi</label>
-                        <select id="prodi" name="prodi" required
-                                class="mt-1 block w-full px-3 py-2 border border-gray-300 bg-white rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
-                            <option value="">Pilih Program Studi</option>
-                            <option value="D3 Agroindustri" {{ old('prodi') == 'D3 Agroindustri' ? 'selected' : '' }}>D3 Agroindustri</option>
-                            <option value="D3 Akuntansi" {{ old('prodi') == 'D3 Akuntansi' ? 'selected' : '' }}>D3 Akuntansi</option>
-                            <option value="D3 Teknologi Informasi" {{ old('prodi') == 'D3 Teknologi Informasi' ? 'selected' : '' }}>D3 Teknologi Informasi</option>
-                            <option value="D3 Teknologi Otomotif" {{ old('prodi') == 'D3 Teknologi Otomotif' ? 'selected' : '' }}>D3 Teknologi Otomotif</option>
-                            <option value="D4 Teknologi Rekayasa Komputer Jaringan" {{ old('prodi') == 'D4 Teknologi Rekayasa Komputer Jaringan' ? 'selected' : '' }}>D4 Teknologi Rekayasa Komputer Jaringan</option>
-                            <option value="D4 Teknologi Pakan Ternak" {{ old('prodi') == 'D4 Teknologi Pakan Ternak' ? 'selected' : '' }}>D4 Teknologi Pakan Ternak</option>
-                            <option value="D4 Teknologi Rekayasa Konstruksi Jalan dan Jembatan" {{ old('prodi') == 'D4 Teknologi Rekayasa Konstruksi Jalan dan Jembatan' ? 'selected' : '' }}>D4 Teknologi Rekayasa Konstruksi Jalan dan Jembatan</option>
-                            <option value="D4 Teknologi Rekayasa Pemeliharaan Alat Berat" {{ old('prodi') == 'D4 Teknologi Rekayasa Pemeliharaan Alat Berat' ? 'selected' : '' }}>D4 Teknologi Rekayasa Pemeliharaan Alat Berat</option>
-                        </select>
-                        @error('prodi')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
-                    </div>
-                    
-                    <div>
                         <label for="semester" class="block text-sm font-medium text-gray-700">Semester</label>
                         <select id="semester" name="semester" required
                                 class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
@@ -138,7 +119,9 @@
                         <input type="number" id="ipk" name="ipk" required step="0.01" min="0" max="4.0"
                                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                                placeholder="3.50"
+                               oninput="validateIPK(this)"
                                value="{{ old('ipk') }}">
+                        <p class="mt-1 text-xs text-gray-500">IPK harus antara 0.00 - 4.00</p>
                         @error('ipk')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
@@ -180,7 +163,7 @@
             <!-- Footer -->
             <footer class="mt-8 text-center">
                 <p class="text-sm text-gray-500">
-                    © {{ date('Y') }} SIPP PKL. All rights reserved.
+                    © {{ date('Y') }} SIP PKL. All rights reserved.
                 </p>
                 <div class="mt-2">
                     <a href="{{ route('faq') }}" class="text-sm text-gray-500 hover:text-indigo-600 transition-colors">
@@ -194,12 +177,39 @@
     </div>
 
     <script>
+        // Validate IPK input (max 4.0)
+        function validateIPK(input) {
+            let value = parseFloat(input.value);
+
+            // Remove any invalid characters
+            input.value = input.value.replace(/[^0-9.]/g, '');
+
+            // Check if value exceeds 4.0
+            if (value > 4.0) {
+                input.value = '4.0';
+                alert('IPK maksimal adalah 4.00');
+            }
+
+            // Check if value is negative
+            if (value < 0) {
+                input.value = '0';
+                alert('IPK tidak boleh negatif');
+            }
+
+            // Limit to 2 decimal places
+            if (input.value.includes('.')) {
+                const parts = input.value.split('.');
+                if (parts[1] && parts[1].length > 2) {
+                    input.value = parseFloat(input.value).toFixed(2);
+                }
+            }
+        }
+
         function validateForm() {
             // Get all required fields
             const requiredFields = [
                 { id: 'name', name: 'Nama Lengkap' },
                 { id: 'nim', name: 'NIM' },
-                { id: 'prodi', name: 'Program Studi' },
                 { id: 'semester', name: 'Semester' },
                 { id: 'jenis_kelamin', name: 'Jenis Kelamin' },
                 { id: 'no_whatsapp', name: 'Nomor WhatsApp' },
@@ -262,9 +272,9 @@
         document.addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
                 const activeElement = document.activeElement;
-                
+
                 // Field navigation order
-                const fieldOrder = ['name', 'nim', 'prodi', 'semester', 'jenis_kelamin', 'no_whatsapp', 'ipk', 'id_dospem'];
+                const fieldOrder = ['name', 'nim', 'semester', 'jenis_kelamin', 'no_whatsapp', 'ipk', 'id_dospem'];
                 const currentIndex = fieldOrder.indexOf(activeElement.id);
                 
                 if (currentIndex !== -1) {

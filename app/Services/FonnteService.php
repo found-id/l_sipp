@@ -94,7 +94,7 @@ class FonnteService
     {
         $message = "🎉 *Selamat!* 🎉\n\n";
         $message .= "Halo *{$name}*,\n\n";
-        $message .= "Anda telah berhasil mendaftar ke *Sistem Informasi Pengelolaan PKL (SIPP PKL)* sebagai *{$role}*.\n\n";
+        $message .= "Anda telah berhasil mendaftar ke *Sistem Informasi Pengelolaan PKL (SIP PKL)* sebagai *{$role}*.\n\n";
         $message .= "📱 *Akses Dashboard:*\n";
         $message .= "Silakan login ke dashboard untuk mulai menggunakan sistem.\n\n";
         $message .= "🔗 *Link Dashboard:*\n";
@@ -136,7 +136,7 @@ class FonnteService
     {
         $message = "🔐 *Notifikasi Login*\n\n";
         $message .= "Halo *{$name}*,\n\n";
-        $message .= "Anda baru saja login ke *SIPP PKL* sebagai *{$role}*.\n\n";
+        $message .= "Anda baru saja login ke *SIP PKL* sebagai *{$role}*.\n\n";
         $message .= "Jika ini bukan Anda, segera hubungi admin.\n\n";
         $message .= "Terima kasih! 🙏";
 

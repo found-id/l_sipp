@@ -170,7 +170,7 @@ class ProfileController extends Controller
                 
                 $message = "📝 *Notifikasi Perubahan Profil*\n\n";
                 $message .= "Halo *{$user->name}*,\n\n";
-                $message .= "Profil Anda telah berhasil diperbarui di *SIPP PKL*.\n\n";
+                $message .= "Profil Anda telah berhasil diperbarui di *SIP PKL*.\n\n";
                 $message .= "🔗 *Akses Profil:*\n";
                 $message .= "http://localhost:8000/profile\n\n";
                 $message .= "Jika ini bukan Anda, segera hubungi admin.\n\n";

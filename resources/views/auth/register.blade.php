@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register - SIPP PKL</title>
+    <title>Register - SIP PKL</title>
 
     <!-- Favicons -->
     <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}">
@@ -12,14 +12,6 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        #step2Buttons:not(.hidden) {
-            display: flex !important;
-            flex-direction: row !important;
-            gap: 1rem;
-        }
-        #step2Buttons:not(.hidden) button {
-            flex: 1;
-        }
         .auth-image-container {
             background: url('{{ asset('images/auth/bg_login.jpg') }}') center/cover no-repeat;
             background-color: #667eea;
@@ -79,9 +71,15 @@
 
                     <div>
                         <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
-                        <input id="password" name="password" type="password" required 
-                               class="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm" 
-                               placeholder="Masukkan password">
+                        <div class="relative">
+                            <input id="password" name="password" type="password" required
+                                   class="mt-1 appearance-none relative block w-full px-3 py-2 pr-10 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                   placeholder="Masukkan password">
+                            <button type="button" onclick="togglePassword('password', 'togglePasswordIcon')"
+                                    class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 focus:outline-none z-10">
+                                <i id="togglePasswordIcon" class="fas fa-eye"></i>
+                            </button>
+                        </div>
                         @error('password')
                             <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                         @enderror
@@ -89,9 +87,15 @@
 
                     <div>
                         <label for="password_confirmation" class="block text-sm font-medium text-gray-700">Konfirmasi Password</label>
-                        <input id="password_confirmation" name="password_confirmation" type="password" required 
-                               class="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm" 
-                               placeholder="Konfirmasi password">
+                        <div class="relative">
+                            <input id="password_confirmation" name="password_confirmation" type="password" required
+                                   class="mt-1 appearance-none relative block w-full px-3 py-2 pr-10 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                   placeholder="Konfirmasi password">
+                            <button type="button" onclick="togglePassword('password_confirmation', 'togglePasswordConfirmIcon')"
+                                    class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 focus:outline-none z-10">
+                                <i id="togglePasswordConfirmIcon" class="fas fa-eye"></i>
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -107,25 +111,6 @@
                                maxlength="20"
                                value="{{ old('nim') }}">
                         @error('nim')
-                            <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                        @enderror
-                    </div>
-
-                    <div>
-                        <label for="prodi" class="block text-sm font-medium text-gray-700">Program Studi</label>
-                        <select id="prodi" name="prodi" required 
-                                class="mt-1 block w-full px-3 py-2 border border-gray-300 bg-white rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-                            <option value="">Pilih Program Studi</option>
-                            <option value="D3 Agroindustri" {{ old('prodi') == 'D3 Agroindustri' ? 'selected' : '' }}>D3 Agroindustri</option>
-                            <option value="D3 Akuntansi" {{ old('prodi') == 'D3 Akuntansi' ? 'selected' : '' }}>D3 Akuntansi</option>
-                            <option value="D3 Teknologi Informasi" {{ old('prodi') == 'D3 Teknologi Informasi' ? 'selected' : '' }}>D3 Teknologi Informasi</option>
-                            <option value="D3 Teknologi Otomotif" {{ old('prodi') == 'D3 Teknologi Otomotif' ? 'selected' : '' }}>D3 Teknologi Otomotif</option>
-                            <option value="D4 Teknologi Rekayasa Komputer Jaringan" {{ old('prodi') == 'D4 Teknologi Rekayasa Komputer Jaringan' ? 'selected' : '' }}>D4 Teknologi Rekayasa Komputer Jaringan</option>
-                            <option value="D4 Teknologi Pakan Ternak" {{ old('prodi') == 'D4 Teknologi Pakan Ternak' ? 'selected' : '' }}>D4 Teknologi Pakan Ternak</option>
-                            <option value="D4 Teknologi Rekayasa Konstruksi Jalan dan Jembatan" {{ old('prodi') == 'D4 Teknologi Rekayasa Konstruksi Jalan dan Jembatan' ? 'selected' : '' }}>D4 Teknologi Rekayasa Konstruksi Jalan dan Jembatan</option>
-                            <option value="D4 Teknologi Rekayasa Pemeliharaan Alat Berat" {{ old('prodi') == 'D4 Teknologi Rekayasa Pemeliharaan Alat Berat' ? 'selected' : '' }}>D4 Teknologi Rekayasa Pemeliharaan Alat Berat</option>
-                        </select>
-                        @error('prodi')
                             <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                         @enderror
                     </div>
@@ -180,9 +165,11 @@
                     <div>
                         <label for="ipk" class="block text-sm font-medium text-gray-700">IPK Terakhir</label>
                         <input id="ipk" name="ipk" type="number" required step="0.01" min="0" max="4.0"
-                               class="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm" 
+                               class="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
                                placeholder="3.50"
+                               oninput="validateIPK(this)"
                                value="{{ old('ipk') }}">
+                        <p class="mt-1 text-xs text-gray-500">IPK harus antara 0.00 - 4.00</p>
                         @error('ipk')
                             <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                         @enderror
@@ -217,6 +204,20 @@
                     </div>
                 @endif
 
+                <!-- Loading Overlay -->
+                <div id="loadingOverlay" class="hidden fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50">
+                    <div class="bg-white rounded-lg p-8 flex flex-col items-center shadow-xl">
+                        <div class="relative">
+                            <div class="animate-spin rounded-full h-16 w-16 border-4 border-gray-200 border-t-indigo-600"></div>
+                            <div class="absolute inset-0 flex items-center justify-center">
+                                <div class="w-8 h-8 bg-indigo-600 rounded-full animate-pulse"></div>
+                            </div>
+                        </div>
+                        <p class="mt-4 text-gray-700 font-medium">Memproses...</p>
+                        <p class="mt-2 text-sm text-gray-500">Mohon tunggu sebentar</p>
+                    </div>
+                </div>
+
                 <div>
                     <button type="button" id="nextBtn" 
                             class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200">
@@ -233,26 +234,17 @@
                         </div>
                     </button>
                     
-                    <div id="step2Buttons" class="hidden flex flex-row space-x-4">
-                        <button type="button" id="backBtn" 
-                                class="flex-1 flex justify-center items-center px-4 py-2 border border-gray-300 rounded-md text-gray-700 bg-white hover:bg-gray-50 text-sm font-medium">
+                    <div id="step2Buttons" class="hidden space-y-4">
+                        <button type="submit" id="submitBtn"
+                                class="w-full flex justify-center items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200">
+                            <i class="fas fa-check mr-2"></i>
+                            Daftar Sekarang
+                        </button>
+
+                        <button type="button" id="backBtn"
+                                class="w-full flex justify-center items-center px-4 py-2 border border-gray-300 rounded-md text-gray-700 bg-white hover:bg-gray-50 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200">
                             <i class="fas fa-arrow-left mr-2"></i>
                             Kembali
-                        </button>
-                        
-                        <button type="submit" id="submitBtn"
-                                class="flex-1 flex justify-center items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200">
-                            <i class="fas fa-check mr-2" id="submit-icon"></i>
-                            <span id="submit-text">Daftar Sekarang</span>
-                            <div id="submit-loading" class="hidden flex items-center">
-                                <div class="relative mr-3">
-                                    <div class="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
-                                    <div class="absolute inset-0 flex items-center justify-center">
-                                        <div class="w-2 h-2 bg-white rounded-full animate-pulse"></div>
-                                    </div>
-                                </div>
-                                <span class="text-white">Memproses...</span>
-                            </div>
                         </button>
                     </div>
                 </div>
@@ -305,7 +297,7 @@
             <!-- Footer -->
             <footer class="mt-8 text-center">
                 <p class="text-sm text-gray-500">
-                    © {{ date('Y') }} SIPP PKL. All rights reserved.
+                    © {{ date('Y') }} SIP PKL. All rights reserved.
                 </p>
                 <div class="mt-2">
                     <a href="{{ route('faq') }}" class="text-sm text-gray-500 hover:text-indigo-600 transition-colors">
@@ -319,6 +311,50 @@
     </div>
 
     <script>
+        // Validate IPK input (max 4.0)
+        function validateIPK(input) {
+            let value = parseFloat(input.value);
+
+            // Remove any invalid characters
+            input.value = input.value.replace(/[^0-9.]/g, '');
+
+            // Check if value exceeds 4.0
+            if (value > 4.0) {
+                input.value = '4.0';
+                alert('IPK maksimal adalah 4.00');
+            }
+
+            // Check if value is negative
+            if (value < 0) {
+                input.value = '0';
+                alert('IPK tidak boleh negatif');
+            }
+
+            // Limit to 2 decimal places
+            if (input.value.includes('.')) {
+                const parts = input.value.split('.');
+                if (parts[1] && parts[1].length > 2) {
+                    input.value = parseFloat(input.value).toFixed(2);
+                }
+            }
+        }
+
+        // Toggle password visibility
+        function togglePassword(inputId, iconId) {
+            const input = document.getElementById(inputId);
+            const icon = document.getElementById(iconId);
+
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        }
+
         // Loading state functions
         function showNextLoading() {
             document.getElementById('next-icon').classList.add('hidden');
@@ -334,18 +370,12 @@
             document.getElementById('nextBtn').classList.remove('opacity-75', 'cursor-not-allowed');
         }
         
-        function showSubmitLoading() {
-            document.getElementById('submit-icon').classList.add('hidden');
-            document.getElementById('submit-text').classList.add('hidden');
-            document.getElementById('submit-loading').classList.remove('hidden');
-            document.getElementById('submitBtn').classList.add('opacity-75', 'cursor-not-allowed');
+        function showLoadingOverlay() {
+            document.getElementById('loadingOverlay').classList.remove('hidden');
         }
-        
-        function hideSubmitLoading() {
-            document.getElementById('submit-icon').classList.remove('hidden');
-            document.getElementById('submit-text').classList.remove('hidden');
-            document.getElementById('submit-loading').classList.add('hidden');
-            document.getElementById('submitBtn').classList.remove('opacity-75', 'cursor-not-allowed');
+
+        function hideLoadingOverlay() {
+            document.getElementById('loadingOverlay').classList.add('hidden');
         }
         
         function showGoogleRegisterLoading() {
@@ -404,13 +434,26 @@
         });
         
         // Submit button click handler
-        document.getElementById('submitBtn').addEventListener('click', function() {
-            showSubmitLoading();
-            
-            // Auto-hide loading after 4 seconds
-            setTimeout(() => {
-                hideSubmitLoading();
-            }, 4000);
+        document.getElementById('submitBtn').addEventListener('click', function(e) {
+            // Validate IPK before submit
+            const ipk = parseFloat(document.getElementById('ipk').value);
+
+            if (ipk > 4.0) {
+                e.preventDefault();
+                alert('IPK maksimal adalah 4.00. Silakan perbaiki nilai IPK Anda.');
+                document.getElementById('ipk').focus();
+                return false;
+            }
+
+            if (ipk < 0) {
+                e.preventDefault();
+                alert('IPK tidak boleh negatif. Silakan perbaiki nilai IPK Anda.');
+                document.getElementById('ipk').focus();
+                return false;
+            }
+
+            // Show loading overlay
+            showLoadingOverlay();
         });
         
         // Google register button click handler
@@ -478,9 +521,9 @@
                 // If step 2 is visible, handle field navigation
                 if (step1.style.display === 'none' && step2.style.display !== 'none') {
                     const activeElement = document.activeElement;
-                    
+
                     // Field navigation order for step 2
-                    const fieldOrder = ['nim', 'prodi', 'semester', 'jenis_kelamin', 'no_wa', 'ipk', 'id_dospem'];
+                    const fieldOrder = ['nim', 'semester', 'jenis_kelamin', 'no_wa', 'ipk', 'id_dospem'];
                     const currentIndex = fieldOrder.indexOf(activeElement.id);
                     
                     if (currentIndex !== -1) {

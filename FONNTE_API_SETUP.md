@@ -42,7 +42,7 @@ FONNTE_TOKEN=abc123def456ghi789jkl012mno345pqr678stu901vwx234yz
 
 Halo [Nama],
 
-Anda telah berhasil mendaftar ke Sistem Informasi Pengelolaan PKL (SIPP PKL) sebagai [Role].
+Anda telah berhasil mendaftar ke Sistem Informasi Pengelolaan PKL (SIP PKL) sebagai [Role].
 
 📱 Akses Dashboard:
 Silakan login ke dashboard untuk mulai menggunakan sistem.
@@ -83,7 +83,7 @@ php artisan tinker
 use App\Services\FonnteService;
 
 $fonnte = new FonnteService();
-$result = $fonnte->sendMessage('+6281234567890', 'Test message from SIPP PKL');
+$result = $fonnte->sendMessage('+6281234567890', 'Test message from SIP PKL');
 dd($result);
 ```
 
@@ -110,4 +110,4 @@ dd($result);
 ## 📞 Support
 
 - Fonnte Documentation: https://fonnte.com/docs
-- SIPP PKL Support: Contact Admin
+- SIP PKL Support: Contact Admin

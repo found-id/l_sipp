@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Pemberkasan Dokumen - SIPP PKL')
+@section('title', 'Pemberkasan Dokumen - SIP PKL')
 
 @section('content')
 @php
@@ -68,9 +68,9 @@
             $hasEcourse = !empty($user->profilMahasiswa->gdrive_ecourse ?? '');
             $hasDokumenPendukung = $hasPkkmb && $hasEcourse;
 
-            // Check eligibility: transcript complete (5 semesters), KHS files uploaded (5), IPK >= 2.5, SKS D <= 9, no E, dokumen pendukung lengkap
-            $isTranscriptComplete = $totalSemesters >= 5;
-            $isKhsComplete = $khsFileCount >= 5;
+            // Check eligibility: transcript complete (4 semesters), KHS files uploaded (4), IPK >= 2.5, SKS D <= 9, no E, dokumen pendukung lengkap
+            $isTranscriptComplete = $totalSemesters >= 4;
+            $isKhsComplete = $khsFileCount >= 4;
 
             if ($isTranscriptComplete && $isKhsComplete && $finalIpk >= 2.5 && $totalSksD <= 9 && $totalE == 0 && $hasDokumenPendukung) {
                 $isEligibleForPkl = true;
@@ -314,7 +314,7 @@
                     </div>
                     <div class="bg-white rounded-lg p-4 border border-gray-200">
                         <div class="text-center">
-                            <div id="totalSemester" class="text-3xl font-bold text-blue-600 mb-1">0/5</div>
+                            <div id="totalSemester" class="text-3xl font-bold text-blue-600 mb-1">0/4</div>
                             <div class="text-sm text-gray-600">Kelengkapan Transkrip</div>
                         </div>
                     </div>
@@ -359,14 +359,14 @@
                         </div>
                         <div class="ml-3">
                             <h3 class="text-lg font-semibold text-white">Upload Berkas Kartu Hasil Studi (KHS)</h3>
-                            <p class="text-blue-100 text-sm">Upload KHS untuk setiap semester (1-5)</p>
+                            <p class="text-blue-100 text-sm">Upload KHS untuk setiap semester (1-4)</p>
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="p-6">
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
-                        @for($semester = 1; $semester <= 5; $semester++)
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                        @for($semester = 1; $semester <= 4; $semester++)
                             <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
                                 <div class="text-center mb-4">
                                     <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-2">
@@ -468,7 +468,7 @@
                     <div class="mb-6">
                         <div class="border-b border-gray-200">
                             <nav class="-mb-px flex space-x-8" aria-label="Semester Tabs">
-                        @for($semester = 1; $semester <= 5; $semester++)
+                        @for($semester = 1; $semester <= 4; $semester++)
                                     <button onclick="showSemesterTab({{ $semester }})" 
                                             id="semester-tab-{{ $semester }}" 
                                             class="semester-tab-button py-3 px-4 border-b-2 font-medium text-sm transition-colors duration-200 {{ $semester === 1 ? 'border-purple-500 text-purple-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }}">
@@ -485,7 +485,7 @@
                     </div>
 
                <!-- Semester Tab Content -->
-               @for($semester = 1; $semester <= 5; $semester++)
+               @for($semester = 1; $semester <= 4; $semester++)
                    <div id="semester-content-{{ $semester }}" class="semester-content transition-opacity duration-300 {{ $semester === 1 ? 'opacity-100' : 'opacity-0 hidden' }}">
                             <div class="bg-gray-50 rounded-lg p-6 border border-gray-200">
                                 <div class="text-center mb-6">
@@ -847,12 +847,12 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize KHS file count display immediately
     const khsFileCount = @json($khsFileCount ?? 0);
     console.log('Initializing KHS file count:', khsFileCount);
-    document.getElementById('uploadKhs').textContent = `${khsFileCount}/5`;
+    document.getElementById('uploadKhs').textContent = `${khsFileCount}/4`;
     
     // Initialize PKL status based on both transcript and KHS file count
     const pklStatusElement = document.getElementById('pklStatus');
     const isTranscriptComplete = false; // Will be updated by calculateFinalIpk
-    const isKhsComplete = khsFileCount >= 5;
+    const isKhsComplete = khsFileCount >= 4;
     
     if (!isTranscriptComplete || !isKhsComplete) {
         pklStatusElement.textContent = 'Belum Lengkap';
@@ -993,7 +993,7 @@ document.getElementById('uploadAllForm').addEventListener('submit', function(e) 
     
     // Collect all selected files
     let hasFiles = false;
-    for (let semester = 1; semester <= 5; semester++) {
+    for (let semester = 1; semester <= 4; semester++) {
         const fileInput = document.getElementById(`file_semester_${semester}`);
         if (fileInput.files.length > 0) {
             formData.append('files[]', fileInput.files[0]);
@@ -1325,7 +1325,7 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log('=== DOM LOADED - SETTING UP EVENT LISTENERS ===');
     
     // Debug: Check if all required elements exist
-    for (let semester = 1; semester <= 5; semester++) {
+    for (let semester = 1; semester <= 4; semester++) {
         const textarea = document.getElementById(`pasteArea${semester}`);
         const preview = document.getElementById(`preview${semester}`);
         const result = document.getElementById(`result${semester}`);
@@ -1355,7 +1355,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Load saved data first
     loadSavedSemesterData();
     
-    for (let semester = 1; semester <= 5; semester++) {
+    for (let semester = 1; semester <= 4; semester++) {
         const textarea = document.getElementById(`pasteArea${semester}`);
         console.log(`Setting up listeners for semester ${semester}, textarea found:`, !!textarea);
         
@@ -1892,10 +1892,10 @@ function calculateFinalIpk() {
     if (totalSemester === 0) {
         console.log('No active semesters found, setting default values');
         document.getElementById('finalIpk').textContent = '-';
-        document.getElementById('totalSemester').textContent = '0/5';
+        document.getElementById('totalSemester').textContent = '0/4';
         document.getElementById('totalSksD').textContent = '0';
         document.getElementById('totalE').textContent = '0';
-        document.getElementById('uploadKhs').textContent = `${khsFileCount}/5`;
+        document.getElementById('uploadKhs').textContent = `${khsFileCount}/4`;
 
         // Update status: Belum Layak dan Menyiapkan Berkas
         updateKelayakanPklStatus('BELUM LAYAK', false);
@@ -1930,14 +1930,14 @@ function calculateFinalIpk() {
     
     // Update display values
     document.getElementById('finalIpk').textContent = finalIpk.toFixed(2);
-    document.getElementById('totalSemester').textContent = `${totalSemester}/5`;
+    document.getElementById('totalSemester').textContent = `${totalSemester}/4`;
     document.getElementById('totalSksD').textContent = totalSksD;
     document.getElementById('totalE').textContent = totalE;
-    document.getElementById('uploadKhs').textContent = `${khsFileCount}/5`;
+    document.getElementById('uploadKhs').textContent = `${khsFileCount}/4`;
 
     // Update Status PKL based on Kelengkapan Transkrip and Upload Berkas KHS
     const pklStatusEl = document.getElementById('pklStatus');
-    if (totalSemester >= 5 && khsFileCount >= 5) {
+    if (totalSemester >= 4 && khsFileCount >= 4) {
         pklStatusEl.textContent = 'Lengkap';
         pklStatusEl.className = 'text-3xl font-bold text-green-600 mb-1';
     } else {
@@ -1949,8 +1949,8 @@ function calculateFinalIpk() {
     const pklStatusElement = document.getElementById('pklStatus');
 
     // Check if both Kelengkapan Transkrip and Upload Berkas KHS are complete
-    const isTranscriptComplete = totalSemester >= 5;
-    const isKhsComplete = khsFileCount >= 5;
+    const isTranscriptComplete = totalSemester >= 4;
+    const isKhsComplete = khsFileCount >= 4;
 
     // Check eligibility criteria
     const isEligibleForPkl = isTranscriptComplete && isKhsComplete && finalIpk >= 2.5 && totalSksD <= 9 && totalE == 0;
@@ -2545,7 +2545,7 @@ function renderTable(rows, container) {
     
     // Helper function to find semester from container
     function findSemesterFromContainer(container) {
-        for (let semester = 1; semester <= 5; semester++) {
+        for (let semester = 1; semester <= 4; semester++) {
             const preview = document.getElementById(`preview${semester}`);
             if (preview === container) {
                 return semester;

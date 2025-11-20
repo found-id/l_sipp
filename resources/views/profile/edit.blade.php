@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Edit Profile - SIPP PKL')
+@section('title', 'Edit Profile - SIP PKL')
 
 @section('content')
 <div class="space-y-6">
@@ -216,7 +216,7 @@
                                    class="h-5 w-5 text-green-600 focus:ring-green-500 border-gray-300 rounded" required>
                         </div>
                         <label for="cek_min_semester" class="ml-4 text-sm text-gray-700 font-medium">
-                            Telah menempuh minimal 4 semester (D-3) atau 5 semester (D-4) <span class="text-red-500">*</span>
+                            Telah menempuh minimal 4 semester (D-3) <span class="text-red-500">*</span>
                         </label>
                     </div>
                 </div>

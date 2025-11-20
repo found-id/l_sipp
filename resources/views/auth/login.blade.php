@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - SIPP PKL</title>
+    <title>Login - SIP PKL</title>
 
     <!-- Favicons -->
     <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}">
@@ -50,11 +50,15 @@
                                placeholder="Email atau NIM"
                                value="{{ old('email') }}">
                     </div>
-                    <div>
+                    <div class="relative">
                         <label for="password" class="sr-only">Password</label>
-                        <input id="password" name="password" type="password" required 
-                               class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm" 
+                        <input id="password" name="password" type="password" required
+                               class="appearance-none rounded-none relative block w-full px-3 py-2 pr-10 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                                placeholder="Password">
+                        <button type="button" onclick="togglePassword('password', 'togglePasswordIcon')"
+                                class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 focus:outline-none z-10">
+                            <i id="togglePasswordIcon" class="fas fa-eye"></i>
+                        </button>
                     </div>
                 </div>
 
@@ -171,7 +175,7 @@
             <!-- Footer -->
             <footer class="mt-8 text-center">
                 <p class="text-sm text-gray-500">
-                    © {{ date('Y') }} SIPP PKL. All rights reserved.
+                    © {{ date('Y') }} SIP PKL. All rights reserved.
                 </p>
                 <div class="mt-2">
                     <a href="{{ route('faq') }}" class="text-sm text-gray-500 hover:text-indigo-600 transition-colors">
@@ -185,6 +189,22 @@
     </div>
 
     <script>
+        // Toggle password visibility
+        function togglePassword(inputId, iconId) {
+            const input = document.getElementById(inputId);
+            const icon = document.getElementById(iconId);
+
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        }
+
         // Auto-hide success and info alerts after 3 seconds with fade effect
         document.addEventListener('DOMContentLoaded', function() {
             const successAlert = document.getElementById('success-alert');

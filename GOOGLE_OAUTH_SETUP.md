@@ -1,6 +1,6 @@
 # Google OAuth Setup Guide
 
-## Konfigurasi Google OAuth untuk SIPP PKL
+## Konfigurasi Google OAuth untuk SIP PKL
 
 ### 1. Setup Google Cloud Console
 
