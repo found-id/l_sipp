@@ -58,6 +58,18 @@
                     </div>
                 </div>
 
+                @if(session('success'))
+                    <div id="success-alert" class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded transition-opacity duration-500">
+                        {{ session('success') }}
+                    </div>
+                @endif
+
+                @if(session('info'))
+                    <div id="info-alert" class="bg-blue-100 border border-blue-400 text-blue-700 px-4 py-3 rounded transition-opacity duration-500">
+                        {{ session('info') }}
+                    </div>
+                @endif
+
                 @if($errors->any())
                     <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
                         <ul class="list-disc list-inside">
@@ -173,9 +185,32 @@
     </div>
 
     <script>
+        // Auto-hide success and info alerts after 3 seconds with fade effect
+        document.addEventListener('DOMContentLoaded', function() {
+            const successAlert = document.getElementById('success-alert');
+            const infoAlert = document.getElementById('info-alert');
+
+            function fadeOutAndRemove(element) {
+                if (element) {
+                    setTimeout(() => {
+                        // Start fade out
+                        element.style.opacity = '0';
+
+                        // Remove from DOM after transition completes
+                        setTimeout(() => {
+                            element.remove();
+                        }, 500); // Match transition-duration-500
+                    }, 3000); // Wait 3 seconds before fading
+                }
+            }
+
+            fadeOutAndRemove(successAlert);
+            fadeOutAndRemove(infoAlert);
+        });
+
         // Check if registration is enabled
         const registrationEnabled = {{ \App\Models\SystemSetting::isEnabled('registration_enabled') ? 'true' : 'false' }};
-        
+
         // Handle registration link click
         document.getElementById('registration-link').addEventListener('click', function(e) {
             if (!registrationEnabled) {

@@ -70,7 +70,9 @@ class RubrikController extends Controller
         // Get all results for display - force fresh data from database
         $allResults = AssessmentResult::with('mahasiswa')
             ->whereIn('mahasiswa_user_id', $students->pluck('id'))
+            ->orderBy('updated_at', 'desc')
             ->get()
+            ->fresh()
             ->keyBy('mahasiswa_user_id');
 
         if ($selectedStudentId && $students->contains('id', $selectedStudentId)) {

@@ -606,39 +606,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     @if(session('success'))
-    // Show success message with animation
-    const successDiv = document.createElement('div');
-    successDiv.className = 'fixed top-4 right-4 bg-green-100 border-2 border-green-400 text-green-700 px-6 py-4 rounded-lg shadow-lg z-50 transform transition-all duration-300 ease-in-out';
-    successDiv.style.transform = 'translateX(400px)';
-    successDiv.innerHTML = `
-        <div class="flex items-center space-x-3">
-            <div class="flex-shrink-0">
-                <svg class="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                </svg>
-            </div>
-            <div>
-                <p class="font-semibold">{{ session("success") }}</p>
-                <p class="text-sm text-green-600 mt-1">Data telah diperbarui</p>
-            </div>
-        </div>
-    `;
-    document.body.appendChild(successDiv);
-
-    // Animate in
-    setTimeout(() => {
-        successDiv.style.transform = 'translateX(0)';
-    }, 10);
-
-    // Remove after 5 seconds with animation
-    setTimeout(() => {
-        successDiv.style.transform = 'translateX(400px)';
-        setTimeout(() => {
-            successDiv.remove();
-        }, 300);
-    }, 5000);
-
-    // Highlight the updated student in sidebar
+    // Highlight the updated student in sidebar (no notification popup)
     const currentStudent = document.querySelector('.student-link.bg-blue-50');
     if (currentStudent) {
         currentStudent.classList.add('ring-2', 'ring-green-500');

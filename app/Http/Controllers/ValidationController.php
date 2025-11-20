@@ -366,7 +366,24 @@ class ValidationController extends Controller
 
         $mahasiswa = $query->get();
 
-        return view('validation.mahasiswa-list', compact('mahasiswa'));
+        // Get recent activities (3 latest) - include upload and validation activities
+        $recentActivities = HistoryAktivitas::with(['user', 'mahasiswa'])
+            ->whereIn('tipe', ['validasi_dokumen', 'upload_dokumen']);
+
+        // If dospem, only show activities for their students
+        if ($user->role !== 'admin') {
+            $mahasiswaIds = \App\Models\ProfilMahasiswa::where('id_dospem', $user->id)
+                ->pluck('id_mahasiswa')
+                ->toArray();
+            $recentActivities->whereIn('id_mahasiswa', $mahasiswaIds);
+        }
+
+        $recentActivities = $recentActivities
+            ->orderBy('tanggal_dibuat', 'desc')
+            ->limit(3)
+            ->get();
+
+        return view('validation.mahasiswa-list', compact('mahasiswa', 'recentActivities'));
     }
 
     /**

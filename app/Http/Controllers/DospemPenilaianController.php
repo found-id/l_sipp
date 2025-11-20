@@ -56,24 +56,31 @@ class DospemPenilaianController extends Controller
         $responses = collect();
         $results = collect();
         
-        // Get all assessment results for all students
+        // Get all assessment results for all students - force fresh data from database
         $allResults = AssessmentResult::whereIn('mahasiswa_user_id', $students->pluck('id'))
+            ->orderBy('updated_at', 'desc')
             ->get()
+            ->fresh()
             ->keyBy('mahasiswa_user_id');
         
         if ($selectedStudentId && $students->contains('id', $selectedStudentId)) {
             $selectedStudent = $students->firstWhere('id', $selectedStudentId);
-            
-            // Get existing response
+
+            // Clear any model cache
+            AssessmentResponse::flushEventListeners();
+            AssessmentResponseItem::flushEventListeners();
+
+            // Get latest response from any assessor - force fresh from database
             $response = AssessmentResponse::where('mahasiswa_user_id', $selectedStudentId)
-                ->where('dosen_user_id', $user->id)
-                ->with('responseItems')
+                ->orderBy('id', 'desc') // Use ID instead of updated_at for reliability
                 ->first();
-            
+
             if ($response) {
-                $responses = $response->responseItems->keyBy('item_id');
+                // Force reload response items from database
+                $response->load('responseItems');
+                $responses = $response->responseItems->fresh()->keyBy('item_id');
             }
-            
+
             // Get existing results for selected student
             $results = $allResults->get($selectedStudentId);
         }
@@ -107,43 +114,40 @@ class DospemPenilaianController extends Controller
             abort(403, 'Unauthorized');
         }
         
-        // Create or update response
-        $response = AssessmentResponse::updateOrCreate(
-            [
-                'mahasiswa_user_id' => $mahasiswaId,
-                'dosen_user_id' => $user->id,
-            ],
-            [
-                'is_final' => true,
-                'submitted_at' => now(),
-            ]
-        );
-        
+        // Delete old responses for this student to avoid conflicts
+        AssessmentResponse::where('mahasiswa_user_id', $mahasiswaId)->delete();
+
+        // Create new response
+        $response = AssessmentResponse::create([
+            'mahasiswa_user_id' => $mahasiswaId,
+            'dosen_user_id' => $user->id,
+            'is_final' => true,
+            'submitted_at' => now(),
+        ]);
+
         // Save response items
         foreach ($request->items as $itemId => $value) {
             $item = AssessmentService::getAssessmentFormItem($itemId);
-            
+
             $responseItem = [
                 'response_id' => $response->id,
                 'item_id' => $itemId,
             ];
-            
+
             if ($item['type'] === 'numeric') {
-                $responseItem['value_numeric'] = $value;
+                $responseItem['value_numeric'] = floatval($value);
             } elseif ($item['type'] === 'boolean') {
                 $responseItem['value_bool'] = (bool) $value;
             } else {
                 $responseItem['value_text'] = $value;
             }
-            
-            AssessmentResponseItem::updateOrCreate(
-                [
-                    'response_id' => $response->id,
-                    'item_id' => $itemId,
-                ],
-                $responseItem
-            );
+
+            AssessmentResponseItem::create($responseItem);
         }
+
+        // Force reload to ensure we have fresh data
+        $response->refresh();
+        $response->load('responseItems');
         
         // Calculate total score
         $totalScore = $this->calculateTotalScore($response);
@@ -165,7 +169,18 @@ class DospemPenilaianController extends Controller
             ]
         );
         
-        return redirect()->back()->with('success', 'Penilaian berhasil disimpan!');
+        // Clear any potential cache and redirect with timestamp to force reload
+        return redirect()->route('dospem.penilaian', [
+                'm' => $mahasiswaId,
+                '_t' => time(), // Add timestamp to force browser reload
+                '_r' => rand(1000, 9999) // Additional randomness
+            ])
+            ->with('success', 'Penilaian berhasil disimpan!')
+            ->with('saved_values', $request->items) // Pass saved values for debugging
+            ->header('Cache-Control', 'no-cache, no-store, must-revalidate, max-age=0')
+            ->header('Pragma', 'no-cache')
+            ->header('Expires', '0')
+            ->header('Clear-Site-Data', '"cache"');
     }
     
     private function calculateTotalScore($response)

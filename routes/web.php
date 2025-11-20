@@ -19,7 +19,8 @@ use App\Http\Controllers\HomeController;
     // Auth Routes
     Route::get('login', [AuthController::class, 'showLogin'])->name('login');
     Route::post('login', [AuthController::class, 'login']);
-    Route::match(['get', 'post'], 'logout', [AuthController::class, 'logout'])->name('logout');
+    Route::get('logout', [AuthController::class, 'logout'])->name('logout')->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class]);
+    Route::post('logout', [AuthController::class, 'logout']);
     Route::get('register', [AuthController::class, 'showRegister'])->name('register');
     Route::post('register', [AuthController::class, 'register']);
     Route::get('complete-profile', [AuthController::class, 'showCompleteProfile'])->name('complete-profile');

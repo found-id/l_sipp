@@ -5,68 +5,93 @@
 @section('content')
 <div class="space-y-6">
     <!-- Header -->
-    <div class="bg-white shadow rounded-lg p-6">
+    <div class="bg-gradient-to-r from-blue-600 to-indigo-700 shadow-lg rounded-xl p-8">
         <div class="flex items-center justify-between">
-            <div class="flex items-center space-x-4">
-                @if($mahasiswa->photo && $mahasiswa->google_linked)
-                    <img src="{{ $mahasiswa->photo }}"
-                         alt="{{ $mahasiswa->name }}"
-                         class="h-16 w-16 rounded-full object-cover border-2 border-blue-200"
-                         onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                    <div class="h-16 w-16 rounded-full bg-blue-100 items-center justify-center hidden">
-                        <i class="fas fa-user text-2xl text-blue-600"></i>
-                    </div>
+            <div class="flex items-center space-x-5">
+                @if($mahasiswa->photo)
+                    @if($mahasiswa->google_linked)
+                        @php
+                            $photoUrl = $mahasiswa->photo;
+                            if (str_contains($photoUrl, 'googleusercontent.com')) {
+                                $photoUrl = preg_replace('/=s\d+-c/', '', $photoUrl);
+                                $photoUrl .= '=s96-c';
+                            }
+                        @endphp
+                        <img src="{{ $photoUrl }}"
+                             alt="{{ $mahasiswa->name }}"
+                             class="h-20 w-20 rounded-full object-cover border-4 border-white shadow-lg"
+                             referrerpolicy="no-referrer"
+                             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                        <div class="h-20 w-20 rounded-full bg-white/20 backdrop-blur-sm items-center justify-center border-4 border-white shadow-lg" style="display: none;">
+                            <i class="fas fa-user text-3xl text-white"></i>
+                        </div>
+                    @else
+                        <img src="{{ asset('storage/' . $mahasiswa->photo) }}"
+                             alt="{{ $mahasiswa->name }}"
+                             class="h-20 w-20 rounded-full object-cover border-4 border-white shadow-lg"
+                             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                        <div class="h-20 w-20 rounded-full bg-white/20 backdrop-blur-sm items-center justify-center border-4 border-white shadow-lg" style="display: none;">
+                            <i class="fas fa-user text-3xl text-white"></i>
+                        </div>
+                    @endif
                 @else
-                    <div class="h-16 w-16 rounded-full bg-blue-100 flex items-center justify-center">
-                        <i class="fas fa-user text-2xl text-blue-600"></i>
+                    <div class="h-20 w-20 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center border-4 border-white shadow-lg">
+                        <i class="fas fa-user text-3xl text-white"></i>
                     </div>
                 @endif
                 <div>
-                    <h1 class="text-2xl font-bold text-gray-900">{{ $mahasiswa->name }}</h1>
-                    <p class="text-gray-600 mt-1">NIM: {{ $mahasiswa->nim }}</p>
-                    <p class="text-sm text-gray-500">{{ $mahasiswa->profilMahasiswa->prodi ?? 'N/A' }} - Semester {{ $mahasiswa->profilMahasiswa->semester ?? '-' }}</p>
+                    <h1 class="text-3xl font-bold text-white">{{ $mahasiswa->name }}</h1>
+                    <p class="text-blue-100 mt-2 flex items-center text-lg">
+                        <i class="fas fa-id-card mr-2"></i>
+                        <span class="font-semibold">NIM:</span>
+                        <span class="ml-2">{{ $mahasiswa->profilMahasiswa->nim ?? 'N/A' }}</span>
+                    </p>
+                    <p class="text-blue-100 flex items-center mt-1">
+                        <i class="fas fa-graduation-cap mr-2"></i>
+                        {{ $mahasiswa->profilMahasiswa->prodi ?? 'N/A' }} - Semester {{ $mahasiswa->profilMahasiswa->semester ?? '-' }}
+                    </p>
                 </div>
             </div>
-            <a href="{{ route('dospem.validation') }}" class="inline-flex items-center px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition">
+            <a href="{{ route('dospem.validation') }}" class="inline-flex items-center px-5 py-3 bg-white text-blue-700 rounded-lg hover:bg-blue-50 transition shadow-md font-medium">
                 <i class="fas fa-arrow-left mr-2"></i>
-                Kembali ke Validasi
+                Kembali
             </a>
         </div>
     </div>
 
     <!-- Academic Summary Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+    <div class="grid grid-cols-1 md:grid-cols-5 gap-5">
         <!-- IPK Card -->
         @php
             // Cek apakah IPK Profile dan KHS sama
             $ipkSame = $ipkFromProfile > 0 && $ipkFromTranskrip > 0 &&
                        number_format($ipkFromProfile, 2) === number_format($ipkFromTranskrip, 2);
         @endphp
-        <div class="bg-white overflow-hidden shadow rounded-lg">
+        <div class="bg-white overflow-hidden shadow-md rounded-xl border border-gray-100 hover:shadow-lg transition-shadow duration-300">
             <div class="p-5">
-                <div class="flex items-center">
-                    <div class="flex-shrink-0">
-                        <i class="fas fa-chart-line text-2xl text-blue-600"></i>
+                <div class="flex flex-col">
+                    <div class="flex items-center justify-between mb-3">
+                        <dt class="text-xs font-semibold text-gray-500 uppercase tracking-wide">IPK</dt>
+                        <div class="h-10 w-10 rounded-lg bg-blue-100 flex items-center justify-center">
+                            <i class="fas fa-chart-line text-lg text-blue-600"></i>
+                        </div>
                     </div>
-                    <div class="ml-4 w-0 flex-1">
-                        <dl>
-                            <dt class="text-xs font-medium text-gray-500 uppercase">IPK</dt>
-                            @if($ipkSame)
-                                <dd class="text-xl font-bold {{ $ipkFromProfile >= 3.0 ? 'text-green-600' : 'text-orange-600' }}">
-                                    {{ number_format($ipkFromProfile, 2) }}
-                                </dd>
-                            @else
-                                <dd class="text-sm space-y-1">
-                                    <div class="font-bold {{ $ipkFromProfile >= 3.0 ? 'text-green-600' : 'text-orange-600' }}">
-                                        Profil: {{ $ipkFromProfile > 0 ? number_format($ipkFromProfile, 2) : '-' }}
-                                    </div>
-                                    <div id="ipkKhsCard" class="font-bold {{ $ipkFromTranskrip >= 3.0 ? 'text-green-600' : 'text-orange-600' }}">
-                                        KHS: {{ $ipkFromTranskrip > 0 ? number_format($ipkFromTranskrip, 2) : '-' }}
-                                    </div>
-                                </dd>
-                            @endif
-                        </dl>
-                    </div>
+                    @if($ipkSame)
+                        <dd class="text-2xl font-bold {{ $ipkFromProfile >= 3.0 ? 'text-green-600' : 'text-orange-600' }}">
+                            {{ number_format($ipkFromProfile, 2) }}
+                        </dd>
+                    @else
+                        <dd class="space-y-1">
+                            <div class="text-sm font-medium text-gray-500">Profil:</div>
+                            <div class="text-xl font-bold {{ $ipkFromProfile >= 3.0 ? 'text-green-600' : 'text-orange-600' }}">
+                                {{ $ipkFromProfile > 0 ? number_format($ipkFromProfile, 2) : '-' }}
+                            </div>
+                            <div class="text-sm font-medium text-gray-500 mt-2">KHS:</div>
+                            <div id="ipkKhsCard" class="text-xl font-bold {{ $ipkFromTranskrip >= 3.0 ? 'text-green-600' : 'text-orange-600' }}">
+                                {{ $ipkFromTranskrip > 0 ? number_format($ipkFromTranskrip, 2) : '-' }}
+                            </div>
+                        </dd>
+                    @endif
                 </div>
             </div>
         </div>
@@ -83,44 +108,46 @@
                 $kelayakanColor = 'red';
             }
         @endphp
-        <div class="bg-white overflow-hidden shadow rounded-lg">
+        <div class="bg-white overflow-hidden shadow-md rounded-xl border border-gray-100 hover:shadow-lg transition-shadow duration-300">
             <div class="p-5">
-                <div class="flex items-center">
-                    <div class="flex-shrink-0">
-                        <i class="fas fa-{{ $kelayakanColor === 'green' ? 'check-circle' : ($kelayakanColor === 'red' ? 'times-circle' : 'clock') }} text-2xl text-{{ $kelayakanColor }}-600"></i>
+                <div class="flex flex-col">
+                    <div class="flex items-center justify-between mb-3">
+                        <dt class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Kelayakan</dt>
+                        <div class="h-10 w-10 rounded-lg bg-{{ $kelayakanColor }}-100 flex items-center justify-center">
+                            <i class="fas fa-{{ $kelayakanColor === 'green' ? 'check-circle' : ($kelayakanColor === 'red' ? 'times-circle' : 'clock') }} text-lg text-{{ $kelayakanColor }}-600"></i>
+                        </div>
                     </div>
-                    <div class="ml-4 w-0 flex-1">
-                        <dl>
-                            <dt class="text-xs font-medium text-gray-500 uppercase">Kelayakan</dt>
-                            <dd class="text-lg font-bold text-{{ $kelayakanColor }}-600">
-                                {{ $kelayakanStatus }}
-                            </dd>
-                        </dl>
-                    </div>
+                    <dd class="text-2xl font-bold text-{{ $kelayakanColor }}-600">
+                        {{ $kelayakanStatus }}
+                    </dd>
                 </div>
             </div>
         </div>
 
         <!-- SKS D dan E Card -->
-        <div class="bg-white overflow-hidden shadow rounded-lg">
+        <div class="bg-white overflow-hidden shadow-md rounded-xl border border-gray-100 hover:shadow-lg transition-shadow duration-300">
             <div class="p-5">
-                <div class="flex items-center">
-                    <div class="flex-shrink-0">
-                        <i class="fas fa-exclamation-triangle text-2xl {{ ($totalSksDCount > 0 || $totalSksECount > 0) ? 'text-yellow-600' : 'text-green-600' }}"></i>
+                <div class="flex flex-col">
+                    <div class="flex items-center justify-between mb-3">
+                        <dt class="text-xs font-semibold text-gray-500 uppercase tracking-wide">SKS D & E</dt>
+                        <div class="h-10 w-10 rounded-lg bg-{{ ($totalSksDCount > 0 || $totalSksECount > 0) ? 'yellow' : 'green' }}-100 flex items-center justify-center">
+                            <i class="fas fa-exclamation-triangle text-lg {{ ($totalSksDCount > 0 || $totalSksECount > 0) ? 'text-yellow-600' : 'text-green-600' }}"></i>
+                        </div>
                     </div>
-                    <div class="ml-4 w-0 flex-1">
-                        <dl>
-                            <dt class="text-xs font-medium text-gray-500 uppercase">SKS D & E</dt>
-                            <dd class="text-sm space-y-1">
-                                <div id="sksDCard" class="font-bold {{ $totalSksDCount > 0 ? 'text-yellow-600' : 'text-green-600' }}">
-                                    SKS D: {{ $totalSksDCount }}
-                                </div>
-                                <div id="sksECard" class="font-bold {{ $totalSksECount > 0 ? 'text-red-600' : 'text-green-600' }}">
-                                    SKS E: {{ $totalSksECount }}
-                                </div>
-                            </dd>
-                        </dl>
-                    </div>
+                    <dd class="space-y-2">
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-gray-600">SKS D:</span>
+                            <span id="sksDCard" class="text-xl font-bold {{ $totalSksDCount > 0 ? 'text-yellow-600' : 'text-green-600' }}">
+                                {{ $totalSksDCount }}
+                            </span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-gray-600">SKS E:</span>
+                            <span id="sksECard" class="text-xl font-bold {{ $totalSksECount > 0 ? 'text-red-600' : 'text-green-600' }}">
+                                {{ $totalSksECount }}
+                            </span>
+                        </div>
+                    </dd>
                 </div>
             </div>
         </div>
@@ -143,39 +170,35 @@
                 $pklIcon = 'fa-clipboard-check';
             }
         @endphp
-        <div class="bg-white overflow-hidden shadow rounded-lg">
+        <div class="bg-white overflow-hidden shadow-md rounded-xl border border-gray-100 hover:shadow-lg transition-shadow duration-300">
             <div class="p-5">
-                <div class="flex items-center">
-                    <div class="flex-shrink-0">
-                        <i class="fas {{ $pklIcon }} text-2xl text-{{ $pklColor }}-600"></i>
+                <div class="flex flex-col">
+                    <div class="flex items-center justify-between mb-3">
+                        <dt class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Status PKL</dt>
+                        <div class="h-10 w-10 rounded-lg bg-{{ $pklColor }}-100 flex items-center justify-center">
+                            <i class="fas {{ $pklIcon }} text-lg text-{{ $pklColor }}-600"></i>
+                        </div>
                     </div>
-                    <div class="ml-4 w-0 flex-1">
-                        <dl>
-                            <dt class="text-xs font-medium text-gray-500 uppercase">Status PKL</dt>
-                            <dd class="text-sm font-bold text-{{ $pklColor }}-600">
-                                {{ $pklStatus }}
-                            </dd>
-                        </dl>
-                    </div>
+                    <dd class="text-lg font-bold text-{{ $pklColor }}-600">
+                        {{ $pklStatus }}
+                    </dd>
                 </div>
             </div>
         </div>
 
         <!-- Jumlah Ditolak Card -->
-        <div class="bg-white overflow-hidden shadow rounded-lg">
+        <div class="bg-white overflow-hidden shadow-md rounded-xl border border-gray-100 hover:shadow-lg transition-shadow duration-300">
             <div class="p-5">
-                <div class="flex items-center">
-                    <div class="flex-shrink-0">
-                        <i class="fas fa-ban text-2xl {{ $jumlahDitolak > 0 ? 'text-red-600' : 'text-gray-400' }}"></i>
+                <div class="flex flex-col">
+                    <div class="flex items-center justify-between mb-3">
+                        <dt class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Ditolak Mitra</dt>
+                        <div class="h-10 w-10 rounded-lg bg-{{ $jumlahDitolak > 0 ? 'red' : 'gray' }}-100 flex items-center justify-center">
+                            <i class="fas fa-ban text-lg {{ $jumlahDitolak > 0 ? 'text-red-600' : 'text-gray-400' }}"></i>
+                        </div>
                     </div>
-                    <div class="ml-4 w-0 flex-1">
-                        <dl>
-                            <dt class="text-xs font-medium text-gray-500 uppercase">Ditolak Mitra</dt>
-                            <dd class="text-xl font-bold {{ $jumlahDitolak > 0 ? 'text-red-600' : 'text-gray-600' }}">
-                                {{ $jumlahDitolak }}
-                            </dd>
-                        </dl>
-                    </div>
+                    <dd class="text-2xl font-bold {{ $jumlahDitolak > 0 ? 'text-red-600' : 'text-gray-600' }}">
+                        {{ $jumlahDitolak }}
+                    </dd>
                 </div>
             </div>
         </div>

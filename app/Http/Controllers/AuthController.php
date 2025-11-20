@@ -187,9 +187,14 @@ class AuthController extends Controller
     public function logout(Request $request)
     {
         $user = Auth::user();
-        
+
+        // If user is not authenticated, redirect to login immediately
+        if (!$user) {
+            return redirect()->route('login')->with('info', 'Anda sudah logout.');
+        }
+
         // Log logout activity
-        if ($user) {
+        try {
             \App\Models\HistoryAktivitas::create([
                 'id_user' => $user->id,
                 'id_mahasiswa' => $user->role === 'mahasiswa' ? $user->id : null,
@@ -201,12 +206,23 @@ class AuthController extends Controller
                     'message' => $user->name . ' (' . ucfirst($user->role) . ') melakukan logout',
                 ],
             ]);
+        } catch (\Exception $e) {
+            // Ignore logging errors during logout
+            Log::error('Failed to log logout activity', [
+                'error' => $e->getMessage()
+            ]);
         }
-        
+
+        // Perform logout
         Auth::logout();
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
-        
+
+        // Invalidate session if it exists
+        if ($request->hasSession()) {
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+        }
+
+        // Redirect to login without message
         return redirect()->route('login');
     }
 

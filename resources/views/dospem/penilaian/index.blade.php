@@ -2,6 +2,12 @@
 
 @section('title', 'Penilaian Mahasiswa')
 
+@push('head')
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+@endpush
+
 @section('content')
 <div class="space-y-6">
     <!-- Header -->
@@ -56,14 +62,32 @@
                                     <div class="flex items-center space-x-3">
                                         <!-- Profile Photo -->
                                         <div class="flex-shrink-0">
-                                            @if($student->photo && $student->google_linked)
-                                                <img src="{{ $student->photo }}"
-                                                     alt="{{ $student->name }}"
-                                                     class="h-10 w-10 rounded-full object-cover"
-                                                     onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                                                <div class="h-10 w-10 rounded-full bg-blue-100 items-center justify-center hidden">
-                                                    <i class="fas fa-user text-blue-600"></i>
-                                                </div>
+                                            @if($student->photo)
+                                                @if($student->google_linked)
+                                                    @php
+                                                        $photoUrl = $student->photo;
+                                                        if (str_contains($photoUrl, 'googleusercontent.com')) {
+                                                            $photoUrl = preg_replace('/=s\d+-c/', '', $photoUrl);
+                                                            $photoUrl .= '=s96-c';
+                                                        }
+                                                    @endphp
+                                                    <img src="{{ $photoUrl }}"
+                                                         alt="{{ $student->name }}"
+                                                         class="h-10 w-10 rounded-full object-cover"
+                                                         referrerpolicy="no-referrer"
+                                                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                                    <div class="h-10 w-10 rounded-full bg-blue-100 items-center justify-center" style="display: none;">
+                                                        <i class="fas fa-user text-blue-600"></i>
+                                                    </div>
+                                                @else
+                                                    <img src="{{ asset('storage/' . $student->photo) }}"
+                                                         alt="{{ $student->name }}"
+                                                         class="h-10 w-10 rounded-full object-cover"
+                                                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                                    <div class="h-10 w-10 rounded-full bg-blue-100 items-center justify-center" style="display: none;">
+                                                        <i class="fas fa-user text-blue-600"></i>
+                                                    </div>
+                                                @endif
                                             @else
                                                 <div class="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
                                                     <i class="fas fa-user text-blue-600"></i>
@@ -123,14 +147,32 @@
                                 <div class="flex items-center space-x-3">
                                     <!-- Profile Photo -->
                                     <div class="flex-shrink-0">
-                                        @if($selectedStudent->photo && $selectedStudent->google_linked)
-                                            <img src="{{ $selectedStudent->photo }}"
-                                                 alt="{{ $selectedStudent->name }}"
-                                                 class="h-12 w-12 rounded-full object-cover border-2 border-blue-200"
-                                                 onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                                            <div class="h-12 w-12 rounded-full bg-blue-100 items-center justify-center hidden">
-                                                <i class="fas fa-user text-blue-600"></i>
-                                            </div>
+                                        @if($selectedStudent->photo)
+                                            @if($selectedStudent->google_linked)
+                                                @php
+                                                    $photoUrl = $selectedStudent->photo;
+                                                    if (str_contains($photoUrl, 'googleusercontent.com')) {
+                                                        $photoUrl = preg_replace('/=s\d+-c/', '', $photoUrl);
+                                                        $photoUrl .= '=s96-c';
+                                                    }
+                                                @endphp
+                                                <img src="{{ $photoUrl }}"
+                                                     alt="{{ $selectedStudent->name }}"
+                                                     class="h-12 w-12 rounded-full object-cover border-2 border-blue-200"
+                                                     referrerpolicy="no-referrer"
+                                                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                                <div class="h-12 w-12 rounded-full bg-blue-100 items-center justify-center" style="display: none;">
+                                                    <i class="fas fa-user text-blue-600"></i>
+                                                </div>
+                                            @else
+                                                <img src="{{ asset('storage/' . $selectedStudent->photo) }}"
+                                                     alt="{{ $selectedStudent->name }}"
+                                                     class="h-12 w-12 rounded-full object-cover border-2 border-blue-200"
+                                                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                                <div class="h-12 w-12 rounded-full bg-blue-100 items-center justify-center" style="display: none;">
+                                                    <i class="fas fa-user text-blue-600"></i>
+                                                </div>
+                                            @endif
                                         @else
                                             <div class="h-12 w-12 rounded-full bg-blue-100 flex items-center justify-center">
                                                 <i class="fas fa-user text-blue-600"></i>
@@ -179,12 +221,14 @@
                                                            min="0"
                                                            max="100"
                                                            value="{{ $responses->get($item['id'])->value_numeric ?? 0 }}"
-                                                           class="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                                                           data-initial-value="{{ $responses->get($item['id'])->value_numeric ?? 0 }}"
+                                                           class="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer assessment-range-slider"
                                                            oninput="document.getElementById('input_{{ $item['id'] }}').value = this.value; updateRangeColor(this);">
                                                     <input type="number"
                                                            id="input_{{ $item['id'] }}"
                                                            name="items[{{ $item['id'] }}]"
                                                            value="{{ $responses->get($item['id'])->value_numeric ?? '' }}"
+                                                           data-initial-value="{{ $responses->get($item['id'])->value_numeric ?? '' }}"
                                                            min="0"
                                                            max="100"
                                                            step="0.1"
@@ -333,11 +377,45 @@ function updateRangeColor(rangeInput) {
     rangeInput.style.background = `linear-gradient(to right, #3B82F6 0%, #3B82F6 ${percentage}%, #E5E7EB ${percentage}%, #E5E7EB 100%)`;
 }
 
-// Initialize range colors on page load
-document.addEventListener('DOMContentLoaded', function() {
-    document.querySelectorAll('input[type="range"]').forEach(function(range) {
+// Function to force update all sliders
+function forceUpdateAllSliders() {
+    console.log('🔄 Force updating all sliders...');
+
+    document.querySelectorAll('.assessment-range-slider').forEach(function(range) {
+        // Get the corresponding input field
+        const inputId = range.id.replace('range_', 'input_');
+        const inputElement = document.getElementById(inputId);
+
+        // Force sync: Set range value from data attribute (fresh from server)
+        const initialValue = range.getAttribute('data-initial-value');
+
+        console.log(`Slider ${range.id}:`, {
+            initialValue: initialValue,
+            currentRangeValue: range.value,
+            currentInputValue: inputElement ? inputElement.value : 'N/A'
+        });
+
+        if (initialValue !== null && initialValue !== '') {
+            const numValue = parseFloat(initialValue);
+            range.value = numValue;
+            if (inputElement) {
+                inputElement.value = numValue;
+            }
+
+            console.log(`✓ Updated ${range.id} to ${numValue}`);
+        }
+
+        // Force update the visual appearance
         updateRangeColor(range);
     });
+
+    console.log('✅ All sliders updated');
+}
+
+// Initialize range colors on page load
+document.addEventListener('DOMContentLoaded', function() {
+    // Force update all range sliders immediately
+    forceUpdateAllSliders();
 
     // Search functionality
     const searchInput = document.getElementById('searchStudent');
@@ -375,6 +453,31 @@ document.addEventListener('DOMContentLoaded', function() {
                 sessionStorage.setItem('studentListScrollPosition', studentList.scrollTop);
             });
         });
+    }
+});
+
+// Force update range sliders after window fully loads (including cache)
+window.addEventListener('load', function() {
+    // Force update all sliders after everything is loaded
+    setTimeout(function() {
+        forceUpdateAllSliders();
+    }, 100); // Small delay to ensure DOM is fully ready
+});
+
+// Handle page show event (fires on back/forward navigation and cache)
+window.addEventListener('pageshow', function(event) {
+    // Always force update, whether from cache or fresh load
+    setTimeout(function() {
+        forceUpdateAllSliders();
+    }, 50);
+});
+
+// Additional safety: Update on visibility change
+document.addEventListener('visibilitychange', function() {
+    if (!document.hidden) {
+        setTimeout(function() {
+            forceUpdateAllSliders();
+        }, 50);
     }
 });
 </script>
