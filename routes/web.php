@@ -189,4 +189,54 @@ Route::get('/jadwal/{filename}', function ($filename) {
         // (opsional) kalau masih ada form lama yang submit ke 'khs.multi', kamu bisa aktifkan alias ini:
         // Route::post('/khs-multi', [DocumentController::class, 'uploadKhs'])->name('khs.multi');
     });
-    
+
+    // DEBUG ROUTE - Temporary for troubleshooting kelayakan status
+    Route::get('/debug-kelayakan', function() {
+        $user = Auth::user();
+        if (!$user) {
+            return response()->json(['error' => 'Not authenticated']);
+        }
+
+        $profil = $user->profilMahasiswa;
+        $khsTranskrip = \App\Models\KhsManualTranskrip::where('mahasiswa_id', $user->id)->get();
+        $totalSemesters = $khsTranskrip->count();
+        $khsFileCount = $user->khs()->whereBetween('semester', [1, 4])->distinct()->count('semester');
+
+        // Only count semesters that have IPS value
+        $semestersWithIps = $khsTranskrip->filter(function($khs) {
+            return !empty($khs->ips) && $khs->ips > 0;
+        });
+
+        $totalIps = $semestersWithIps->sum('ips');
+        $countSemestersWithIps = $semestersWithIps->count();
+        $totalSksD = $khsTranskrip->sum('total_sks_d');
+        $totalE = $khsTranskrip->where('has_e', true)->count();
+        $finalIpk = $countSemestersWithIps > 0 ? $totalIps / $countSemestersWithIps : 0;
+
+        $hasPkkmb = !empty($profil->gdrive_pkkmb ?? '');
+        $hasEcourse = !empty($profil->gdrive_ecourse ?? '');
+        $hasDokumenPendukung = $hasPkkmb && $hasEcourse;
+
+        $isTranscriptComplete = $totalSemesters >= 4;
+        $isKhsComplete = $khsFileCount >= 4;
+        $isEligible = $isTranscriptComplete && $isKhsComplete && $finalIpk >= 2.5 && $totalSksD <= 6 && $totalE == 0 && $hasDokumenPendukung;
+
+        return response()->json([
+            'user_id' => $user->id,
+            'user_name' => $user->name,
+            'user_email' => $user->email,
+            'total_semesters' => $totalSemesters,
+            'khs_file_count' => $khsFileCount,
+            'final_ipk' => round($finalIpk, 2),
+            'total_sks_d' => $totalSksD,
+            'total_e' => $totalE,
+            'has_pkkmb' => $hasPkkmb,
+            'has_ecourse' => $hasEcourse,
+            'has_dokumen_pendukung' => $hasDokumenPendukung,
+            'is_transcript_complete' => $isTranscriptComplete,
+            'is_khs_complete' => $isKhsComplete,
+            'is_eligible' => $isEligible,
+            'status' => $isEligible ? 'LAYAK' : 'TIDAK LAYAK',
+        ]);
+    })->middleware('auth')->name('debug.kelayakan');
+

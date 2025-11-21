@@ -84,10 +84,15 @@ class DashboardController extends Controller
         $total = $progressBerkas['total'];
         $percentage = $progressBerkas['percentage'];
 
+        // Get detailed kelayakan data
+        $kelayakanData = $this->getDetailedKelayakanData($user);
+
         $stats = [
             'progress_berkas' => $completed . '/' . $total,
             'progress_percentage' => $percentage,
-            'kelayakan_status' => $this->getKelayakanStatus($user),
+            'kelayakan_status' => $kelayakanData['status'],
+            'is_eligible' => $kelayakanData['is_eligible'],
+            'kelayakan_data' => $kelayakanData,
             'dokumen_pendukung_status' => $this->getDokumenPendukungStatus($user),
             'instansi_mitra_status' => $this->getInstansiMitraStatus($user),
             'pemberkasan_akhir_status' => $this->getPemberkasanAkhirStatus($user),
@@ -151,40 +156,90 @@ class DashboardController extends Controller
         ];
     }
 
-    private function getKelayakanStatus($mahasiswa)
+    private function getDetailedKelayakanData($mahasiswa)
     {
         $profil = $mahasiswa->profilMahasiswa;
-        if (!$profil) return 'belum_lengkap';
 
-        // Check if all required semesters (1-5) have KHS transkrip uploaded
+        // Check if all required semesters (1-4) have KHS transkrip uploaded
         $khsTranskrip = \App\Models\KhsManualTranskrip::where('mahasiswa_id', $mahasiswa->id)->get();
         $totalSemesters = $khsTranskrip->count();
 
-        if ($totalSemesters < 5) return 'belum_lengkap';
-
-        // Check KHS file uploads (5 files required)
+        // Check KHS file uploads (4 files required)
         $khsFileCount = $mahasiswa->khs()
-            ->whereBetween('semester', [1, 5])
+            ->whereBetween('semester', [1, 4])
             ->distinct()
             ->count('semester');
 
-        if ($khsFileCount < 5) return 'belum_lengkap';
-
         // Calculate IPK and check eligibility criteria
-        $totalIps = $khsTranskrip->sum('ips');
+        // Only count semesters that have IPS value (not null/empty)
+        $semestersWithIps = $khsTranskrip->filter(function($khs) {
+            return !empty($khs->ips) && $khs->ips > 0;
+        });
+
+        $totalIps = $semestersWithIps->sum('ips');
+        $countSemestersWithIps = $semestersWithIps->count();
         $totalSksD = $khsTranskrip->sum('total_sks_d');
         $totalE = $khsTranskrip->where('has_e', true)->count();
-        $finalIpk = $totalSemesters > 0 ? $totalIps / $totalSemesters : 0;
+
+        // Calculate IPK from semesters that have IPS values only
+        $finalIpk = $countSemestersWithIps > 0 ? $totalIps / $countSemestersWithIps : 0;
 
         // Check Google Drive links (only PKKMB and E-Course are required, Semasa is optional)
-        $hasDokumenPendukung = $profil->gdrive_pkkmb && $profil->gdrive_ecourse;
+        $hasPkkmb = !empty($profil->gdrive_pkkmb ?? '');
+        $hasEcourse = !empty($profil->gdrive_ecourse ?? '');
+        $hasDokumenPendukung = $hasPkkmb && $hasEcourse;
 
-        // Check all eligibility criteria
-        if ($totalSemesters >= 5 && $khsFileCount >= 5 && $finalIpk >= 2.5 && $totalSksD <= 9 && $totalE == 0 && $hasDokumenPendukung) {
-            return 'layak';
+        // Check eligibility criteria - SINKRONISASI dengan logika di halaman documents
+        // Syarat: IPK ≥ 2.5, SKS D ≤ 6, tidak ada nilai E
+        $isTranscriptComplete = $totalSemesters >= 4;
+        $isKhsComplete = $khsFileCount >= 4;
+        $isEligible = $isTranscriptComplete && $isKhsComplete && $finalIpk >= 2.5 && $totalSksD <= 6 && $totalE == 0 && $hasDokumenPendukung;
+
+        // DEBUG: Log untuk troubleshooting
+        \Log::info('Dashboard Kelayakan Check', [
+            'user_id' => $mahasiswa->id,
+            'user_name' => $mahasiswa->name,
+            'total_semesters' => $totalSemesters,
+            'khs_file_count' => $khsFileCount,
+            'final_ipk' => round($finalIpk, 2),
+            'total_sks_d' => $totalSksD,
+            'total_e' => $totalE,
+            'has_pkkmb' => $hasPkkmb,
+            'has_ecourse' => $hasEcourse,
+            'is_transcript_complete' => $isTranscriptComplete,
+            'is_khs_complete' => $isKhsComplete,
+            'is_eligible' => $isEligible,
+        ]);
+
+        // Determine status
+        if (!$profil) {
+            $status = 'belum_lengkap';
+        } elseif (!$isTranscriptComplete || !$isKhsComplete) {
+            $status = 'belum_lengkap';
+        } elseif ($isEligible) {
+            $status = 'layak';
+        } else {
+            $status = 'tidak_layak';
         }
 
-        return 'tidak_layak';
+        return [
+            'status' => $status,
+            'is_eligible' => $isEligible,
+            'total_semesters' => $totalSemesters,
+            'khs_file_count' => $khsFileCount,
+            'final_ipk' => $finalIpk,
+            'total_sks_d' => $totalSksD,
+            'total_e' => $totalE,
+            'has_pkkmb' => $hasPkkmb,
+            'has_ecourse' => $hasEcourse,
+            'has_dokumen_pendukung' => $hasDokumenPendukung,
+        ];
+    }
+
+    private function getKelayakanStatus($mahasiswa)
+    {
+        $data = $this->getDetailedKelayakanData($mahasiswa);
+        return $data['status'];
     }
 
     private function getDokumenPendukungStatus($mahasiswa)

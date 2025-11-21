@@ -28,36 +28,30 @@
     <div class="group bg-white overflow-hidden shadow-lg rounded-2xl transform transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl border border-gray-100">
         <div class="p-6 relative overflow-hidden">
             <div class="absolute top-0 right-0 w-32 h-32
-                @if($stats['kelayakan_status'] === 'layak') bg-green-50
-                @elseif($stats['kelayakan_status'] === 'tidak_layak') bg-red-50
-                @else bg-gray-50 @endif
+                @if($stats['is_eligible']) bg-green-50
+                @else bg-red-50 @endif
                 rounded-full -mr-16 -mt-16 opacity-50 group-hover:scale-150 transition-transform duration-500"></div>
             <div class="relative z-10">
                 <div class="flex items-center justify-between mb-4">
                     <div class="w-14 h-14 bg-gradient-to-br
-                        @if($stats['kelayakan_status'] === 'layak') from-green-500 to-green-600
-                        @elseif($stats['kelayakan_status'] === 'tidak_layak') from-red-500 to-red-600
-                        @else from-gray-400 to-gray-500 @endif
+                        @if($stats['is_eligible']) from-green-500 to-green-600
+                        @else from-red-500 to-red-600 @endif
                         rounded-xl flex items-center justify-center shadow-lg transform group-hover:scale-110 group-hover:rotate-6 transition-all duration-300">
                         <i class="fas fa-clipboard-check text-2xl text-white"></i>
                     </div>
                     <div class="text-xs font-bold px-3 py-1 rounded-full
-                        @if($stats['kelayakan_status'] === 'layak') bg-green-100 text-green-700
-                        @elseif($stats['kelayakan_status'] === 'tidak_layak') bg-red-100 text-red-700
-                        @else bg-gray-100 text-gray-700 @endif">
-                        @if($stats['kelayakan_status'] === 'layak') Layak
-                        @elseif($stats['kelayakan_status'] === 'tidak_layak') Tidak Layak
-                        @else Belum @endif
+                        @if($stats['is_eligible']) bg-green-100 text-green-700
+                        @else bg-red-100 text-red-700 @endif">
+                        @if($stats['is_eligible']) Layak
+                        @else Tidak Layak @endif
                     </div>
                 </div>
                 <dt class="text-sm font-medium text-gray-500 mb-2">Kelayakan PKL</dt>
                 <dd class="text-2xl font-bold
-                    @if($stats['kelayakan_status'] === 'layak') text-green-600
-                    @elseif($stats['kelayakan_status'] === 'tidak_layak') text-red-600
-                    @else text-gray-600 @endif">
-                    @if($stats['kelayakan_status'] === 'layak') Layak PKL
-                    @elseif($stats['kelayakan_status'] === 'tidak_layak') Tidak Layak
-                    @else Belum Lengkap @endif
+                    @if($stats['is_eligible']) text-green-600
+                    @else text-red-600 @endif">
+                    @if($stats['is_eligible']) Layak
+                    @else Tidak Layak @endif
                 </dd>
                 <p class="text-xs text-gray-400 mt-1">status kelayakan PKL</p>
             </div>
@@ -215,39 +209,32 @@
             <div class="space-y-4">
                 <!-- Kelayakan PKL Info -->
                 <div class="flex items-start p-4 rounded-xl border-2 transition-all duration-300
-                    @if($stats['kelayakan_status'] === 'layak') border-green-200 bg-green-50
-                    @elseif($stats['kelayakan_status'] === 'tidak_layak') border-red-200 bg-red-50
-                    @else border-gray-200 bg-gray-50 @endif">
+                    @if($stats['is_eligible']) border-green-200 bg-green-50
+                    @else border-red-200 bg-red-50 @endif">
                     <div class="flex-shrink-0 mr-4">
                         <div class="w-12 h-12 rounded-lg flex items-center justify-center
-                            @if($stats['kelayakan_status'] === 'layak') bg-green-500
-                            @elseif($stats['kelayakan_status'] === 'tidak_layak') bg-red-500
-                            @else bg-gray-400 @endif">
+                            @if($stats['is_eligible']) bg-green-500
+                            @else bg-red-500 @endif">
                             <i class="fas
-                                @if($stats['kelayakan_status'] === 'layak') fa-check-circle
-                                @elseif($stats['kelayakan_status'] === 'tidak_layak') fa-times-circle
-                                @else fa-clipboard-check @endif
+                                @if($stats['is_eligible']) fa-check-circle
+                                @else fa-times-circle @endif
                                 text-white text-xl"></i>
                         </div>
                     </div>
                     <div class="flex-1">
                         <h4 class="font-bold text-gray-900 mb-1">1. Pemberkasan Kelayakan</h4>
                         <p class="text-sm font-medium mb-2
-                            @if($stats['kelayakan_status'] === 'layak') text-green-700
-                            @elseif($stats['kelayakan_status'] === 'tidak_layak') text-red-700
-                            @else text-gray-600 @endif">
+                            @if($stats['is_eligible']) text-green-700
+                            @else text-red-700 @endif">
                             Status:
-                            @if($stats['kelayakan_status'] === 'layak') LAYAK untuk PKL
-                            @elseif($stats['kelayakan_status'] === 'tidak_layak') TIDAK LAYAK untuk PKL
-                            @else Belum lengkap - Upload KHS semester 1-5 @endif
+                            @if($stats['is_eligible']) LAYAK untuk PKL
+                            @else BELUM LAYAK untuk PKL @endif
                         </p>
                         <p class="text-xs text-gray-600">
-                            @if($stats['kelayakan_status'] === 'layak')
-                                Selamat! Anda memenuhi syarat untuk melaksanakan PKL (IPK ≥ 2.5, SKS D ≤ 9, tidak ada nilai E).
-                            @elseif($stats['kelayakan_status'] === 'tidak_layak')
-                                Anda belum memenuhi syarat kelayakan PKL. Periksa IPK (min 2.5), SKS D (max 9), dan pastikan tidak ada nilai E.
+                            @if($stats['is_eligible'])
+                                Selamat! Anda memenuhi syarat untuk melaksanakan PKL (IPK ≥ 2.5, SKS D ≤ 6, tidak ada nilai E).
                             @else
-                                Upload KHS semester 1-5 dan dokumen pendukung melalui tab "Pemberkasan Kelayakan" di menu Pemberkasan.
+                                Anda belum memenuhi syarat kelayakan PKL. Periksa IPK (min 2.5), SKS D (max 6), dan pastikan tidak ada nilai E.
                             @endif
                         </p>
                     </div>

@@ -52,27 +52,32 @@
             $totalIps = 0;
 
             // Calculate from transcript data
+            $countSemestersWithIps = 0;
             foreach ($khsManualTranskrip as $transcript) {
                 $totalSksD += $transcript->total_sks_d ?? 0;
                 if ($transcript->has_e) {
                     $totalE++;
                 }
-                $totalIps += $transcript->ips ?? 0;
+                // Only count IPS if it has a value
+                if (!empty($transcript->ips) && $transcript->ips > 0) {
+                    $totalIps += $transcript->ips;
+                    $countSemestersWithIps++;
+                }
             }
 
-            // Calculate final IPK
-            $finalIpk = $totalSemesters > 0 ? $totalIps / $totalSemesters : 0;
+            // Calculate final IPK - only from semesters that have IPS values
+            $finalIpk = $countSemestersWithIps > 0 ? $totalIps / $countSemestersWithIps : 0;
 
             // Check dokumen pendukung (PKKMB dan English Course wajib)
             $hasPkkmb = !empty($user->profilMahasiswa->gdrive_pkkmb ?? '');
             $hasEcourse = !empty($user->profilMahasiswa->gdrive_ecourse ?? '');
             $hasDokumenPendukung = $hasPkkmb && $hasEcourse;
 
-            // Check eligibility: transcript complete (4 semesters), KHS files uploaded (4), IPK >= 2.5, SKS D <= 9, no E, dokumen pendukung lengkap
+            // Check eligibility: transcript complete (4 semesters), KHS files uploaded (4), IPK >= 2.5, SKS D <= 6, no E, dokumen pendukung lengkap
             $isTranscriptComplete = $totalSemesters >= 4;
             $isKhsComplete = $khsFileCount >= 4;
 
-            if ($isTranscriptComplete && $isKhsComplete && $finalIpk >= 2.5 && $totalSksD <= 9 && $totalE == 0 && $hasDokumenPendukung) {
+            if ($isTranscriptComplete && $isKhsComplete && $finalIpk >= 2.5 && $totalSksD <= 6 && $totalE == 0 && $hasDokumenPendukung) {
                 $isEligibleForPkl = true;
             }
 
