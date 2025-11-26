@@ -116,12 +116,12 @@
                     
                     <div>
                         <label for="ipk" class="block text-sm font-medium text-gray-700">IPK Terakhir <span class="text-red-500">*</span></label>
-                        <input type="number" id="ipk" name="ipk" required step="0.01" min="0" max="4.0"
+                        <input type="text" id="ipk" name="ipk" required
                                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-                               placeholder="3.50"
+                               placeholder="3,50 atau 3.50"
                                oninput="validateIPK(this)"
                                value="{{ old('ipk') }}">
-                        <p class="mt-1 text-xs text-gray-500">IPK harus antara 0.00 - 4.00</p>
+                        <p class="mt-1 text-xs text-gray-500">IPK harus antara 0,00 - 4,00 (bisa menggunakan koma atau titik)</p>
                         @error('ipk')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
@@ -177,17 +177,38 @@
     </div>
 
     <script>
-        // Validate IPK input (max 4.0)
+        // Validate IPK input (max 4.0) - accepts both comma and dot
         function validateIPK(input) {
-            let value = parseFloat(input.value);
+            // Allow only numbers, comma, and dot
+            input.value = input.value.replace(/[^0-9.,]/g, '');
 
-            // Remove any invalid characters
-            input.value = input.value.replace(/[^0-9.]/g, '');
+            // Replace multiple commas/dots with single one
+            input.value = input.value.replace(/[.,]+/g, function(match) {
+                return match[0];
+            });
+
+            // Prevent multiple decimal separators
+            const separatorCount = (input.value.match(/[.,]/g) || []).length;
+            if (separatorCount > 1) {
+                // Keep only the first separator
+                let firstSeparatorFound = false;
+                input.value = input.value.split('').filter(char => {
+                    if (char === ',' || char === '.') {
+                        if (firstSeparatorFound) return false;
+                        firstSeparatorFound = true;
+                    }
+                    return true;
+                }).join('');
+            }
+
+            // Convert comma to dot for validation
+            let valueForValidation = input.value.replace(',', '.');
+            let value = parseFloat(valueForValidation);
 
             // Check if value exceeds 4.0
             if (value > 4.0) {
-                input.value = '4.0';
-                alert('IPK maksimal adalah 4.00');
+                input.value = input.value.includes(',') ? '4,0' : '4.0';
+                alert('IPK maksimal adalah 4,00');
             }
 
             // Check if value is negative
@@ -197,10 +218,11 @@
             }
 
             // Limit to 2 decimal places
-            if (input.value.includes('.')) {
-                const parts = input.value.split('.');
+            if (input.value.includes(',') || input.value.includes('.')) {
+                const separator = input.value.includes(',') ? ',' : '.';
+                const parts = input.value.split(separator);
                 if (parts[1] && parts[1].length > 2) {
-                    input.value = parseFloat(input.value).toFixed(2);
+                    input.value = parts[0] + separator + parts[1].substring(0, 2);
                 }
             }
         }
@@ -233,16 +255,22 @@
                 missingFields.push('Nomor WhatsApp (format tidak valid)');
             }
 
-            // Validate IPK range
-            const ipk = document.getElementById('ipk').value;
-            if (ipk && (parseFloat(ipk) < 0 || parseFloat(ipk) > 4.0)) {
-                missingFields.push('IPK Terakhir (harus antara 0.00 - 4.00)');
+            // Validate IPK range (convert comma to dot for validation)
+            const ipkInput = document.getElementById('ipk');
+            const ipkValue = ipkInput.value.replace(',', '.');
+            if (ipkValue && (parseFloat(ipkValue) < 0 || parseFloat(ipkValue) > 4.0)) {
+                missingFields.push('IPK Terakhir (harus antara 0,00 - 4,00)');
             }
 
             // Show error if there are missing fields
             if (missingFields.length > 0) {
                 alert('Mohon lengkapi field berikut:\n\n' + missingFields.join('\n'));
                 return false;
+            }
+
+            // Convert comma to dot before submission
+            if (ipkInput.value.includes(',')) {
+                ipkInput.value = ipkInput.value.replace(',', '.');
             }
 
             return true;

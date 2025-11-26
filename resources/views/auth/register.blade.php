@@ -164,12 +164,12 @@
 
                     <div>
                         <label for="ipk" class="block text-sm font-medium text-gray-700">IPK Terakhir</label>
-                        <input id="ipk" name="ipk" type="number" required step="0.01" min="0" max="4.0"
+                        <input id="ipk" name="ipk" type="text" required
                                class="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                               placeholder="3.50"
+                               placeholder="3,50 atau 3.50"
                                oninput="validateIPK(this)"
                                value="{{ old('ipk') }}">
-                        <p class="mt-1 text-xs text-gray-500">IPK harus antara 0.00 - 4.00</p>
+                        <p class="mt-1 text-xs text-gray-500">IPK harus antara 0,00 - 4,00 (bisa menggunakan koma atau titik)</p>
                         @error('ipk')
                             <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                         @enderror
@@ -311,17 +311,38 @@
     </div>
 
     <script>
-        // Validate IPK input (max 4.0)
+        // Validate IPK input (max 4.0) - accepts both comma and dot
         function validateIPK(input) {
-            let value = parseFloat(input.value);
+            // Allow only numbers, comma, and dot
+            input.value = input.value.replace(/[^0-9.,]/g, '');
 
-            // Remove any invalid characters
-            input.value = input.value.replace(/[^0-9.]/g, '');
+            // Replace multiple commas/dots with single one
+            input.value = input.value.replace(/[.,]+/g, function(match) {
+                return match[0];
+            });
+
+            // Prevent multiple decimal separators
+            const separatorCount = (input.value.match(/[.,]/g) || []).length;
+            if (separatorCount > 1) {
+                // Keep only the first separator
+                let firstSeparatorFound = false;
+                input.value = input.value.split('').filter(char => {
+                    if (char === ',' || char === '.') {
+                        if (firstSeparatorFound) return false;
+                        firstSeparatorFound = true;
+                    }
+                    return true;
+                }).join('');
+            }
+
+            // Convert comma to dot for validation
+            let valueForValidation = input.value.replace(',', '.');
+            let value = parseFloat(valueForValidation);
 
             // Check if value exceeds 4.0
             if (value > 4.0) {
-                input.value = '4.0';
-                alert('IPK maksimal adalah 4.00');
+                input.value = input.value.includes(',') ? '4,0' : '4.0';
+                alert('IPK maksimal adalah 4,00');
             }
 
             // Check if value is negative
@@ -331,10 +352,11 @@
             }
 
             // Limit to 2 decimal places
-            if (input.value.includes('.')) {
-                const parts = input.value.split('.');
+            if (input.value.includes(',') || input.value.includes('.')) {
+                const separator = input.value.includes(',') ? ',' : '.';
+                const parts = input.value.split(separator);
                 if (parts[1] && parts[1].length > 2) {
-                    input.value = parseFloat(input.value).toFixed(2);
+                    input.value = parts[0] + separator + parts[1].substring(0, 2);
                 }
             }
         }
@@ -435,21 +457,28 @@
         
         // Submit button click handler
         document.getElementById('submitBtn').addEventListener('click', function(e) {
-            // Validate IPK before submit
-            const ipk = parseFloat(document.getElementById('ipk').value);
+            // Convert comma to dot before validation and submission
+            const ipkInput = document.getElementById('ipk');
+            const ipkValue = ipkInput.value.replace(',', '.');
+            const ipk = parseFloat(ipkValue);
 
             if (ipk > 4.0) {
                 e.preventDefault();
-                alert('IPK maksimal adalah 4.00. Silakan perbaiki nilai IPK Anda.');
-                document.getElementById('ipk').focus();
+                alert('IPK maksimal adalah 4,00. Silakan perbaiki nilai IPK Anda.');
+                ipkInput.focus();
                 return false;
             }
 
             if (ipk < 0) {
                 e.preventDefault();
                 alert('IPK tidak boleh negatif. Silakan perbaiki nilai IPK Anda.');
-                document.getElementById('ipk').focus();
+                ipkInput.focus();
                 return false;
+            }
+
+            // Convert comma to dot before submission
+            if (ipkInput.value.includes(',')) {
+                ipkInput.value = ipkInput.value.replace(',', '.');
             }
 
             // Show loading overlay

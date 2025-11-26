@@ -21,6 +21,7 @@ class User extends Authenticatable
         'name',
         'email',
         'photo',
+        'profile_photo',
         'google_linked',
         'google_email',
         'password',
@@ -111,5 +112,31 @@ class User extends Authenticatable
     public function scopeAdmin($query)
     {
         return $query->where('role', 'admin');
+    }
+
+    // Helper method to get profile photo (custom or Google fallback)
+    public function getProfilePhotoUrlAttribute()
+    {
+        // Priority: custom profile_photo > Google photo > default avatar
+        if ($this->profile_photo) {
+            // Check if it's a URL or a storage path
+            if (filter_var($this->profile_photo, FILTER_VALIDATE_URL)) {
+                return $this->profile_photo;
+            }
+            return asset('storage/' . $this->profile_photo);
+        }
+
+        if ($this->photo) {
+            return $this->photo;
+        }
+
+        // Default avatar based on role
+        $defaultAvatars = [
+            'mahasiswa' => 'https://ui-avatars.com/api/?name=' . urlencode($this->name) . '&background=3b82f6&color=fff',
+            'dospem' => 'https://ui-avatars.com/api/?name=' . urlencode($this->name) . '&background=10b981&color=fff',
+            'admin' => 'https://ui-avatars.com/api/?name=' . urlencode($this->name) . '&background=ef4444&color=fff',
+        ];
+
+        return $defaultAvatars[$this->role] ?? 'https://ui-avatars.com/api/?name=' . urlencode($this->name);
     }
 }

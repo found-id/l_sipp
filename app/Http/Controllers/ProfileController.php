@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use App\Services\FonnteService;
 use App\Models\User;
 use App\Models\ProfilMahasiswa;
@@ -22,13 +23,11 @@ class ProfileController extends Controller
         $profil = $user->profilMahasiswa;
         $dospem = $user->dospem;
 
-        // Get dosen pembimbing info
-        $dosenPembimbing = null;
-        if ($profil && $profil->dosenPembimbing) {
-            $dosenPembimbing = $profil->dosenPembimbing;
-        }
+        // Get all dosen pembimbing for dropdown
+        $dosenPembimbingList = User::dosenPembimbing()->get();
 
-        return view('profile.index', compact('user', 'profil', 'dospem', 'dosenPembimbing'));
+        // Langsung tampilkan halaman edit profil
+        return view('profile.edit', compact('user', 'profil', 'dospem', 'dosenPembimbingList'));
     }
 
     public function edit()
@@ -47,20 +46,28 @@ class ProfileController extends Controller
     {
         Log::info('ProfileController@update method called');
         $user = Auth::user();
-        
+
         Log::info('Profile update request received:', [
             'user_id' => $user->id,
             'request_data' => $request->all(),
             'method' => $request->method(),
             'url' => $request->url()
         ]);
-        
+
+        // Convert comma to dot in IPK if present (support Indonesian format)
+        if ($request->has('ipk')) {
+            $request->merge([
+                'ipk' => str_replace(',', '.', $request->ipk)
+            ]);
+        }
+
         try {
             // Base rules for all roles
             $rules = [
                 'name' => 'required|string|max:100',
                 'email' => 'required|string|email|max:190|unique:users,email,' . $user->id,
                 'password' => 'nullable|string|min:6|confirmed',
+                'profile_photo' => 'nullable|image|mimes:jpeg,png,jpg|max:1024',
             ];
 
             if ($user->role === 'dospem') {
@@ -89,16 +96,41 @@ class ProfileController extends Controller
             return back()->withErrors($e->errors())->withInput();
         }
 
+        // Handle profile photo upload
+        if ($request->hasFile('profile_photo')) {
+            // Delete old profile photo if exists
+            if ($user->profile_photo && !filter_var($user->profile_photo, FILTER_VALIDATE_URL)) {
+                Storage::disk('public')->delete($user->profile_photo);
+            }
+
+            // Store new photo
+            $file = $request->file('profile_photo');
+            $filename = 'profile_' . $user->id . '_' . time() . '.' . $file->getClientOriginalExtension();
+            $path = $file->storeAs('profile_photos', $filename, 'public');
+
+            // Update user profile_photo
+            $user->profile_photo = $path;
+
+            Log::info('Profile photo uploaded', [
+                'user_id' => $user->id,
+                'filename' => $filename
+            ]);
+        }
+
         // Update user data
         $userData = [
             'name' => $request->name,
             'email' => $request->email,
         ];
-        
+
         if ($request->password) {
             $userData['password'] = Hash::make($request->password);
         }
-        
+
+        if (isset($user->profile_photo)) {
+            $userData['profile_photo'] = $user->profile_photo;
+        }
+
         $user->update($userData);
 
         // If user is dospem, update or create dospem profile
@@ -220,5 +252,61 @@ class ProfileController extends Controller
         ]);
 
         return redirect()->route('profile.settings')->with('success', 'Password berhasil diubah!');
+    }
+
+    /**
+     * Upload profile photo
+     */
+    public function uploadProfilePhoto(Request $request)
+    {
+        $request->validate([
+            'profile_photo' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+        ]);
+
+        $user = Auth::user();
+
+        // Delete old profile photo if exists
+        if ($user->profile_photo && !filter_var($user->profile_photo, FILTER_VALIDATE_URL)) {
+            Storage::disk('public')->delete($user->profile_photo);
+        }
+
+        // Store new photo
+        $file = $request->file('profile_photo');
+        $filename = 'profile_' . $user->id . '_' . time() . '.' . $file->getClientOriginalExtension();
+        $path = $file->storeAs('profile_photos', $filename, 'public');
+
+        // Update user profile_photo
+        $user->update(['profile_photo' => $path]);
+
+        Log::info('Profile photo uploaded', [
+            'user_id' => $user->id,
+            'filename' => $filename
+        ]);
+
+        return back()->with('success', 'Foto profil berhasil diupload!');
+    }
+
+    /**
+     * Delete profile photo
+     */
+    public function deleteProfilePhoto()
+    {
+        $user = Auth::user();
+
+        if (!$user->profile_photo) {
+            return back()->withErrors(['error' => 'Tidak ada foto profil yang akan dihapus.']);
+        }
+
+        // Delete file from storage (only if it's not a URL)
+        if (!filter_var($user->profile_photo, FILTER_VALIDATE_URL)) {
+            Storage::disk('public')->delete($user->profile_photo);
+        }
+
+        // Clear profile_photo field
+        $user->update(['profile_photo' => null]);
+
+        Log::info('Profile photo deleted', ['user_id' => $user->id]);
+
+        return back()->with('success', 'Foto profil berhasil dihapus!');
     }
 }

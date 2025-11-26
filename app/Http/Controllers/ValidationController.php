@@ -420,8 +420,9 @@ class ValidationController extends Controller
         $khsManual = $mahasiswa->khsManualTranskrip;
         $totalSemesters = $khsManual->count();
 
-        // Calculate IPK from transcript_data
-        $totalIps = 0;
+        // Calculate IPK from transcript_data using weighted average
+        $totalCreditPoints = 0; // Total of (grade × SKS) across all semesters
+        $totalSksAll = 0;       // Total SKS across all semesters
         $semesterCount = 0;
         $totalSksDCount = 0;
         $totalSksECount = 0;
@@ -432,7 +433,7 @@ class ValidationController extends Controller
                 : $transkrip->transcript_data;
 
             if (!empty($data)) {
-                $semesterIps = 0;
+                $semesterCreditPoints = 0;
                 $semesterSks = 0;
                 $hasDGrade = false;
                 $hasEGrade = false;
@@ -460,12 +461,13 @@ class ValidationController extends Controller
                             break;
                     }
 
-                    $semesterIps += ($angkaMutu * $sks);
+                    $semesterCreditPoints += ($angkaMutu * $sks);
                     $semesterSks += $sks;
                 }
 
                 if ($semesterSks > 0) {
-                    $totalIps += ($semesterIps / $semesterSks);
+                    $totalCreditPoints += $semesterCreditPoints;
+                    $totalSksAll += $semesterSks;
                     $semesterCount++;
                 }
 
@@ -475,7 +477,8 @@ class ValidationController extends Controller
             }
         }
 
-        $ipkFromTranskrip = $semesterCount > 0 ? round($totalIps / $semesterCount, 2) : 0;
+        // IPK = Total Credit Points / Total SKS (weighted average across all semesters)
+        $ipkFromTranskrip = $totalSksAll > 0 ? round($totalCreditPoints / $totalSksAll, 2) : 0;
         $ipkFromProfile = $mahasiswa->profilMahasiswa->ipk ?? 0;
         $allEligible = true; // Default karena tidak ada kolom eligible lagi
 

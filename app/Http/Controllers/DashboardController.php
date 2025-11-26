@@ -173,16 +173,20 @@ class DashboardController extends Controller
         // Calculate IPK and check eligibility criteria
         // Only count semesters that have IPS value (not null/empty)
         $semestersWithIps = $khsTranskrip->filter(function($khs) {
-            return !empty($khs->ips) && $khs->ips > 0;
+            return !empty($khs->ips) && $khs->ips > 0 && !empty($khs->total_sks) && $khs->total_sks > 0;
         });
 
-        $totalIps = $semestersWithIps->sum('ips');
+        // Calculate IPK as weighted average: Σ(IPS × SKS) / Σ(SKS)
+        $totalWeightedIps = $semestersWithIps->reduce(function($carry, $khs) {
+            return $carry + ($khs->ips * $khs->total_sks);
+        }, 0);
+        $totalSks = $semestersWithIps->sum('total_sks');
         $countSemestersWithIps = $semestersWithIps->count();
         $totalSksD = $khsTranskrip->sum('total_sks_d');
         $totalE = $khsTranskrip->where('has_e', true)->count();
 
         // Calculate IPK from semesters that have IPS values only
-        $finalIpk = $countSemestersWithIps > 0 ? $totalIps / $countSemestersWithIps : 0;
+        $finalIpk = $totalSks > 0 ? $totalWeightedIps / $totalSks : 0;
 
         // Check Google Drive links (only PKKMB and E-Course are required, Semasa is optional)
         $hasPkkmb = !empty($profil->gdrive_pkkmb ?? '');

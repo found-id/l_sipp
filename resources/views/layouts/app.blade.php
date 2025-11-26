@@ -172,26 +172,8 @@
                 
                 <div class="flex items-center space-x-2">
                     <!-- Profile Button -->
-                    <a href="{{ route('profile.index') }}" class="profile-icon {{ auth()->user()->photo ? 'rounded-full' : '' }}" title="Profile">
-                        @if(auth()->user()->photo)
-                            @if(auth()->user()->google_linked)
-                                @php
-                                    $photoUrl = auth()->user()->photo;
-                                    // Tambahkan parameter ukuran untuk Google photos
-                                    if (str_contains($photoUrl, 'googleusercontent.com')) {
-                                        $photoUrl = preg_replace('/=s\d+-c/', '', $photoUrl);
-                                        $photoUrl .= '=s96-c';
-                                    }
-                                @endphp
-                                <img src="{{ $photoUrl }}" alt="Profile" class="h-8 w-8 rounded-full object-cover" referrerpolicy="no-referrer" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';">
-                                <i class="fas fa-user" style="display: none;"></i>
-                            @else
-                                <img src="{{ asset('storage/' . auth()->user()->photo) }}" alt="Profile" class="h-8 w-8 rounded-full object-cover" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';">
-                                <i class="fas fa-user" style="display: none;"></i>
-                            @endif
-                        @else
-                            <i class="fas fa-user"></i>
-                        @endif
+                    <a href="{{ route('profile.index') }}" class="profile-icon rounded-full" title="Profile">
+                        <img src="{{ auth()->user()->profile_photo_url }}" alt="{{ auth()->user()->name }}" class="h-8 w-8 rounded-full object-cover" referrerpolicy="no-referrer">
                     </a>
 
                     <!-- Activity Log Button (Hidden for Mahasiswa) -->

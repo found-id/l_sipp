@@ -88,6 +88,10 @@ Route::get('/jadwal/{filename}', function ($filename) {
         Route::put('/', [ProfileController::class, 'update'])->name('update');
         Route::get('/settings', [ProfileController::class, 'settings'])->name('settings');
         Route::put('/password', [ProfileController::class, 'updatePassword'])->name('password');
+
+        // Profile photo CRUD
+        Route::post('/photo/upload', [ProfileController::class, 'uploadProfilePhoto'])->name('photo.upload');
+        Route::delete('/photo', [ProfileController::class, 'deleteProfilePhoto'])->name('photo.delete');
     });
     
     // Admin routes
@@ -204,14 +208,18 @@ Route::get('/jadwal/{filename}', function ($filename) {
 
         // Only count semesters that have IPS value
         $semestersWithIps = $khsTranskrip->filter(function($khs) {
-            return !empty($khs->ips) && $khs->ips > 0;
+            return !empty($khs->ips) && $khs->ips > 0 && !empty($khs->total_sks) && $khs->total_sks > 0;
         });
 
-        $totalIps = $semestersWithIps->sum('ips');
+        // Calculate IPK as weighted average: Σ(IPS × SKS) / Σ(SKS)
+        $totalWeightedIps = $semestersWithIps->reduce(function($carry, $khs) {
+            return $carry + ($khs->ips * $khs->total_sks);
+        }, 0);
+        $totalSks = $semestersWithIps->sum('total_sks');
         $countSemestersWithIps = $semestersWithIps->count();
         $totalSksD = $khsTranskrip->sum('total_sks_d');
         $totalE = $khsTranskrip->where('has_e', true)->count();
-        $finalIpk = $countSemestersWithIps > 0 ? $totalIps / $countSemestersWithIps : 0;
+        $finalIpk = $totalSks > 0 ? $totalWeightedIps / $totalSks : 0;
 
         $hasPkkmb = !empty($profil->gdrive_pkkmb ?? '');
         $hasEcourse = !empty($profil->gdrive_ecourse ?? '');

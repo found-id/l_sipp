@@ -92,6 +92,13 @@ class AuthController extends Controller
 
     public function register(Request $request)
     {
+        // Convert comma to dot in IPK if present (support Indonesian format)
+        if ($request->has('ipk')) {
+            $request->merge([
+                'ipk' => str_replace(',', '.', $request->ipk)
+            ]);
+        }
+
         $request->validate([
             'name' => 'required|string|max:100|regex:/^[^0-9]+$/',
             'email' => 'required|string|email|max:190|unique:users',
@@ -290,9 +297,16 @@ class AuthController extends Controller
     public function completeProfile(Request $request)
     {
         $user = Auth::user();
-        
+
         if ($user->role !== 'mahasiswa' || $user->profilMahasiswa) {
             return redirect()->route('dashboard');
+        }
+
+        // Convert comma to dot in IPK if present (support Indonesian format)
+        if ($request->has('ipk')) {
+            $request->merge([
+                'ipk' => str_replace(',', '.', $request->ipk)
+            ]);
         }
 
         $request->validate([
