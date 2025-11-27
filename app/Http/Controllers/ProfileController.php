@@ -21,13 +21,15 @@ class ProfileController extends Controller
 
         $user = Auth::user()->load('dospem');
         $profil = $user->profilMahasiswa;
-        $dospem = $user->dospem;
 
-        // Get all dosen pembimbing for dropdown
-        $dosenPembimbingList = User::dosenPembimbing()->get();
+        // Get dosen pembimbing for this mahasiswa
+        $dosenPembimbing = null;
+        if ($user->role === 'mahasiswa' && $profil && $profil->id_dospem) {
+            $dosenPembimbing = User::find($profil->id_dospem);
+        }
 
-        // Langsung tampilkan halaman edit profil
-        return view('profile.edit', compact('user', 'profil', 'dospem', 'dosenPembimbingList'));
+        // Tampilkan halaman profile
+        return view('profile.index', compact('user', 'profil', 'dosenPembimbing'));
     }
 
     public function edit()
@@ -67,7 +69,7 @@ class ProfileController extends Controller
                 'name' => 'required|string|max:100',
                 'email' => 'required|string|email|max:190|unique:users,email,' . $user->id,
                 'password' => 'nullable|string|min:6|confirmed',
-                'profile_photo' => 'nullable|image|mimes:jpeg,png,jpg|max:1024',
+                'profile_photo' => 'nullable|image|mimes:jpeg,png,jpg|max:8192',
             ];
 
             if ($user->role === 'dospem') {
@@ -99,8 +101,8 @@ class ProfileController extends Controller
         // Handle profile photo upload
         if ($request->hasFile('profile_photo')) {
             // Delete old profile photo if exists
-            if ($user->profile_photo && !filter_var($user->profile_photo, FILTER_VALIDATE_URL)) {
-                Storage::disk('public')->delete($user->profile_photo);
+            if ($user->photo && !filter_var($user->photo, FILTER_VALIDATE_URL)) {
+                Storage::disk('public')->delete($user->photo);
             }
 
             // Store new photo
@@ -108,8 +110,10 @@ class ProfileController extends Controller
             $filename = 'profile_' . $user->id . '_' . time() . '.' . $file->getClientOriginalExtension();
             $path = $file->storeAs('profile_photos', $filename, 'public');
 
-            // Update user profile_photo
-            $user->profile_photo = $path;
+            // Update user photo
+            $user->photo = $path;
+            // Set google_linked to false since user uploaded custom photo
+            $user->google_linked = false;
 
             Log::info('Profile photo uploaded', [
                 'user_id' => $user->id,
@@ -127,8 +131,12 @@ class ProfileController extends Controller
             $userData['password'] = Hash::make($request->password);
         }
 
-        if (isset($user->profile_photo)) {
-            $userData['profile_photo'] = $user->profile_photo;
+        if (isset($user->photo)) {
+            $userData['photo'] = $user->photo;
+        }
+
+        if (isset($user->google_linked)) {
+            $userData['google_linked'] = $user->google_linked;
         }
 
         $user->update($userData);
@@ -260,14 +268,14 @@ class ProfileController extends Controller
     public function uploadProfilePhoto(Request $request)
     {
         $request->validate([
-            'profile_photo' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'profile_photo' => 'required|image|mimes:jpeg,png,jpg,gif|max:8192',
         ]);
 
         $user = Auth::user();
 
         // Delete old profile photo if exists
-        if ($user->profile_photo && !filter_var($user->profile_photo, FILTER_VALIDATE_URL)) {
-            Storage::disk('public')->delete($user->profile_photo);
+        if ($user->photo && !filter_var($user->photo, FILTER_VALIDATE_URL)) {
+            Storage::disk('public')->delete($user->photo);
         }
 
         // Store new photo
@@ -275,8 +283,11 @@ class ProfileController extends Controller
         $filename = 'profile_' . $user->id . '_' . time() . '.' . $file->getClientOriginalExtension();
         $path = $file->storeAs('profile_photos', $filename, 'public');
 
-        // Update user profile_photo
-        $user->update(['profile_photo' => $path]);
+        // Update user photo and set google_linked to false
+        $user->update([
+            'photo' => $path,
+            'google_linked' => false
+        ]);
 
         Log::info('Profile photo uploaded', [
             'user_id' => $user->id,
@@ -293,17 +304,17 @@ class ProfileController extends Controller
     {
         $user = Auth::user();
 
-        if (!$user->profile_photo) {
+        if (!$user->photo) {
             return back()->withErrors(['error' => 'Tidak ada foto profil yang akan dihapus.']);
         }
 
         // Delete file from storage (only if it's not a URL)
-        if (!filter_var($user->profile_photo, FILTER_VALIDATE_URL)) {
-            Storage::disk('public')->delete($user->profile_photo);
+        if (!filter_var($user->photo, FILTER_VALIDATE_URL)) {
+            Storage::disk('public')->delete($user->photo);
         }
 
-        // Clear profile_photo field
-        $user->update(['profile_photo' => null]);
+        // Clear photo field
+        $user->update(['photo' => null]);
 
         Log::info('Profile photo deleted', ['user_id' => $user->id]);
 
