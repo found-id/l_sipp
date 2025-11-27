@@ -211,8 +211,9 @@
                 <div class="grid grid-cols-2 gap-3">
                     <div>
                         <label for="jarak" class="block text-sm font-medium text-gray-700 mb-1">Jarak (km)</label>
-                        <input type="number" id="jarak" name="jarak" required value="0"
-                               class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500 text-sm bg-white">
+                        <input type="text" id="jarak" name="jarak" required value="0" pattern="^\d+([,.]\d+)?$"
+                               class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500 text-sm bg-white"
+                               placeholder="contoh: 6,6 atau 6.6">
                     </div>
                     <div>
                         <label for="honor" class="block text-sm font-medium text-gray-700 mb-1">Honor</label>
@@ -312,8 +313,9 @@
                 <div class="grid grid-cols-2 gap-3">
                     <div>
                         <label for="edit_jarak" class="block text-sm font-medium text-gray-700 mb-1">Jarak (km)</label>
-                        <input type="number" id="edit_jarak" name="jarak" required
-                               class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500 text-sm bg-white">
+                        <input type="text" id="edit_jarak" name="jarak" required pattern="^\d+([,.]\d+)?$"
+                               class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500 text-sm bg-white"
+                               placeholder="contoh: 6,6 atau 6.6">
                     </div>
                     <div>
                         <label for="edit_honor" class="block text-sm font-medium text-gray-700 mb-1">Honor</label>
@@ -375,6 +377,35 @@
 </div>
 
 <script>
+// Konversi koma ke titik untuk input jarak
+function normalizeDecimal(value) {
+    return value.replace(',', '.');
+}
+
+// Handle form submit untuk create
+document.addEventListener('DOMContentLoaded', function() {
+    const createForm = document.querySelector('#createModal form');
+    const editForm = document.querySelector('#editForm');
+
+    if (createForm) {
+        createForm.addEventListener('submit', function(e) {
+            const jarakInput = document.getElementById('jarak');
+            if (jarakInput) {
+                jarakInput.value = normalizeDecimal(jarakInput.value);
+            }
+        });
+    }
+
+    if (editForm) {
+        editForm.addEventListener('submit', function(e) {
+            const jarakInput = document.getElementById('edit_jarak');
+            if (jarakInput) {
+                jarakInput.value = normalizeDecimal(jarakInput.value);
+            }
+        });
+    }
+});
+
 function openCreateModal() {
     document.getElementById('createModal').classList.remove('hidden');
 }
@@ -388,6 +419,7 @@ function openEditModal(id, nama, alamat, kontak, jarak, honor, fasilitas, kesesu
     document.getElementById('edit_nama').value = nama;
     document.getElementById('edit_alamat').value = alamat;
     document.getElementById('edit_kontak').value = kontak;
+    // Tampilkan jarak dengan koma untuk user Indonesia
     document.getElementById('edit_jarak').value = jarak;
     document.getElementById('edit_honor').value = honor;
     document.getElementById('edit_fasilitas').value = fasilitas;
