@@ -2,6 +2,18 @@
 
 @section('title', 'Kelola Mitra - SIP PKL')
 
+@push('styles')
+<style>
+    .line-clamp-2 {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+</style>
+@endpush
+
 @section('content')
 <div class="space-y-6">
     <!-- Header -->
@@ -61,9 +73,9 @@
             <table class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50">
                     <tr>
-                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-80 sticky left-0 bg-gray-50 z-10">Nama Mitra</th>
-                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-64">Alamat</th>
-                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-32">Kontak</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider sticky left-0 bg-gray-50 z-10" style="min-width: 280px; max-width: 280px;">Nama Mitra</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" style="min-width: 280px; max-width: 280px;">Alamat</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-36">Kontak</th>
                         <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-24">Jarak</th>
                         <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-28">Honor</th>
                         <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-28">Fasilitas</th>
@@ -76,19 +88,28 @@
                 <tbody class="bg-white divide-y divide-gray-200">
                     @forelse($mitra as $m)
                     <tr class="hover:bg-gray-50 transition-colors">
-                        <td class="px-4 py-4 sticky left-0 bg-white z-10 hover:bg-gray-50 transition-colors">
-                            <div class="flex items-center">
-                                <div class="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
-                                    <i class="fas fa-building text-blue-600"></i>
+                        <td class="px-4 py-4 sticky left-0 bg-white z-10 hover:bg-gray-50 transition-colors" style="min-width: 280px; max-width: 280px;">
+                            <div class="flex items-center space-x-3">
+                                <div class="h-10 w-10 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center flex-shrink-0 shadow-sm">
+                                    <i class="fas fa-building text-white text-sm"></i>
                                 </div>
-                                <div class="ml-3">
-                                    <div class="text-sm font-medium text-gray-900">{{ Str::limit($m->nama, 50) }}</div>
-                                    <div class="text-xs text-gray-500">ID: {{ $m->id }}</div>
+                                <div class="min-w-0 flex-1">
+                                    <div class="text-sm font-semibold text-gray-900 truncate" title="{{ $m->nama }}">
+                                        {{ $m->nama }}
+                                    </div>
+                                    <div class="text-xs text-gray-500 mt-0.5">
+                                        <i class="fas fa-hashtag text-gray-400"></i> {{ $m->id }}
+                                    </div>
                                 </div>
                             </div>
                         </td>
-                        <td class="px-4 py-4 text-sm text-gray-900">
-                            <div class="max-w-xs truncate" title="{{ $m->alamat }}">{{ $m->alamat ?? 'N/A' }}</div>
+                        <td class="px-4 py-4" style="min-width: 280px; max-width: 280px;">
+                            <div class="text-sm text-gray-900 leading-relaxed">
+                                <div class="line-clamp-2" title="{{ $m->alamat }}">
+                                    <i class="fas fa-map-marker-alt text-gray-400 text-xs mr-1"></i>
+                                    <span class="align-middle">{{ $m->alamat ?? '-' }}</span>
+                                </div>
+                            </div>
                         </td>
                         <td class="px-4 py-4 text-sm text-gray-900 whitespace-nowrap">
                             {{ $m->kontak ?? 'N/A' }}
@@ -97,7 +118,7 @@
                             {{ $m->jarak }} km
                         </td>
                         <td class="px-4 py-4 text-sm whitespace-nowrap">
-                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ $m->honor >= 4 ? 'bg-green-100 text-green-800' : ($m->honor >= 3 ? 'bg-blue-100 text-blue-800' : 'bg-orange-100 text-orange-800') }}">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ $m->honor >= 5 ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
                                 {{ $m->honor_label }}
                             </span>
                         </td>
@@ -150,43 +171,59 @@
 </div>
 
 <!-- Create Mitra Modal -->
-<div id="createModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden">
-    <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
-        <div class="mt-3">
-            <h3 class="text-lg font-medium text-gray-900 mb-4">Tambah Mitra Baru</h3>
-            <form method="POST" action="{{ route('admin.create-mitra') }}">
-                @csrf
-                <div class="space-y-4">
+<div id="createModal" class="fixed inset-0 bg-gray-900 bg-opacity-75 overflow-y-auto h-full w-full hidden z-50">
+    <div class="relative top-10 mx-auto p-6 border max-w-3xl shadow-lg rounded-md bg-white">
+        <h3 class="text-lg font-semibold text-gray-900 mb-5 pb-3 border-b">Tambah Mitra Baru</h3>
+
+        <form method="POST" action="{{ route('admin.create-mitra') }}">
+            @csrf
+
+            <!-- Nama Mitra -->
+            <div class="mb-4">
+                <label for="nama" class="block text-sm font-medium text-gray-700 mb-1">Nama Mitra</label>
+                <input type="text" id="nama" name="nama" required
+                       class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500 text-sm"
+                       placeholder="Masukkan nama mitra">
+            </div>
+
+            <!-- Informasi Dasar -->
+            <div class="mb-4 p-4 bg-gray-50 rounded-md border border-gray-200">
+                <h4 class="text-xs font-semibold text-gray-600 uppercase tracking-wide mb-3">Informasi Dasar</h4>
+                <div class="grid grid-cols-2 gap-3">
                     <div>
-                        <label for="nama" class="block text-sm font-medium text-gray-700">Nama Mitra</label>
-                        <input type="text" id="nama" name="nama" required
-                               class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                               placeholder="Masukkan nama mitra">
-                    </div>
-                    
-                    <div>
-                        <label for="alamat" class="block text-sm font-medium text-gray-700">Alamat</label>
-                        <textarea id="alamat" name="alamat" rows="3"
-                                  class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                        <label for="alamat" class="block text-sm font-medium text-gray-700 mb-1">Alamat</label>
+                        <textarea id="alamat" name="alamat" rows="2"
+                                  class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500 text-sm bg-white resize-none"
                                   placeholder="Masukkan alamat mitra"></textarea>
                     </div>
-                    
                     <div>
-                        <label for="kontak" class="block text-sm font-medium text-gray-700">Kontak</label>
+                        <label for="kontak" class="block text-sm font-medium text-gray-700 mb-1">Kontak</label>
                         <input type="text" id="kontak" name="kontak"
-                               class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                               class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500 text-sm bg-white"
                                placeholder="Masukkan kontak mitra">
                     </div>
+                </div>
+            </div>
 
-                    {{-- SAW Criteria Fields --}}
+            <!-- Kriteria Penilaian -->
+            <div class="mb-4 p-4 bg-blue-50 rounded-md border border-blue-200">
+                <h4 class="text-xs font-semibold text-gray-600 uppercase tracking-wide mb-3">Kriteria Penilaian</h4>
+                <div class="grid grid-cols-2 gap-3">
                     <div>
-                        <label for="jarak" class="block text-sm font-medium text-gray-700">Jarak (km)</label>
+                        <label for="jarak" class="block text-sm font-medium text-gray-700 mb-1">Jarak (km)</label>
                         <input type="number" id="jarak" name="jarak" required value="0"
-                               class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                               class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500 text-sm bg-white">
                     </div>
                     <div>
-                        <label for="honor" class="block text-sm font-medium text-gray-700">Honor</label>
-                        <select id="honor" name="honor" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                        <label for="honor" class="block text-sm font-medium text-gray-700 mb-1">Honor</label>
+                        <select id="honor" name="honor" required class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500 text-sm bg-white">
+                            <option value="1">Tidak Ada</option>
+                            <option value="5">Ada</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="fasilitas" class="block text-sm font-medium text-gray-700 mb-1">Fasilitas</label>
+                        <select id="fasilitas" name="fasilitas" required class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500 text-sm bg-white">
                             <option value="1">Biasa saja</option>
                             <option value="2">Baik</option>
                             <option value="3">Bagus</option>
@@ -195,8 +232,8 @@
                         </select>
                     </div>
                     <div>
-                        <label for="fasilitas" class="block text-sm font-medium text-gray-700">Fasilitas</label>
-                        <select id="fasilitas" name="fasilitas" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                        <label for="kesesuaian_jurusan" class="block text-sm font-medium text-gray-700 mb-1">Kesesuaian Jurusan</label>
+                        <select id="kesesuaian_jurusan" name="kesesuaian_jurusan" required class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500 text-sm bg-white">
                             <option value="1">Biasa saja</option>
                             <option value="2">Baik</option>
                             <option value="3">Bagus</option>
@@ -205,8 +242,8 @@
                         </select>
                     </div>
                     <div>
-                        <label for="kesesuaian_jurusan" class="block text-sm font-medium text-gray-700">Kesesuaian Jurusan</label>
-                        <select id="kesesuaian_jurusan" name="kesesuaian_jurusan" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                        <label for="tingkat_kebersihan" class="block text-sm font-medium text-gray-700 mb-1">Tingkat Kebersihan</label>
+                        <select id="tingkat_kebersihan" name="tingkat_kebersihan" required class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500 text-sm bg-white">
                             <option value="1">Biasa saja</option>
                             <option value="2">Baik</option>
                             <option value="3">Bagus</option>
@@ -215,75 +252,79 @@
                         </select>
                     </div>
                     <div>
-                        <label for="tingkat_kebersihan" class="block text-sm font-medium text-gray-700">Tingkat Kebersihan</label>
-                        <select id="tingkat_kebersihan" name="tingkat_kebersihan" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500">
-                            <option value="1">Biasa saja</option>
-                            <option value="2">Baik</option>
-                            <option value="3">Bagus</option>
-                            <option value="4">Sangat Bagus</option>
-                            <option value="5">Luar Biasa</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label for="max_mahasiswa" class="block text-sm font-medium text-gray-700">Maksimal Mahasiswa</label>
+                        <label for="max_mahasiswa" class="block text-sm font-medium text-gray-700 mb-1">Maksimal Mahasiswa</label>
                         <input type="number" id="max_mahasiswa" name="max_mahasiswa" required value="4" min="1" max="20"
-                               class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                               placeholder="Maksimal mahasiswa (default: 4)">
-                        <p class="mt-1 text-xs text-gray-500">Jumlah maksimal mahasiswa yang dapat memilih mitra ini</p>
+                               class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500 text-sm bg-white">
                     </div>
                 </div>
+            </div>
 
-                <div class="flex justify-end space-x-3 mt-6">
-                    <button type="button" onclick="closeCreateModal()" 
-                            class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400">
-                        Batal
-                    </button>
-                    <button type="submit" 
-                            class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-                        Simpan
-                    </button>
-                </div>
-            </form>
-        </div>
+            <div class="flex justify-end space-x-2 pt-3 border-t">
+                <button type="button" onclick="closeCreateModal()"
+                        class="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400 text-sm">
+                    Batal
+                </button>
+                <button type="submit"
+                        class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm">
+                    Simpan
+                </button>
+            </div>
+        </form>
     </div>
 </div>
 
 <!-- Edit Mitra Modal -->
-<div id="editModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden">
-    <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
-        <div class="mt-3">
-            <h3 class="text-lg font-medium text-gray-900 mb-4">Edit Mitra</h3>
-            <form id="editForm" method="POST">
-                @csrf
-                @method('PUT')
-                <div class="space-y-4">
+<div id="editModal" class="fixed inset-0 bg-gray-900 bg-opacity-75 overflow-y-auto h-full w-full hidden z-50">
+    <div class="relative top-10 mx-auto p-6 border max-w-3xl shadow-lg rounded-md bg-white">
+        <h3 class="text-lg font-semibold text-gray-900 mb-5 pb-3 border-b">Edit Mitra</h3>
+
+        <form id="editForm" method="POST">
+            @csrf
+            @method('PUT')
+
+            <!-- Nama Mitra -->
+            <div class="mb-4">
+                <label for="edit_nama" class="block text-sm font-medium text-gray-700 mb-1">Nama Mitra</label>
+                <input type="text" id="edit_nama" name="nama" required
+                       class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500 text-sm">
+            </div>
+
+            <!-- Informasi Dasar -->
+            <div class="mb-4 p-4 bg-gray-50 rounded-md border border-gray-200">
+                <h4 class="text-xs font-semibold text-gray-600 uppercase tracking-wide mb-3">Informasi Dasar</h4>
+                <div class="grid grid-cols-2 gap-3">
                     <div>
-                        <label for="edit_nama" class="block text-sm font-medium text-gray-700">Nama Mitra</label>
-                        <input type="text" id="edit_nama" name="nama" required
-                               class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                        <label for="edit_alamat" class="block text-sm font-medium text-gray-700 mb-1">Alamat</label>
+                        <textarea id="edit_alamat" name="alamat" rows="2"
+                                  class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500 text-sm bg-white resize-none"></textarea>
                     </div>
-                    
                     <div>
-                        <label for="edit_alamat" class="block text-sm font-medium text-gray-700">Alamat</label>
-                        <textarea id="edit_alamat" name="alamat" rows="3"
-                                  class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"></textarea>
-                    </div>
-                    
-                    <div>
-                        <label for="edit_kontak" class="block text-sm font-medium text-gray-700">Kontak</label>
+                        <label for="edit_kontak" class="block text-sm font-medium text-gray-700 mb-1">Kontak</label>
                         <input type="text" id="edit_kontak" name="kontak"
-                               class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                               class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500 text-sm bg-white">
                     </div>
+                </div>
+            </div>
 
-                    {{-- SAW Criteria Fields --}}
+            <!-- Kriteria Penilaian -->
+            <div class="mb-4 p-4 bg-blue-50 rounded-md border border-blue-200">
+                <h4 class="text-xs font-semibold text-gray-600 uppercase tracking-wide mb-3">Kriteria Penilaian</h4>
+                <div class="grid grid-cols-2 gap-3">
                     <div>
-                        <label for="edit_jarak" class="block text-sm font-medium text-gray-700">Jarak (km)</label>
+                        <label for="edit_jarak" class="block text-sm font-medium text-gray-700 mb-1">Jarak (km)</label>
                         <input type="number" id="edit_jarak" name="jarak" required
-                               class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                               class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500 text-sm bg-white">
                     </div>
                     <div>
-                        <label for="edit_honor" class="block text-sm font-medium text-gray-700">Honor</label>
-                        <select id="edit_honor" name="honor" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                        <label for="edit_honor" class="block text-sm font-medium text-gray-700 mb-1">Honor</label>
+                        <select id="edit_honor" name="honor" required class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500 text-sm bg-white">
+                            <option value="1">Tidak Ada</option>
+                            <option value="5">Ada</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="edit_fasilitas" class="block text-sm font-medium text-gray-700 mb-1">Fasilitas</label>
+                        <select id="edit_fasilitas" name="fasilitas" required class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500 text-sm bg-white">
                             <option value="1">Biasa saja</option>
                             <option value="2">Baik</option>
                             <option value="3">Bagus</option>
@@ -292,8 +333,8 @@
                         </select>
                     </div>
                     <div>
-                        <label for="edit_fasilitas" class="block text-sm font-medium text-gray-700">Fasilitas</label>
-                        <select id="edit_fasilitas" name="fasilitas" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                        <label for="edit_kesesuaian_jurusan" class="block text-sm font-medium text-gray-700 mb-1">Kesesuaian Jurusan</label>
+                        <select id="edit_kesesuaian_jurusan" name="kesesuaian_jurusan" required class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500 text-sm bg-white">
                             <option value="1">Biasa saja</option>
                             <option value="2">Baik</option>
                             <option value="3">Bagus</option>
@@ -302,8 +343,8 @@
                         </select>
                     </div>
                     <div>
-                        <label for="edit_kesesuaian_jurusan" class="block text-sm font-medium text-gray-700">Kesesuaian Jurusan</label>
-                        <select id="edit_kesesuaian_jurusan" name="kesesuaian_jurusan" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                        <label for="edit_tingkat_kebersihan" class="block text-sm font-medium text-gray-700 mb-1">Tingkat Kebersihan</label>
+                        <select id="edit_tingkat_kebersihan" name="tingkat_kebersihan" required class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500 text-sm bg-white">
                             <option value="1">Biasa saja</option>
                             <option value="2">Baik</option>
                             <option value="3">Bagus</option>
@@ -312,36 +353,24 @@
                         </select>
                     </div>
                     <div>
-                        <label for="edit_tingkat_kebersihan" class="block text-sm font-medium text-gray-700">Tingkat Kebersihan</label>
-                        <select id="edit_tingkat_kebersihan" name="tingkat_kebersihan" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500">
-                            <option value="1">Biasa saja</option>
-                            <option value="2">Baik</option>
-                            <option value="3">Bagus</option>
-                            <option value="4">Sangat Bagus</option>
-                            <option value="5">Luar Biasa</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label for="edit_max_mahasiswa" class="block text-sm font-medium text-gray-700">Maksimal Mahasiswa</label>
+                        <label for="edit_max_mahasiswa" class="block text-sm font-medium text-gray-700 mb-1">Maksimal Mahasiswa</label>
                         <input type="number" id="edit_max_mahasiswa" name="max_mahasiswa" required value="4" min="1" max="20"
-                               class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                               placeholder="Maksimal mahasiswa (default: 4)">
-                        <p class="mt-1 text-xs text-gray-500">Jumlah maksimal mahasiswa yang dapat memilih mitra ini</p>
+                               class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500 text-sm bg-white">
                     </div>
                 </div>
+            </div>
 
-                <div class="flex justify-end space-x-3 mt-6">
-                    <button type="button" onclick="closeEditModal()" 
-                            class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400">
-                        Batal
-                    </button>
-                    <button type="submit" 
-                            class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-                        Update
-                    </button>
-                </div>
-            </form>
-        </div>
+            <div class="flex justify-end space-x-2 pt-3 border-t">
+                <button type="button" onclick="closeEditModal()"
+                        class="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400 text-sm">
+                    Batal
+                </button>
+                <button type="submit"
+                        class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm">
+                    Update
+                </button>
+            </div>
+        </form>
     </div>
 </div>
 
