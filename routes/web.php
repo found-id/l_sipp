@@ -248,3 +248,120 @@ Route::get('/jadwal/{filename}', function ($filename) {
         ]);
     })->middleware('auth')->name('debug.kelayakan');
 
+    // CLEANUP ROUTE - Fix invalid honor values in mitra data
+    Route::get('/cleanup-honor', function() {
+        $mitras = \App\Models\Mitra::whereNotIn('honor', [1, 5])->get();
+
+        if ($mitras->isEmpty()) {
+            return response()->json([
+                'status' => 'success',
+                'message' => 'All honor values are valid (1 or 5)',
+                'fixed_count' => 0
+            ]);
+        }
+
+        $fixed = [];
+        foreach ($mitras as $mitra) {
+            $oldValue = $mitra->honor;
+            // Convert honor value: <= 3 becomes 1 (Tidak Ada), > 3 becomes 5 (Ada)
+            $newValue = $mitra->honor > 3 ? 5 : 1;
+
+            $mitra->honor = $newValue;
+            $mitra->save();
+
+            $fixed[] = [
+                'id' => $mitra->id,
+                'nama' => $mitra->nama,
+                'old_honor' => $oldValue,
+                'new_honor' => $newValue
+            ];
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Honor values have been fixed',
+            'fixed_count' => count($fixed),
+            'fixed_data' => $fixed
+        ], 200, [], JSON_PRETTY_PRINT);
+    })->middleware('auth')->name('cleanup.honor');
+
+    // DEBUG ROUTE - Temporary for testing SAW calculation
+    Route::get('/debug-saw', function() {
+        $mitras = \App\Models\Mitra::withCount(['mahasiswaTerpilih as mahasiswa_count'])->get();
+
+        if ($mitras->isEmpty()) {
+            return response()->json(['error' => 'No mitra data found']);
+        }
+
+        $saw = new \App\Services\SawCalculationService($mitras);
+
+        // Get criteria and weights
+        $criteria = (new \ReflectionClass($saw))->getProperty('criteria');
+        $criteria->setAccessible(true);
+        $criteriaArray = $criteria->getValue($saw);
+
+        $weights = (new \ReflectionClass($saw))->getProperty('weights');
+        $weights->setAccessible(true);
+        $weightsArray = $weights->getValue($saw);
+
+        // Collect raw data
+        $rawData = [];
+        foreach ($mitras as $mitra) {
+            $rawData[] = [
+                'id' => $mitra->id,
+                'nama' => $mitra->nama,
+                'jarak' => $mitra->jarak,
+                'honor' => $mitra->honor,
+                'fasilitas' => $mitra->fasilitas,
+                'kesesuaian_jurusan' => $mitra->kesesuaian_jurusan,
+                'tingkat_kebersihan' => $mitra->tingkat_kebersihan,
+            ];
+        }
+
+        // Calculate normalization manually for debugging
+        $normalized = [];
+        foreach ($criteriaArray as $criterion => $type) {
+            $values = $mitras->pluck($criterion);
+            $max = $values->max();
+            $min = $values->min();
+
+            foreach ($mitras as $index => $mitra) {
+                $value = $mitra->$criterion;
+                if ($type === 'benefit') {
+                    $normalized[$index][$criterion] = ($max > 0) ? round($value / $max, 4) : 0;
+                } else {
+                    $normalized[$index][$criterion] = ($value > 0) ? round($min / $value, 4) : 0;
+                }
+            }
+
+            $normalized['_stats'][$criterion] = [
+                'type' => $type,
+                'min' => $min,
+                'max' => $max,
+            ];
+        }
+
+        // Calculate rankings
+        $rankedMitras = $saw->calculate();
+
+        $results = [];
+        foreach ($rankedMitras as $index => $mitra) {
+            $results[] = [
+                'rank' => $index + 1,
+                'id' => $mitra->id,
+                'nama' => $mitra->nama,
+                'saw_score' => $mitra->saw_score,
+                'mahasiswa_count' => $mitra->mahasiswa_count,
+            ];
+        }
+
+        return response()->json([
+            'criteria' => $criteriaArray,
+            'weights' => $weightsArray,
+            'weight_sum' => array_sum($weightsArray),
+            'raw_data' => $rawData,
+            'normalized_matrix' => $normalized,
+            'ranking_results' => $results,
+        ], 200, [], JSON_PRETTY_PRINT);
+    })->name('debug.saw');
+

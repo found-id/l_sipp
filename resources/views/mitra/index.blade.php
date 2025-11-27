@@ -143,12 +143,10 @@
                                 <i class="fas fa-road text-gray-400 mr-2 w-4 text-center"></i>
                                 <p class="text-sm text-gray-600">Jarak: <span class="font-semibold">{{ $m->jarak }} km</span></p>
                             </div>
-                            @if($m->honor > 0)
                             <div class="flex items-center">
                                 <i class="fas fa-money-bill-wave text-gray-400 mr-2 w-4 text-center"></i>
-                                <p class="text-sm text-gray-600">Honor: <span class="font-semibold text-green-600">Ada</span></p>
+                                <p class="text-sm text-gray-600">Honor: <span class="font-semibold {{ $m->honor >= 5 ? 'text-green-600' : 'text-red-600' }}">{{ $m->honor_label }}</span></p>
                             </div>
-                            @endif
                             <div class="flex items-center">
                                 <i class="fas fa-couch text-gray-400 mr-2 w-4 text-center"></i>
                                 <p class="text-sm text-gray-600">Fasilitas: <span class="font-semibold {{ $m->fasilitas >= 4 ? 'text-green-600' : ($m->fasilitas >= 3 ? 'text-blue-600' : 'text-orange-600') }}">{{ $m->fasilitas_label }}</span></p>

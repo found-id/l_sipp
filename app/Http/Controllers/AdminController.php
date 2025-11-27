@@ -339,7 +339,7 @@ class AdminController extends Controller
             'alamat' => 'nullable|string',
             'kontak' => 'nullable|string|max:100',
             'jarak' => 'required|numeric|min:0',
-            'honor' => 'required|integer|in:1,2,3,4,5',
+            'honor' => 'required|integer|in:1,5', // Hanya Tidak Ada (1) atau Ada (5)
             'fasilitas' => 'required|integer|in:1,2,3,4,5',
             'kesesuaian_jurusan' => 'required|integer|in:1,2,3,4,5',
             'tingkat_kebersihan' => 'required|integer|in:1,2,3,4,5',
@@ -360,7 +360,7 @@ class AdminController extends Controller
             'alamat' => 'nullable|string',
             'kontak' => 'nullable|string|max:100',
             'jarak' => 'required|numeric|min:0',
-            'honor' => 'required|integer|in:1,2,3,4,5',
+            'honor' => 'required|integer|in:1,5', // Hanya Tidak Ada (1) atau Ada (5)
             'fasilitas' => 'required|integer|in:1,2,3,4,5',
             'kesesuaian_jurusan' => 'required|integer|in:1,2,3,4,5',
             'tingkat_kebersihan' => 'required|integer|in:1,2,3,4,5',
