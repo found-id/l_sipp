@@ -13,7 +13,19 @@
 
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    
+    @php
+        $fontConfig = \App\Models\SystemSetting::getFontConfig();
+    @endphp
+    
+    @if($fontConfig['url'])
+        <link href="{{ $fontConfig['url'] }}" rel="stylesheet">
+    @endif
+    
     <style>
+        body {
+            font-family: {!! $fontConfig['family'] !!};
+        }
         .nav-link {
             color: #64748b;
             transition: all 0.2s ease;

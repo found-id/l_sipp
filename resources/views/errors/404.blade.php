@@ -6,9 +6,17 @@
     <title>404 - Not Found</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    
+    @php
+        $fontConfig = \App\Models\SystemSetting::getFontConfig();
+    @endphp
+    
+    @if($fontConfig['url'])
+        <link href="{{ $fontConfig['url'] }}" rel="stylesheet">
+    @endif
+    
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-        body { font-family: 'Inter', sans-serif; }
+        body { font-family: {!! $fontConfig['family'] !!}; }
     </style>
 </head>
 <body class="bg-gray-50 text-gray-800 h-screen flex items-center justify-center overflow-hidden">

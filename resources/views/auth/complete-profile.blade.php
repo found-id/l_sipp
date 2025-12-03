@@ -11,7 +11,19 @@
 
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    
+    @php
+        $fontConfig = \App\Models\SystemSetting::getFontConfig();
+    @endphp
+    
+    @if($fontConfig['url'])
+        <link href="{{ $fontConfig['url'] }}" rel="stylesheet">
+    @endif
+    
     <style>
+        body {
+            font-family: {!! $fontConfig['family'] !!};
+        }
         .auth-image-container {
             background: url('{{ asset('images/auth/bg_login.jpg') }}') center/cover no-repeat;
             background-color: #667eea;

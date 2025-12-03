@@ -18,8 +18,9 @@ class SystemSettingsController extends Controller
         $dokumenPemberkasanEnabled = SystemSetting::isEnabled('dokumen_pemberkasan_enabled');
         $registrationEnabled = SystemSetting::isEnabled('registration_enabled');
         $whatsappNotificationEnabled = SystemSetting::isEnabled('whatsapp_notification_enabled');
+        $systemFont = SystemSetting::getValue('system_font', 'default');
         
-        return view('admin.system-settings', compact('laporanPklEnabled', 'penilaianEnabled', 'jadwalSeminarEnabled', 'instansiMitraEnabled', 'dokumenPemberkasanEnabled', 'registrationEnabled', 'whatsappNotificationEnabled'));
+        return view('admin.system-settings', compact('laporanPklEnabled', 'penilaianEnabled', 'jadwalSeminarEnabled', 'instansiMitraEnabled', 'dokumenPemberkasanEnabled', 'registrationEnabled', 'whatsappNotificationEnabled', 'systemFont'));
     }
 
     public function update(Request $request)
@@ -32,6 +33,7 @@ class SystemSettingsController extends Controller
             'dokumen_pemberkasan_enabled' => 'boolean',
             'registration_enabled' => 'boolean',
             'whatsapp_notification_enabled' => 'boolean',
+            'system_font' => 'required|string|in:default,poppins,inter,ibm_plex_sans,archivo,space_grotesk,bricolage_grotesque',
         ]);
 
         try {
@@ -78,6 +80,12 @@ class SystemSettingsController extends Controller
                 'Toggle untuk mengaktifkan/menonaktifkan notifikasi WhatsApp via Fonnte'
             );
 
+            SystemSetting::setValue(
+                'system_font',
+                $request->input('system_font'),
+                'Font sistem yang digunakan pada seluruh aplikasi'
+            );
+
             Log::info('System settings updated', [
                 'laporan_pkl_enabled' => $request->boolean('laporan_pkl_enabled'),
                 'penilaian_enabled' => $request->boolean('penilaian_enabled'),
@@ -86,6 +94,7 @@ class SystemSettingsController extends Controller
                 'dokumen_pemberkasan_enabled' => $request->boolean('dokumen_pemberkasan_enabled'),
                 'registration_enabled' => $request->boolean('registration_enabled'),
                 'whatsapp_notification_enabled' => $request->boolean('whatsapp_notification_enabled'),
+                'system_font' => $request->input('system_font'),
                 'updated_by' => auth()->id()
             ]);
 

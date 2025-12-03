@@ -27,11 +27,11 @@
 
     <!-- PKL Status & Eligibility -->
     <div class="bg-white shadow rounded-lg p-6">
-        <div class="flex items-center justify-between mb-4">
-            <h3 class="text-lg font-semibold text-gray-900">Status Keaktifan & Kelayakan PKL</h3>
-            <div class="flex items-center text-sm text-gray-500">
-                <i class="fas fa-info-circle mr-1"></i>
-                <span>Terakhir diperbarui: {{ now()->format('d M Y H:i') }}</span>
+        <div class="flex items-center justify-between mb-6">
+            <h3 class="text-lg font-bold text-slate-800">Status & Kelayakan</h3>
+            <div class="flex items-center text-sm text-slate-500 bg-slate-50 px-3 py-1 rounded-full border border-slate-200">
+                <i class="fas fa-clock mr-2"></i>
+                <span>Update: {{ now()->format('d M Y') }}</span>
             </div>
         </div>
 
@@ -142,25 +142,25 @@
         <!-- Only show Status Keaktifan PKL when PKL is complete -->
         <div class="grid grid-cols-1 gap-6">
             <!-- PKL Activity Status - Full Width -->
-            <div class="bg-gradient-to-r from-{{ $pklStatusColor }}-50 to-{{ $pklStatusColor }}-100 border border-{{ $pklStatusColor }}-200 rounded-lg p-6">
+            <div class="bg-emerald-50 border border-emerald-100 rounded-xl p-6">
                 <div class="flex items-center justify-between">
                     <div class="flex items-center">
                         <div class="flex-shrink-0">
-                            <div class="w-16 h-16 bg-green-600 rounded-full flex items-center justify-center">
-                                <i class="fas fa-{{ $pklStatusIcon }} text-3xl text-white"></i>
+                            <div class="w-14 h-14 bg-emerald-100 rounded-full flex items-center justify-center">
+                                <i class="fas fa-check-circle text-2xl text-emerald-600"></i>
                             </div>
                         </div>
                         <div class="ml-4">
-                            <h4 class="text-lg font-semibold text-{{ $pklStatusColor }}-800">Status Keaktifan PKL</h4>
-                            <p class="text-2xl text-{{ $pklStatusColor }}-700 font-bold">{{ $pklStatusText }}</p>
-                            <p class="text-sm text-{{ $pklStatusColor }}-600 mt-1">
-                                Selamat! Anda telah menyelesaikan PKL. Silahkan lanjut ke tahap pemberkasan akhir.
+                            <h4 class="text-base font-medium text-slate-500">Status Aktivitas</h4>
+                            <p class="text-xl font-bold text-emerald-700">PKL Selesai</p>
+                            <p class="text-xs text-emerald-600 mt-1">
+                                Selamat! Seluruh rangkaian kegiatan PKL Anda telah selesai.
                             </p>
                         </div>
                     </div>
-                    <button onclick="revertPklStatus()" class="bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-2.5 px-6 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg flex items-center">
+                    <button onclick="revertPklStatus()" class="bg-white border border-emerald-200 text-emerald-700 hover:bg-emerald-50 font-medium py-2 px-4 rounded-lg transition-colors shadow-sm flex items-center text-sm">
                         <i class="fas fa-undo mr-2"></i>
-                        Kembali ke Status Aktif PKL
+                        Kembali ke Aktif
                     </button>
                 </div>
             </div>
@@ -168,51 +168,51 @@
         @else
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <!-- PKL Eligibility Status -->
-            <div class="bg-gradient-to-r from-{{ $isEligibleForPkl ? 'green' : 'red' }}-50 to-{{ $isEligibleForPkl ? 'green' : 'red' }}-100 border border-{{ $isEligibleForPkl ? 'green' : 'red' }}-200 rounded-lg p-6">
+            <div class="{{ $isEligibleForPkl ? 'bg-emerald-50 border-emerald-100' : 'bg-rose-50 border-rose-100' }} border rounded-xl p-6">
                 <div class="flex items-center">
                     <div class="flex-shrink-0">
                         @if($isEligibleForPkl)
-                            <div class="w-16 h-16 bg-green-600 rounded-full flex items-center justify-center">
-                                <i class="fas fa-check text-3xl text-white"></i>
+                            <div class="w-14 h-14 bg-emerald-100 rounded-full flex items-center justify-center">
+                                <i class="fas fa-check text-2xl text-emerald-600"></i>
                             </div>
                         @else
-                            <i class="fas fa-times-circle text-5xl text-red-600"></i>
+                            <div class="w-14 h-14 bg-rose-100 rounded-full flex items-center justify-center">
+                                <i class="fas fa-times text-2xl text-rose-600"></i>
+                            </div>
                         @endif
                     </div>
                     <div class="ml-4">
-                        <h4 class="text-lg font-semibold text-{{ $isEligibleForPkl ? 'green' : 'red' }}-800">Kelayakan PKL</h4>
-                        <p class="text-2xl text-{{ $isEligibleForPkl ? 'green' : 'red' }}-700 font-bold">
+                        <h4 class="text-base font-medium text-slate-500">Status Kelayakan</h4>
+                        <p class="text-xl font-bold {{ $isEligibleForPkl ? 'text-emerald-700' : 'text-rose-700' }}">
                             {{ $isEligibleForPkl ? 'LAYAK' : 'BELUM LAYAK' }}
                         </p>
-                        <p class="text-sm text-{{ $isEligibleForPkl ? 'green' : 'red' }}-600 mt-1">
-                            @if($isEligibleForPkl)
-                                Memenuhi semua persyaratan PKL
-                            @else
-                                Belum memenuhi persyaratan PKL
-                            @endif
+                        <p class="text-xs {{ $isEligibleForPkl ? 'text-emerald-600' : 'text-rose-600' }} mt-1">
+                            {{ $isEligibleForPkl ? 'Memenuhi persyaratan' : 'Belum memenuhi syarat' }}
                         </p>
                     </div>
                 </div>
             </div>
 
             <!-- PKL Activity Status -->
-            <div class="bg-gradient-to-r from-{{ $pklStatusColor }}-50 to-{{ $pklStatusColor }}-100 border border-{{ $pklStatusColor }}-200 rounded-lg p-6">
+            <div class="bg-indigo-50 border border-indigo-100 rounded-xl p-6">
                 <div class="flex items-center">
                     <div class="flex-shrink-0">
-                        <i class="fas fa-{{ $pklStatusIcon }} text-5xl text-{{ $pklStatusColor }}-600"></i>
+                        <div class="w-14 h-14 bg-indigo-100 rounded-full flex items-center justify-center">
+                            <i class="fas fa-{{ $pklStatusIcon }} text-2xl text-indigo-600"></i>
+                        </div>
                     </div>
                     <div class="ml-4">
-                        <h4 class="text-lg font-semibold text-{{ $pklStatusColor }}-800">Status Keaktifan PKL</h4>
-                        <p class="text-2xl text-{{ $pklStatusColor }}-700 font-bold">{{ $pklStatusText }}</p>
-                        <p class="text-sm text-{{ $pklStatusColor }}-600 mt-1">
+                        <h4 class="text-base font-medium text-slate-500">Status Aktivitas</h4>
+                        <p class="text-xl font-bold text-slate-800">{{ $pklStatusText }}</p>
+                        <p class="text-xs text-slate-500 mt-1">
                             @if($pklStatus === 'menyiapkan_berkas')
-                                Sedang menyiapkan berkas kelayakan PKL
+                                Menyiapkan berkas
                             @elseif($pklStatus === 'siap')
-                                Memenuhi syarat kelayakan, siap memulai PKL
+                                Siap memulai PKL
                             @elseif($pklStatus === 'aktif')
                                 Aktif di {{ $mitraName ?? 'Instansi Mitra' }}
                             @else
-                                Semua tahapan PKL telah selesai
+                                Selesai
                             @endif
                         </p>
                     </div>
@@ -277,7 +277,7 @@
             <button onclick="showTab('dokumen-pendukung')" id="tab-dokumen-pendukung" class="tab-button flex-1 py-3.5 px-4 rounded-lg font-medium text-sm transition-all duration-200 bg-white text-gray-600 border border-gray-200 hover:bg-blue-50 hover:border-blue-200 hover:text-blue-700">
                 <div class="flex items-center justify-center">
                     <i class="fab fa-google-drive mr-2 text-base"></i>
-                    <span>Pemberkasan Dokumen Pendukung</span>
+                    <span>Dokumen Pendukung</span>
                 </div>
             </button>
             <button onclick="showTab('surat-balasan')" id="tab-surat-balasan" class="tab-button flex-1 py-3.5 px-4 rounded-lg font-medium text-sm transition-all duration-200 bg-white text-gray-600 border border-gray-200 hover:bg-blue-50 hover:border-blue-200 hover:text-blue-700 {{ !$dokumenPemberkasanEnabled ? 'opacity-50 cursor-not-allowed' : '' }}"
@@ -314,11 +314,26 @@
     <div id="content-pemberkasan" class="tab-content">
         <div class="grid grid-cols-1 gap-6 mt-6">
             <!-- Final IPK Calculation -->
-            <div class="bg-gradient-to-r from-green-50 to-blue-50 rounded-lg p-6 border border-green-200">
-                <h4 class="font-semibold text-gray-900 mb-4 flex items-center">
-                    <i class="fas fa-calculator mr-2 text-green-600"></i>
-                    Hasil Analisa Kelayakan
-                </h4>
+            <!-- Final IPK Calculation -->
+            <div class="bg-white shadow-sm rounded-xl border border-slate-200 overflow-hidden">
+                <div class="bg-white px-6 py-4 border-b border-slate-100 cursor-pointer hover:bg-slate-50 transition-colors duration-200" onclick="toggleSection('analisa-kelayakan-section')">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0">
+                                <div class="w-10 h-10 rounded-lg bg-green-50 flex items-center justify-center">
+                                    <i class="fas fa-calculator text-green-600"></i>
+                                </div>
+                            </div>
+                            <div class="ml-4">
+                                <h3 class="text-lg font-bold text-slate-800">Hasil Analisa Kelayakan</h3>
+                                <p class="text-slate-500 text-sm">Ringkasan status akademik Anda</p>
+                            </div>
+                        </div>
+                        <i class="fas fa-chevron-down text-slate-400 transition-transform duration-300 transform" id="analisa-kelayakan-section-icon"></i>
+                    </div>
+                </div>
+                
+                <div id="analisa-kelayakan-section" class="p-6 transition-all duration-300">
                 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                     <div class="bg-white rounded-lg p-4 border border-gray-200">
@@ -359,89 +374,93 @@
                     </div>
                 </div>
                 
-                <div class="text-center text-sm text-gray-600">
+                <div class="text-center text-sm text-gray-600 mt-4">
                     <i class="fas fa-info-circle mr-1"></i>
                     Data yang dimasukkan dapat dipertanggung jawabkan keaslianya dan menerima konsekuensi jika data dan berkas yang dimasukkan tidak tepat
+                </div>
                 </div>
             </div>
 
             <!-- Multiple Semester KHS Upload System -->
-            <div class="bg-white shadow-lg rounded-xl border border-gray-100 overflow-hidden">
-                <div class="bg-gradient-to-r from-blue-500 to-blue-600 px-6 py-4">
-                    <div class="flex items-center">
-                        <div class="flex-shrink-0">
-                            <i class="fas fa-graduation-cap text-2xl text-white"></i>
+            <div class="bg-white shadow-sm rounded-xl border border-slate-200 overflow-hidden">
+                <div class="bg-white px-6 py-4 border-b border-slate-100 cursor-pointer hover:bg-slate-50 transition-colors duration-200" onclick="toggleSection('khs-upload-section')">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0">
+                                <div class="w-10 h-10 rounded-lg bg-indigo-50 flex items-center justify-center">
+                                    <i class="fas fa-graduation-cap text-indigo-600"></i>
+                                </div>
+                            </div>
+                            <div class="ml-4">
+                                <h3 class="text-lg font-bold text-slate-800">Upload Kartu Hasil Studi (KHS)</h3>
+                                <p class="text-slate-500 text-sm">Upload KHS untuk setiap semester (1-4)</p>
+                            </div>
                         </div>
-                        <div class="ml-3">
-                            <h3 class="text-lg font-semibold text-white">Upload Berkas Kartu Hasil Studi (KHS)</h3>
-                            <p class="text-blue-100 text-sm">Upload KHS untuk setiap semester (1-4)</p>
-                        </div>
+                        <i class="fas fa-chevron-down text-slate-400 transition-transform duration-300 transform" id="khs-upload-section-icon"></i>
                     </div>
                 </div>
 
-                <div class="p-6">
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                <div id="khs-upload-section" class="p-6 transition-all duration-300">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                         @for($semester = 1; $semester <= 4; $semester++)
-                            <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
-                                <div class="text-center mb-4">
-                                    <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-2">
-                                        <span class="text-blue-600 font-bold text-lg">{{ $semester }}</span>
-                                    </div>
-                                    <h4 class="font-semibold text-gray-900">Semester {{ $semester }}</h4>
+                            <div class="bg-white rounded-xl p-6 border border-slate-200 shadow-sm hover:shadow-md transition-shadow duration-200 flex flex-col items-center text-center">
+                                <div class="w-12 h-12 bg-indigo-50 rounded-full flex items-center justify-center mb-4">
+                                    <span class="text-indigo-600 font-bold text-lg">{{ $semester }}</span>
                                 </div>
+                                <h4 class="font-bold text-slate-800 mb-4">Semester {{ $semester }}</h4>
                                 
                                 @php
                                     $semesterKhs = $khsFiles->where('semester', $semester)->first() ?? null;
                                 @endphp
                                 
+                                <div class="w-full flex-1 flex flex-col justify-center mb-4">
                                 @if($semesterKhs)
-                                    <div class="mb-3 p-2 bg-white rounded border">
-                                        <div class="flex items-center justify-between mb-1">
-                                            <i class="fas fa-file-pdf text-red-500 text-xs"></i>
-                                            <div class="flex space-x-1">
-                                                <button onclick="window.previewFile('{{ $semesterKhs->file_path }}')" class="text-blue-600 hover:text-blue-800 text-xs">
-                                                    <i class="fas fa-eye"></i>
-                                                </button>
-                                                @if(!$isLockedGeneral)
-                                                <button onclick="window.deleteFile('khs', {{ $semesterKhs->id }})" class="text-red-600 hover:text-red-800 text-xs">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
-                                                @endif
-                                            </div>
+                                    <div class="p-3 bg-slate-50 rounded-lg border border-slate-100 w-full">
+                                        <div class="flex items-center justify-center mb-2">
+                                            <i class="fas fa-file-pdf text-red-500 text-2xl"></i>
                                         </div>
-                                        <p class="text-xs text-gray-600 truncate">{{ basename($semesterKhs->file_path) }}</p>
-                                        <p class="text-xs text-gray-500">{{ $semesterKhs->created_at->format('d M Y') }}</p>
+                                        <p class="text-xs text-slate-700 font-medium truncate mb-1">{{ basename($semesterKhs->file_path) }}</p>
+                                        <div class="flex justify-center space-x-2 mt-2">
+                                            <button type="button" onclick="window.previewFile('{{ $semesterKhs->file_path }}')" class="text-indigo-600 hover:text-indigo-800 text-xs font-medium">
+                                                View
+                                            </button>
+                                            @if(!$isLockedGeneral)
+                                            <button type="button" onclick="window.deleteFile('khs', {{ $semesterKhs->id }})" class="text-rose-600 hover:text-rose-800 text-xs font-medium">
+                                                Delete
+                                            </button>
+                                            @endif
+                                        </div>
                                     </div>
                                 @else
-                                    <div class="mb-3 p-2 bg-white rounded border border-dashed border-gray-300 text-center">
-                                        <i class="fas fa-plus text-gray-400 text-lg mb-1"></i>
-                                        <p class="text-xs text-gray-500">Belum ada file</p>
+                                    <div class="py-4 border-2 border-dashed border-slate-200 rounded-lg w-full flex flex-col items-center justify-center text-slate-400">
+                                        <i class="fas fa-plus text-xl mb-2"></i>
+                                        <span class="text-xs">Belum ada file</span>
                                     </div>
                                 @endif
+                                </div>
                                 
                                 @if($dokumenPemberkasanEnabled)
-                                    <div class="space-y-2">
+                                    <div class="w-full mt-auto">
                                         @if(!$isLockedGeneral)
-                                        <div>
-                                            <input type="file" id="file_semester_{{ $semester }}" name="file_semester_{{ $semester }}" accept=".pdf" 
-                                                   class="block w-full text-xs text-gray-500 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 border border-gray-300 rounded cursor-pointer focus:outline-none focus:ring-1 focus:ring-blue-500"
-                                                   onchange="updateFilePreview({{ $semester }})">
-                                        </div>
+                                            <div class="relative">
+                                                <input type="file" id="file_semester_{{ $semester }}" name="file_semester_{{ $semester }}" accept=".pdf" 
+                                                       class="block w-full text-xs text-slate-500 file:mr-2 file:py-2 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 border border-slate-200 rounded-lg cursor-pointer focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                                                       onchange="updateFilePreview({{ $semester }})">
+                                            </div>
                                         @else
-                                        <div class="text-center py-2 text-gray-400 bg-gray-50 rounded border border-gray-200">
-                                            <i class="fas fa-lock text-xs mb-1"></i>
-                                            <p class="text-[10px]">Terkunci (Status Aktif/Selesai)</p>
-                                        </div>
+                                            <div class="text-center py-2 text-slate-400 bg-slate-50 rounded-lg border border-slate-200 text-xs">
+                                                <i class="fas fa-lock mr-1"></i> Terkunci
+                                            </div>
                                         @endif
-                                        <div id="file_preview_{{ $semester }}" class="hidden text-xs text-gray-600 bg-green-50 p-2 rounded border">
-                                            <i class="fas fa-check-circle text-green-600 mr-1"></i>
+                                        <div id="file_preview_{{ $semester }}" class="hidden mt-2 text-xs text-emerald-600 bg-emerald-50 p-2 rounded border border-emerald-100">
+                                            <i class="fas fa-check-circle mr-1"></i>
                                             <span id="file_name_{{ $semester }}"></span>
                                         </div>
                                     </div>
                                 @else
-                                    <div class="text-center py-2 text-gray-400">
+                                    <div class="text-center py-2 text-slate-400 w-full bg-slate-50 rounded-lg border border-slate-200">
                                         <i class="fas fa-lock text-sm"></i>
-                                        <p class="text-xs">Upload dinonaktifkan</p>
+                                        <p class="text-xs">Nonaktif</p>
                                     </div>
                                 @endif
                             </div>
@@ -454,7 +473,7 @@
                             @if(!$isLockedGeneral)
                             <form action="{{ route('documents.khs.upload.multiple') }}" method="POST" enctype="multipart/form-data" id="uploadAllForm">
                                 @csrf
-                                <button type="submit" id="uploadAllBtn" class="bg-blue-600 text-white py-3 px-6 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors duration-200 font-medium">
+                                <button type="submit" id="uploadAllBtn" class="bg-indigo-600 text-white py-3 px-8 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors duration-200 font-bold shadow-md hover:shadow-lg">
                                     <i class="fas fa-save mr-2" id="upload-icon"></i>
                                     <span id="upload-text">Simpan dan Upload</span>
                                     <div id="upload-loading" class="hidden flex items-center">
@@ -480,23 +499,29 @@
                         </div>
                     @endif
                 </div>
+                </div>
             </div>
 
             <!-- Multi Semester Transcript Analysis -->
-            <div class="bg-white shadow-lg rounded-xl border border-gray-100 overflow-hidden">
-                <div class="bg-gradient-to-r from-purple-500 to-purple-600 px-6 py-4">
-                    <div class="flex items-center">
-                        <div class="flex-shrink-0">
-                            <i class="fas fa-chart-line text-2xl text-white"></i>
+            <div class="bg-white shadow-sm rounded-xl border border-slate-200 overflow-hidden">
+                <div class="bg-white px-6 py-4 border-b border-slate-100 cursor-pointer hover:bg-slate-50 transition-colors duration-200" onclick="toggleSection('transkrip-sipadu-section')">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0">
+                                <div class="w-10 h-10 rounded-lg bg-purple-50 flex items-center justify-center">
+                                    <i class="fas fa-chart-line text-purple-600"></i>
+                                </div>
+                            </div>
+                            <div class="ml-4">
+                                <h3 class="text-lg font-bold text-slate-800">Data Transkrip Sipadu</h3>
+                                <p class="text-slate-500 text-sm">Paste data transkrip untuk setiap semester</p>
+                            </div>
                         </div>
-                        <div class="ml-3">
-                            <h3 class="text-lg font-semibold text-white">Data Tabel KHS Transkrip dari Sipadu</h3>
-                            <p class="text-purple-100 text-sm">Paste data transkrip untuk setiap semester</p>
-                        </div>
+                        <i class="fas fa-chevron-down text-slate-400 transition-transform duration-300 transform" id="transkrip-sipadu-section-icon"></i>
                     </div>
                 </div>
                 
-                <div class="p-6">
+                <div id="transkrip-sipadu-section" class="p-6 transition-all duration-300">
                     <!-- Semester Tabs Navigation -->
                     <div class="mb-6">
                         <div class="border-b border-gray-200">
@@ -504,13 +529,11 @@
                         @for($semester = 1; $semester <= 4; $semester++)
                                     <button onclick="showSemesterTab({{ $semester }})" 
                                             id="semester-tab-{{ $semester }}" 
-                                            class="semester-tab-button py-3 px-4 border-b-2 font-medium text-sm transition-colors duration-200 {{ $semester === 1 ? 'border-purple-500 text-purple-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }}">
-                                        <div class="flex items-center">
-                                            <div class="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center mr-2">
-                                                <span class="text-purple-600 font-bold text-sm">{{ $semester }}</span>
-                                            </div>
-                                            <span>Semester {{ $semester }}</span>
+                                            class="semester-tab-button py-4 px-6 border-b-2 font-medium text-sm transition-all duration-200 flex items-center {{ $semester === 1 ? 'border-purple-600 text-purple-700' : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300' }}">
+                                        <div class="w-6 h-6 rounded-full flex items-center justify-center mr-2 text-xs font-bold {{ $semester === 1 ? 'bg-purple-100 text-purple-700' : 'bg-slate-100 text-slate-500' }}">
+                                            {{ $semester }}
                                         </div>
+                                        <span>Semester {{ $semester }}</span>
                                     </button>
                                 @endfor
                             </nav>
@@ -623,6 +646,8 @@
                         @endfor
                 </div>
             </div>
+                </div>
+            </div>
 
 
         </div>
@@ -630,6 +655,7 @@
 
 
     <div id="content-laporan" class="tab-content hidden">
+        <div class="max-w-5xl mx-auto mt-6" style="max-width: 76rem;">
         @if(!$laporanPklEnabled)
             <!-- Disabled State -->
             <div class="bg-white shadow-lg rounded-xl border border-gray-100 overflow-hidden">
@@ -651,18 +677,20 @@
                                     </div>
                                     </div>
         @else
-            <div class="bg-white shadow-lg rounded-xl border border-gray-100 overflow-hidden">
-                <div class="bg-gradient-to-r from-indigo-500 to-indigo-600 px-6 py-4">
+            <div class="bg-white shadow-sm rounded-xl border border-slate-200 overflow-hidden">
+                <div class="bg-white px-6 py-4 border-b border-slate-100">
                     <div class="flex items-center">
                         <div class="flex-shrink-0">
-                            <i class="fas fa-file-alt text-2xl text-white"></i>
-                                    </div>
-                        <div class="ml-3">
-                            <h3 class="text-lg font-semibold text-white">Laporan PKL</h3>
-                            <p class="text-indigo-100 text-sm">Upload laporan akhir PKL</p>
-                                    </div>
-                                    </div>
-                                    </div>
+                            <div class="w-10 h-10 rounded-lg bg-indigo-50 flex items-center justify-center">
+                                <i class="fas fa-file-alt text-indigo-600"></i>
+                            </div>
+                        </div>
+                        <div class="ml-4">
+                            <h3 class="text-lg font-bold text-slate-800">Laporan PKL</h3>
+                            <p class="text-slate-500 text-sm">Upload laporan akhir PKL</p>
+                        </div>
+                    </div>
+                </div>
                 
                 <div class="p-6">
                     @if($laporan && is_object($laporan))
@@ -741,19 +769,22 @@
             </div>
         @endif
                             </div>
-                        </div>
+        </div>
+    </div>
 
-    <!-- Tab Content: Dokumen Pendukung -->
     <div id="content-dokumen-pendukung" class="tab-content hidden">
-        <div class="bg-white shadow-lg rounded-xl border border-gray-100 overflow-hidden mt-6">
-            <div class="bg-gradient-to-r from-green-500 to-green-600 px-6 py-4">
+        <div class="max-w-5xl mx-auto mt-6" style="max-width: 76rem;">
+        <div class="bg-white shadow-sm rounded-xl border border-slate-200 overflow-hidden mt-6">
+            <div class="bg-white px-6 py-4 border-b border-slate-100">
                 <div class="flex items-center">
                     <div class="flex-shrink-0">
-                        <i class="fab fa-google-drive text-2xl text-white"></i>
+                        <div class="w-10 h-10 rounded-lg bg-emerald-50 flex items-center justify-center">
+                            <i class="fab fa-google-drive text-emerald-600"></i>
+                        </div>
                     </div>
-                    <div class="ml-3">
-                        <h3 class="text-lg font-semibold text-white">Dokumen Pendukung</h3>
-                        <p class="text-green-100 text-sm">Masukkan link Google Drive untuk dokumen pendukung</p>
+                    <div class="ml-4">
+                        <h3 class="text-lg font-bold text-slate-800">Dokumen Pendukung</h3>
+                        <p class="text-slate-500 text-sm">Masukkan link Google Drive untuk dokumen pendukung</p>
                     </div>
                 </div>
             </div>
@@ -848,6 +879,7 @@
                     @endif
                 </div>
             </div>
+        </div>
         </div>
     </div>
 
@@ -2642,6 +2674,41 @@ function renderTable(rows, container) {
         
         console.log(`Updated textarea for semester ${semester} from table data`);
     }
+
+    // Toggle Section Function
+    function toggleSection(sectionId) {
+        const section = document.getElementById(sectionId);
+        const icon = document.getElementById(sectionId + '-icon');
+        
+        if (section.classList.contains('hidden')) {
+            // Show section
+            section.classList.remove('hidden');
+            // Small delay to allow transition
+            setTimeout(() => {
+                section.classList.remove('opacity-0', 'max-h-0');
+                section.classList.add('opacity-100', 'max-h-[2000px]'); // Large max-height for transition
+            }, 10);
+            
+            // Rotate icon
+            if (icon) {
+                icon.classList.add('rotate-180');
+            }
+        } else {
+            // Hide section
+            section.classList.remove('opacity-100', 'max-h-[2000px]');
+            section.classList.add('opacity-0', 'max-h-0');
+            
+            // Wait for transition to finish before hiding
+            setTimeout(() => {
+                section.classList.add('hidden');
+            }, 300); // Match duration-300
+            
+            // Rotate icon back
+            if (icon) {
+                icon.classList.remove('rotate-180');
+            }
+        }
+    }
 </script>
 
 
@@ -2677,25 +2744,28 @@ function renderTable(rows, container) {
                 <div class="grid grid-cols-1 gap-6">
 
                 <!-- Row 1: Surat Pengantar -->
-                <div class="bg-white shadow-sm rounded-xl border border-gray-200 overflow-hidden">
-                    <div class="bg-blue-600 px-6 py-4">
+                <div class="bg-white shadow-sm rounded-xl border border-slate-200 overflow-hidden">
+                    <div class="bg-white px-6 py-4 border-b border-slate-100 cursor-pointer hover:bg-slate-50 transition-colors duration-200" onclick="toggleSection('surat-pengantar-section')">
                         <div class="flex items-center justify-between">
                             <div class="flex items-center">
                                 <div class="flex-shrink-0">
-                                    <div class="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center">
-                                        <i class="fas fa-file-alt text-xl text-white"></i>
+                                    <div class="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center">
+                                        <i class="fas fa-file-alt text-xl text-blue-600"></i>
                                     </div>
                                 </div>
-                                <div class="ml-3">
-                                    <h3 class="text-lg font-semibold text-white">1. Surat Pengantar</h3>
-                                    <p class="text-blue-100 text-sm">Upload surat pengantar dari kampus</p>
+                                <div class="ml-4">
+                                    <h3 class="text-lg font-bold text-slate-800">1. Surat Pengantar</h3>
+                                    <p class="text-slate-500 text-sm">Upload surat pengantar dari kampus</p>
                                 </div>
                             </div>
-                            <span class="bg-white/20 text-white text-xs font-medium px-3 py-1 rounded-full">Step 1</span>
+                            <div class="flex items-center space-x-3">
+                                <span class="bg-blue-100 text-blue-700 text-xs font-bold px-3 py-1 rounded-full">Step 1</span>
+                                <i class="fas fa-chevron-down text-slate-400 transition-transform duration-300 transform" id="surat-pengantar-section-icon"></i>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="p-6">
+                    <div id="surat-pengantar-section" class="p-6 transition-all duration-300">
                         @if($suratPengantar ?? false)
                             <div class="mb-4 p-4 bg-gray-50 rounded-lg border">
                                 <div class="flex items-start justify-between">
@@ -2768,25 +2838,28 @@ function renderTable(rows, container) {
                 </div>
 
                 <!-- Row 2: Pilih Instansi Mitra -->
-                <div class="bg-white shadow-sm rounded-xl border border-gray-200 overflow-hidden">
-                    <div class="bg-indigo-600 px-6 py-4">
+                <div class="bg-white shadow-sm rounded-xl border border-slate-200 overflow-hidden">
+                    <div class="bg-white px-6 py-4 border-b border-slate-100 cursor-pointer hover:bg-slate-50 transition-colors duration-200" onclick="toggleSection('mitra-section')">
                         <div class="flex items-center justify-between">
                             <div class="flex items-center">
                                 <div class="flex-shrink-0">
-                                    <div class="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center">
-                                        <i class="fas fa-building text-xl text-white"></i>
+                                    <div class="w-10 h-10 bg-indigo-50 rounded-lg flex items-center justify-center">
+                                        <i class="fas fa-building text-xl text-indigo-600"></i>
                                     </div>
                                 </div>
-                                <div class="ml-3">
-                                    <h3 class="text-lg font-semibold text-white">2. Pilih Instansi Mitra</h3>
-                                    <p class="text-indigo-100 text-sm">Pilih instansi mitra untuk PKL</p>
+                                <div class="ml-4">
+                                    <h3 class="text-lg font-bold text-slate-800">2. Pilih Instansi Mitra</h3>
+                                    <p class="text-slate-500 text-sm">Pilih instansi mitra untuk PKL</p>
                                 </div>
                             </div>
-                            <span class="bg-white/20 text-white text-xs font-medium px-3 py-1 rounded-full">Step 2</span>
+                            <div class="flex items-center space-x-3">
+                                <span class="bg-indigo-100 text-indigo-700 text-xs font-bold px-3 py-1 rounded-full">Step 2</span>
+                                <i class="fas fa-chevron-down text-slate-400 transition-transform duration-300 transform" id="mitra-section-icon"></i>
+                            </div>
                         </div>
                     </div>
                     
-                    <div class="p-6">
+                    <div id="mitra-section" class="p-6 transition-all duration-300">
                         @if($user->profilMahasiswa && $user->profilMahasiswa->mitraSelected)
                             @php
                                 $selectedMitra = $user->profilMahasiswa->mitraSelected;
@@ -2886,25 +2959,28 @@ function renderTable(rows, container) {
                 </div>
 
                 <!-- Row 3: Surat Balasan -->
-                <div class="bg-white shadow-sm rounded-xl border border-gray-200 overflow-hidden">
-                <div class="bg-green-600 px-6 py-4">
+                <div class="bg-white shadow-sm rounded-xl border border-slate-200 overflow-hidden">
+                <div class="bg-white px-6 py-4 border-b border-slate-100 cursor-pointer hover:bg-slate-50 transition-colors duration-200" onclick="toggleSection('surat-balasan-section')">
                     <div class="flex items-center justify-between">
                         <div class="flex items-center">
                             <div class="flex-shrink-0">
-                                <div class="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center">
-                                    <i class="fas fa-envelope text-xl text-white"></i>
+                                <div class="w-10 h-10 bg-green-50 rounded-lg flex items-center justify-center">
+                                    <i class="fas fa-envelope text-xl text-green-600"></i>
                                 </div>
                             </div>
-                            <div class="ml-3">
-                                <h3 class="text-lg font-semibold text-white">3. Surat Balasan</h3>
-                                    <p class="text-green-100 text-sm">Upload surat balasan dari instansi</p>
+                            <div class="ml-4">
+                                <h3 class="text-lg font-bold text-slate-800">3. Surat Balasan</h3>
+                                    <p class="text-slate-500 text-sm">Upload surat balasan dari instansi</p>
                             </div>
                         </div>
-                        <span class="bg-white/20 text-white text-xs font-medium px-3 py-1 rounded-full">Step 3</span>
+                        <div class="flex items-center space-x-3">
+                            <span class="bg-green-100 text-green-700 text-xs font-bold px-3 py-1 rounded-full">Step 3</span>
+                            <i class="fas fa-chevron-down text-slate-400 transition-transform duration-300 transform" id="surat-balasan-section-icon"></i>
+                        </div>
                     </div>
                 </div>
                 
-                <div class="p-6">
+                <div id="surat-balasan-section" class="p-6 transition-all duration-300">
                     @if($suratBalasan && is_object($suratBalasan))
                         <div class="mb-6 p-4 bg-gray-50 rounded-lg border">
                             <div class="flex items-start justify-between">
@@ -3161,14 +3237,28 @@ function showSemesterTab(semester) {
     
     // Remove active class from all semester tabs
     document.querySelectorAll('.semester-tab-button').forEach(button => {
-        button.classList.remove('border-purple-500', 'text-purple-600');
-        button.classList.add('border-transparent', 'text-gray-500');
+        button.classList.remove('border-purple-600', 'text-purple-700');
+        button.classList.add('border-transparent', 'text-slate-500');
+        
+        // Update circle
+        const circle = button.querySelector('div');
+        if (circle) {
+            circle.classList.remove('bg-purple-100', 'text-purple-700');
+            circle.classList.add('bg-slate-100', 'text-slate-500');
+        }
     });
     
     // Add active class to selected semester tab
     const activeTab = document.getElementById('semester-tab-' + semester);
-    activeTab.classList.add('border-purple-500', 'text-purple-600');
-    activeTab.classList.remove('border-transparent', 'text-gray-500');
+    activeTab.classList.add('border-purple-600', 'text-purple-700');
+    activeTab.classList.remove('border-transparent', 'text-slate-500');
+    
+    // Update active circle
+    const activeCircle = activeTab.querySelector('div');
+    if (activeCircle) {
+        activeCircle.classList.remove('bg-slate-100', 'text-slate-500');
+        activeCircle.classList.add('bg-purple-100', 'text-purple-700');
+    }
     
     // Fade out all contents first
     allContents.forEach(content => {

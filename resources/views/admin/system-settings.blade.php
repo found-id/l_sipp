@@ -31,9 +31,40 @@
                 </div>
             </div>
 
-            <form method="POST" action="{{ route('admin.system-settings.update') }}" class="p-6">
+            <form action="{{ route('admin.system-settings.update') }}" method="POST" class="p-6">
                 @csrf
                 @method('PUT')
+
+                <!-- Tampilan Section -->
+                <div class="mb-8">
+                    <h2 class="text-xl font-bold text-slate-800 mb-4 flex items-center">
+                        <i class="fas fa-paint-brush mr-2 text-indigo-600"></i>
+                        Tampilan
+                    </h2>
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                        <div class="max-w-xl">
+                            <label for="system_font" class="block text-sm font-medium text-slate-700 mb-2">Jenis Font Sistem</label>
+                            <select id="system_font" name="system_font" class="w-full rounded-lg bg-white border-slate-300 text-slate-800 focus:border-indigo-500 focus:ring-indigo-500 shadow-sm transition-colors">
+                                <option value="default" {{ $systemFont === 'default' ? 'selected' : '' }}>Default (System UI)</option>
+                                <option value="poppins" {{ $systemFont === 'poppins' ? 'selected' : '' }}>Poppins</option>
+                                <option value="inter" {{ $systemFont === 'inter' ? 'selected' : '' }}>Inter</option>
+                                <option value="ibm_plex_sans" {{ $systemFont === 'ibm_plex_sans' ? 'selected' : '' }}>IBM Plex Sans</option>
+                                <option value="archivo" {{ $systemFont === 'archivo' ? 'selected' : '' }}>Archivo</option>
+                                <option value="space_grotesk" {{ $systemFont === 'space_grotesk' ? 'selected' : '' }}>Space Grotesk</option>
+                                <option value="bricolage_grotesque" {{ $systemFont === 'bricolage_grotesque' ? 'selected' : '' }}>Bricolage Grotesque</option>
+                            </select>
+                            <p class="mt-2 text-sm text-slate-500">Pilih font yang akan digunakan pada seluruh halaman aplikasi.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Feature Toggles Section -->
+                <div class="mb-8">
+                    <h2 class="text-xl font-bold text-slate-800 mb-4 flex items-center">
+                        <i class="fas fa-toggle-on mr-2 text-indigo-600"></i>
+                        Pengaturan Fitur
+                    </h2>
+                </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                     <!-- WhatsApp Notification Toggle -->
