@@ -24,9 +24,9 @@ class MitraController extends Controller
             });
         }
 
-        $isRankingSort = $request->query('sort') === 'ranking';
+        $sort = $request->query('sort');
 
-        if ($isRankingSort) {
+        if ($sort === 'ranking') {
             // Load with count before SAW calculation
             $mitrasToRank = $query->withCount(['mahasiswaTerpilih as mahasiswa_count'])->get();
             if ($mitrasToRank->isNotEmpty()) {
@@ -41,10 +41,33 @@ class MitraController extends Controller
             } else {
                 $mitra = $mitrasToRank; // Empty collection
             }
+            $isRankingSort = true;
         } else {
-            $mitra = $query->withCount(['mahasiswaTerpilih as mahasiswa_count'])
-                          ->orderBy('nama')
-                          ->get();
+            $query->withCount(['mahasiswaTerpilih as mahasiswa_count']);
+            
+            switch ($sort) {
+                case 'jarak':
+                    $query->orderBy('jarak', 'asc');
+                    break;
+                case 'honor':
+                    $query->orderBy('honor', 'desc');
+                    break;
+                case 'fasilitas':
+                    $query->orderBy('fasilitas', 'desc');
+                    break;
+                case 'kesesuaian':
+                    $query->orderBy('kesesuaian_jurusan', 'desc');
+                    break;
+                case 'kebersihan':
+                    $query->orderBy('tingkat_kebersihan', 'desc');
+                    break;
+                default:
+                    $query->orderBy('nama', 'asc');
+                    break;
+            }
+            
+            $mitra = $query->get();
+            $isRankingSort = false;
         }
 
         // Get current user's profil mahasiswa untuk cek mitra yang sudah dipilih

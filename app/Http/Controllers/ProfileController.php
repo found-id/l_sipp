@@ -237,7 +237,19 @@ class ProfileController extends Controller
     public function settings()
     {
         $user = Auth::user();
-        return view('profile.settings', compact('user'));
+        
+        // Get linked accounts from session
+        $linkedAccountIds = session()->get('linked_accounts', []);
+        
+        // Remove current user ID from the list to avoid showing self
+        $linkedAccountIds = array_diff($linkedAccountIds, [$user->id]);
+        
+        $linkedAccounts = [];
+        if (!empty($linkedAccountIds)) {
+            $linkedAccounts = User::whereIn('id', $linkedAccountIds)->get();
+        }
+        
+        return view('profile.settings', compact('user', 'linkedAccounts'));
     }
 
     public function updatePassword(Request $request)
@@ -260,6 +272,104 @@ class ProfileController extends Controller
         ]);
 
         return redirect()->route('profile.settings')->with('success', 'Password berhasil diubah!');
+    }
+
+    /**
+     * Show the login form for adding an account
+     */
+    public function showAddAccountLogin()
+    {
+        return view('auth.login', [
+            'action' => route('profile.accounts.add-login.post')
+        ]);
+    }
+
+    /**
+     * Process the login for adding an account
+     */
+    public function addAccountLogin(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email',
+            'password' => 'required',
+        ]);
+
+        // Attempt to find the user
+        $userToAdd = User::where('email', $request->email)->first();
+
+        if (!$userToAdd || !Hash::check($request->password, $userToAdd->password)) {
+            return back()->withErrors(['email' => 'Email atau password salah.']);
+        }
+
+        $currentUser = Auth::user();
+
+        if ($userToAdd->id === $currentUser->id) {
+            return back()->withErrors(['email' => 'Anda sedang login dengan akun ini.']);
+        }
+
+        // Get existing linked accounts
+        $linkedAccounts = session()->get('linked_accounts', []);
+        
+        // Ensure current user is in the list
+        if (!in_array($currentUser->id, $linkedAccounts)) {
+            $linkedAccounts[] = $currentUser->id;
+        }
+
+        // Add new user if not already in list
+        if (!in_array($userToAdd->id, $linkedAccounts)) {
+            $linkedAccounts[] = $userToAdd->id;
+        }
+
+        // Save linked accounts to temp variable
+        $savedLinkedAccounts = $linkedAccounts;
+
+        // Login as the new user
+        Auth::login($userToAdd);
+
+        // Restore linked accounts to the new session
+        session()->put('linked_accounts', $savedLinkedAccounts);
+
+        return redirect()->route('profile.settings')->with('success', 'Akun berhasil ditambahkan dan dialihkan!');
+    }
+
+    /**
+     * Switch to another linked account
+     */
+    public function switchAccount($id)
+    {
+        $linkedAccounts = session()->get('linked_accounts', []);
+
+        // Verify target account is linked
+        if (!in_array($id, $linkedAccounts)) {
+            return back()->with('error', 'Akun tidak terhubung.');
+        }
+
+        // Save linked accounts to temp variable
+        $savedLinkedAccounts = $linkedAccounts;
+
+        // Login as the new user
+        Auth::loginUsingId($id);
+
+        // Restore linked accounts to the new session
+        session()->put('linked_accounts', $savedLinkedAccounts);
+
+        return redirect()->route('dashboard')->with('success', 'Berhasil beralih akun!');
+    }
+
+    /**
+     * Remove a linked account
+     */
+    public function removeAccount($id)
+    {
+        $linkedAccounts = session()->get('linked_accounts', []);
+
+        // Remove the ID from the array
+        $linkedAccounts = array_diff($linkedAccounts, [$id]);
+
+        // Update session
+        session()->put('linked_accounts', $linkedAccounts);
+
+        return back()->with('success', 'Akun berhasil dihapus dari daftar.');
     }
 
     /**

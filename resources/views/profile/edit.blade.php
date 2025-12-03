@@ -4,24 +4,7 @@
 
 @section('content')
 <div class="space-y-6">
-    <!-- Success/Error Messages -->
-    @if(session('success'))
-    <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded-lg shadow-md" role="alert">
-        <div class="flex items-center">
-            <i class="fas fa-check-circle mr-3 text-xl"></i>
-            <p class="font-medium">{{ session('success') }}</p>
-        </div>
-    </div>
-    @endif
-
-    @if(session('error'))
-    <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded-lg shadow-md" role="alert">
-        <div class="flex items-center">
-            <i class="fas fa-exclamation-circle mr-3 text-xl"></i>
-            <p class="font-medium">{{ session('error') }}</p>
-        </div>
-    </div>
-    @endif
+    <!-- Success/Error Messages handled in layout -->
 
     @if($errors->any())
     <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded-lg shadow-md" role="alert">
@@ -301,6 +284,20 @@
             </div>
         </div>
 
+        <!-- Requirement Notification -->
+        <div id="requirement-notification" class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6 rounded-r-lg shadow-sm transition-all duration-300 hidden">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <i class="fas fa-exclamation-circle text-yellow-400 text-xl animate-pulse"></i>
+                </div>
+                <div class="ml-3">
+                    <p class="text-sm font-medium text-yellow-700">
+                        Silahkan mencentang persyaratan berikut untuk dapat melakukan Pemberkasan
+                    </p>
+                </div>
+            </div>
+        </div>
+
         <!-- Checkboxes -->
         <div id="konfirmasi-persyaratan" class="bg-white shadow-lg rounded-2xl p-6 border border-gray-100">
             <div class="flex items-center mb-6">
@@ -471,6 +468,30 @@ document.addEventListener('DOMContentLoaded', function() {
                 }, 3000);
             }, 500);
         }
+    }
+
+    // Requirement notification logic
+    const checkboxes = document.querySelectorAll('#konfirmasi-persyaratan input[type="checkbox"]');
+    const notification = document.getElementById('requirement-notification');
+
+    function checkRequirements() {
+        if (!notification) return;
+        
+        const allChecked = Array.from(checkboxes).every(cb => cb.checked);
+        if (allChecked) {
+            notification.classList.add('hidden');
+        } else {
+            notification.classList.remove('hidden');
+        }
+    }
+
+    if (checkboxes.length > 0) {
+        checkboxes.forEach(cb => {
+            cb.addEventListener('change', checkRequirements);
+        });
+        
+        // Initial check
+        checkRequirements();
     }
 });
 </script>

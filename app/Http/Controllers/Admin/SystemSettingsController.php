@@ -17,8 +17,9 @@ class SystemSettingsController extends Controller
         $instansiMitraEnabled = SystemSetting::isEnabled('instansi_mitra_enabled');
         $dokumenPemberkasanEnabled = SystemSetting::isEnabled('dokumen_pemberkasan_enabled');
         $registrationEnabled = SystemSetting::isEnabled('registration_enabled');
+        $whatsappNotificationEnabled = SystemSetting::isEnabled('whatsapp_notification_enabled');
         
-        return view('admin.system-settings', compact('laporanPklEnabled', 'penilaianEnabled', 'jadwalSeminarEnabled', 'instansiMitraEnabled', 'dokumenPemberkasanEnabled', 'registrationEnabled'));
+        return view('admin.system-settings', compact('laporanPklEnabled', 'penilaianEnabled', 'jadwalSeminarEnabled', 'instansiMitraEnabled', 'dokumenPemberkasanEnabled', 'registrationEnabled', 'whatsappNotificationEnabled'));
     }
 
     public function update(Request $request)
@@ -30,6 +31,7 @@ class SystemSettingsController extends Controller
             'instansi_mitra_enabled' => 'boolean',
             'dokumen_pemberkasan_enabled' => 'boolean',
             'registration_enabled' => 'boolean',
+            'whatsapp_notification_enabled' => 'boolean',
         ]);
 
         try {
@@ -70,6 +72,12 @@ class SystemSettingsController extends Controller
                 'Toggle untuk mengaktifkan/menonaktifkan pendaftaran akun baru (termasuk Google OAuth)'
             );
 
+            SystemSetting::setEnabled(
+                'whatsapp_notification_enabled',
+                $request->boolean('whatsapp_notification_enabled'),
+                'Toggle untuk mengaktifkan/menonaktifkan notifikasi WhatsApp via Fonnte'
+            );
+
             Log::info('System settings updated', [
                 'laporan_pkl_enabled' => $request->boolean('laporan_pkl_enabled'),
                 'penilaian_enabled' => $request->boolean('penilaian_enabled'),
@@ -77,6 +85,7 @@ class SystemSettingsController extends Controller
                 'instansi_mitra_enabled' => $request->boolean('instansi_mitra_enabled'),
                 'dokumen_pemberkasan_enabled' => $request->boolean('dokumen_pemberkasan_enabled'),
                 'registration_enabled' => $request->boolean('registration_enabled'),
+                'whatsapp_notification_enabled' => $request->boolean('whatsapp_notification_enabled'),
                 'updated_by' => auth()->id()
             ]);
 

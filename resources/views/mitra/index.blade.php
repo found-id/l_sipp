@@ -48,17 +48,21 @@
                     <i class="fas fa-search mr-2"></i>Cari
                 </button>
 
-                @if(request('sort') === 'ranking')
-                    <a href="{{ request()->fullUrlWithQuery(['sort' => null]) }}"
-                       class="px-6 py-3 bg-white/20 backdrop-blur-sm text-white rounded-lg hover:bg-white/30 font-medium transition-all">
-                        <i class="fas fa-font mr-2"></i>Abjad
-                    </a>
-                @else
-                    <a href="{{ request()->fullUrlWithQuery(['sort' => 'ranking']) }}"
-                       class="px-6 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600 font-medium transition-all hover:scale-105">
-                        <i class="fas fa-star mr-2"></i>Peringkat
-                    </a>
-                @endif
+                <div class="relative">
+                    <select name="sort" onchange="this.form.submit()" 
+                            class="appearance-none px-6 py-3 pr-10 bg-white text-gray-700 rounded-lg hover:bg-gray-50 font-medium transition-all focus:outline-none focus:ring-2 focus:ring-white cursor-pointer">
+                        <option value="" {{ request('sort') == '' ? 'selected' : '' }}>Abjad (A-Z)</option>
+                        <option value="ranking" {{ request('sort') == 'ranking' ? 'selected' : '' }}>Rekomendasi Sistem</option>
+                        <option value="jarak" {{ request('sort') == 'jarak' ? 'selected' : '' }}>Jarak Terdekat</option>
+                        <option value="honor" {{ request('sort') == 'honor' ? 'selected' : '' }}>Honor Tertinggi</option>
+                        <option value="fasilitas" {{ request('sort') == 'fasilitas' ? 'selected' : '' }}>Fasilitas Terbaik</option>
+                        <option value="kesesuaian" {{ request('sort') == 'kesesuaian' ? 'selected' : '' }}>Kesesuaian Jurusan</option>
+                        <option value="kebersihan" {{ request('sort') == 'kebersihan' ? 'selected' : '' }}>Kebersihan Terbaik</option>
+                    </select>
+                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-700">
+                        <i class="fas fa-sort"></i>
+                    </div>
+                </div>
 
                 @if(request('search'))
                 <a href="{{ route('mitra') }}"
@@ -184,8 +188,8 @@
                              style="width: {{ min($persentaseTerisi, 100) }}%"></div>
                     </div>
                     @if($kuotaPenuh)
-                        <p class="text-xs text-red-600 font-medium text-center">
-                            <i class="fas fa-exclamation-circle mr-1"></i>Kuota penuh
+                        <p class="text-xs text-gray-500 font-medium text-center">
+                            <i class="fas fa-lock mr-1"></i>Kuota penuh
                         </p>
                     @elseif($sisaKuota == 1)
                         <p class="text-xs text-yellow-600 font-medium text-center">
@@ -208,8 +212,8 @@
                     </button>
                 @elseif($kuotaPenuh)
                     <button disabled
-                            class="w-full bg-red-100 text-red-800 py-2 px-4 rounded-lg cursor-not-allowed font-medium border-2 border-red-300">
-                        <i class="fas fa-times-circle mr-2"></i>Kuota Penuh
+                            class="w-full bg-gray-100 text-gray-500 py-2 px-4 rounded-lg cursor-not-allowed font-medium border-2 border-gray-200">
+                        <i class="fas fa-lock mr-2"></i>Kuota Penuh
                     </button>
                 @else
                     <button onclick="selectMitra({{ $m->id }}, '{{ $m->nama }}')"

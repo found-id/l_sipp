@@ -1,8 +1,57 @@
 <!-- Mahasiswa Dashboard -->
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+<!-- Mahasiswa Dashboard -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+    
+    <!-- Status Keaktifan Card (New) -->
+    <div class="group bg-white overflow-hidden shadow-lg rounded-2xl transform transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl border border-gray-100">
+        <div class="p-6 relative overflow-hidden h-full">
+            <div class="absolute top-0 right-0 w-32 h-32 
+                @if($stats['pkl_status'] === 'aktif') bg-blue-50
+                @elseif($stats['pkl_status'] === 'siap') bg-green-50
+                @elseif($stats['pkl_status'] === 'selesai') bg-green-50
+                @else bg-gray-50 @endif
+                rounded-full -mr-16 -mt-16 opacity-50 group-hover:scale-150 transition-transform duration-500"></div>
+            <div class="relative z-10">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="w-14 h-14 bg-gradient-to-br 
+                        @if($stats['pkl_status'] === 'aktif') from-blue-500 to-blue-600
+                        @elseif($stats['pkl_status'] === 'siap') from-green-500 to-green-600
+                        @elseif($stats['pkl_status'] === 'selesai') from-green-500 to-green-600
+                        @else from-gray-400 to-gray-500 @endif
+                        rounded-xl flex items-center justify-center shadow-lg transform group-hover:scale-110 group-hover:rotate-6 transition-all duration-300">
+                        @if($stats['pkl_status'] === 'selesai')
+                            <i class="fas fa-check-circle text-2xl text-white"></i>
+                        @else
+                            <i class="fas fa-user-clock text-2xl text-white"></i>
+                        @endif
+                    </div>
+                    <div class="text-xs font-bold px-3 py-1 rounded-full
+                        @if($stats['pkl_status'] === 'aktif') bg-blue-100 text-blue-700
+                        @elseif($stats['pkl_status'] === 'siap') bg-green-100 text-green-700
+                        @elseif($stats['pkl_status'] === 'selesai') bg-green-100 text-green-700
+                        @else bg-gray-100 text-gray-700 @endif">
+                        Status
+                    </div>
+                </div>
+                <dt class="text-sm font-medium text-gray-500 mb-2">Status Keaktifan</dt>
+                <dd class="text-2xl font-bold 
+                    @if($stats['pkl_status'] === 'aktif') text-blue-600
+                    @elseif($stats['pkl_status'] === 'siap') text-green-600
+                    @elseif($stats['pkl_status'] === 'selesai') text-green-600
+                    @else text-gray-600 @endif">
+                    @if($stats['pkl_status'] === 'aktif') Aktif
+                    @elseif($stats['pkl_status'] === 'siap') Siap
+                    @elseif($stats['pkl_status'] === 'selesai') Selesai PKL
+                    @else Belum Aktif @endif
+                </dd>
+                <p class="text-xs text-gray-400 mt-1">status PKL Anda saat ini</p>
+            </div>
+        </div>
+    </div>
+
     <!-- Progress Card -->
     <div class="group bg-white overflow-hidden shadow-lg rounded-2xl transform transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl border border-gray-100">
-        <div class="p-6 relative overflow-hidden">
+        <div class="p-6 relative overflow-hidden h-full">
             <div class="absolute top-0 right-0 w-32 h-32 bg-blue-50 rounded-full -mr-16 -mt-16 opacity-50 group-hover:scale-150 transition-transform duration-500"></div>
             <div class="relative z-10">
                 <div class="flex items-center justify-between mb-4">
@@ -14,6 +63,10 @@
                 <dt class="text-sm font-medium text-gray-500 mb-2">Progress Pemberkasan</dt>
                 <dd class="text-3xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors">{{ $stats['progress_berkas'] }}</dd>
                 <p class="text-xs text-gray-400 mt-1">tahapan terselesaikan</p>
+                
+                
+                {{-- Missing steps list removed as per request --}}
+
                 <div class="mt-4">
                     <div class="bg-gray-200 rounded-full h-3 overflow-hidden">
                         <div class="bg-gradient-to-r from-blue-500 to-blue-600 h-3 rounded-full transition-all duration-500" style="width: {{ $stats['progress_percentage'] }}%"></div>
@@ -26,7 +79,7 @@
 
     <!-- Kelayakan PKL Status -->
     <div class="group bg-white overflow-hidden shadow-lg rounded-2xl transform transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl border border-gray-100">
-        <div class="p-6 relative overflow-hidden">
+        <div class="p-6 relative overflow-hidden h-full">
             <div class="absolute top-0 right-0 w-32 h-32
                 @if($stats['is_eligible']) bg-green-50
                 @else bg-red-50 @endif
@@ -54,13 +107,16 @@
                     @else Tidak Layak @endif
                 </dd>
                 <p class="text-xs text-gray-400 mt-1">status kelayakan PKL</p>
+                
+                
+                {{-- Missing requirements list removed as per request --}}
             </div>
         </div>
     </div>
 
     <!-- Dokumen Pendukung Status -->
     <div class="group bg-white overflow-hidden shadow-lg rounded-2xl transform transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl border border-gray-100">
-        <div class="p-6 relative overflow-hidden">
+        <div class="p-6 relative overflow-hidden h-full">
             <div class="absolute top-0 right-0 w-32 h-32
                 @if($stats['dokumen_pendukung_status'] === 'lengkap') bg-green-50
                 @elseif($stats['dokumen_pendukung_status'] === 'sebagian') bg-yellow-50
@@ -100,7 +156,7 @@
 
     <!-- Instansi Mitra Status -->
     <div class="group bg-white overflow-hidden shadow-lg rounded-2xl transform transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl border border-gray-100">
-        <div class="p-6 relative overflow-hidden">
+        <div class="p-6 relative overflow-hidden h-full">
             <div class="absolute top-0 right-0 w-32 h-32
                 @if($stats['instansi_mitra_status'] === 'lengkap') bg-green-50
                 @else bg-gray-50 @endif
@@ -132,13 +188,10 @@
             </div>
         </div>
     </div>
-</div>
 
-<!-- Second Row - Pemberkasan Akhir -->
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-6">
     <!-- Pemberkasan Akhir Status -->
     <div class="group bg-white overflow-hidden shadow-lg rounded-2xl transform transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl border border-gray-100">
-        <div class="p-6 relative overflow-hidden">
+        <div class="p-6 relative overflow-hidden h-full">
             <div class="absolute top-0 right-0 w-32 h-32
                 @if($stats['pemberkasan_akhir_status'] === 'lengkap') bg-green-50
                 @else bg-gray-50 @endif
@@ -173,7 +226,7 @@
     @if($stats['dosen_pembimbing'])
     <!-- Dosen Pembimbing Card -->
     <div class="group bg-white overflow-hidden shadow-lg rounded-2xl transform transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl border border-gray-100">
-        <div class="p-6 relative overflow-hidden">
+        <div class="p-6 relative overflow-hidden h-full">
             <div class="absolute top-0 right-0 w-32 h-32 bg-indigo-50 rounded-full -mr-16 -mt-16 opacity-50 group-hover:scale-150 transition-transform duration-500"></div>
             <div class="relative z-10">
                 <div class="flex items-center justify-between mb-4">
@@ -206,7 +259,7 @@
             </div>
         </div>
         <div class="p-6">
-            <div class="space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <!-- Kelayakan PKL Info -->
                 <div class="flex items-start p-4 rounded-xl border-2 transition-all duration-300
                     @if($stats['is_eligible']) border-green-200 bg-green-50

@@ -97,6 +97,8 @@ class DashboardController extends Controller
             'instansi_mitra_status' => $this->getInstansiMitraStatus($user),
             'pemberkasan_akhir_status' => $this->getPemberkasanAkhirStatus($user),
             'dosen_pembimbing' => $user->profilMahasiswa->dosenPembimbing ?? null,
+            'pkl_status' => $user->profilMahasiswa->status_pkl ?? 'belum_siap',
+            'missing_steps' => $progressBerkas['missing_steps'] ?? [],
         ];
 
         return view('dashboard.index', compact('stats'));
@@ -124,35 +126,42 @@ class DashboardController extends Controller
     {
         $total = 4; // 4 tabs: Kelayakan, Dokumen Pendukung, Instansi Mitra, Pemberkasan Akhir
         $completed = 0;
+        $missingSteps = [];
 
-        // 1. Tab Pemberkasan Kelayakan - KHS transkrip 5 semester + KHS file 5 file
-        $khsTranskrip = \App\Models\KhsManualTranskrip::where('mahasiswa_id', $mahasiswa->id)->count();
-        $khsFileCount = $mahasiswa->khs()->whereBetween('semester', [1, 5])->distinct()->count('semester');
-        if ($khsTranskrip >= 5 && $khsFileCount >= 5) {
+        // 1. Kelayakan PKL
+        $kelayakan = $this->getDetailedKelayakanData($mahasiswa);
+        if ($kelayakan['is_eligible']) {
             $completed++;
+        } else {
+            $missingSteps[] = 'Kelayakan PKL';
         }
 
-        // 2. Tab Pemberkasan Dokumen Pendukung - PKKMB + E-Course filled
-        $profil = $mahasiswa->profilMahasiswa;
-        if ($profil && $profil->gdrive_pkkmb && $profil->gdrive_ecourse) {
+        // 2. Dokumen Pendukung
+        if ($this->getDokumenPendukungStatus($mahasiswa) === 'lengkap') {
             $completed++;
+        } else {
+            $missingSteps[] = 'Dokumen Pendukung';
         }
 
-        // 3. Tab Pemberkasan Instansi Mitra - Surat Pengantar uploaded = lengkap
-        $hasSuratPengantar = \App\Models\SuratPengantar::where('mahasiswa_id', $mahasiswa->id)->exists();
-        if ($hasSuratPengantar) {
+        // 3. Instansi Mitra
+        if ($this->getInstansiMitraStatus($mahasiswa) === 'lengkap') {
             $completed++;
+        } else {
+            $missingSteps[] = 'Instansi Mitra';
         }
 
-        // 4. Tab Pemberkasan Akhir - Laporan PKL uploaded = lengkap
-        if ($mahasiswa->laporanPkl()->exists()) {
+        // 4. Pemberkasan Akhir
+        if ($this->getPemberkasanAkhirStatus($mahasiswa) === 'lengkap') {
             $completed++;
+        } else {
+            $missingSteps[] = 'Pemberkasan Akhir';
         }
 
         return [
             'completed' => $completed,
             'total' => $total,
-            'percentage' => round(($completed / $total) * 100)
+            'percentage' => round(($completed / $total) * 100),
+            'missing_steps' => $missingSteps
         ];
     }
 
@@ -166,27 +175,31 @@ class DashboardController extends Controller
 
         // Check KHS file uploads (4 files required)
         $khsFileCount = $mahasiswa->khs()
-            ->whereBetween('semester', [1, 4])
+            ->whereBetween('semester', [1, 5])
             ->distinct()
             ->count('semester');
 
         // Calculate IPK and check eligibility criteria
-        // Only count semesters that have IPS value (not null/empty)
-        $semestersWithIps = $khsTranskrip->filter(function($khs) {
-            return !empty($khs->ips) && $khs->ips > 0 && !empty($khs->total_sks) && $khs->total_sks > 0;
-        });
+        // SINKRONISASI dengan resources/views/documents/index.blade.php
+        $totalSksD = 0;
+        $totalE = 0;
+        $totalIps = 0;
+        $countSemestersWithIps = 0;
 
-        // Calculate IPK as weighted average: Σ(IPS × SKS) / Σ(SKS)
-        $totalWeightedIps = $semestersWithIps->reduce(function($carry, $khs) {
-            return $carry + ($khs->ips * $khs->total_sks);
-        }, 0);
-        $totalSks = $semestersWithIps->sum('total_sks');
-        $countSemestersWithIps = $semestersWithIps->count();
-        $totalSksD = $khsTranskrip->sum('total_sks_d');
-        $totalE = $khsTranskrip->where('has_e', true)->count();
+        foreach ($khsTranskrip as $transcript) {
+            $totalSksD += $transcript->total_sks_d ?? 0;
+            if ($transcript->has_e) {
+                $totalE++;
+            }
+            // Only count IPS if it has a value
+            if (!empty($transcript->ips) && $transcript->ips > 0) {
+                $totalIps += $transcript->ips;
+                $countSemestersWithIps++;
+            }
+        }
 
-        // Calculate IPK from semesters that have IPS values only
-        $finalIpk = $totalSks > 0 ? $totalWeightedIps / $totalSks : 0;
+        // Calculate final IPK - only from semesters that have IPS values (Simple Average)
+        $finalIpk = $countSemestersWithIps > 0 ? $totalIps / $countSemestersWithIps : 0;
 
         // Check Google Drive links (only PKKMB and E-Course are required, Semasa is optional)
         $hasPkkmb = !empty($profil->gdrive_pkkmb ?? '');
@@ -195,9 +208,18 @@ class DashboardController extends Controller
 
         // Check eligibility criteria - SINKRONISASI dengan logika di halaman documents
         // Syarat: IPK ≥ 2.5, SKS D ≤ 6, tidak ada nilai E
+        // User Request: Dokumen pendukung tidak masuk dalam hitungan kelayakan di dashboard
         $isTranscriptComplete = $totalSemesters >= 4;
         $isKhsComplete = $khsFileCount >= 4;
-        $isEligible = $isTranscriptComplete && $isKhsComplete && $finalIpk >= 2.5 && $totalSksD <= 6 && $totalE == 0 && $hasDokumenPendukung;
+        $isEligible = $isTranscriptComplete && $isKhsComplete && $finalIpk >= 2.5 && $totalSksD <= 6 && $totalE == 0;
+
+        // Collect missing requirements
+        $missingRequirements = [];
+        if (!$isTranscriptComplete) $missingRequirements[] = "Transkrip belum lengkap (min 4 semester)";
+        if (!$isKhsComplete) $missingRequirements[] = "File KHS belum lengkap (min 4 file)";
+        if ($finalIpk < 2.5) $missingRequirements[] = "IPK kurang dari 2.50";
+        if ($totalSksD > 6) $missingRequirements[] = "Total SKS D lebih dari 6";
+        if ($totalE > 0) $missingRequirements[] = "Terdapat nilai E";
 
         // DEBUG: Log untuk troubleshooting
         \Log::info('Dashboard Kelayakan Check', [
@@ -213,6 +235,7 @@ class DashboardController extends Controller
             'is_transcript_complete' => $isTranscriptComplete,
             'is_khs_complete' => $isKhsComplete,
             'is_eligible' => $isEligible,
+            'missing' => $missingRequirements
         ]);
 
         // Determine status
@@ -237,6 +260,7 @@ class DashboardController extends Controller
             'has_pkkmb' => $hasPkkmb,
             'has_ecourse' => $hasEcourse,
             'has_dokumen_pendukung' => $hasDokumenPendukung,
+            'missing_requirements' => $missingRequirements,
         ];
     }
 

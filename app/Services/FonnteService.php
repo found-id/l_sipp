@@ -26,6 +26,18 @@ class FonnteService
      */
     public function sendMessage($phone, $message)
     {
+        // Check if WhatsApp notifications are enabled
+        if (!\App\Models\SystemSetting::isEnabled('whatsapp_notification_enabled')) {
+            Log::info('WhatsApp notification skipped (disabled in settings)', [
+                'phone' => $phone,
+                'message_preview' => substr($message, 0, 50) . '...'
+            ]);
+            return [
+                'status' => false,
+                'message' => 'WhatsApp notifications are disabled in system settings'
+            ];
+        }
+
         try {
             // Clean phone number - remove leading 0 if present
             $cleanPhone = $phone;

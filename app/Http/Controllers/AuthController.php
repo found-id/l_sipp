@@ -126,7 +126,7 @@ class AuthController extends Controller
                 $profilData = [
                     'id_mahasiswa' => $user->id,
                     'nim' => $request->nim,
-                    'prodi' => '-', // Default value karena field prodi dihapus dari form
+                    'prodi' => 'D3 Teknologi Informasi', // Default value
                     'semester' => $request->semester,
                     'jenis_kelamin' => $request->jenis_kelamin,
                     'no_whatsapp' => $request->no_wa,
@@ -328,7 +328,7 @@ class AuthController extends Controller
         \App\Models\ProfilMahasiswa::create([
             'id_mahasiswa' => $user->id,
             'nim' => $request->nim,
-            'prodi' => '-', // Default value karena field prodi dihapus dari form
+            'prodi' => 'D3 Teknologi Informasi', // Default value
             'semester' => $request->semester,
             'jenis_kelamin' => $request->jenis_kelamin,
             'no_whatsapp' => $request->no_whatsapp,

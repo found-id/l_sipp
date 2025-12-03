@@ -108,6 +108,97 @@
         </div>
     </div>
 
+    <!-- Pindah Akun Section -->
+    <div class="bg-white shadow-lg rounded-2xl border border-gray-100 overflow-hidden">
+        <div class="p-6 cursor-pointer hover:bg-gray-50 transition-colors duration-200" onclick="toggleAccounts()">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                    <div class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-exchange-alt text-gray-600 text-lg"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 ml-3">Pindah Akun</h3>
+                </div>
+                <div class="flex items-center">
+                    <span class="text-sm text-gray-500 mr-3">{{ count($linkedAccounts) + 1 }} Akun Terhubung</span>
+                    <i id="accountChevron" class="fas fa-chevron-down text-gray-400 transition-transform duration-300"></i>
+                </div>
+            </div>
+        </div>
+
+        <div id="accountList" class="hidden border-t border-gray-100 bg-gray-50/50 p-6 space-y-4">
+            <div class="flex justify-end mb-4">
+                <a href="{{ route('profile.accounts.add-login') }}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-all duration-200 font-medium text-sm shadow-md flex items-center">
+                    <i class="fas fa-plus mr-2"></i>Tambah Akun
+                </a>
+            </div>
+
+            <!-- Current Account -->
+            <div class="bg-blue-50 p-4 rounded-xl border border-blue-200 flex items-center justify-between">
+                <div class="flex items-center">
+                    <div class="relative">
+                        @if($user->photo)
+                            <img src="{{ filter_var($user->photo, FILTER_VALIDATE_URL) ? $user->photo : asset('storage/' . $user->photo) }}" 
+                                 class="w-10 h-10 rounded-full object-cover border-2 border-white shadow-sm"
+                                 alt="{{ $user->name }}">
+                        @else
+                            <img src="https://ui-avatars.com/api/?name={{ urlencode($user->name) }}&background=3b82f6&color=fff" 
+                                 class="w-10 h-10 rounded-full shadow-sm"
+                                 alt="{{ $user->name }}">
+                        @endif
+                        <div class="absolute -bottom-1 -right-1 bg-green-500 w-3 h-3 rounded-full border-2 border-white"></div>
+                    </div>
+                    <div class="ml-3">
+                        <h4 class="font-bold text-gray-900">{{ $user->name }}</h4>
+                        <p class="text-xs text-gray-500">{{ $user->email }}</p>
+                    </div>
+                </div>
+                <span class="px-3 py-1 bg-blue-100 text-blue-700 text-xs font-semibold rounded-full">Sedang Aktif</span>
+            </div>
+
+            <!-- Linked Accounts -->
+            @forelse($linkedAccounts as $account)
+                <div class="bg-white p-4 rounded-xl border border-gray-200 hover:border-gray-300 transition-all duration-200 flex items-center justify-between group">
+                    <div class="flex items-center">
+                        <div class="relative">
+                            @if($account->photo)
+                                <img src="{{ filter_var($account->photo, FILTER_VALIDATE_URL) ? $account->photo : asset('storage/' . $account->photo) }}" 
+                                     class="w-10 h-10 rounded-full object-cover border-2 border-white shadow-sm grayscale group-hover:grayscale-0 transition-all"
+                                     alt="{{ $account->name }}">
+                            @else
+                                <img src="https://ui-avatars.com/api/?name={{ urlencode($account->name) }}&background=gray&color=fff" 
+                                     class="w-10 h-10 rounded-full shadow-sm grayscale group-hover:grayscale-0 transition-all"
+                                     alt="{{ $account->name }}">
+                            @endif
+                        </div>
+                        <div class="ml-3">
+                            <h4 class="font-bold text-gray-700 group-hover:text-gray-900 transition-colors">{{ $account->name }}</h4>
+                            <p class="text-xs text-gray-500">{{ $account->email }}</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <form action="{{ route('profile.accounts.switch', $account->id) }}" method="POST">
+                            @csrf
+                            <button type="submit" class="bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 px-3 py-1.5 rounded-lg transition-all duration-200 text-xs font-medium shadow-sm">
+                                <i class="fas fa-exchange-alt mr-1"></i>Switch
+                            </button>
+                        </form>
+                        <form action="{{ route('profile.accounts.remove', $account->id) }}" method="POST" onsubmit="return confirm('Hapus akun ini dari daftar?');">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="bg-red-50 hover:bg-red-100 text-red-600 p-1.5 rounded-lg transition-all duration-200" title="Hapus Akun">
+                                <i class="fas fa-trash-alt text-sm"></i>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            @empty
+                <div class="text-center py-4 bg-gray-50 rounded-xl border border-dashed border-gray-300">
+                    <p class="text-sm text-gray-500">Belum ada akun lain yang terhubung</p>
+                </div>
+            @endforelse
+        </div>
+    </div>
+
     <!-- Account Actions -->
     <div class="bg-white shadow-lg rounded-2xl p-6 border border-gray-100">
         <div class="flex items-center mb-6">
@@ -280,3 +371,71 @@ document.getElementById('logoutModal')?.addEventListener('click', function(e) {
     </div>
 </div>
 @endsection
+<script>
+function toggleAccounts() {
+    const list = document.getElementById('accountList');
+    const chevron = document.getElementById('accountChevron');
+    
+    if (list.classList.contains('hidden')) {
+        list.classList.remove('hidden');
+        chevron.style.transform = 'rotate(180deg)';
+    } else {
+        list.classList.add('hidden');
+        chevron.style.transform = 'rotate(0deg)';
+    }
+}
+
+function openPasswordModal() {
+    document.getElementById('passwordModal').classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+}
+
+function closePasswordModal() {
+    document.getElementById('passwordModal').classList.add('hidden');
+    document.body.style.overflow = 'auto';
+    // Reset form
+    document.getElementById('current_password').value = '';
+    document.getElementById('new_password').value = '';
+    document.getElementById('new_password_confirmation').value = '';
+}
+
+// Close modal when clicking outside
+document.getElementById('passwordModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closePasswordModal();
+    }
+});
+
+// Close modal with Escape key
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        closePasswordModal();
+        closeLogoutModal();
+        closeAddAccountModal();
+    }
+});
+
+// Logout confirmation modal functions
+function confirmLogout() {
+    document.getElementById('logoutModal').classList.remove('hidden');
+    document.getElementById('logoutModal').classList.add('flex');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeLogoutModal() {
+    document.getElementById('logoutModal').classList.add('hidden');
+    document.getElementById('logoutModal').classList.remove('flex');
+    document.body.style.overflow = 'auto';
+}
+
+function proceedLogout() {
+    document.getElementById('logoutForm').submit();
+}
+
+// Close logout modal when clicking outside
+document.getElementById('logoutModal')?.addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeLogoutModal();
+    }
+});
+</script>

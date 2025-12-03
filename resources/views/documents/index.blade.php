@@ -120,12 +120,22 @@
                 $pklStatusIcon = 'building';
                 $mitraName = $user->profilMahasiswa->mitraSelected->nama ?? 'Instansi Mitra';
             } else {
-                // Tahap 2: Siap untuk PKL (layak tapi belum mengaktifkan status)
+                // Default: Siap (jika eligible)
                 $pklStatus = 'siap';
                 $pklStatusText = 'Siap untuk PKL';
-                $pklStatusColor = 'yellow';
-                $pklStatusIcon = 'clipboard-check';
+                $pklStatusColor = 'green';
+                $pklStatusIcon = 'check-circle';
             }
+
+            // Define Locking Logic
+            // Tabs 1, 2, 3 (Kelayakan, Dokumen, Mitra) locked if Aktif OR Selesai
+            $isLockedGeneral = in_array($pklStatus, ['aktif', 'selesai']);
+            
+            // Tab 4 (Akhir) locked if Siap OR Aktif (Unlocked only if Selesai)
+            // Note: User request says "jika Siap... hanya tab Pemberkasan Akhir yang terkunci".
+            // And "jika Selesai... tab Pemberkasan Akhir... kecuali (unlocked)".
+            // So Tab 4 is unlocked ONLY when 'selesai'.
+            $isLockedAkhir = $pklStatus !== 'selesai';
             @endphp
 
         @if($pklStatus === 'selesai')
@@ -392,9 +402,11 @@
                                                 <button onclick="window.previewFile('{{ $semesterKhs->file_path }}')" class="text-blue-600 hover:text-blue-800 text-xs">
                                                     <i class="fas fa-eye"></i>
                                                 </button>
+                                                @if(!$isLockedGeneral)
                                                 <button onclick="window.deleteFile('khs', {{ $semesterKhs->id }})" class="text-red-600 hover:text-red-800 text-xs">
                                                     <i class="fas fa-trash"></i>
                                                 </button>
+                                                @endif
                                             </div>
                                         </div>
                                         <p class="text-xs text-gray-600 truncate">{{ basename($semesterKhs->file_path) }}</p>
@@ -409,11 +421,18 @@
                                 
                                 @if($dokumenPemberkasanEnabled)
                                     <div class="space-y-2">
+                                        @if(!$isLockedGeneral)
                                         <div>
                                             <input type="file" id="file_semester_{{ $semester }}" name="file_semester_{{ $semester }}" accept=".pdf" 
                                                    class="block w-full text-xs text-gray-500 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 border border-gray-300 rounded cursor-pointer focus:outline-none focus:ring-1 focus:ring-blue-500"
                                                    onchange="updateFilePreview({{ $semester }})">
                                         </div>
+                                        @else
+                                        <div class="text-center py-2 text-gray-400 bg-gray-50 rounded border border-gray-200">
+                                            <i class="fas fa-lock text-xs mb-1"></i>
+                                            <p class="text-[10px]">Terkunci (Status Aktif/Selesai)</p>
+                                        </div>
+                                        @endif
                                         <div id="file_preview_{{ $semester }}" class="hidden text-xs text-gray-600 bg-green-50 p-2 rounded border">
                                             <i class="fas fa-check-circle text-green-600 mr-1"></i>
                                             <span id="file_name_{{ $semester }}"></span>
@@ -432,6 +451,7 @@
                     @if($dokumenPemberkasanEnabled)
                         <!-- Upload All Button -->
                         <div class="mt-6 text-center">
+                            @if(!$isLockedGeneral)
                             <form action="{{ route('documents.khs.upload.multiple') }}" method="POST" enctype="multipart/form-data" id="uploadAllForm">
                                 @csrf
                                 <button type="submit" id="uploadAllBtn" class="bg-blue-600 text-white py-3 px-6 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors duration-200 font-medium">
@@ -449,6 +469,14 @@
                                 </button>
                                 <div id="uploadStatus" class="mt-3 text-sm"></div>
                             </form>
+                            @else
+                            <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 inline-block">
+                                <div class="flex items-center text-yellow-700">
+                                    <i class="fas fa-lock mr-2"></i>
+                                    <span>Upload dinonaktifkan karena status PKL sedang Aktif/Selesai</span>
+                                </div>
+                            </div>
+                            @endif
                         </div>
                     @endif
                 </div>
@@ -509,11 +537,13 @@
                                             Paste Data Transkrip
                                         </label>
                                         <textarea id="pasteArea{{ $semester }}" 
-                                                  class="w-full p-3 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500" 
+                                                  class="w-full p-3 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 read-only:bg-gray-100 read-only:text-gray-600 read-only:cursor-not-allowed" 
                                                   rows="6" 
                                                   placeholder="Paste data transkrip semester {{ $semester }} di sini...&#10;&#10;Contoh format:&#10;Kode Mata Kuliah&#9;Nama Mata Kuliah&#9;SKS&#9;Nilai&#10;All231203&#9;Pemrograman Web&#9;3&#9;A"
-                                                  onpaste="handlePaste({{ $semester }})"></textarea>
+                                                  onpaste="handlePaste({{ $semester }})"
+                                                  {{ $isLockedGeneral ? 'readonly' : '' }}></textarea>
                                         
+                                        @if(!$isLockedGeneral)
                                         <div class="flex space-x-2">
                                             <button onclick="saveSemester({{ $semester }})" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded text-sm font-medium transition-colors duration-200">
                                                 <i class="fas fa-save mr-1"></i>Simpan
@@ -522,6 +552,12 @@
                                                 <i class="fas fa-trash mr-1"></i>Clear
                                             </button>
                                         </div>
+                                        @else
+                                        <div class="flex items-center text-sm text-gray-500 bg-gray-50 p-2 rounded border border-gray-200">
+                                            <i class="fas fa-lock mr-2"></i>
+                                            <span>Edit data dinonaktifkan (Status PKL Aktif/Selesai)</span>
+                                        </div>
+                                        @endif
                                     </div>
                                     
                                     <!-- Tabel Hasil -->
@@ -642,9 +678,11 @@
                                             <button type="button" onclick="window.previewFile('{{ $laporan->file_path ?? '' }}')" class="text-blue-600 hover:text-blue-800 text-sm px-2 py-1 rounded hover:bg-blue-50">
                                                 <i class="fas fa-eye mr-1"></i>Lihat
                                             </button>
+                                            @if(!$isLockedGeneral)
                                             <button type="button" onclick="window.deleteFile('laporan', {{ $laporan->id }})" class="text-red-600 hover:text-red-800 text-sm px-2 py-1 rounded hover:bg-red-50">
                                                 <i class="fas fa-trash mr-1"></i>Hapus
                                             </button>
+                                            @endif
                             </div>
                                     </div>
                                     <p class="text-xs text-gray-500 mb-3">Uploaded: {{ isset($laporan->created_at) ? $laporan->created_at->format('d M Y H:i') : 'N/A' }}</p>
@@ -671,6 +709,7 @@
                                     </div>
                     @endif
 
+                    @if(!$isLockedAkhir)
                     <form action="{{ route('documents.laporan.upload') }}" method="POST" enctype="multipart/form-data" class="space-y-4">
                         @csrf
                         <div>
@@ -689,6 +728,15 @@
                             <i class="fas fa-upload mr-2"></i>Upload Laporan PKL
                         </button>
                     </form>
+                    @else
+                    <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 text-center">
+                        <div class="flex items-center justify-center text-yellow-700 mb-2">
+                            <i class="fas fa-lock text-xl mr-2"></i>
+                            <span class="font-semibold">Upload Laporan Terkunci</span>
+                        </div>
+                        <p class="text-sm text-yellow-600">Anda tidak dapat mengupload laporan baru karena status PKL sedang Aktif/Selesai.</p>
+                    </div>
+                    @endif
                 </div>
             </div>
         @endif
@@ -726,7 +774,8 @@
                         <div>
                             <label for="link_pkkmb" class="block text-sm font-medium text-gray-700 mb-2">Link Google Drive Sertifikat PKKMB</label>
                             <input type="url" id="link_pkkmb" name="link_pkkmb" placeholder="https://drive.google.com/file/d/..." 
-                                   class="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                   class="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:text-gray-500"
+                                   {{ $isLockedGeneral ? 'disabled' : '' }}>
                         </div>
                         <p class="text-xs text-gray-500 flex items-center">
                             <i class="fas fa-info-circle mr-1"></i>
@@ -750,7 +799,8 @@
                         <div>
                             <label for="link_english" class="block text-sm font-medium text-gray-700 mb-2">Link Google Drive Sertifikat English Course</label>
                             <input type="url" id="link_english" name="link_english" placeholder="https://drive.google.com/file/d/..." 
-                                   class="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                   class="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:text-gray-500"
+                                   {{ $isLockedGeneral ? 'disabled' : '' }}>
                         </div>
                         <p class="text-xs text-gray-500 flex items-center">
                             <i class="fas fa-info-circle mr-1"></i>
@@ -774,7 +824,8 @@
                         <div>
                             <label for="link_semasa" class="block text-sm font-medium text-gray-700 mb-2">Link Google Drive Sertifikat Semasa Berkuliah</label>
                             <input type="url" id="link_semasa" name="link_semasa" placeholder="https://drive.google.com/file/d/..." 
-                                   class="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                   class="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:text-gray-500"
+                                   {{ $isLockedGeneral ? 'disabled' : '' }}>
                         </div>
                         <p class="text-xs text-gray-500 flex items-center">
                             <i class="fas fa-info-circle mr-1"></i>
@@ -785,9 +836,16 @@
 
                 <!-- Save Button -->
                 <div class="pt-4 border-t border-gray-200">
+                    @if(!$isLockedGeneral)
                     <button type="button" onclick="saveDokumenPendukung()" class="w-full bg-green-600 text-white py-3 px-4 rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors duration-200 font-medium">
                         <i class="fas fa-save mr-2"></i>Simpan Link Dokumen Pendukung
                     </button>
+                    @else
+                    <div class="text-center py-2 text-gray-500 bg-gray-50 rounded border border-gray-200">
+                        <i class="fas fa-lock mr-2"></i>
+                        <span>Penyimpanan dinonaktifkan (Status PKL Aktif/Selesai)</span>
+                    </div>
+                    @endif
                 </div>
             </div>
         </div>
@@ -2651,9 +2709,11 @@ function renderTable(rows, container) {
                                                 <button type="button" onclick="window.previewFile('{{ $suratPengantar->file_path }}')" class="text-blue-600 hover:text-blue-800 text-sm px-2 py-1 rounded hover:bg-blue-50">
                                                     <i class="fas fa-eye mr-1"></i>Lihat
                                                 </button>
+                                                @if(!$isLockedGeneral)
                                                 <button type="button" onclick="window.deleteFile('surat-pengantar', {{ $suratPengantar->id }})" class="text-red-600 hover:text-red-800 text-sm px-2 py-1 rounded hover:bg-red-50">
                                                     <i class="fas fa-trash mr-1"></i>Hapus
                                                 </button>
+                                                @endif
                                             </div>
                                         </div>
                                         <p class="text-xs text-gray-500 mb-2">Uploaded: {{ $suratPengantar->created_at->format('d M Y H:i') }}</p>
@@ -2679,6 +2739,7 @@ function renderTable(rows, container) {
                             </div>
                         @endif
 
+                        @if(!$isLockedGeneral)
                         <form action="{{ route('documents.surat-pengantar.upload') }}" method="POST" enctype="multipart/form-data" class="space-y-4">
                             @csrf
                             <div>
@@ -2694,6 +2755,15 @@ function renderTable(rows, container) {
                                 <i class="fas fa-upload mr-2"></i>{{ ($suratPengantar ?? false) ? 'Update Surat Pengantar' : 'Upload Surat Pengantar' }}
                             </button>
                         </form>
+                        @else
+                        <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 text-center">
+                            <div class="flex items-center justify-center text-yellow-700 mb-2">
+                                <i class="fas fa-lock text-xl mr-2"></i>
+                                <span class="font-semibold">Upload Terkunci</span>
+                            </div>
+                            <p class="text-sm text-yellow-600">Anda tidak dapat mengupload surat pengantar baru karena status PKL sedang Aktif/Selesai.</p>
+                        </div>
+                        @endif
                     </div>
                 </div>
 
@@ -2737,9 +2807,11 @@ function renderTable(rows, container) {
                                                 </p>
                                             </div>
                                         </div>
+                                        @if(!$isLockedGeneral)
                                         <a href="{{ route('mitra') }}" class="px-3 py-1.5 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 text-sm font-medium transition">
                                             <i class="fas fa-edit mr-1"></i>Ganti
                                         </a>
+                                        @endif
                                     </div>
                                 </div>
                                 <div class="p-4 bg-white">
@@ -2846,9 +2918,11 @@ function renderTable(rows, container) {
                                             <button type="button" onclick="window.previewFile('{{ $suratBalasan->file_path }}')" class="text-blue-600 hover:text-blue-800 text-sm px-2 py-1 rounded hover:bg-blue-50">
                                                 <i class="fas fa-eye mr-1"></i>Lihat
                                             </button>
+                                            @if(!$isLockedGeneral)
                                             <button type="button" onclick="window.deleteFile('surat-balasan', {{ $suratBalasan->id }})" class="text-red-600 hover:text-red-800 text-sm px-2 py-1 rounded hover:bg-red-50">
                                                 <i class="fas fa-trash mr-1"></i>Hapus
                                             </button>
+                                            @endif
                                         </div>
                                     </div>
                                     <p class="text-xs text-gray-500 mb-3">Uploaded: {{ $suratBalasan->created_at->format('d M Y H:i') }}</p>
@@ -2883,6 +2957,7 @@ function renderTable(rows, container) {
                         </div>
                     @endif
 
+                    @if(!$isLockedGeneral)
                     <form action="{{ route('documents.surat.upload') }}" method="POST" enctype="multipart/form-data" class="space-y-4">
                         @csrf
                         
@@ -2908,6 +2983,15 @@ function renderTable(rows, container) {
                             <i class="fas fa-upload mr-2"></i>{{ ($suratBalasan && is_object($suratBalasan)) ? 'Update Surat Balasan' : 'Upload Surat Balasan' }}
                         </button>
                     </form>
+                    @else
+                    <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 text-center">
+                        <div class="flex items-center justify-center text-yellow-700 mb-2">
+                            <i class="fas fa-lock text-xl mr-2"></i>
+                            <span class="font-semibold">Upload Terkunci</span>
+                        </div>
+                        <p class="text-sm text-yellow-600">Anda tidak dapat mengupload surat balasan baru karena status PKL sedang Aktif/Selesai.</p>
+                    </div>
+                    @endif
                     </div>
                 </div>
                 </div>
