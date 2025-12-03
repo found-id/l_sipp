@@ -499,7 +499,6 @@
                         </div>
                     @endif
                 </div>
-                </div>
             </div>
 
             <!-- Multi Semester Transcript Analysis -->
