@@ -139,7 +139,8 @@
                     </div>
                     @endif
 
-                    <!-- Kriteria Penilaian -->
+                    <!-- Kriteria Penilaian - Hidden for user-added mitra -->
+                    @if(!$m->created_by)
                     <div class="mt-4 pt-4 border-t border-gray-200">
                         <h4 class="text-sm font-medium text-gray-500 mb-2">Kriteria Penilaian</h4>
                         <div class="space-y-2">
@@ -165,6 +166,15 @@
                             </div>
                         </div>
                     </div>
+                    @endif
+                    
+                    @if($m->created_by)
+                    <div class="mt-3 pt-3 border-t border-gray-100">
+                        <p class="text-xs text-gray-500 italic">
+                            <i class="fas fa-user-edit mr-1"></i>Ditambahkan oleh: {{ $m->created_by }}
+                        </p>
+                    </div>
+                    @endif
                 </div>
             </div>
 
@@ -418,4 +428,114 @@ function kirimPilihanMitra(mitraId, mitraName, jenisAlasan, alasanLengkap) {
     });
 }
 </script>
+
+<!-- Floating Action Button -->
+<button onclick="openAddMitraModal()" class="fixed bottom-8 right-8 bg-blue-600 hover:bg-blue-700 text-white rounded-full p-4 shadow-lg transition-transform hover:scale-110 focus:outline-none focus:ring-4 focus:ring-blue-300 z-50 flex items-center justify-center w-16 h-16">
+    <i class="fas fa-plus text-2xl"></i>
+</button>
+
+<!-- Add Mitra Modal -->
+<div id="addMitraModal" class="fixed inset-0 z-50 hidden overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+    <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true" onclick="closeAddMitraModal()"></div>
+
+        <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+
+        <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+            <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                <div class="sm:flex sm:items-start">
+                    <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-blue-100 sm:mx-0 sm:h-10 sm:w-10">
+                        <i class="fas fa-building text-blue-600"></i>
+                    </div>
+                    <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
+                        <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">
+                            Tambah Tempat Magang Baru
+                        </h3>
+                        <div class="mt-2">
+                            <p class="text-sm text-gray-500 mb-4">
+                                Jika Anda tidak menemukan tempat magang yang dicari, silakan tambahkan di sini.
+                            </p>
+                            <form action="{{ route('mitra.store') }}" method="POST" id="addMitraForm">
+                                @csrf
+                                <div class="space-y-4">
+                                    <!-- Nama Instansi -->
+                                    <div>
+                                        <label for="nama" class="block text-sm font-medium text-gray-700 mb-1">
+                                            Nama Instansi <span class="text-red-500">*</span>
+                                        </label>
+                                        <input 
+                                            type="text" 
+                                            name="nama" 
+                                            id="nama" 
+                                            required 
+                                            class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" 
+                                            placeholder="Contoh: PT. Teknologi Indonesia"
+                                        >
+                                    </div>
+                                    
+                                    <!-- Divider -->
+                                    <div class="border-t pt-3">
+                                        <p class="text-xs text-gray-500 mb-3 flex items-center">
+                                            <i class="fas fa-info-circle mr-1"></i>
+                                            Field di bawah ini opsional
+                                        </p>
+                                        
+                                        <!-- Alamat -->
+                                        <div class="mb-3">
+                                            <label for="alamat" class="block text-sm font-medium text-gray-700 mb-1">
+                                                Alamat
+                                            </label>
+                                            <textarea 
+                                                name="alamat" 
+                                                id="alamat" 
+                                                rows="2" 
+                                                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" 
+                                                placeholder="Alamat lengkap (opsional)"
+                                            ></textarea>
+                                        </div>
+                                        
+                                        <!-- Kontak -->
+                                        <div>
+                                            <label for="kontak" class="block text-sm font-medium text-gray-700 mb-1">
+                                                Kontak
+                                            </label>
+                                            <input 
+                                                type="text" 
+                                                name="kontak" 
+                                                id="kontak" 
+                                                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" 
+                                                placeholder="Email/No. HP (opsional)"
+                                            >
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                <button type="button" onclick="document.getElementById('addMitraForm').submit()" class="w-full inline-flex items-center justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm">
+                    <i class="fas fa-save mr-2"></i>Simpan
+                </button>
+                <button type="button" onclick="closeAddMitraModal()" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+                    Batal
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function openAddMitraModal() {
+    document.getElementById('addMitraModal').classList.remove('hidden');
+}
+
+function closeAddMitraModal() {
+    document.getElementById('addMitraModal').classList.add('hidden');
+    // Reset form
+    document.getElementById('addMitraForm').reset();
+}
+</script>
+
 @endsection

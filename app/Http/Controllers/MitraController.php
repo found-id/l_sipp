@@ -76,4 +76,37 @@ class MitraController extends Controller
 
         return view('mitra.index', compact('mitra', 'profilMahasiswa', 'isRankingSort'));
     }
+
+    public function store(Request $request)
+    {
+        $request->validate([
+            'nama' => 'required|string|max:255',
+            'alamat' => 'nullable|string',
+            'kontak' => 'nullable|string|max:255',
+            'jarak' => 'nullable|numeric|min:0',
+            'honor' => 'nullable|numeric|min:0',
+            'fasilitas' => 'nullable|integer|min:1|max:5',
+            'kesesuaian_jurusan' => 'nullable|integer|min:1|max:5',
+            'tingkat_kebersihan' => 'nullable|integer|min:1|max:5',
+            'max_mahasiswa' => 'nullable|integer|min:1',
+        ]);
+
+        $user = \Illuminate\Support\Facades\Auth::user();
+        $creatorName = $user->name;
+
+        Mitra::create([
+            'nama' => $request->nama,
+            'alamat' => $request->alamat ?? '-',
+            'kontak' => $request->kontak ?? '-',
+            'jarak' => $request->jarak ?? 0,
+            'honor' => $request->honor ?? 3,
+            'fasilitas' => $request->fasilitas ?? 3,
+            'kesesuaian_jurusan' => $request->kesesuaian_jurusan ?? 3,
+            'tingkat_kebersihan' => $request->tingkat_kebersihan ?? 3,
+            'max_mahasiswa' => $request->max_mahasiswa ?? 10,
+            'created_by' => $creatorName,
+        ]);
+
+        return redirect()->route('mitra')->with('success', 'Instansi Mitra berhasil ditambahkan!');
+    }
 }

@@ -56,6 +56,7 @@ Route::middleware(['auth'])->group(function () {
     // Dashboard & Main Features
     Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('mitra', [MitraController::class, 'index'])->name('mitra');
+    Route::post('mitra', [MitraController::class, 'store'])->name('mitra.store');
     Route::get('activity', [ActivityController::class, 'index'])->name('activity');
     Route::delete('activity/clear', [ActivityController::class, 'clearAllActivities'])->middleware('role:admin')->name('activity.clear');
 

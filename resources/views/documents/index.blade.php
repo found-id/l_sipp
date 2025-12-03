@@ -2674,37 +2674,51 @@ function renderTable(rows, container) {
         console.log(`Updated textarea for semester ${semester} from table data`);
     }
 
-    // Toggle Section Function
+    // Toggle Section Function with smooth animation
     function toggleSection(sectionId) {
         const section = document.getElementById(sectionId);
         const icon = document.getElementById(sectionId + '-icon');
         
         if (section.classList.contains('hidden')) {
-            // Show section
+            // Show section with smooth animation
             section.classList.remove('hidden');
-            // Small delay to allow transition
-            setTimeout(() => {
-                section.classList.remove('opacity-0', 'max-h-0');
-                section.classList.add('opacity-100', 'max-h-[2000px]'); // Large max-height for transition
-            }, 10);
+            section.style.maxHeight = '0px';
+            section.style.opacity = '0';
+            
+            // Force reflow
+            section.offsetHeight;
+            
+            // Animate to full height
+            requestAnimationFrame(() => {
+                section.style.transition = 'max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.4s ease-in-out';
+                section.style.maxHeight = section.scrollHeight + 'px';
+                section.style.opacity = '1';
+            });
             
             // Rotate icon
             if (icon) {
-                icon.classList.add('rotate-180');
+                icon.style.transition = 'transform 0.3s ease-in-out';
+                icon.style.transform = 'rotate(180deg)';
             }
         } else {
-            // Hide section
-            section.classList.remove('opacity-100', 'max-h-[2000px]');
-            section.classList.add('opacity-0', 'max-h-0');
+            // Hide section with smooth animation
+            section.style.maxHeight = section.scrollHeight + 'px';
             
-            // Wait for transition to finish before hiding
+            requestAnimationFrame(() => {
+                section.style.transition = 'max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.4s ease-in-out';
+                section.style.maxHeight = '0px';
+                section.style.opacity = '0';
+            });
+            
+            // Wait for animation to finish before hiding
             setTimeout(() => {
                 section.classList.add('hidden');
-            }, 300); // Match duration-300
+            }, 400);
             
             // Rotate icon back
             if (icon) {
-                icon.classList.remove('rotate-180');
+                icon.style.transition = 'transform 0.3s ease-in-out';
+                icon.style.transform = 'rotate(0deg)';
             }
         }
     }

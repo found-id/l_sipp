@@ -18,6 +18,7 @@ class Mitra extends Model
         'kesesuaian_jurusan',
         'tingkat_kebersihan',
         'max_mahasiswa',
+        'created_by',
     ];
 
     // Relationships
