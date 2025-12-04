@@ -13,7 +13,7 @@
                 </div>
                 <dt class="text-sm font-medium text-gray-500 mb-2">Mahasiswa Bimbingan</dt>
                 <dd class="text-3xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors">{{ $stats['mahasiswa_bimbingan'] }}</dd>
-                <p class="text-xs text-gray-400 mt-1">mahasiswa dibimbing</p>
+                <p class="text-xs text-gray-400 mt-1">Mahasiswa Aktif</p>
             </div>
         </div>
     </div>
@@ -31,7 +31,7 @@
                 </div>
                 <dt class="text-sm font-medium text-gray-500 mb-2">Perlu Validasi</dt>
                 <dd class="text-3xl font-bold text-gray-900 group-hover:text-yellow-600 transition-colors">{{ $stats['berkas_perlu_validasi'] }}</dd>
-                <p class="text-xs text-gray-400 mt-1">berkas menunggu</p>
+                <p class="text-xs text-gray-400 mt-1">Menunggu Validasi</p>
             </div>
         </div>
     </div>
@@ -49,7 +49,7 @@
                 </div>
                 <dt class="text-sm font-medium text-gray-500 mb-2">Tervalidasi</dt>
                 <dd class="text-3xl font-bold text-gray-900 group-hover:text-green-600 transition-colors">{{ $stats['berkas_tervalidasi'] }}</dd>
-                <p class="text-xs text-gray-400 mt-1">berkas selesai</p>
+                <p class="text-xs text-gray-400 mt-1">Selesai Validasi</p>
             </div>
         </div>
     </div>
@@ -67,7 +67,7 @@
                 </div>
                 <dt class="text-sm font-medium text-gray-500 mb-2">Total Mitra</dt>
                 <dd class="text-3xl font-bold text-gray-900 group-hover:text-purple-600 transition-colors">{{ $stats['total_mitra'] }}</dd>
-                <p class="text-xs text-gray-400 mt-1">instansi tersedia</p>
+                <p class="text-xs text-gray-400 mt-1">Mitra Tersedia</p>
             </div>
         </div>
     </div>

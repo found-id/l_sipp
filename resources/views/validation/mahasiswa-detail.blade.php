@@ -346,7 +346,7 @@
                         </div>
                         <div>
                             <label class="text-sm font-medium text-gray-500">NIM</label>
-                            <p class="mt-1 text-base text-gray-900">{{ $mahasiswa->nim }}</p>
+                            <p class="mt-1 text-base text-gray-900">{{ $mahasiswa->profilMahasiswa->nim ?? 'N/A' }}</p>
                         </div>
                         <div>
                             <label class="text-sm font-medium text-gray-500">Email</label>
@@ -368,7 +368,7 @@
                         </div>
                         <div>
                             <label class="text-sm font-medium text-gray-500">No. WhatsApp</label>
-                            <p class="mt-1 text-base text-gray-900">{{ $mahasiswa->profilMahasiswa->no_whatsapp ?? 'N/A' }}</p>
+                            <p class="mt-1 text-base text-gray-900">{{ $mahasiswa->profilMahasiswa->no_whatsapp ? '+62 ' . $mahasiswa->profilMahasiswa->no_whatsapp : 'N/A' }}</p>
                         </div>
                         <div>
                             <label class="text-sm font-medium text-gray-500">Dosen Pembimbing</label>
@@ -414,11 +414,11 @@
             <!-- KHS Files Tab -->
             <div id="content-khs-files" class="tab-content hidden">
                 <h2 class="text-lg font-semibold text-gray-900 mb-4">File KHS (Kartu Hasil Studi)</h2>
-                <p class="text-sm text-gray-600 mb-4">Total file KHS yang telah diupload: {{ $khsFilesCount }}/5 semester</p>
+                <p class="text-sm text-gray-600 mb-4">Total file KHS yang telah diupload: {{ $khsFilesCount }}/4 semester</p>
 
                 @if($mahasiswa->khs->count() > 0)
                     <div class="space-y-4">
-                        @foreach($mahasiswa->khs->sortBy('semester') as $khs)
+                        @foreach($mahasiswa->khs->sortBy('semester')->take(4) as $khs)
                         <div class="border border-gray-200 rounded-lg p-4 hover:border-blue-300 transition">
                             <div class="flex items-center justify-between">
                                 <div class="flex items-center space-x-4">
@@ -470,14 +470,14 @@
             <!-- KHS Transkrip Data Tab -->
             <div id="content-khs-transkrip" class="tab-content hidden">
                 <h2 class="text-lg font-semibold text-gray-900 mb-4">Data Transkrip KHS Manual dari SIPADU</h2>
-                <p class="text-sm text-gray-600 mb-4">Data transkrip yang diinput mahasiswa per semester ({{ $totalSemesters }}/5 semester)</p>
+                <p class="text-sm text-gray-600 mb-4">Data transkrip yang diinput mahasiswa per semester ({{ $totalSemesters }}/4 semester)</p>
 
                 @if($mahasiswa->khsManualTranskrip->count() > 0)
                     <!-- Semester Tabs -->
                     <div class="mb-4">
                         <div class="border-b border-gray-200">
                             <nav class="-mb-px flex space-x-4" aria-label="Tabs Semester">
-                                @foreach($mahasiswa->khsManualTranskrip->sortBy('semester') as $index => $transkrip)
+                                @foreach($mahasiswa->khsManualTranskrip->sortBy('semester')->take(4) as $index => $transkrip)
                                     <button onclick="showSemesterTab({{ $transkrip->semester }})"
                                             id="semester-tab-{{ $transkrip->semester }}"
                                             class="semester-tab-button {{ $index === 0 ? 'border-purple-500 text-purple-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }} whitespace-nowrap py-3 px-4 border-b-2 font-medium text-sm">
@@ -490,7 +490,7 @@
 
                     <!-- Semester Content -->
                     <div class="semester-tab-contents">
-                        @foreach($mahasiswa->khsManualTranskrip->sortBy('semester') as $index => $transkrip)
+                        @foreach($mahasiswa->khsManualTranskrip->sortBy('semester')->take(4) as $index => $transkrip)
                         <div id="semester-content-{{ $transkrip->semester }}"
                              class="semester-tab-content transition-opacity duration-300 {{ $index !== 0 ? 'hidden' : '' }}">
                             <div class="border border-gray-200 rounded-lg overflow-hidden">

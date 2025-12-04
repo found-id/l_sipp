@@ -10,22 +10,32 @@
 @endphp
 
 <style>
-/* Collapsible Section Styles - Instant Toggle */
-
-/* Icon rotation */
-[id$="-section-icon"] {
-    display: inline-block;
-    transition: transform 0.2s; /* Optional: keep icon rotation smooth or remove for instant */
+/* Minimalist Collapsible Styles */
+.collapsible-section {
+    transition: all 0.3s ease;
 }
-
-/* Rotated state */
-[id$="-section-icon"].rotated {
+.collapsible-header {
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+.collapsible-header:hover {
+    background-color: #f8fafc;
+}
+.collapsible-icon {
+    transition: transform 0.3s ease;
+}
+.collapsible-icon.rotated {
     transform: rotate(180deg);
 }
-
-/* Header hover effect */
-.cursor-pointer:hover {
-    background-color: rgb(248 250 252) !important;
+.collapsible-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease-out, opacity 0.3s ease-out;
+    opacity: 0;
+}
+.collapsible-content.expanded {
+    max-height: 2000px; /* Arbitrary large height */
+    opacity: 1;
 }
 </style>
 
@@ -34,22 +44,22 @@
     <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
         <div class="flex items-center">
             <div class="flex-shrink-0">
-                <div class="w-12 h-12 rounded-lg bg-blue-600 flex items-center justify-center">
-                    <i class="fas fa-file-upload text-xl text-white"></i>
+                <div class="w-12 h-12 rounded-lg bg-blue-50 flex items-center justify-center border border-blue-100">
+                    <i class="fas fa-file-upload text-xl text-blue-600"></i>
                 </div>
             </div>
             <div class="ml-4">
                 <h1 class="text-2xl font-bold text-gray-900">Pemberkasan Dokumen PKL</h1>
-                <p class="text-gray-600 mt-1">Upload dan kelola dokumen yang diperlukan untuk PKL</p>
+                <p class="text-gray-500 mt-1">Upload dan kelola dokumen yang diperlukan untuk PKL</p>
             </div>
         </div>
     </div>
 
     <!-- PKL Status & Eligibility -->
-    <div class="bg-white shadow rounded-lg p-6">
+    <div class="bg-white shadow-sm rounded-xl border border-gray-100 p-6">
         <div class="flex items-center justify-between mb-6">
-            <h3 class="text-lg font-bold text-slate-800">Status & Kelayakan</h3>
-            <div class="flex items-center text-sm text-slate-500 bg-slate-50 px-3 py-1 rounded-full border border-slate-200">
+            <h3 class="text-lg font-bold text-gray-900">Status & Kelayakan</h3>
+            <div class="flex items-center text-xs text-gray-500 bg-gray-50 px-3 py-1.5 rounded-full border border-gray-100">
                 <i class="fas fa-clock mr-2"></i>
                 <span>Update: {{ now()->format('d M Y') }}</span>
             </div>
@@ -334,93 +344,91 @@
     <div id="content-pemberkasan" class="tab-content">
         <div class="grid grid-cols-1 gap-6 mt-6">
             <!-- Final IPK Calculation -->
-            <!-- Final IPK Calculation -->
-            <div class="bg-white shadow-sm rounded-xl border border-slate-200 overflow-hidden">
-                <div class="bg-white px-6 py-4 border-b border-slate-100 cursor-pointer hover:bg-slate-50 transition-colors duration-200" onclick="toggleSection('analisa-kelayakan-section')">
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center">
-                            <div class="flex-shrink-0">
-                                <div class="w-10 h-10 rounded-lg bg-green-50 flex items-center justify-center">
-                                    <i class="fas fa-calculator text-green-600"></i>
+            <div class="bg-white shadow-sm rounded-xl border border-gray-100 overflow-hidden collapsible-section">
+                <div class="collapsible-header bg-white px-6 py-4 border-b border-gray-100 flex items-center justify-between" onclick="toggleCollapsible(this)">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <div class="w-10 h-10 rounded-lg bg-green-50 flex items-center justify-center border border-green-100">
+                                <i class="fas fa-calculator text-green-600"></i>
+                            </div>
+                        </div>
+                        <div class="ml-4">
+                            <h3 class="text-lg font-bold text-gray-900">Hasil Analisa Kelayakan</h3>
+                            <p class="text-gray-500 text-sm">Ringkasan status akademik Anda</p>
+                        </div>
+                    </div>
+                    <i class="fas fa-chevron-down text-gray-400 collapsible-icon"></i>
+                </div>
+                
+                <div class="collapsible-content">
+                    <div class="p-6">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                            <div class="bg-white rounded-xl p-4 border border-gray-200 hover:border-gray-300 transition-colors">
+                                <div class="text-center">
+                                    <div id="finalIpk" class="text-3xl font-bold text-green-600 mb-1">-</div>
+                                    <div class="text-sm text-gray-600 font-medium">IPK Akhir</div>
                                 </div>
                             </div>
-                            <div class="ml-4">
-                                <h3 class="text-lg font-bold text-slate-800">Hasil Analisa Kelayakan</h3>
-                                <p class="text-slate-500 text-sm">Ringkasan status akademik Anda</p>
+                            <div class="bg-white rounded-xl p-4 border border-gray-200 hover:border-gray-300 transition-colors">
+                                <div class="text-center">
+                                    <div id="totalSemester" class="text-3xl font-bold text-blue-600 mb-1">0/4</div>
+                                    <div class="text-sm text-gray-600 font-medium">Kelengkapan Transkrip</div>
+                                </div>
+                            </div>
+                            <div class="bg-white rounded-xl p-4 border border-gray-200 hover:border-gray-300 transition-colors">
+                                <div class="text-center">
+                                    <div id="pklStatus" class="text-3xl font-bold text-gray-600 mb-1">-</div>
+                                    <div class="text-sm text-gray-600 font-medium">Status PKL</div>
+                                </div>
+                            </div>
+                            <div class="bg-white rounded-xl p-4 border border-gray-200 hover:border-gray-300 transition-colors">
+                                <div class="text-center">
+                                    <div id="totalSksD" class="text-3xl font-bold text-yellow-600 mb-1">0</div>
+                                    <div class="text-sm text-gray-600 font-medium">Total SKS D</div>
+                                </div>
+                            </div>
+                            <div class="bg-white rounded-xl p-4 border border-gray-200 hover:border-gray-300 transition-colors">
+                                <div class="text-center">
+                                    <div id="totalE" class="text-3xl font-bold text-red-600 mb-1">0</div>
+                                    <div class="text-sm text-gray-600 font-medium">Jumlah E</div>
+                                </div>
+                            </div>
+                            <div class="bg-white rounded-xl p-4 border border-gray-200 hover:border-gray-300 transition-colors">
+                                <div class="text-center">
+                                    <div id="uploadKhs" class="text-3xl font-bold text-purple-600 mb-1">0/5</div>
+                                    <div class="text-sm text-gray-600 font-medium">Upload Berkas KHS</div>
+                                </div>
                             </div>
                         </div>
-                        <i class="fas fa-chevron-down text-slate-400 transition-transform duration-300 transform" id="analisa-kelayakan-section-icon"></i>
-                    </div>
-                </div>
-                
-                <div id="analisa-kelayakan-section" class="p-6">
-                
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                    <div class="bg-white rounded-lg p-4 border border-gray-200">
-                        <div class="text-center">
-                            <div id="finalIpk" class="text-3xl font-bold text-green-600 mb-1">-</div>
-                            <div class="text-sm text-gray-600">IPK Akhir</div>
+                        
+                        <div class="text-center text-sm text-gray-500 mt-4 bg-gray-50 p-3 rounded-lg border border-gray-100">
+                            <i class="fas fa-info-circle mr-1"></i>
+                            Data yang dimasukkan dapat dipertanggung jawabkan keaslianya dan menerima konsekuensi jika data dan berkas yang dimasukkan tidak tepat
                         </div>
                     </div>
-                    <div class="bg-white rounded-lg p-4 border border-gray-200">
-                        <div class="text-center">
-                            <div id="totalSemester" class="text-3xl font-bold text-blue-600 mb-1">0/4</div>
-                            <div class="text-sm text-gray-600">Kelengkapan Transkrip</div>
-                        </div>
-                    </div>
-                    <div class="bg-white rounded-lg p-4 border border-gray-200">
-                        <div class="text-center">
-                            <div id="pklStatus" class="text-3xl font-bold text-gray-600 mb-1">-</div>
-                            <div class="text-sm text-gray-600">Status PKL</div>
-                        </div>
-                    </div>
-                    <div class="bg-white rounded-lg p-4 border border-gray-200">
-                        <div class="text-center">
-                            <div id="totalSksD" class="text-3xl font-bold text-yellow-600 mb-1">0</div>
-                            <div class="text-sm text-gray-600">Total SKS D</div>
-                        </div>
-                    </div>
-                    <div class="bg-white rounded-lg p-4 border border-gray-200">
-                        <div class="text-center">
-                            <div id="totalE" class="text-3xl font-bold text-red-600 mb-1">0</div>
-                            <div class="text-sm text-gray-600">Jumlah E</div>
-                        </div>
-                    </div>
-                    <div class="bg-white rounded-lg p-4 border border-gray-200">
-                        <div class="text-center">
-                            <div id="uploadKhs" class="text-3xl font-bold text-purple-600 mb-1">0/5</div>
-                            <div class="text-sm text-gray-600">Upload Berkas KHS</div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="text-center text-sm text-gray-600 mt-4">
-                    <i class="fas fa-info-circle mr-1"></i>
-                    Data yang dimasukkan dapat dipertanggung jawabkan keaslianya dan menerima konsekuensi jika data dan berkas yang dimasukkan tidak tepat
-                </div>
                 </div>
             </div>
 
             <!-- Multiple Semester KHS Upload System -->
-            <div class="bg-white shadow-sm rounded-xl border border-slate-200 overflow-hidden">
-                <div class="bg-white px-6 py-4 border-b border-slate-100 cursor-pointer hover:bg-slate-50 transition-colors duration-200" onclick="toggleSection('khs-upload-section')">
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center">
-                            <div class="flex-shrink-0">
-                                <div class="w-10 h-10 rounded-lg bg-indigo-50 flex items-center justify-center">
-                                    <i class="fas fa-graduation-cap text-indigo-600"></i>
-                                </div>
-                            </div>
-                            <div class="ml-4">
-                                <h3 class="text-lg font-bold text-slate-800">Upload Kartu Hasil Studi (KHS)</h3>
-                                <p class="text-slate-500 text-sm">Upload KHS untuk setiap semester (1-4)</p>
+            <!-- Multiple Semester KHS Upload System -->
+            <div class="bg-white shadow-sm rounded-xl border border-gray-100 overflow-hidden collapsible-section">
+                <div class="collapsible-header bg-white px-6 py-4 border-b border-gray-100 flex items-center justify-between" onclick="toggleCollapsible(this)">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <div class="w-10 h-10 rounded-lg bg-indigo-50 flex items-center justify-center border border-indigo-100">
+                                <i class="fas fa-graduation-cap text-indigo-600"></i>
                             </div>
                         </div>
-                        <i class="fas fa-chevron-down text-slate-400 transition-transform duration-300 transform" id="khs-upload-section-icon"></i>
+                        <div class="ml-4">
+                            <h3 class="text-lg font-bold text-gray-900">Upload Kartu Hasil Studi (KHS)</h3>
+                            <p class="text-gray-500 text-sm">Upload KHS untuk setiap semester (1-4)</p>
+                        </div>
                     </div>
+                    <i class="fas fa-chevron-down text-gray-400 collapsible-icon"></i>
                 </div>
 
-                <div id="khs-upload-section" class="p-6">
+                <div class="collapsible-content">
+                    <div class="p-6">
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                         @for($semester = 1; $semester <= 4; $semester++)
                             <div class="bg-white rounded-xl p-6 border border-slate-200 shadow-sm hover:shadow-md transition-shadow duration-200 flex flex-col items-center text-center">
@@ -518,29 +526,30 @@
                             @endif
                         </div>
                     @endif
+                    </div>
                 </div>
             </div>
 
             <!-- Multi Semester Transcript Analysis -->
-            <div class="bg-white shadow-sm rounded-xl border border-slate-200 overflow-hidden">
-                <div class="bg-white px-6 py-4 border-b border-slate-100 cursor-pointer hover:bg-slate-50 transition-colors duration-200" onclick="toggleSection('transkrip-sipadu-section')">
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center">
-                            <div class="flex-shrink-0">
-                                <div class="w-10 h-10 rounded-lg bg-purple-50 flex items-center justify-center">
-                                    <i class="fas fa-chart-line text-purple-600"></i>
-                                </div>
-                            </div>
-                            <div class="ml-4">
-                                <h3 class="text-lg font-bold text-slate-800">Data Transkrip Sipadu</h3>
-                                <p class="text-slate-500 text-sm">Paste data transkrip untuk setiap semester</p>
+            <!-- Multi Semester Transcript Analysis -->
+            <div class="bg-white shadow-sm rounded-xl border border-gray-100 overflow-hidden collapsible-section">
+                <div class="collapsible-header bg-white px-6 py-4 border-b border-gray-100 flex items-center justify-between" onclick="toggleCollapsible(this)">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <div class="w-10 h-10 rounded-lg bg-purple-50 flex items-center justify-center border border-purple-100">
+                                <i class="fas fa-chart-line text-purple-600"></i>
                             </div>
                         </div>
-                        <i class="fas fa-chevron-down text-slate-400 transition-transform duration-300 transform" id="transkrip-sipadu-section-icon"></i>
+                        <div class="ml-4">
+                            <h3 class="text-lg font-bold text-gray-900">Data Transkrip Sipadu</h3>
+                            <p class="text-gray-500 text-sm">Paste data transkrip untuk setiap semester</p>
+                        </div>
                     </div>
+                    <i class="fas fa-chevron-down text-gray-400 collapsible-icon"></i>
                 </div>
                 
-                <div id="transkrip-sipadu-section" class="p-6">
+                <div class="collapsible-content">
+                    <div class="p-6">
                     <!-- Semester Tabs Navigation -->
                     <div class="mb-6">
                         <div class="border-b border-gray-200">
@@ -665,6 +674,7 @@
                         @endfor
                 </div>
             </div>
+                    </div>
                 </div>
             </div>
 
@@ -2809,28 +2819,27 @@ function renderTable(rows, container) {
                 <div class="grid grid-cols-1 gap-6">
 
                 <!-- Row 1: Surat Pengantar -->
-                <div class="bg-white shadow-sm rounded-xl border border-slate-200 overflow-hidden">
-                    <div class="bg-white px-6 py-4 border-b border-slate-100 cursor-pointer hover:bg-slate-50 transition-colors duration-200" onclick="toggleSection('surat-pengantar-section')">
-                        <div class="flex items-center justify-between">
-                            <div class="flex items-center">
-                                <div class="flex-shrink-0">
-                                    <div class="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center">
-                                        <i class="fas fa-file-alt text-xl text-blue-600"></i>
-                                    </div>
-                                </div>
-                                <div class="ml-4">
-                                    <h3 class="text-lg font-bold text-slate-800">1. Surat Pengantar</h3>
-                                    <p class="text-slate-500 text-sm">Upload surat pengantar dari kampus</p>
+                <div class="bg-white shadow-sm rounded-xl border border-gray-100 overflow-hidden collapsible-section">
+                    <div class="collapsible-header bg-white px-6 py-4 border-b border-gray-100 flex items-center justify-between" onclick="toggleCollapsible(this)">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0">
+                                <div class="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center border border-blue-100">
+                                    <i class="fas fa-file-alt text-xl text-blue-600"></i>
                                 </div>
                             </div>
-                            <div class="flex items-center space-x-3">
-                                <span class="bg-blue-100 text-blue-700 text-xs font-bold px-3 py-1 rounded-full">Step 1</span>
-                                <i class="fas fa-chevron-down text-slate-400 transition-transform duration-300 transform" id="surat-pengantar-section-icon"></i>
+                            <div class="ml-4">
+                                <h3 class="text-lg font-bold text-gray-900">1. Surat Pengantar</h3>
+                                <p class="text-gray-500 text-sm">Upload surat pengantar dari kampus</p>
                             </div>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <span class="bg-blue-50 text-blue-700 text-xs font-bold px-3 py-1 rounded-full border border-blue-100">Step 1</span>
+                            <i class="fas fa-chevron-down text-gray-400 collapsible-icon"></i>
                         </div>
                     </div>
 
-                    <div id="surat-pengantar-section" class="p-6 transition-all duration-300">
+                    <div class="collapsible-content">
+                        <div class="p-6">
                         @if($suratPengantar ?? false)
                             <div class="mb-4 p-4 bg-gray-50 rounded-lg border">
                                 <div class="flex items-start justify-between">
@@ -2899,32 +2908,32 @@ function renderTable(rows, container) {
                             <p class="text-sm text-yellow-600">Anda tidak dapat mengupload surat pengantar baru karena status PKL sedang Aktif/Selesai.</p>
                         </div>
                         @endif
+                        </div>
                     </div>
                 </div>
 
                 <!-- Row 2: Pilih Instansi Mitra -->
-                <div class="bg-white shadow-sm rounded-xl border border-slate-200 overflow-hidden">
-                    <div class="bg-white px-6 py-4 border-b border-slate-100 cursor-pointer hover:bg-slate-50 transition-colors duration-200" onclick="toggleSection('mitra-section')">
-                        <div class="flex items-center justify-between">
-                            <div class="flex items-center">
-                                <div class="flex-shrink-0">
-                                    <div class="w-10 h-10 bg-indigo-50 rounded-lg flex items-center justify-center">
-                                        <i class="fas fa-building text-xl text-indigo-600"></i>
-                                    </div>
-                                </div>
-                                <div class="ml-4">
-                                    <h3 class="text-lg font-bold text-slate-800">2. Pilih Instansi Mitra</h3>
-                                    <p class="text-slate-500 text-sm">Pilih instansi mitra untuk PKL</p>
+                <div class="bg-white shadow-sm rounded-xl border border-gray-100 overflow-hidden collapsible-section">
+                    <div class="collapsible-header bg-white px-6 py-4 border-b border-gray-100 flex items-center justify-between" onclick="toggleCollapsible(this)">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0">
+                                <div class="w-10 h-10 bg-indigo-50 rounded-lg flex items-center justify-center border border-indigo-100">
+                                    <i class="fas fa-building text-xl text-indigo-600"></i>
                                 </div>
                             </div>
-                            <div class="flex items-center space-x-3">
-                                <span class="bg-indigo-100 text-indigo-700 text-xs font-bold px-3 py-1 rounded-full">Step 2</span>
-                                <i class="fas fa-chevron-down text-slate-400 transition-transform duration-300 transform" id="mitra-section-icon"></i>
+                            <div class="ml-4">
+                                <h3 class="text-lg font-bold text-gray-900">2. Pilih Instansi Mitra</h3>
+                                <p class="text-gray-500 text-sm">Pilih instansi mitra untuk PKL</p>
                             </div>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <span class="bg-indigo-50 text-indigo-700 text-xs font-bold px-3 py-1 rounded-full border border-indigo-100">Step 2</span>
+                            <i class="fas fa-chevron-down text-gray-400 collapsible-icon"></i>
                         </div>
                     </div>
                     
-                    <div id="mitra-section" class="p-6 transition-all duration-300">
+                    <div class="collapsible-content">
+                        <div class="p-6">
                         @if($user->profilMahasiswa && $user->profilMahasiswa->mitraSelected)
                             @php
                                 $selectedMitra = $user->profilMahasiswa->mitraSelected;
@@ -3020,32 +3029,32 @@ function renderTable(rows, container) {
                                 </a>
                             </div>
                         @endif
+                        </div>
                     </div>
                 </div>
 
                 <!-- Row 3: Surat Balasan -->
-                <div class="bg-white shadow-sm rounded-xl border border-slate-200 overflow-hidden">
-                <div class="bg-white px-6 py-4 border-b border-slate-100 cursor-pointer hover:bg-slate-50 transition-colors duration-200" onclick="toggleSection('surat-balasan-section')">
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center">
-                            <div class="flex-shrink-0">
-                                <div class="w-10 h-10 bg-green-50 rounded-lg flex items-center justify-center">
-                                    <i class="fas fa-envelope text-xl text-green-600"></i>
-                                </div>
-                            </div>
-                            <div class="ml-4">
-                                <h3 class="text-lg font-bold text-slate-800">3. Surat Balasan</h3>
-                                    <p class="text-slate-500 text-sm">Upload surat balasan dari instansi</p>
+                <div class="bg-white shadow-sm rounded-xl border border-gray-100 overflow-hidden collapsible-section">
+                <div class="collapsible-header bg-white px-6 py-4 border-b border-gray-100 flex items-center justify-between" onclick="toggleCollapsible(this)">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <div class="w-10 h-10 bg-green-50 rounded-lg flex items-center justify-center border border-green-100">
+                                <i class="fas fa-envelope text-xl text-green-600"></i>
                             </div>
                         </div>
-                        <div class="flex items-center space-x-3">
-                            <span class="bg-green-100 text-green-700 text-xs font-bold px-3 py-1 rounded-full">Step 3</span>
-                            <i class="fas fa-chevron-down text-slate-400 transition-transform duration-300 transform" id="surat-balasan-section-icon"></i>
+                        <div class="ml-4">
+                            <h3 class="text-lg font-bold text-gray-900">3. Surat Balasan</h3>
+                                <p class="text-gray-500 text-sm">Upload surat balasan dari instansi</p>
                         </div>
+                    </div>
+                    <div class="flex items-center space-x-3">
+                        <span class="bg-green-50 text-green-700 text-xs font-bold px-3 py-1 rounded-full border border-green-100">Step 3</span>
+                        <i class="fas fa-chevron-down text-gray-400 collapsible-icon"></i>
                     </div>
                 </div>
                 
-                <div id="surat-balasan-section" class="p-6 transition-all duration-300">
+                <div class="collapsible-content">
+                    <div class="p-6">
                     @if($suratBalasan && is_object($suratBalasan))
                         <div class="mb-6 p-4 bg-gray-50 rounded-lg border">
                             <div class="flex items-start justify-between">
@@ -3134,6 +3143,7 @@ function renderTable(rows, container) {
                     </div>
                     @endif
                     </div>
+                </div>
                 </div>
                 </div>
             </div>
@@ -3786,6 +3796,20 @@ function activatePklStatus() {
 // Function to deactivate PKL status
 function deactivatePklStatus() {
     showPklOptionsModal();
+}
+
+// Minimalist Collapsible Toggle Function
+function toggleCollapsible(header) {
+    const content = header.nextElementSibling;
+    const icon = header.querySelector('.collapsible-icon');
+    
+    // Toggle expanded class
+    content.classList.toggle('expanded');
+    
+    // Toggle icon rotation
+    if (icon) {
+        icon.classList.toggle('rotated');
+    }
 }
 
 // Function to show PKL options modal

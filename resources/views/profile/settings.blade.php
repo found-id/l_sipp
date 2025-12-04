@@ -4,71 +4,78 @@
 
 @section('content')
 <div class="space-y-6">
-    <!-- Header with Gradient -->
-    <div class="relative overflow-hidden bg-gradient-to-br from-gray-700 via-slate-700 to-zinc-700 shadow-2xl rounded-2xl p-8">
-        <div class="absolute inset-0 bg-black opacity-10"></div>
-        <div class="relative z-10">
-            <div class="flex items-center">
-                <div class="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center mr-4">
-                    <i class="fas fa-cog text-4xl text-white"></i>
-                </div>
-                <div>
-                    <h1 class="text-3xl font-bold text-white">Pengaturan</h1>
-                    <p class="text-gray-200 mt-1">Kelola akun dan keamanan Anda</p>
-                </div>
+    <!-- Header -->
+    <div class="bg-white shadow-sm rounded-xl p-6 border border-gray-100">
+        <div class="flex items-center">
+            <div class="w-12 h-12 bg-gray-50 rounded-lg flex items-center justify-center mr-4 border border-gray-100">
+                <i class="fas fa-cog text-2xl text-gray-600"></i>
+            </div>
+            <div>
+                <h1 class="text-2xl font-bold text-gray-900">Pengaturan</h1>
+                <p class="text-gray-500 mt-1">Kelola akun dan keamanan Anda</p>
             </div>
         </div>
-        <!-- Decorative circles -->
-        <div class="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -mr-32 -mt-32"></div>
-        <div class="absolute bottom-0 left-0 w-48 h-48 bg-white/5 rounded-full -ml-24 -mb-24"></div>
     </div>
 
     <!-- Account Information -->
-    <div class="bg-white shadow-lg rounded-2xl p-6 border border-gray-100">
+    <div class="bg-white shadow-sm rounded-xl p-6 border border-gray-100">
         <div class="flex items-center mb-6">
-            <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center">
-                <i class="fas fa-user-circle text-white text-xl"></i>
+            <div class="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center border border-blue-100">
+                <i class="fas fa-user-circle text-blue-600 text-lg"></i>
             </div>
-            <h3 class="text-xl font-bold text-gray-900 ml-3">Informasi Akun</h3>
+            <h3 class="text-lg font-bold text-gray-900 ml-3">Informasi Akun</h3>
         </div>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             @if($user)
-                <div class="bg-gradient-to-br from-blue-50 to-indigo-50 p-5 rounded-xl border border-blue-100">
-                    <label class="block text-sm font-semibold text-gray-700 mb-2">
-                        <i class="fas fa-user text-blue-500 mr-2"></i>Nama Lengkap
+                <div class="p-4 rounded-xl border border-gray-200 hover:border-gray-300 transition-colors">
+                    <label class="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">
+                        Nama Lengkap
                     </label>
-                    <p class="text-base text-gray-900 font-medium">{{ $user->name }}</p>
+                    <div class="flex items-center">
+                        <i class="fas fa-user text-gray-400 mr-2"></i>
+                        <p class="text-base text-gray-900 font-medium">{{ $user->name }}</p>
+                    </div>
                 </div>
 
-                <div class="bg-gradient-to-br from-purple-50 to-pink-50 p-5 rounded-xl border border-purple-100">
-                    <label class="block text-sm font-semibold text-gray-700 mb-2">
-                        <i class="fas fa-envelope text-purple-500 mr-2"></i>Email
+                <div class="p-4 rounded-xl border border-gray-200 hover:border-gray-300 transition-colors">
+                    <label class="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">
+                        Email
                     </label>
-                    <p class="text-base text-gray-900 font-medium break-all">{{ $user->email }}</p>
+                    <div class="flex items-center">
+                        <i class="fas fa-envelope text-gray-400 mr-2"></i>
+                        <p class="text-base text-gray-900 font-medium break-all">{{ $user->email }}</p>
+                    </div>
                 </div>
 
-                <div class="bg-gradient-to-br from-green-50 to-emerald-50 p-5 rounded-xl border border-green-100">
-                    <label class="block text-sm font-semibold text-gray-700 mb-2">
-                        <i class="fas fa-shield-alt text-green-500 mr-2"></i>Role
+                <div class="p-4 rounded-xl border border-gray-200 hover:border-gray-300 transition-colors">
+                    <label class="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">
+                        Role
                     </label>
-                    <span class="inline-flex items-center px-4 py-2 rounded-full text-sm font-semibold
-                        @if($user->role === 'admin') bg-red-500 text-white
-                        @elseif($user->role === 'dospem') bg-purple-500 text-white
-                        @else bg-green-500 text-white @endif shadow-md">
-                        <i class="fas
-                            @if($user->role === 'admin') fa-shield-alt
-                            @elseif($user->role === 'dospem') fa-chalkboard-teacher
-                            @else fa-user-graduate @endif mr-2"></i>
-                        {{ ucfirst($user->role) }}
-                    </span>
+                    <div class="flex items-center mt-1">
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium
+                            @if($user->role === 'admin') bg-red-50 text-red-700 border border-red-100
+                            @elseif($user->role === 'dospem') bg-purple-50 text-purple-700 border border-purple-100
+                            @else bg-green-50 text-green-700 border border-green-100 @endif">
+                            <i class="fas
+                                @if($user->role === 'admin') fa-shield-alt
+                                @elseif($user->role === 'dospem') fa-chalkboard-teacher
+                                @else fa-user-graduate @endif mr-2 text-xs"></i>
+                            {{ ucfirst($user->role) }}
+                        </span>
+                    </div>
                 </div>
 
-                <div class="bg-gradient-to-br from-orange-50 to-amber-50 p-5 rounded-xl border border-orange-100">
-                    <label class="block text-sm font-semibold text-gray-700 mb-2">
-                        <i class="fas fa-calendar text-orange-500 mr-2"></i>Bergabung Sejak
+                <div class="p-4 rounded-xl border border-gray-200 hover:border-gray-300 transition-colors">
+                    <label class="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">
+                        Bergabung Sejak
                     </label>
-                    <p class="text-base text-gray-900 font-medium">{{ $user->created_at->format('d M Y') }}</p>
-                    <p class="text-xs text-gray-500 mt-1">{{ $user->created_at->diffForHumans() }}</p>
+                    <div class="flex items-center">
+                        <i class="fas fa-calendar text-gray-400 mr-2"></i>
+                        <div>
+                            <p class="text-base text-gray-900 font-medium">{{ $user->created_at->format('d M Y') }}</p>
+                            <p class="text-xs text-gray-400">{{ $user->created_at->diffForHumans() }}</p>
+                        </div>
+                    </div>
                 </div>
             @else
                 <div class="col-span-2 bg-yellow-50 border border-yellow-200 rounded-xl p-6 text-center">
@@ -81,27 +88,27 @@
     </div>
 
     <!-- Security Actions -->
-    <div class="bg-white shadow-lg rounded-2xl p-6 border border-gray-100">
+    <div class="bg-white shadow-sm rounded-xl p-6 border border-gray-100">
         <div class="flex items-center mb-6">
-            <div class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
+            <div class="w-10 h-10 bg-gray-50 rounded-lg flex items-center justify-center border border-gray-100">
                 <i class="fas fa-shield-alt text-gray-600 text-lg"></i>
             </div>
-            <h3 class="text-xl font-bold text-gray-900 ml-3">Keamanan</h3>
+            <h3 class="text-lg font-bold text-gray-900 ml-3">Keamanan</h3>
         </div>
         <div class="space-y-4">
-            <div class="bg-gray-50 p-5 rounded-xl border border-gray-200 hover:border-gray-300 transition-all duration-200">
+            <div class="p-5 rounded-xl border border-gray-200 hover:border-gray-300 transition-all duration-200">
                 <div class="flex items-center justify-between">
                     <div class="flex items-center">
-                        <div class="w-10 h-10 bg-gray-200 rounded-lg flex items-center justify-center mr-4">
-                            <i class="fas fa-key text-gray-600"></i>
+                        <div class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center mr-4 text-gray-500">
+                            <i class="fas fa-key"></i>
                         </div>
                         <div>
                             <h4 class="font-semibold text-gray-900">Ubah Password</h4>
                             <p class="text-sm text-gray-500 mt-0.5">Perbarui password untuk keamanan akun</p>
                         </div>
                     </div>
-                    <button onclick="openPasswordModal()" class="bg-gray-600 hover:bg-gray-700 text-white px-5 py-2.5 rounded-lg transition-all duration-200 font-medium text-sm">
-                        <i class="fas fa-key mr-2"></i>Ubah
+                    <button onclick="openPasswordModal()" class="bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 px-4 py-2 rounded-lg transition-all duration-200 font-medium text-sm shadow-sm">
+                        <i class="fas fa-pen mr-2 text-gray-400"></i>Ubah
                     </button>
                 </div>
             </div>
@@ -109,14 +116,14 @@
     </div>
 
     <!-- Pindah Akun Section -->
-    <div class="bg-white shadow-lg rounded-2xl border border-gray-100 overflow-hidden">
+    <div class="bg-white shadow-sm rounded-xl border border-gray-100 overflow-hidden">
         <div class="p-6 cursor-pointer hover:bg-gray-50 transition-colors duration-200" onclick="toggleAccounts()">
             <div class="flex items-center justify-between">
                 <div class="flex items-center">
-                    <div class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
+                    <div class="w-10 h-10 bg-gray-50 rounded-lg flex items-center justify-center border border-gray-100">
                         <i class="fas fa-exchange-alt text-gray-600 text-lg"></i>
                     </div>
-                    <h3 class="text-xl font-bold text-gray-900 ml-3">Pindah Akun</h3>
+                    <h3 class="text-lg font-bold text-gray-900 ml-3">Pindah Akun</h3>
                 </div>
                 <div class="flex items-center">
                     <span class="text-sm text-gray-500 mr-3">{{ count($linkedAccounts) + 1 }} Akun Terhubung</span>
@@ -127,22 +134,22 @@
 
         <div id="accountList" class="hidden border-t border-gray-100 bg-gray-50/50 p-6 space-y-4">
             <div class="flex justify-end mb-4">
-                <a href="{{ route('profile.accounts.add-login') }}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-all duration-200 font-medium text-sm shadow-md flex items-center">
+                <a href="{{ route('profile.accounts.add-login') }}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-all duration-200 font-medium text-sm shadow-sm flex items-center">
                     <i class="fas fa-plus mr-2"></i>Tambah Akun
                 </a>
             </div>
 
             <!-- Current Account -->
-            <div class="bg-blue-50 p-4 rounded-xl border border-blue-200 flex items-center justify-between">
+            <div class="bg-white p-4 rounded-xl border border-blue-200 ring-1 ring-blue-100 flex items-center justify-between">
                 <div class="flex items-center">
                     <div class="relative">
                         @if($user->photo)
                             <img src="{{ filter_var($user->photo, FILTER_VALIDATE_URL) ? $user->photo : asset('storage/' . $user->photo) }}" 
-                                 class="w-10 h-10 rounded-full object-cover border-2 border-white shadow-sm"
+                                 class="w-10 h-10 rounded-full object-cover border border-gray-200"
                                  alt="{{ $user->name }}">
                         @else
                             <img src="https://ui-avatars.com/api/?name={{ urlencode($user->name) }}&background=3b82f6&color=fff" 
-                                 class="w-10 h-10 rounded-full shadow-sm"
+                                 class="w-10 h-10 rounded-full"
                                  alt="{{ $user->name }}">
                         @endif
                         <div class="absolute -bottom-1 -right-1 bg-green-500 w-3 h-3 rounded-full border-2 border-white"></div>
@@ -152,7 +159,7 @@
                         <p class="text-xs text-gray-500">{{ $user->email }}</p>
                     </div>
                 </div>
-                <span class="px-3 py-1 bg-blue-100 text-blue-700 text-xs font-semibold rounded-full">Sedang Aktif</span>
+                <span class="px-3 py-1 bg-blue-50 text-blue-700 text-xs font-semibold rounded-full border border-blue-100">Sedang Aktif</span>
             </div>
 
             <!-- Linked Accounts -->
@@ -162,11 +169,11 @@
                         <div class="relative">
                             @if($account->photo)
                                 <img src="{{ filter_var($account->photo, FILTER_VALIDATE_URL) ? $account->photo : asset('storage/' . $account->photo) }}" 
-                                     class="w-10 h-10 rounded-full object-cover border-2 border-white shadow-sm grayscale group-hover:grayscale-0 transition-all"
+                                     class="w-10 h-10 rounded-full object-cover border border-gray-200 grayscale group-hover:grayscale-0 transition-all"
                                      alt="{{ $account->name }}">
                             @else
                                 <img src="https://ui-avatars.com/api/?name={{ urlencode($account->name) }}&background=gray&color=fff" 
-                                     class="w-10 h-10 rounded-full shadow-sm grayscale group-hover:grayscale-0 transition-all"
+                                     class="w-10 h-10 rounded-full grayscale group-hover:grayscale-0 transition-all"
                                      alt="{{ $account->name }}">
                             @endif
                         </div>
@@ -185,7 +192,7 @@
                         <form action="{{ route('profile.accounts.remove', $account->id) }}" method="POST" onsubmit="return confirm('Hapus akun ini dari daftar?');">
                             @csrf
                             @method('DELETE')
-                            <button type="submit" class="bg-red-50 hover:bg-red-100 text-red-600 p-1.5 rounded-lg transition-all duration-200" title="Hapus Akun">
+                            <button type="submit" class="bg-white border border-gray-200 hover:bg-red-50 hover:border-red-200 text-gray-400 hover:text-red-600 p-1.5 rounded-lg transition-all duration-200" title="Hapus Akun">
                                 <i class="fas fa-trash-alt text-sm"></i>
                             </button>
                         </form>
@@ -200,19 +207,19 @@
     </div>
 
     <!-- Account Actions -->
-    <div class="bg-white shadow-lg rounded-2xl p-6 border border-gray-100">
+    <div class="bg-white shadow-sm rounded-xl p-6 border border-gray-100">
         <div class="flex items-center mb-6">
-            <div class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
+            <div class="w-10 h-10 bg-gray-50 rounded-lg flex items-center justify-center border border-gray-100">
                 <i class="fas fa-cog text-gray-600 text-lg"></i>
             </div>
-            <h3 class="text-xl font-bold text-gray-900 ml-3">Aksi Akun</h3>
+            <h3 class="text-lg font-bold text-gray-900 ml-3">Aksi Akun</h3>
         </div>
         <div class="space-y-4">
-            <div class="bg-gray-50 p-5 rounded-xl border border-gray-200 hover:border-gray-300 transition-all duration-200">
+            <div class="p-5 rounded-xl border border-gray-200 hover:border-gray-300 transition-all duration-200">
                 <div class="flex items-center justify-between">
                     <div class="flex items-center">
-                        <div class="w-10 h-10 bg-gray-200 rounded-lg flex items-center justify-center mr-4">
-                            <i class="fas fa-sign-out-alt text-gray-600"></i>
+                        <div class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center mr-4 text-gray-500">
+                            <i class="fas fa-sign-out-alt"></i>
                         </div>
                         <div>
                             <h4 class="font-semibold text-gray-900">Logout dari Akun</h4>
@@ -221,8 +228,8 @@
                     </div>
                     <form id="logoutForm" action="{{ route('logout') }}" method="POST" class="inline">
                         @csrf
-                        <button type="button" onclick="confirmLogout()" class="bg-gray-600 hover:bg-gray-700 text-white px-5 py-2.5 rounded-lg transition-all duration-200 font-medium text-sm">
-                            <i class="fas fa-sign-out-alt mr-2"></i>Logout
+                        <button type="button" onclick="confirmLogout()" class="bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 px-4 py-2 rounded-lg transition-all duration-200 font-medium text-sm shadow-sm">
+                            <i class="fas fa-sign-out-alt mr-2 text-gray-400"></i>Logout
                         </button>
                     </form>
                 </div>
@@ -233,18 +240,18 @@
 
 <!-- Change Password Modal -->
 <div id="passwordModal" class="fixed inset-0 bg-gray-900 bg-opacity-60 overflow-y-auto h-full w-full hidden z-50 backdrop-blur-sm">
-    <div class="relative top-20 mx-auto p-0 border-0 w-full max-w-md shadow-2xl rounded-2xl bg-white">
+    <div class="relative top-20 mx-auto p-0 border-0 w-full max-w-md shadow-xl rounded-2xl bg-white">
         <!-- Modal Header -->
-        <div class="bg-gradient-to-r from-indigo-600 to-purple-700 p-6 rounded-t-2xl">
+        <div class="bg-white p-6 rounded-t-2xl border-b border-gray-100">
             <div class="flex items-center justify-between">
                 <div class="flex items-center">
-                    <div class="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-lg flex items-center justify-center mr-3">
-                        <i class="fas fa-key text-white text-lg"></i>
+                    <div class="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center mr-3">
+                        <i class="fas fa-key text-blue-600 text-lg"></i>
                     </div>
-                    <h3 class="text-xl font-bold text-white">Ubah Password</h3>
+                    <h3 class="text-xl font-bold text-gray-900">Ubah Password</h3>
                 </div>
-                <button onclick="closePasswordModal()" class="text-white hover:text-gray-200 transition-colors">
-                    <i class="fas fa-times text-2xl"></i>
+                <button onclick="closePasswordModal()" class="text-gray-400 hover:text-gray-500 transition-colors">
+                    <i class="fas fa-times text-xl"></i>
                 </button>
             </div>
         </div>
@@ -258,18 +265,30 @@
                     <label for="current_password" class="block text-sm font-semibold text-gray-700 mb-2">
                         <i class="fas fa-lock text-gray-400 mr-2"></i>Password Lama
                     </label>
-                    <input type="password" id="current_password" name="current_password" required
-                           class="block w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200"
-                           placeholder="Masukkan password lama">
+                    <div class="relative">
+                        <input type="password" id="current_password" name="current_password" required
+                               class="block w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 pr-10"
+                               placeholder="Masukkan password lama">
+                        <button type="button" onclick="togglePasswordVisibility('current_password', 'icon_current')" 
+                                class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 focus:outline-none">
+                            <i id="icon_current" class="fas fa-eye"></i>
+                        </button>
+                    </div>
                 </div>
 
                 <div>
                     <label for="new_password" class="block text-sm font-semibold text-gray-700 mb-2">
                         <i class="fas fa-key text-gray-400 mr-2"></i>Password Baru
                     </label>
-                    <input type="password" id="new_password" name="password" required
-                           class="block w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200"
-                           placeholder="Masukkan password baru">
+                    <div class="relative">
+                        <input type="password" id="new_password" name="password" required
+                               class="block w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 pr-10"
+                               placeholder="Masukkan password baru">
+                        <button type="button" onclick="togglePasswordVisibility('new_password', 'icon_new')" 
+                                class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 focus:outline-none">
+                            <i id="icon_new" class="fas fa-eye"></i>
+                        </button>
+                    </div>
                     <p class="mt-2 text-xs text-gray-500">Minimal 8 karakter</p>
                 </div>
 
@@ -277,19 +296,25 @@
                     <label for="new_password_confirmation" class="block text-sm font-semibold text-gray-700 mb-2">
                         <i class="fas fa-check-double text-gray-400 mr-2"></i>Konfirmasi Password Baru
                     </label>
-                    <input type="password" id="new_password_confirmation" name="password_confirmation" required
-                           class="block w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200"
-                           placeholder="Konfirmasi password baru">
+                    <div class="relative">
+                        <input type="password" id="new_password_confirmation" name="password_confirmation" required
+                               class="block w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 pr-10"
+                               placeholder="Konfirmasi password baru">
+                        <button type="button" onclick="togglePasswordVisibility('new_password_confirmation', 'icon_confirm')" 
+                                class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 focus:outline-none">
+                            <i id="icon_confirm" class="fas fa-eye"></i>
+                        </button>
+                    </div>
                 </div>
             </div>
 
             <div class="flex justify-end space-x-3 mt-8">
                 <button type="button" onclick="closePasswordModal()"
-                        class="px-6 py-3 bg-gray-200 text-gray-700 rounded-xl hover:bg-gray-300 transition-all duration-200 font-semibold">
-                    <i class="fas fa-times mr-2"></i>Batal
+                        class="px-6 py-3 bg-white border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition-all duration-200 font-semibold shadow-sm">
+                    Batal
                 </button>
                 <button type="submit"
-                        class="px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-700 text-white rounded-xl hover:from-indigo-700 hover:to-purple-800 transition-all duration-200 shadow-md hover:shadow-lg font-semibold">
+                        class="px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all duration-200 shadow-md hover:shadow-lg font-semibold">
                     <i class="fas fa-save mr-2"></i>Ubah Password
                 </button>
             </div>
@@ -356,14 +381,16 @@ document.getElementById('logoutModal')?.addEventListener('click', function(e) {
 <div id="logoutModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
     <div class="bg-white rounded-xl shadow-2xl p-8 max-w-md w-full mx-4">
         <div class="text-center">
-            <i class="fas fa-sign-out-alt text-5xl text-gray-500 mb-4"></i>
-            <h3 class="text-xl font-bold text-gray-900 mb-3">Konfirmasi Logout</h3>
+            <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-sign-out-alt text-2xl text-gray-500"></i>
+            </div>
+            <h3 class="text-xl font-bold text-gray-900 mb-2">Konfirmasi Logout</h3>
             <p class="text-gray-600 mb-6">Apakah Anda yakin ingin keluar dari akun?</p>
             <div class="flex justify-center space-x-3">
-                <button onclick="closeLogoutModal()" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-2.5 px-6 rounded-lg transition-all duration-200">
+                <button onclick="closeLogoutModal()" class="bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 font-semibold py-2.5 px-6 rounded-lg transition-all duration-200 shadow-sm">
                     Batal
                 </button>
-                <button onclick="proceedLogout()" class="bg-gray-600 hover:bg-gray-700 text-white font-semibold py-2.5 px-6 rounded-lg transition-all duration-200">
+                <button onclick="proceedLogout()" class="bg-gray-900 hover:bg-black text-white font-semibold py-2.5 px-6 rounded-lg transition-all duration-200 shadow-md">
                     Ya, Logout
                 </button>
             </div>
@@ -397,6 +424,37 @@ function closePasswordModal() {
     document.getElementById('current_password').value = '';
     document.getElementById('new_password').value = '';
     document.getElementById('new_password_confirmation').value = '';
+    
+    // Reset visibility
+    resetPasswordVisibility('current_password', 'icon_current');
+    resetPasswordVisibility('new_password', 'icon_new');
+    resetPasswordVisibility('new_password_confirmation', 'icon_confirm');
+}
+
+function togglePasswordVisibility(inputId, iconId) {
+    const input = document.getElementById(inputId);
+    const icon = document.getElementById(iconId);
+    
+    if (input.type === 'password') {
+        input.type = 'text';
+        icon.classList.remove('fa-eye');
+        icon.classList.add('fa-eye-slash');
+    } else {
+        input.type = 'password';
+        icon.classList.remove('fa-eye-slash');
+        icon.classList.add('fa-eye');
+    }
+}
+
+function resetPasswordVisibility(inputId, iconId) {
+    const input = document.getElementById(inputId);
+    const icon = document.getElementById(iconId);
+    
+    if (input && icon) {
+        input.type = 'password';
+        icon.classList.remove('fa-eye-slash');
+        icon.classList.add('fa-eye');
+    }
 }
 
 // Close modal when clicking outside

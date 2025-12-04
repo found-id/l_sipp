@@ -141,7 +141,7 @@
                             {{ $m->created_at->format('d M Y') }}
                         </td>
                         <td class="px-4 py-4 text-sm font-medium whitespace-nowrap text-center sticky right-0 bg-white z-10 hover:bg-gray-50 transition-colors shadow-[-4px_0_6px_-1px_rgba(0,0,0,0.1)]">
-                            <button onclick="openEditModal({{ $m->id }}, '{{ addslashes($m->nama) }}', '{{ addslashes($m->alamat) }}', '{{ addslashes($m->kontak) }}', {{ $m->jarak ?? 0 }}, {{ $m->honor ?? 0 }}, {{ $m->fasilitas ?? 0 }}, {{ $m->kesesuaian_jurusan ?? 0 }}, {{ $m->tingkat_kebersihan ?? 0 }}, {{ $m->max_mahasiswa ?? 4 }})"
+                            <button onclick="openEditModal({{ $m->id }}, '{{ addslashes($m->nama) }}', '{{ addslashes($m->alamat) }}', '{{ addslashes($m->kontak) }}', {{ $m->jarak ?? 0 }}, {{ $m->honor ?? 0 }}, {{ $m->fasilitas ?? 0 }}, {{ $m->kesesuaian_jurusan ?? 0 }}, {{ $m->tingkat_kebersihan ?? 0 }}, {{ $m->max_mahasiswa ?? 4 }}, '{{ $m->created_by }}')"
                                     class="text-blue-600 hover:text-blue-900 mr-3 inline-flex items-center">
                                 <i class="fas fa-edit mr-1"></i>Edit
                             </button>
@@ -290,6 +290,16 @@
                        class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500 text-sm">
             </div>
 
+            <!-- Tampilan Toggle -->
+            <div class="mb-4">
+                <label for="edit_tampilan_selector" class="block text-sm font-medium text-gray-700 mb-1">Tampilan</label>
+                <select id="edit_tampilan_selector" onchange="updateCreatedBy()" class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500 text-sm bg-white">
+                    <option value="normal">Normal (Menampilkan Kriteria)</option>
+                    <option value="user_added">Added by Mahasiswa (Menyembunyikan Kriteria)</option>
+                </select>
+                <input type="hidden" id="edit_created_by" name="created_by">
+            </div>
+
             <!-- Informasi Dasar -->
             <div class="mb-4 p-4 bg-gray-50 rounded-md border border-gray-200">
                 <h4 class="text-xs font-semibold text-gray-600 uppercase tracking-wide mb-3">Informasi Dasar</h4>
@@ -414,7 +424,7 @@ function closeCreateModal() {
     document.getElementById('createModal').classList.add('hidden');
 }
 
-function openEditModal(id, nama, alamat, kontak, jarak, honor, fasilitas, kesesuaian_jurusan, tingkat_kebersihan, max_mahasiswa) {
+function openEditModal(id, nama, alamat, kontak, jarak, honor, fasilitas, kesesuaian_jurusan, tingkat_kebersihan, max_mahasiswa, created_by) {
     document.getElementById('editForm').action = `/admin/kelola-mitra/${id}`;
     document.getElementById('edit_nama').value = nama;
     document.getElementById('edit_alamat').value = alamat;
@@ -426,7 +436,34 @@ function openEditModal(id, nama, alamat, kontak, jarak, honor, fasilitas, kesesu
     document.getElementById('edit_kesesuaian_jurusan').value = kesesuaian_jurusan;
     document.getElementById('edit_tingkat_kebersihan').value = tingkat_kebersihan;
     document.getElementById('edit_max_mahasiswa').value = max_mahasiswa || 4;
+    
+    // Handle Tampilan Toggle
+    const selector = document.getElementById('edit_tampilan_selector');
+    const createdByInput = document.getElementById('edit_created_by');
+    
+    if (created_by && created_by !== 'null' && created_by !== '') {
+        selector.value = 'user_added';
+        createdByInput.value = created_by;
+    } else {
+        selector.value = 'normal';
+        createdByInput.value = '';
+    }
+    
     document.getElementById('editModal').classList.remove('hidden');
+}
+
+function updateCreatedBy() {
+    const selector = document.getElementById('edit_tampilan_selector');
+    const createdByInput = document.getElementById('edit_created_by');
+    
+    if (selector.value === 'normal') {
+        createdByInput.value = '';
+    } else {
+        // If switching to user_added, use current user ID if input is empty
+        if (!createdByInput.value) {
+            createdByInput.value = '{{ Auth::id() }}';
+        }
+    }
 }
 
 function closeEditModal() {

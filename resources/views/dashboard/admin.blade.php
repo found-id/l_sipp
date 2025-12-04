@@ -13,7 +13,7 @@
                 </div>
                 <dt class="text-sm font-medium text-gray-500 mb-2">Total Mahasiswa</dt>
                 <dd class="text-3xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors">{{ $stats['total_mahasiswa'] ?? 0 }}</dd>
-                <p class="text-xs text-gray-400 mt-1">mahasiswa terdaftar</p>
+                <p class="text-xs text-gray-400 mt-1">Mahasiswa Terdaftar</p>
             </div>
         </div>
     </div>
@@ -31,7 +31,7 @@
                 </div>
                 <dt class="text-sm font-medium text-gray-500 mb-2">Total Dosen</dt>
                 <dd class="text-3xl font-bold text-gray-900 group-hover:text-green-600 transition-colors">{{ $stats['total_dosen'] ?? 0 }}</dd>
-                <p class="text-xs text-gray-400 mt-1">dosen pembimbing</p>
+                <p class="text-xs text-gray-400 mt-1">Dosen Pembimbing</p>
             </div>
         </div>
     </div>
@@ -49,7 +49,7 @@
                 </div>
                 <dt class="text-sm font-medium text-gray-500 mb-2">Total Mitra</dt>
                 <dd class="text-3xl font-bold text-gray-900 group-hover:text-purple-600 transition-colors">{{ $stats['total_mitra'] ?? 0 }}</dd>
-                <p class="text-xs text-gray-400 mt-1">instansi mitra PKL</p>
+                <p class="text-xs text-gray-400 mt-1">Mitra Terdaftar</p>
             </div>
         </div>
     </div>
@@ -67,7 +67,7 @@
                 </div>
                 <dt class="text-sm font-medium text-gray-500 mb-2">Berkas Pending</dt>
                 <dd class="text-3xl font-bold text-gray-900 group-hover:text-yellow-600 transition-colors">{{ $stats['berkas_pending'] ?? 0 }}</dd>
-                <p class="text-xs text-gray-400 mt-1">menunggu validasi</p>
+                <p class="text-xs text-gray-400 mt-1">Menunggu Validasi</p>
             </div>
         </div>
     </div>
@@ -84,7 +84,7 @@
                 </div>
                 <div>
                     <h3 class="text-lg font-bold text-gray-900">Status Berkas</h3>
-                    <p class="text-xs text-gray-600">Ringkasan validasi dokumen mahasiswa</p>
+                    <p class="text-xs text-gray-600">Ringkasan Validasi</p>
                 </div>
             </div>
         </div>
@@ -149,7 +149,7 @@
                 </div>
                 <div>
                     <h3 class="text-lg font-bold text-gray-800">Mahasiswa Belum Punya Dospem</h3>
-                    <p class="text-sm text-gray-600">{{ $stats['unassigned_students']->count() }} mahasiswa perlu ditetapkan dosen pembimbing</p>
+                    <p class="text-sm text-gray-600">{{ $stats['unassigned_students']->count() }} Perlu Dosen Pembimbing</p>
                 </div>
             </div>
         </div>
@@ -232,7 +232,7 @@
                     </div>
                     <div>
                         <h3 class="text-lg font-bold text-gray-900">Aktivitas Terbaru</h3>
-                        <p class="text-xs text-gray-600">Log aktivitas sistem terkini</p>
+                        <p class="text-xs text-gray-600">Log Aktivitas Sistem</p>
                     </div>
                 </div>
                 <a href="{{ route('activity') }}" class="text-sm text-blue-600 hover:text-blue-800 font-semibold hover:bg-blue-50 px-4 py-2 rounded-lg transition-colors flex items-center">
@@ -286,8 +286,12 @@
                                                     {{ $activity->pesan['user'] }} ({{ ucfirst($activity->pesan['role']) }}) melakukan logout
                                                 @elseif($activity->pesan['action'] === 'register_google')
                                                     {{ $activity->pesan['user'] }} telah registrasi via Google sebagai {{ ucfirst($activity->pesan['role']) }}
+                                                @elseif($activity->pesan['action'] === 'save_gdrive_links')
+                                                    {{ $activity->pesan['mahasiswa'] }} menyimpan link Google Drive
+                                                @elseif($activity->pesan['action'] === 'save_transcript_data')
+                                                    {{ $activity->pesan['mahasiswa'] }} menyimpan data transkrip semester {{ $activity->pesan['semester'] }}
                                                 @else
-                                                    {{ $activity->pesan['message'] ?? json_encode($activity->pesan) }}
+                                                    {{ $activity->pesan['message'] ?? 'Aktivitas sistem: ' . $activity->pesan['action'] }}
                                                 @endif
                                             @else
                                                 {{ $activity->pesan }}

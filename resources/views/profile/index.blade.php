@@ -6,61 +6,52 @@
 <div class="space-y-6">
     <!-- Success/Error Messages handled in layout -->
 
-    <!-- Header with Gradient -->
-    <div class="relative overflow-hidden bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-600 shadow-2xl rounded-2xl p-8">
-        <div class="absolute inset-0 bg-black opacity-10"></div>
-        <div class="relative z-10">
-            <div class="flex justify-between items-start">
-                <div class="flex items-center">
-                    <div class="relative">
-                        @php
-                            // Get photo URL with proper handling
-                            if ($user->photo) {
-                                if (filter_var($user->photo, FILTER_VALIDATE_URL)) {
-                                    $photoUrl = $user->photo;
-                                } else {
-                                    $photoUrl = url('storage/' . $user->photo);
-                                }
+    <!-- Header with Minimalist Style -->
+    <div class="bg-white shadow-sm rounded-2xl p-8 border border-gray-200">
+        <div class="flex justify-between items-start">
+            <div class="flex items-center">
+                <div class="relative">
+                    @php
+                        // Get photo URL with proper handling
+                        if ($user->photo) {
+                            if (filter_var($user->photo, FILTER_VALIDATE_URL)) {
+                                $photoUrl = $user->photo;
                             } else {
-                                $photoUrl = 'https://ui-avatars.com/api/?name=' . urlencode($user->name) . '&background=3b82f6&color=fff&size=200';
+                                $photoUrl = url('storage/' . $user->photo);
                             }
-                        @endphp
-                        <img src="{{ $photoUrl }}"
-                             alt="{{ $user->name }}"
-                             class="h-20 w-20 rounded-full object-cover border-4 border-white/30 shadow-xl"
-                             referrerpolicy="no-referrer"
-                             onerror="this.src='https://ui-avatars.com/api/?name={{ urlencode($user->name) }}&background=3b82f6&color=fff&size=200'">
+                        } else {
+                            $photoUrl = 'https://ui-avatars.com/api/?name=' . urlencode($user->name) . '&background=f3f4f6&color=374151&size=200';
+                        }
+                    @endphp
+                    <img src="{{ $photoUrl }}"
+                         alt="{{ $user->name }}"
+                         class="h-20 w-20 rounded-full object-cover border-4 border-white shadow-md"
+                         referrerpolicy="no-referrer"
+                         onerror="this.src='https://ui-avatars.com/api/?name={{ urlencode($user->name) }}&background=f3f4f6&color=374151&size=200'">
 
-                        <!-- Edit Photo Button -->
-                        <button type="button" onclick="document.getElementById('photoInput').click()" class="absolute -bottom-1 -right-1 w-8 h-8 bg-white hover:bg-gray-100 rounded-full shadow-lg flex items-center justify-center transition-all duration-200 border-2 border-blue-600">
-                            <i class="fas fa-camera text-blue-600 text-sm"></i>
-                        </button>
-                    </div>
-                    <div class="ml-5">
-                        <h1 class="text-3xl font-bold text-white">{{ $user->name }}</h1>
-                        <p class="text-blue-100 mt-1">{{ $user->email }}</p>
-                        <div class="mt-2">
-                            <span class="inline-flex items-center px-4 py-1.5 rounded-full text-sm font-semibold
-                                @if($user->role === 'admin') bg-red-500/90 text-white
-                                @elseif($user->role === 'dospem') bg-purple-500/90 text-white
-                                @else bg-green-500/90 text-white @endif backdrop-blur-sm shadow-lg">
-                                <i class="fas
-                                    @if($user->role === 'admin') fa-shield-alt
-                                    @elseif($user->role === 'dospem') fa-chalkboard-teacher
-                                    @else fa-user-graduate @endif mr-2"></i>
-                                {{ ucfirst($user->role) }}
-                            </span>
-                        </div>
+                    <!-- Edit Photo Button -->
+                    <button type="button" onclick="document.getElementById('photoInput').click()" class="absolute -bottom-1 -right-1 w-8 h-8 bg-white hover:bg-gray-50 rounded-full shadow-md flex items-center justify-center transition-all duration-200 border border-gray-200">
+                        <i class="fas fa-camera text-gray-600 text-sm"></i>
+                    </button>
+                </div>
+                <div class="ml-5">
+                    <h1 class="text-3xl font-bold text-gray-900">{{ $user->name }}</h1>
+                    <p class="text-gray-500 mt-1">{{ $user->email }}</p>
+                    <div class="mt-2">
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-700 border border-gray-200">
+                            <i class="fas
+                                @if($user->role === 'admin') fa-shield-alt
+                                @elseif($user->role === 'dospem') fa-chalkboard-teacher
+                                @else fa-user-graduate @endif mr-2 text-gray-500"></i>
+                            {{ ucfirst($user->role) }}
+                        </span>
                     </div>
                 </div>
-                <a href="{{ route('profile.edit') }}" class="bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white px-6 py-3 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl font-semibold border border-white/30">
-                    <i class="fas fa-edit mr-2"></i>Edit Profile
-                </a>
             </div>
+            <a href="{{ route('profile.edit') }}" class="bg-white text-gray-700 px-6 py-2.5 rounded-xl transition-all duration-200 shadow-sm hover:shadow-md font-medium border border-gray-300 hover:bg-gray-50">
+                <i class="fas fa-edit mr-2"></i>Edit Profile
+            </a>
         </div>
-        <!-- Decorative circles -->
-        <div class="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -mr-32 -mt-32"></div>
-        <div class="absolute bottom-0 left-0 w-48 h-48 bg-white/5 rounded-full -ml-24 -mb-24"></div>
     </div>
 
     <!-- Hidden File Input for Photo Upload -->
@@ -72,16 +63,16 @@
     <!-- Profile Information -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <!-- Basic Information -->
-        <div class="bg-white shadow-lg rounded-2xl p-6 border border-gray-100">
+        <div class="bg-white shadow-sm rounded-2xl p-6 border border-gray-200">
             <div class="flex items-center mb-6">
-                <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center">
-                    <i class="fas fa-id-card text-white text-xl"></i>
+                <div class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-id-card text-gray-600 text-lg"></i>
                 </div>
-                <h3 class="text-xl font-bold text-gray-900 ml-3">Informasi Akun</h3>
+                <h3 class="text-lg font-bold text-gray-900 ml-3">Informasi Akun</h3>
             </div>
 
             <div class="grid grid-cols-1 gap-4">
-                <div class="bg-gradient-to-br from-blue-50 to-indigo-50 p-5 rounded-xl border border-blue-100">
+                <div class="bg-gray-50 p-5 rounded-xl border border-gray-200">
                     <div class="flex items-start">
                         @if($user->google_linked)
                             <div class="flex-shrink-0">
@@ -93,15 +84,15 @@
                                 </svg>
                             </div>
                         @else
-                            <div class="w-6 h-6 bg-blue-500 rounded-lg flex items-center justify-center mr-3 mt-1 flex-shrink-0">
-                                <i class="fas fa-envelope text-white text-xs"></i>
+                            <div class="w-6 h-6 bg-gray-200 rounded-md flex items-center justify-center mr-3 mt-1 flex-shrink-0">
+                                <i class="fas fa-envelope text-gray-600 text-xs"></i>
                             </div>
                         @endif
                         <div class="flex-1">
                             <p class="text-sm font-semibold text-gray-700">Email</p>
                             <p class="text-base text-gray-900 font-medium mt-1 break-all">{{ $user->google_linked ? $user->google_email : $user->email }}</p>
                             @if($user->google_linked)
-                                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-700 mt-2">
+                                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-50 text-blue-700 mt-2 border border-blue-100">
                                     <i class="fas fa-check-circle mr-1"></i>Terhubung dengan Google
                                 </span>
                             @endif
@@ -109,10 +100,10 @@
                     </div>
                 </div>
 
-                <div class="bg-gradient-to-br from-purple-50 to-pink-50 p-5 rounded-xl border border-purple-100">
+                <div class="bg-gray-50 p-5 rounded-xl border border-gray-200">
                     <div class="flex items-start">
-                        <div class="w-6 h-6 bg-purple-500 rounded-lg flex items-center justify-center mr-3 mt-1 flex-shrink-0">
-                            <i class="fas fa-calendar text-white text-xs"></i>
+                        <div class="w-6 h-6 bg-gray-200 rounded-md flex items-center justify-center mr-3 mt-1 flex-shrink-0">
+                            <i class="fas fa-calendar text-gray-600 text-xs"></i>
                         </div>
                         <div class="flex-1">
                             <p class="text-sm font-semibold text-gray-700">Bergabung Sejak</p>
@@ -123,10 +114,10 @@
                 </div>
 
                 @if($user->role === 'dospem' && $user->dospem && $user->dospem->nip)
-                <div class="bg-gradient-to-br from-green-50 to-emerald-50 p-5 rounded-xl border border-green-100">
+                <div class="bg-gray-50 p-5 rounded-xl border border-gray-200">
                     <div class="flex items-start">
-                        <div class="w-6 h-6 bg-green-500 rounded-lg flex items-center justify-center mr-3 mt-1 flex-shrink-0">
-                            <i class="fas fa-id-card text-white text-xs"></i>
+                        <div class="w-6 h-6 bg-gray-200 rounded-md flex items-center justify-center mr-3 mt-1 flex-shrink-0">
+                            <i class="fas fa-id-card text-gray-600 text-xs"></i>
                         </div>
                         <div class="flex-1">
                             <p class="text-sm font-semibold text-gray-700">NIP</p>
@@ -140,24 +131,24 @@
 
         <!-- Dosen Pembimbing Info (for Mahasiswa) -->
         @if($user->role === 'mahasiswa' && $dosenPembimbing)
-        <div class="bg-white shadow-lg rounded-2xl p-6 border border-gray-100">
+        <div class="bg-white shadow-sm rounded-2xl p-6 border border-gray-200">
             <div class="flex items-center mb-6">
-                <div class="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl flex items-center justify-center">
-                    <i class="fas fa-chalkboard-teacher text-white text-xl"></i>
+                <div class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-chalkboard-teacher text-gray-600 text-lg"></i>
                 </div>
-                <h3 class="text-xl font-bold text-gray-900 ml-3">Dosen Pembimbing</h3>
+                <h3 class="text-lg font-bold text-gray-900 ml-3">Dosen Pembimbing</h3>
             </div>
-            <div class="bg-gradient-to-br from-purple-50 to-pink-50 p-6 rounded-xl border border-purple-100">
+            <div class="bg-gray-50 p-6 rounded-xl border border-gray-200">
                 <div class="flex items-center">
-                    <div class="h-16 w-16 rounded-full bg-gradient-to-br from-purple-500 to-pink-600 flex items-center justify-center shadow-lg">
-                        <i class="fas fa-chalkboard-teacher text-white text-2xl"></i>
+                    <div class="h-16 w-16 rounded-full bg-white border border-gray-200 flex items-center justify-center shadow-sm">
+                        <i class="fas fa-chalkboard-teacher text-gray-400 text-2xl"></i>
                     </div>
                     <div class="ml-4">
                         <div class="text-lg font-bold text-gray-900">{{ $dosenPembimbing->name }}</div>
                         @if($dosenPembimbing->dospem && $dosenPembimbing->dospem->nip)
                         <div class="text-sm text-gray-700 mt-1">NIP: {{ $dosenPembimbing->dospem->nip }}</div>
                         @endif
-                        <div class="text-sm text-gray-600 mt-1">Dosen Pembimbing PKL Anda</div>
+                        <div class="text-sm text-gray-500 mt-1">Dosen Pembimbing PKL Anda</div>
                     </div>
                 </div>
             </div>
@@ -167,12 +158,12 @@
 
     <!-- Biodata Information (for Mahasiswa) -->
     @if($user->role === 'mahasiswa' && $profil)
-    <div class="bg-white shadow-lg rounded-2xl p-6 border border-gray-100">
+    <div class="bg-white shadow-sm rounded-2xl p-6 border border-gray-200">
         <div class="flex items-center mb-6">
-            <div class="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center">
-                <i class="fas fa-user-graduate text-white text-xl"></i>
+            <div class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
+                <i class="fas fa-user-graduate text-gray-600 text-lg"></i>
             </div>
-            <h3 class="text-xl font-bold text-gray-900 ml-3">Biodata Mahasiswa</h3>
+            <h3 class="text-lg font-bold text-gray-900 ml-3">Biodata Mahasiswa</h3>
         </div>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div class="space-y-4">
@@ -264,18 +255,18 @@
 
     <!-- Quick Actions (Only for Mahasiswa) -->
     @if($user->role === 'mahasiswa')
-    <div class="bg-white shadow-lg rounded-2xl p-6 border border-gray-100">
+    <div class="bg-white shadow-sm rounded-2xl p-6 border border-gray-200">
         <div class="flex items-center mb-6">
-            <div class="w-12 h-12 bg-gradient-to-br from-orange-500 to-red-600 rounded-xl flex items-center justify-center">
-                <i class="fas fa-bolt text-white text-xl"></i>
+            <div class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
+                <i class="fas fa-bolt text-gray-600 text-lg"></i>
             </div>
-            <h3 class="text-xl font-bold text-gray-900 ml-3">Aksi Cepat</h3>
+            <h3 class="text-lg font-bold text-gray-900 ml-3">Aksi Cepat</h3>
         </div>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <a href="{{ route('mahasiswa.hasil-penilaian') }}" class="group bg-gradient-to-br from-blue-50 to-indigo-50 p-6 rounded-xl hover:shadow-lg transition-all duration-300 border-2 border-blue-100 hover:border-blue-300">
+            <a href="{{ route('mahasiswa.hasil-penilaian') }}" class="group bg-white p-6 rounded-xl hover:shadow-md transition-all duration-300 border border-gray-200 hover:border-gray-300">
                 <div class="flex items-center">
-                    <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                        <i class="fas fa-graduation-cap text-white text-xl"></i>
+                    <div class="w-12 h-12 bg-blue-50 rounded-lg flex items-center justify-center group-hover:bg-blue-100 transition-colors duration-300">
+                        <i class="fas fa-graduation-cap text-blue-600 text-xl"></i>
                     </div>
                     <div class="ml-4">
                         <h4 class="font-bold text-gray-900 group-hover:text-blue-600 transition-colors">Hasil Penilaian</h4>
@@ -284,10 +275,10 @@
                 </div>
             </a>
 
-            <a href="{{ route('profile.settings') }}" class="group bg-gradient-to-br from-gray-50 to-slate-50 p-6 rounded-xl hover:shadow-lg transition-all duration-300 border-2 border-gray-200 hover:border-gray-400">
+            <a href="{{ route('profile.settings') }}" class="group bg-white p-6 rounded-xl hover:shadow-md transition-all duration-300 border border-gray-200 hover:border-gray-300">
                 <div class="flex items-center">
-                    <div class="w-12 h-12 bg-gradient-to-br from-gray-500 to-slate-600 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                        <i class="fas fa-cog text-white text-xl"></i>
+                    <div class="w-12 h-12 bg-gray-50 rounded-lg flex items-center justify-center group-hover:bg-gray-100 transition-colors duration-300">
+                        <i class="fas fa-cog text-gray-600 text-xl"></i>
                     </div>
                     <div class="ml-4">
                         <h4 class="font-bold text-gray-900 group-hover:text-gray-600 transition-colors">Pengaturan</h4>
@@ -296,10 +287,10 @@
                 </div>
             </a>
 
-            <a href="{{ route('activity') }}" class="group bg-gradient-to-br from-green-50 to-emerald-50 p-6 rounded-xl hover:shadow-lg transition-all duration-300 border-2 border-green-100 hover:border-green-300">
+            <a href="{{ route('activity') }}" class="group bg-white p-6 rounded-xl hover:shadow-md transition-all duration-300 border border-gray-200 hover:border-gray-300">
                 <div class="flex items-center">
-                    <div class="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                        <i class="fas fa-history text-white text-xl"></i>
+                    <div class="w-12 h-12 bg-green-50 rounded-lg flex items-center justify-center group-hover:bg-green-100 transition-colors duration-300">
+                        <i class="fas fa-history text-green-600 text-xl"></i>
                     </div>
                     <div class="ml-4">
                         <h4 class="font-bold text-gray-900 group-hover:text-green-600 transition-colors">Log Aktivitas</h4>

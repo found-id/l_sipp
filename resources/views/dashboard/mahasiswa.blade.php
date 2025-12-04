@@ -44,7 +44,7 @@
                     @elseif($stats['pkl_status'] === 'selesai') Selesai PKL
                     @else Belum Aktif @endif
                 </dd>
-                <p class="text-xs text-gray-400 mt-1">status PKL Anda saat ini</p>
+                <p class="text-xs text-gray-400 mt-1">Status Saat Ini</p>
             </div>
         </div>
     </div>
@@ -62,7 +62,7 @@
                 </div>
                 <dt class="text-sm font-medium text-gray-500 mb-2">Progress Pemberkasan</dt>
                 <dd class="text-3xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors">{{ $stats['progress_berkas'] }}</dd>
-                <p class="text-xs text-gray-400 mt-1">tahapan terselesaikan</p>
+                <p class="text-xs text-gray-400 mt-1">Tahapan Selesai</p>
                 
                 
                 {{-- Missing steps list removed as per request --}}
@@ -106,7 +106,7 @@
                     @if($stats['is_eligible']) Layak
                     @else Tidak Layak @endif
                 </dd>
-                <p class="text-xs text-gray-400 mt-1">status kelayakan PKL</p>
+                <p class="text-xs text-gray-400 mt-1">Status Kelayakan</p>
                 
                 
                 {{-- Missing requirements list removed as per request --}}
@@ -149,7 +149,7 @@
                     @elseif($stats['dokumen_pendukung_status'] === 'sebagian') Sebagian
                     @else Belum Lengkap @endif
                 </dd>
-                <p class="text-xs text-gray-400 mt-1">link Google Drive</p>
+                <p class="text-xs text-gray-400 mt-1">Berkas Pendukung</p>
             </div>
         </div>
     </div>
@@ -184,7 +184,7 @@
                     @elseif($stats['instansi_mitra_status'] === 'belum_upload') Belum Upload
                     @else Belum Pilih @endif
                 </dd>
-                <p class="text-xs text-gray-400 mt-1">mitra & surat balasan</p>
+                <p class="text-xs text-gray-400 mt-1">Mitra & Surat</p>
             </div>
         </div>
     </div>
@@ -218,7 +218,7 @@
                     @if($stats['pemberkasan_akhir_status'] === 'lengkap') Lengkap
                     @else Belum Upload @endif
                 </dd>
-                <p class="text-xs text-gray-400 mt-1">laporan PKL final</p>
+                <p class="text-xs text-gray-400 mt-1">Laporan Akhir</p>
             </div>
         </div>
     </div>

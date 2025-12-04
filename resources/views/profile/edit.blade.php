@@ -7,7 +7,7 @@
     <!-- Success/Error Messages handled in layout -->
 
     @if($errors->any())
-    <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded-lg shadow-md" role="alert">
+    <div class="bg-red-50 border-l-4 border-red-500 text-red-700 p-4 rounded-r-lg shadow-sm" role="alert">
         <div class="flex items-center mb-2">
             <i class="fas fa-exclamation-circle mr-3 text-xl"></i>
             <p class="font-medium">Terdapat kesalahan dalam pengisian form:</p>
@@ -20,28 +20,22 @@
     </div>
     @endif
 
-    <!-- Header with Gradient -->
-    <div class="relative overflow-hidden bg-gradient-to-br from-green-600 via-emerald-600 to-teal-600 shadow-2xl rounded-2xl p-8">
-        <div class="absolute inset-0 bg-black opacity-10"></div>
-        <div class="relative z-10">
-            <div class="flex justify-between items-center">
-                <div class="flex items-center">
-                    <div class="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center mr-4">
-                        <i class="fas fa-user-edit text-4xl text-white"></i>
-                    </div>
-                    <div>
-                        <h1 class="text-3xl font-bold text-white">Edit Profile</h1>
-                        <p class="text-green-100 mt-1">Lengkapi dan perbarui informasi pribadi Anda</p>
-                    </div>
+    <!-- Header with Minimalist Style -->
+    <div class="bg-white shadow-sm rounded-2xl p-8 border border-gray-200">
+        <div class="flex justify-between items-center">
+            <div class="flex items-center">
+                <div class="w-16 h-16 bg-green-50 rounded-xl flex items-center justify-center mr-4">
+                    <i class="fas fa-user-edit text-4xl text-green-600"></i>
                 </div>
-                <a href="{{ route('profile.index') }}" class="bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white px-6 py-3 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl font-semibold border border-white/30">
-                    <i class="fas fa-arrow-left mr-2"></i>Kembali
-                </a>
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-900">Edit Profile</h1>
+                    <p class="text-gray-500 mt-1">Lengkapi dan perbarui informasi pribadi Anda</p>
+                </div>
             </div>
+            <a href="{{ route('profile.index') }}" class="bg-white text-gray-700 px-6 py-2.5 rounded-xl transition-all duration-200 shadow-sm hover:shadow-md font-medium border border-gray-300 hover:bg-gray-50">
+                <i class="fas fa-arrow-left mr-2"></i>Kembali
+            </a>
         </div>
-        <!-- Decorative circles -->
-        <div class="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -mr-32 -mt-32"></div>
-        <div class="absolute bottom-0 left-0 w-48 h-48 bg-white/5 rounded-full -ml-24 -mb-24"></div>
     </div>
 
     <!-- Edit Form -->
@@ -50,21 +44,21 @@
         @method('PUT')
 
         <!-- Profile Photo Section -->
-        <div class="bg-white shadow-lg rounded-2xl p-6 border border-gray-100">
+        <div class="bg-white shadow-sm rounded-2xl p-6 border border-gray-200">
             <div class="flex items-center mb-6">
-                <div class="w-12 h-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center">
-                    <i class="fas fa-camera text-white text-xl"></i>
+                <div class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-camera text-gray-600 text-lg"></i>
                 </div>
-                <h3 class="text-xl font-bold text-gray-900 ml-3">Foto Profil</h3>
+                <h3 class="text-lg font-bold text-gray-900 ml-3">Foto Profil</h3>
             </div>
 
             <div class="flex flex-col md:flex-row items-center md:items-start gap-6">
                 <div class="relative">
                     <img id="profilePhotoPreview" src="{{ $user->profile_photo_url }}" alt="{{ $user->name }}"
-                         class="w-32 h-32 rounded-full object-cover border-4 border-gray-200 shadow-lg">
+                         class="w-32 h-32 rounded-full object-cover border-4 border-gray-100 shadow-sm">
                     <button type="button" onclick="document.getElementById('profilePhotoInput').click()"
-                            class="absolute bottom-0 right-0 w-10 h-10 bg-green-600 hover:bg-green-700 rounded-full shadow-lg flex items-center justify-center transition-all duration-200 border-2 border-white">
-                        <i class="fas fa-camera text-white"></i>
+                            class="absolute bottom-0 right-0 w-10 h-10 bg-white hover:bg-gray-50 rounded-full shadow-md flex items-center justify-center transition-all duration-200 border border-gray-200">
+                        <i class="fas fa-camera text-gray-600"></i>
                     </button>
                 </div>
 
@@ -73,23 +67,23 @@
 
                     <div class="space-y-3">
                         <button type="button" onclick="document.getElementById('profilePhotoInput').click()"
-                                class="px-6 py-2.5 bg-gradient-to-r from-green-600 to-emerald-700 text-white rounded-lg hover:from-green-700 hover:to-emerald-800 transition-all duration-200 font-semibold shadow-md">
+                                class="px-6 py-2.5 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-all duration-200 font-medium shadow-sm">
                             <i class="fas fa-upload mr-2"></i>Pilih Foto Baru
                         </button>
 
                         @if($user->photo && !$user->google_linked)
                         <button type="button" onclick="deleteProfilePhoto()"
-                                class="ml-3 px-6 py-2.5 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-all duration-200 font-semibold">
+                                class="ml-3 px-6 py-2.5 bg-red-50 text-red-600 border border-red-100 rounded-lg hover:bg-red-100 transition-all duration-200 font-medium">
                             <i class="fas fa-trash mr-2"></i>Hapus Foto
                         </button>
                         @endif
                     </div>
 
-                    <div class="mt-4 text-sm text-gray-600">
+                    <div class="mt-4 text-sm text-gray-500">
                         <p><i class="fas fa-info-circle mr-2 text-blue-500"></i>Ukuran maksimal: 8 MB</p>
                         <p><i class="fas fa-info-circle mr-2 text-blue-500"></i>Format: JPEG, PNG, JPG</p>
                         @if($user->google_linked)
-                        <p class="mt-2 text-xs text-orange-600 bg-orange-50 p-2 rounded">
+                        <p class="mt-2 text-xs text-orange-600 bg-orange-50 p-2 rounded border border-orange-100">
                             <i class="fas fa-exclamation-triangle mr-1"></i>
                             Akun terhubung dengan Google. Upload foto manual akan menggantikan foto Google.
                         </p>
@@ -100,12 +94,12 @@
         </div>
 
         <!-- Basic Information -->
-        <div class="bg-white shadow-lg rounded-2xl p-6 border border-gray-100">
+        <div class="bg-white shadow-sm rounded-2xl p-6 border border-gray-200">
             <div class="flex items-center mb-6">
-                <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center">
-                    <i class="fas fa-id-card text-white text-xl"></i>
+                <div class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-id-card text-gray-600 text-lg"></i>
                 </div>
-                <h3 class="text-xl font-bold text-gray-900 ml-3">Informasi Dasar</h3>
+                <h3 class="text-lg font-bold text-gray-900 ml-3">Informasi Dasar</h3>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
@@ -138,12 +132,12 @@
 
         @if($user->role === 'dospem')
         <!-- Biodata Dosen -->
-        <div class="bg-white shadow-lg rounded-2xl p-6 border border-gray-100">
+        <div class="bg-white shadow-sm rounded-2xl p-6 border border-gray-200">
             <div class="flex items-center mb-6">
-                <div class="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl flex items-center justify-center">
-                    <i class="fas fa-chalkboard-teacher text-white text-xl"></i>
+                <div class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-chalkboard-teacher text-gray-600 text-lg"></i>
                 </div>
-                <h3 class="text-xl font-bold text-gray-900 ml-3">Biodata Dosen</h3>
+                <h3 class="text-lg font-bold text-gray-900 ml-3">Biodata Dosen</h3>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
@@ -151,7 +145,7 @@
                         <i class="fas fa-id-badge text-gray-400 mr-2"></i>NIP
                     </label>
                     <input type="text" id="nip" name="nip" value="{{ old('nip', $dospem->nip ?? '') }}"
-                           class="block w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200"
+                           class="block w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                            placeholder="Masukkan NIP">
                     @error('nip')
                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -163,12 +157,12 @@
 
         @if($user->role === 'mahasiswa')
         <!-- Biodata Information -->
-        <div class="bg-white shadow-lg rounded-2xl p-6 border border-gray-100">
+        <div class="bg-white shadow-sm rounded-2xl p-6 border border-gray-200">
             <div class="flex items-center mb-6">
-                <div class="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center">
-                    <i class="fas fa-user-graduate text-white text-xl"></i>
+                <div class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-user-graduate text-gray-600 text-lg"></i>
                 </div>
-                <h3 class="text-xl font-bold text-gray-900 ml-3">Biodata Mahasiswa</h3>
+                <h3 class="text-lg font-bold text-gray-900 ml-3">Biodata Mahasiswa</h3>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
@@ -176,7 +170,7 @@
                         <i class="fas fa-id-card text-gray-400 mr-2"></i>NIM
                     </label>
                     <input type="text" id="nim" name="nim" value="{{ old('nim', $profil->nim ?? '') }}"
-                           class="block w-full px-4 py-3 border border-gray-300 rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent cursor-not-allowed"
+                           class="block w-full px-4 py-3 border border-gray-300 rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-not-allowed"
                            readonly>
                     <p class="mt-2 text-xs text-gray-500 flex items-center">
                         <i class="fas fa-lock text-gray-400 mr-1"></i>
@@ -192,7 +186,7 @@
                         <i class="fas fa-graduation-cap text-gray-400 mr-2"></i>Program Studi
                     </label>
                     <input type="text" id="prodi" name="prodi" value="{{ old('prodi', $profil->prodi ?? '') }}" required
-                           class="block w-full px-4 py-3 border border-gray-300 rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent cursor-not-allowed"
+                           class="block w-full px-4 py-3 border border-gray-300 rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-not-allowed"
                            placeholder="Contoh: Teknik Informatika" readonly>
                     <p class="mt-2 text-xs text-gray-500 flex items-center">
                         <i class="fas fa-lock text-gray-400 mr-1"></i>
@@ -209,7 +203,7 @@
                     </label>
                     <input type="number" id="semester" name="semester" value="{{ old('semester', $profil->semester ?? 5) }}" required
                            min="1" max="14"
-                           class="block w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200">
+                           class="block w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200">
                     @error('semester')
                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror
@@ -220,7 +214,7 @@
                         <i class="fas fa-venus-mars text-gray-400 mr-2"></i>Jenis Kelamin
                     </label>
                     <select id="jenis_kelamin" name="jenis_kelamin"
-                            class="block w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200">
+                            class="block w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200">
                         <option value="">-- Pilih Jenis Kelamin --</option>
                         <option value="L" {{ old('jenis_kelamin', $profil->jenis_kelamin ?? '') === 'L' ? 'selected' : '' }}>Laki-laki</option>
                         <option value="P" {{ old('jenis_kelamin', $profil->jenis_kelamin ?? '') === 'P' ? 'selected' : '' }}>Perempuan</option>
@@ -240,7 +234,7 @@
                         </div>
                         <input type="text" id="no_whatsapp" name="no_whatsapp"
                                value="{{ old('no_whatsapp', $profil->no_whatsapp ?? '') }}"
-                               class="block w-full pl-14 pr-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200"
+                               class="block w-full pl-14 pr-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                                placeholder="8xxxxxxxxxx"
                                oninput="this.value = this.value.replace(/[^0-9]/g, '')"
                                maxlength="13">
@@ -257,7 +251,7 @@
                     </label>
                     <input type="number" id="ipk" name="ipk" value="{{ old('ipk', $profil->ipk ?? '') }}"
                            step="0.01" min="0" max="4.0"
-                           class="block w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200"
+                           class="block w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                            placeholder="Contoh: 3.50">
                     <p class="mt-2 text-xs text-gray-500">IPK harus antara 0.00 - 4.00</p>
                     @error('ipk')
@@ -299,12 +293,12 @@
         </div>
 
         <!-- Checkboxes -->
-        <div id="konfirmasi-persyaratan" class="bg-white shadow-lg rounded-2xl p-6 border border-gray-100">
+        <div id="konfirmasi-persyaratan" class="bg-white shadow-sm rounded-2xl p-6 border border-gray-200">
             <div class="flex items-center mb-6">
-                <div class="w-12 h-12 bg-gradient-to-br from-orange-500 to-red-600 rounded-xl flex items-center justify-center">
-                    <i class="fas fa-check-double text-white text-xl"></i>
+                <div class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-check-double text-gray-600 text-lg"></i>
                 </div>
-                <h3 class="text-xl font-bold text-gray-900 ml-3">Konfirmasi Persyaratan</h3>
+                <h3 class="text-lg font-bold text-gray-900 ml-3">Konfirmasi Persyaratan</h3>
             </div>
             <div class="space-y-4">
                 <div class="bg-gray-50 p-5 rounded-xl border border-gray-200">
@@ -352,10 +346,10 @@
 
         <!-- Submit Button -->
         <div class="flex justify-end space-x-3">
-            <a href="{{ route('profile.index') }}" class="px-6 py-3 bg-gray-200 text-gray-700 rounded-xl hover:bg-gray-300 transition-all duration-200 font-semibold">
+            <a href="{{ route('profile.index') }}" class="px-6 py-3 bg-white border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition-all duration-200 font-semibold shadow-sm">
                 <i class="fas fa-times mr-2"></i>Batal
             </a>
-            <button type="button" onclick="confirmSaveChanges()" class="px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-700 text-white rounded-xl hover:from-green-700 hover:to-emerald-800 focus:outline-none focus:ring-4 focus:ring-green-300 shadow-lg hover:shadow-xl transition-all duration-200 font-semibold">
+            <button type="button" onclick="confirmSaveChanges()" class="px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-300 shadow-md hover:shadow-lg transition-all duration-200 font-semibold">
                 <i class="fas fa-save mr-2"></i>Simpan Perubahan
             </button>
         </div>
