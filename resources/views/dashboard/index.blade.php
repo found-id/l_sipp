@@ -3,15 +3,15 @@
 @section('title', 'Dashboard - SIP PKL')
 
 @section('content')
-<div class="space-y-6">
+<div class="space-y-4 md:space-y-6">
     <!-- Welcome Section -->
     <div class="bg-white overflow-hidden shadow rounded-lg">
-        <div class="px-4 py-5 sm:p-6">
-            <h1 class="text-2xl font-bold text-gray-900">
-                Selamat datang, {{ auth()->user()->name }}!
+        <div class="px-3 py-3 md:px-4 md:py-5 sm:p-6">
+            <h1 class="text-lg md:text-2xl font-bold text-gray-900">
+                Halo, {{ auth()->user()->name }}!
             </h1>
-            <p class="mt-1 text-sm text-gray-600">
-                Anda login sebagai {{ ucfirst(auth()->user()->role) }}
+            <p class="mt-0.5 md:mt-1 text-xs md:text-sm text-gray-600">
+                Login sebagai {{ ucfirst(auth()->user()->role) }}
             </p>
         </div>
     </div>

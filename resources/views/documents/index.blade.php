@@ -39,18 +39,18 @@
 }
 </style>
 
-<div class="space-y-6">
+<div class="space-y-4 md:space-y-6">
     <!-- Header -->
-    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 md:p-6">
         <div class="flex items-center">
             <div class="flex-shrink-0">
-                <div class="w-12 h-12 rounded-lg bg-blue-50 flex items-center justify-center border border-blue-100">
-                    <i class="fas fa-file-upload text-xl text-blue-600"></i>
+                <div class="w-10 h-10 md:w-12 md:h-12 rounded-lg bg-blue-50 flex items-center justify-center border border-blue-100">
+                    <i class="fas fa-file-upload text-lg md:text-xl text-blue-600"></i>
                 </div>
             </div>
-            <div class="ml-4">
-                <h1 class="text-2xl font-bold text-gray-900">Pemberkasan Dokumen PKL</h1>
-                <p class="text-gray-500 mt-1">Upload dan kelola dokumen yang diperlukan untuk PKL</p>
+            <div class="ml-3 md:ml-4">
+                <h1 class="text-xl md:text-2xl font-bold text-gray-900">Pemberkasan PKL</h1>
+                <p class="text-gray-500 mt-0.5 md:mt-1 text-sm hidden md:block">Upload dan kelola dokumen yang diperlukan untuk PKL</p>
             </div>
         </div>
     </div>
@@ -170,25 +170,25 @@
 
         @if($pklStatus === 'selesai')
         <!-- Only show Status Keaktifan PKL when PKL is complete -->
-        <div class="grid grid-cols-1 gap-6">
+        <div class="grid grid-cols-1 gap-4 md:gap-6">
             <!-- PKL Activity Status - Full Width -->
-            <div class="bg-emerald-50 border border-emerald-100 rounded-xl p-6">
-                <div class="flex items-center justify-between">
+            <div class="bg-emerald-50 border border-emerald-100 rounded-xl p-4 md:p-6">
+                <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
                     <div class="flex items-center">
                         <div class="flex-shrink-0">
-                            <div class="w-14 h-14 bg-emerald-100 rounded-full flex items-center justify-center">
-                                <i class="fas fa-check-circle text-2xl text-emerald-600"></i>
+                            <div class="w-10 h-10 md:w-14 md:h-14 bg-emerald-100 rounded-full flex items-center justify-center">
+                                <i class="fas fa-check-circle text-xl md:text-2xl text-emerald-600"></i>
                             </div>
                         </div>
-                        <div class="ml-4">
-                            <h4 class="text-base font-medium text-slate-500">Status Aktivitas</h4>
-                            <p class="text-xl font-bold text-emerald-700">PKL Selesai</p>
-                            <p class="text-xs text-emerald-600 mt-1">
+                        <div class="ml-3 md:ml-4">
+                            <h4 class="text-sm md:text-base font-medium text-slate-500">Status Aktivitas</h4>
+                            <p class="text-lg md:text-xl font-bold text-emerald-700">PKL Selesai</p>
+                            <p class="text-[10px] md:text-xs text-emerald-600 mt-0.5 md:mt-1 hidden md:block">
                                 Selamat! Seluruh rangkaian kegiatan PKL Anda telah selesai.
                             </p>
                         </div>
                     </div>
-                    <button onclick="revertPklStatus()" class="bg-white border border-emerald-200 text-emerald-700 hover:bg-emerald-50 font-medium py-2 px-4 rounded-lg transition-colors shadow-sm flex items-center text-sm">
+                    <button onclick="revertPklStatus()" class="bg-white border border-emerald-200 text-emerald-700 hover:bg-emerald-50 font-medium py-2 px-4 rounded-lg transition-colors shadow-sm flex items-center justify-center text-xs md:text-sm">
                         <i class="fas fa-undo mr-2"></i>
                         Kembali ke Aktif
                     </button>
@@ -198,25 +198,25 @@
         @else
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <!-- PKL Eligibility Status -->
-            <div class="{{ $isEligibleForPkl ? 'bg-emerald-50 border-emerald-100' : 'bg-rose-50 border-rose-100' }} border rounded-xl p-6">
+            <div class="{{ $isEligibleForPkl ? 'bg-emerald-50 border-emerald-100' : 'bg-rose-50 border-rose-100' }} border rounded-xl p-3 md:p-6">
                 <div class="flex items-center">
                     <div class="flex-shrink-0">
                         @if($isEligibleForPkl)
-                            <div class="w-14 h-14 bg-emerald-100 rounded-full flex items-center justify-center">
-                                <i class="fas fa-check text-2xl text-emerald-600"></i>
+                            <div class="w-10 h-10 md:w-14 md:h-14 bg-emerald-100 rounded-full flex items-center justify-center">
+                                <i class="fas fa-check text-lg md:text-2xl text-emerald-600"></i>
                             </div>
                         @else
-                            <div class="w-14 h-14 bg-rose-100 rounded-full flex items-center justify-center">
-                                <i class="fas fa-times text-2xl text-rose-600"></i>
+                            <div class="w-10 h-10 md:w-14 md:h-14 bg-rose-100 rounded-full flex items-center justify-center">
+                                <i class="fas fa-times text-lg md:text-2xl text-rose-600"></i>
                             </div>
                         @endif
                     </div>
-                    <div class="ml-4">
-                        <h4 class="text-base font-medium text-slate-500">Status Kelayakan</h4>
-                        <p class="text-xl font-bold {{ $isEligibleForPkl ? 'text-emerald-700' : 'text-rose-700' }}">
-                            {{ $isEligibleForPkl ? 'LAYAK' : 'BELUM LAYAK' }}
+                    <div class="ml-2 md:ml-4">
+                        <h4 class="text-xs md:text-base font-medium text-slate-500">Kelayakan</h4>
+                        <p class="text-sm md:text-xl font-bold {{ $isEligibleForPkl ? 'text-emerald-700' : 'text-rose-700' }}">
+                            {{ $isEligibleForPkl ? 'LAYAK' : 'BELUM' }}
                         </p>
-                        <p class="text-xs {{ $isEligibleForPkl ? 'text-emerald-600' : 'text-rose-600' }} mt-1">
+                        <p class="text-[10px] md:text-xs {{ $isEligibleForPkl ? 'text-emerald-600' : 'text-rose-600' }} mt-0.5 md:mt-1 hidden md:block">
                             {{ $isEligibleForPkl ? 'Memenuhi persyaratan' : 'Belum memenuhi syarat' }}
                         </p>
                     </div>
@@ -224,17 +224,17 @@
             </div>
 
             <!-- PKL Activity Status -->
-            <div class="bg-indigo-50 border border-indigo-100 rounded-xl p-6">
+            <div class="bg-indigo-50 border border-indigo-100 rounded-xl p-3 md:p-6">
                 <div class="flex items-center">
                     <div class="flex-shrink-0">
-                        <div class="w-14 h-14 bg-indigo-100 rounded-full flex items-center justify-center">
-                            <i class="fas fa-{{ $pklStatusIcon }} text-2xl text-indigo-600"></i>
+                        <div class="w-10 h-10 md:w-14 md:h-14 bg-indigo-100 rounded-full flex items-center justify-center">
+                            <i class="fas fa-{{ $pklStatusIcon }} text-lg md:text-2xl text-indigo-600"></i>
                         </div>
                     </div>
-                    <div class="ml-4">
-                        <h4 class="text-base font-medium text-slate-500">Status Aktivitas</h4>
-                        <p class="text-xl font-bold text-slate-800">{{ $pklStatusText }}</p>
-                        <p class="text-xs text-slate-500 mt-1">
+                    <div class="ml-2 md:ml-4">
+                        <h4 class="text-xs md:text-base font-medium text-slate-500">Aktivitas</h4>
+                        <p class="text-sm md:text-xl font-bold text-slate-800">{{ $pklStatusText }}</p>
+                        <p class="text-[10px] md:text-xs text-slate-500 mt-0.5 md:mt-1 hidden md:block">
                             @if($pklStatus === 'menyiapkan_berkas')
                                 Menyiapkan berkas
                             @elseif($pklStatus === 'siap')
@@ -296,27 +296,30 @@
     @endif
 
     <!-- Tab Navigation -->
-    <div class="bg-white shadow-sm rounded-xl border border-gray-100 p-4">
-        <nav class="flex space-x-3" aria-label="Tabs">
-            <button onclick="showTab('pemberkasan')" id="tab-pemberkasan" class="tab-button active flex-1 py-3.5 px-4 rounded-lg font-medium text-sm transition-all duration-200 bg-blue-600 text-white shadow-md hover:shadow-lg">
-                <div class="flex items-center justify-center">
-                    <i class="fas fa-file-alt mr-2 text-base"></i>
-                    <span>Pemberkasan Kelayakan</span>
+    <div class="bg-white shadow-sm rounded-xl border border-gray-100 p-2 md:p-4">
+        <nav class="flex space-x-1.5 md:space-x-3 overflow-x-auto" aria-label="Tabs">
+            <button onclick="showTab('pemberkasan')" id="tab-pemberkasan" class="tab-button active flex-1 min-w-[70px] md:min-w-0 py-2.5 md:py-3.5 px-2 md:px-4 rounded-lg font-medium text-xs md:text-sm transition-all duration-200 bg-blue-600 text-white shadow-md hover:shadow-lg">
+                <div class="flex flex-col md:flex-row items-center justify-center gap-1 md:gap-2">
+                    <i class="fas fa-file-alt text-sm md:text-base"></i>
+                    <span class="hidden md:inline">Pemberkasan Kelayakan</span>
+                    <span class="md:hidden text-[10px]">Kelayakan</span>
                 </div>
             </button>
-            <button onclick="showTab('dokumen-pendukung')" id="tab-dokumen-pendukung" class="tab-button flex-1 py-3.5 px-4 rounded-lg font-medium text-sm transition-all duration-200 bg-white text-gray-600 border border-gray-200 hover:bg-blue-50 hover:border-blue-200 hover:text-blue-700">
-                <div class="flex items-center justify-center">
-                    <i class="fab fa-google-drive mr-2 text-base"></i>
-                    <span>Dokumen Pendukung</span>
+            <button onclick="showTab('dokumen-pendukung')" id="tab-dokumen-pendukung" class="tab-button flex-1 min-w-[70px] md:min-w-0 py-2.5 md:py-3.5 px-2 md:px-4 rounded-lg font-medium text-xs md:text-sm transition-all duration-200 bg-white text-gray-600 border border-gray-200 hover:bg-blue-50 hover:border-blue-200 hover:text-blue-700">
+                <div class="flex flex-col md:flex-row items-center justify-center gap-1 md:gap-2">
+                    <i class="fab fa-google-drive text-sm md:text-base"></i>
+                    <span class="hidden md:inline">Dokumen Pendukung</span>
+                    <span class="md:hidden text-[10px]">Pendukung</span>
                 </div>
             </button>
-            <button onclick="showTab('surat-balasan')" id="tab-surat-balasan" class="tab-button flex-1 py-3.5 px-4 rounded-lg font-medium text-sm transition-all duration-200 bg-white text-gray-600 border border-gray-200 hover:bg-blue-50 hover:border-blue-200 hover:text-blue-700 {{ !$dokumenPemberkasanEnabled ? 'opacity-50 cursor-not-allowed' : '' }}"
+            <button onclick="showTab('surat-balasan')" id="tab-surat-balasan" class="tab-button flex-1 min-w-[70px] md:min-w-0 py-2.5 md:py-3.5 px-2 md:px-4 rounded-lg font-medium text-xs md:text-sm transition-all duration-200 bg-white text-gray-600 border border-gray-200 hover:bg-blue-50 hover:border-blue-200 hover:text-blue-700 {{ !$dokumenPemberkasanEnabled ? 'opacity-50 cursor-not-allowed' : '' }}"
                     {{ !$dokumenPemberkasanEnabled ? 'disabled' : '' }}>
-                <div class="flex items-center justify-center">
-                    <i class="fas fa-envelope mr-2 text-base"></i>
-                    <span>Pemberkasan Instansi Mitra</span>
+                <div class="flex flex-col md:flex-row items-center justify-center gap-1 md:gap-2">
+                    <i class="fas fa-envelope text-sm md:text-base"></i>
+                    <span class="hidden md:inline">Pemberkasan Instansi Mitra</span>
+                    <span class="md:hidden text-[10px]">Mitra</span>
                     @if(!$dokumenPemberkasanEnabled)
-                        <i class="fas fa-lock ml-2 text-gray-400 text-xs"></i>
+                        <i class="fas fa-lock ml-1 md:ml-2 text-gray-400 text-[8px] md:text-xs"></i>
                     @endif
                 </div>
             </button>
@@ -327,13 +330,14 @@
                 // Pemberkasan Akhir requires: eligible, mitra selected, and surat balasan uploaded
                 $canAccessPemberkasanAkhir = $laporanPklEnabled && $isEligibleForPkl && $hasMitraSelected && $hasSuratBalasan;
             @endphp
-            <button onclick="showTab('laporan')" id="tab-laporan" class="tab-button flex-1 py-3.5 px-4 rounded-lg font-medium text-sm transition-all duration-200 bg-white text-gray-600 border border-gray-200 hover:bg-blue-50 hover:border-blue-200 hover:text-blue-700 {{ !$laporanPklEnabled ? 'opacity-50 cursor-not-allowed' : '' }}"
+            <button onclick="showTab('laporan')" id="tab-laporan" class="tab-button flex-1 min-w-[70px] md:min-w-0 py-2.5 md:py-3.5 px-2 md:px-4 rounded-lg font-medium text-xs md:text-sm transition-all duration-200 bg-white text-gray-600 border border-gray-200 hover:bg-blue-50 hover:border-blue-200 hover:text-blue-700 {{ !$laporanPklEnabled ? 'opacity-50 cursor-not-allowed' : '' }}"
                     {{ !$laporanPklEnabled ? 'disabled' : '' }}>
-                <div class="flex items-center justify-center">
-                    <i class="fas fa-book mr-2 text-base"></i>
-                    <span>Pemberkasan Akhir</span>
+                <div class="flex flex-col md:flex-row items-center justify-center gap-1 md:gap-2">
+                    <i class="fas fa-book text-sm md:text-base"></i>
+                    <span class="hidden md:inline">Pemberkasan Akhir</span>
+                    <span class="md:hidden text-[10px]">Akhir</span>
                     @if(!$laporanPklEnabled)
-                        <i class="fas fa-lock ml-2 text-gray-400 text-xs"></i>
+                        <i class="fas fa-lock ml-1 md:ml-2 text-gray-400 text-[8px] md:text-xs"></i>
                     @endif
                 </div>
             </button>
@@ -684,44 +688,44 @@
 
 
     <div id="content-laporan" class="tab-content hidden">
-        <div class="max-w-5xl mx-auto mt-6" style="max-width: 76rem;">
+        <div class="max-w-5xl mx-auto mt-4 md:mt-6" style="max-width: 76rem;">
         @if(!$laporanPklEnabled)
             <!-- Disabled State -->
             <div class="bg-white shadow-lg rounded-xl border border-gray-100 overflow-hidden">
-                <div class="bg-gradient-to-r from-gray-400 to-gray-500 px-6 py-4">
+                <div class="bg-gradient-to-r from-gray-400 to-gray-500 px-4 md:px-6 py-3 md:py-4">
                         <div class="flex items-center">
                             <div class="flex-shrink-0">
-                            <i class="fas fa-ban text-2xl text-white"></i>
+                            <i class="fas fa-ban text-xl md:text-2xl text-white"></i>
                             </div>
-                            <div class="ml-3">
-                            <h3 class="text-lg font-semibold text-white">Laporan PKL</h3>
-                            <p class="text-gray-100 text-sm">Fitur dinonaktifkan oleh admin</p>
+                            <div class="ml-2 md:ml-3">
+                            <h3 class="text-base md:text-lg font-semibold text-white">Laporan PKL</h3>
+                            <p class="text-gray-100 text-xs md:text-sm">Fitur dinonaktifkan</p>
                         </div>
                     </div>
                 </div>
                 
-                <div class="p-6 text-center">
-                    <i class="fas fa-lock text-4xl text-gray-300 mb-4"></i>
-                    <p class="text-gray-500">Fitur upload laporan PKL sedang dinonaktifkan</p>
+                <div class="p-4 md:p-6 text-center">
+                    <i class="fas fa-lock text-3xl md:text-4xl text-gray-300 mb-3 md:mb-4"></i>
+                    <p class="text-gray-500 text-sm md:text-base">Fitur upload laporan PKL dinonaktifkan</p>
                                     </div>
                                     </div>
         @else
             <div class="bg-white shadow-sm rounded-xl border border-slate-200 overflow-hidden">
-                <div class="bg-white px-6 py-4 border-b border-slate-100">
+                <div class="bg-white px-4 md:px-6 py-3 md:py-4 border-b border-slate-100">
                     <div class="flex items-center">
                         <div class="flex-shrink-0">
-                            <div class="w-10 h-10 rounded-lg bg-indigo-50 flex items-center justify-center">
-                                <i class="fas fa-file-alt text-indigo-600"></i>
+                            <div class="w-8 h-8 md:w-10 md:h-10 rounded-lg bg-indigo-50 flex items-center justify-center">
+                                <i class="fas fa-file-alt text-indigo-600 text-sm md:text-base"></i>
                             </div>
                         </div>
-                        <div class="ml-4">
-                            <h3 class="text-lg font-bold text-slate-800">Laporan PKL</h3>
-                            <p class="text-slate-500 text-sm">Upload laporan akhir PKL</p>
+                        <div class="ml-3 md:ml-4">
+                            <h3 class="text-base md:text-lg font-bold text-slate-800">Laporan PKL</h3>
+                            <p class="text-slate-500 text-xs md:text-sm hidden md:block">Upload laporan akhir PKL</p>
                         </div>
                     </div>
                 </div>
                 
-                <div class="p-6">
+                <div class="p-4 md:p-6">
                     @if($laporan && is_object($laporan))
                         <div class="mb-6 p-4 bg-gray-50 rounded-lg border">
                             <div class="flex items-start justify-between">
@@ -802,103 +806,103 @@
     </div>
 
     <div id="content-dokumen-pendukung" class="tab-content hidden">
-        <div class="max-w-5xl mx-auto mt-6" style="max-width: 76rem;">
-        <div class="bg-white shadow-sm rounded-xl border border-slate-200 overflow-hidden mt-6">
-            <div class="bg-white px-6 py-4 border-b border-slate-100">
+        <div class="max-w-5xl mx-auto mt-4 md:mt-6" style="max-width: 76rem;">
+        <div class="bg-white shadow-sm rounded-xl border border-slate-200 overflow-hidden">
+            <div class="bg-white px-4 md:px-6 py-3 md:py-4 border-b border-slate-100">
                 <div class="flex items-center">
                     <div class="flex-shrink-0">
-                        <div class="w-10 h-10 rounded-lg bg-emerald-50 flex items-center justify-center">
-                            <i class="fab fa-google-drive text-emerald-600"></i>
+                        <div class="w-8 h-8 md:w-10 md:h-10 rounded-lg bg-emerald-50 flex items-center justify-center">
+                            <i class="fab fa-google-drive text-emerald-600 text-sm md:text-base"></i>
                         </div>
                     </div>
-                    <div class="ml-4">
-                        <h3 class="text-lg font-bold text-slate-800">Dokumen Pendukung</h3>
-                        <p class="text-slate-500 text-sm">Masukkan link Google Drive untuk dokumen pendukung</p>
+                    <div class="ml-3 md:ml-4">
+                        <h3 class="text-base md:text-lg font-bold text-slate-800">Dokumen Pendukung</h3>
+                        <p class="text-slate-500 text-xs md:text-sm hidden md:block">Masukkan link Google Drive untuk dokumen pendukung</p>
                     </div>
                 </div>
             </div>
 
-            <div class="p-6 space-y-6">
+            <div class="p-4 md:p-6 space-y-4 md:space-y-6">
                 <!-- Sertifikat PKKMB -->
-                <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
-                    <div class="flex items-center justify-between mb-3">
+                <div class="bg-gray-50 rounded-lg p-3 md:p-4 border border-gray-200">
+                    <div class="flex items-center justify-between mb-2 md:mb-3">
                         <div class="flex items-center">
-                            <i class="fab fa-google-drive text-blue-500 mr-2"></i>
-                            <h4 class="text-lg font-medium text-gray-900">Sertifikat PKKMB</h4>
+                            <i class="fab fa-google-drive text-blue-500 mr-1.5 md:mr-2 text-sm md:text-base"></i>
+                            <h4 class="text-sm md:text-lg font-medium text-gray-900">Sertifikat PKKMB</h4>
                         </div>
-                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                            <i class="fas fa-asterisk mr-1 text-xs"></i>Wajib
+                        <span class="inline-flex items-center px-2 md:px-3 py-0.5 md:py-1 rounded-full text-[10px] md:text-xs font-medium bg-red-100 text-red-800">
+                            <i class="fas fa-asterisk mr-1 text-[8px] md:text-xs"></i>Wajib
                         </span>
                     </div>
-                    <div class="space-y-3">
+                    <div class="space-y-2 md:space-y-3">
                         <div>
-                            <label for="link_pkkmb" class="block text-sm font-medium text-gray-700 mb-2">Link Google Drive Sertifikat PKKMB</label>
-                            <input type="url" id="link_pkkmb" name="link_pkkmb" placeholder="https://drive.google.com/file/d/..." 
-                                   class="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:text-gray-500"
+                            <label for="link_pkkmb" class="block text-xs md:text-sm font-medium text-gray-700 mb-1 md:mb-2">Link Google Drive</label>
+                            <input type="url" id="link_pkkmb" name="link_pkkmb" placeholder="https://drive.google.com/..." 
+                                   class="block w-full px-2.5 md:px-3 py-1.5 md:py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:text-gray-500"
                                    {{ $isLockedGeneral ? 'disabled' : '' }}>
                         </div>
-                        <p class="text-xs text-gray-500 flex items-center">
+                        <p class="text-[10px] md:text-xs text-gray-500 flex items-center">
                             <i class="fas fa-info-circle mr-1"></i>
-                            Paste link Google Drive yang dapat diakses publik
+                            Link Google Drive publik
                         </p>
                     </div>
                 </div>
 
                 <!-- Sertifikat English Course -->
-                <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
-                    <div class="flex items-center justify-between mb-3">
+                <div class="bg-gray-50 rounded-lg p-3 md:p-4 border border-gray-200">
+                    <div class="flex items-center justify-between mb-2 md:mb-3">
                         <div class="flex items-center">
-                            <i class="fab fa-google-drive text-blue-500 mr-2"></i>
-                            <h4 class="text-lg font-medium text-gray-900">Sertifikat English Course</h4>
+                            <i class="fab fa-google-drive text-blue-500 mr-1.5 md:mr-2 text-sm md:text-base"></i>
+                            <h4 class="text-sm md:text-lg font-medium text-gray-900">Sertifikat English Course</h4>
                         </div>
-                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                            <i class="fas fa-asterisk mr-1 text-xs"></i>Wajib
+                        <span class="inline-flex items-center px-2 md:px-3 py-0.5 md:py-1 rounded-full text-[10px] md:text-xs font-medium bg-red-100 text-red-800">
+                            <i class="fas fa-asterisk mr-1 text-[8px] md:text-xs"></i>Wajib
                         </span>
                     </div>
-                    <div class="space-y-3">
+                    <div class="space-y-2 md:space-y-3">
                         <div>
-                            <label for="link_english" class="block text-sm font-medium text-gray-700 mb-2">Link Google Drive Sertifikat English Course</label>
-                            <input type="url" id="link_english" name="link_english" placeholder="https://drive.google.com/file/d/..." 
-                                   class="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:text-gray-500"
+                            <label for="link_english" class="block text-xs md:text-sm font-medium text-gray-700 mb-1 md:mb-2">Link Google Drive</label>
+                            <input type="url" id="link_english" name="link_english" placeholder="https://drive.google.com/..." 
+                                   class="block w-full px-2.5 md:px-3 py-1.5 md:py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:text-gray-500"
                                    {{ $isLockedGeneral ? 'disabled' : '' }}>
                         </div>
-                        <p class="text-xs text-gray-500 flex items-center">
+                        <p class="text-[10px] md:text-xs text-gray-500 flex items-center">
                             <i class="fas fa-info-circle mr-1"></i>
-                            Paste link Google Drive yang dapat diakses publik
+                            Link Google Drive publik
                         </p>
                     </div>
                 </div>
 
                 <!-- Sertifikat Semasa Berkuliah -->
-                <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
-                    <div class="flex items-center justify-between mb-3">
+                <div class="bg-gray-50 rounded-lg p-3 md:p-4 border border-gray-200">
+                    <div class="flex items-center justify-between mb-2 md:mb-3">
                         <div class="flex items-center">
-                            <i class="fab fa-google-drive text-blue-500 mr-2"></i>
-                            <h4 class="text-lg font-medium text-gray-900">Sertifikat Semasa Berkuliah di Politeknik Negeri Tanah Laut</h4>
+                            <i class="fab fa-google-drive text-blue-500 mr-1.5 md:mr-2 text-sm md:text-base"></i>
+                            <h4 class="text-sm md:text-lg font-medium text-gray-900">Sertifikat Lainnya</h4>
                         </div>
-                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                            <i class="fas fa-info-circle mr-1"></i>Opsional
+                        <span class="inline-flex items-center px-2 md:px-3 py-0.5 md:py-1 rounded-full text-[10px] md:text-xs font-medium bg-blue-100 text-blue-800">
+                            <i class="fas fa-info-circle mr-1 text-[8px] md:text-xs"></i>Opsional
                         </span>
                     </div>
-                    <div class="space-y-3">
+                    <div class="space-y-2 md:space-y-3">
                         <div>
-                            <label for="link_semasa" class="block text-sm font-medium text-gray-700 mb-2">Link Google Drive Sertifikat Semasa Berkuliah</label>
-                            <input type="url" id="link_semasa" name="link_semasa" placeholder="https://drive.google.com/file/d/..." 
-                                   class="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:text-gray-500"
+                            <label for="link_semasa" class="block text-xs md:text-sm font-medium text-gray-700 mb-1 md:mb-2">Link Google Drive</label>
+                            <input type="url" id="link_semasa" name="link_semasa" placeholder="https://drive.google.com/..." 
+                                   class="block w-full px-2.5 md:px-3 py-1.5 md:py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:text-gray-500"
                                    {{ $isLockedGeneral ? 'disabled' : '' }}>
                         </div>
-                        <p class="text-xs text-gray-500 flex items-center">
+                        <p class="text-[10px] md:text-xs text-gray-500 flex items-center">
                             <i class="fas fa-info-circle mr-1"></i>
-                            Paste link Google Drive yang dapat diakses publik
+                            Link Google Drive publik
                         </p>
                     </div>
                 </div>
 
                 <!-- Save Button -->
-                <div class="pt-4 border-t border-gray-200">
+                <div class="pt-3 md:pt-4 border-t border-gray-200">
                     @if(!$isLockedGeneral)
-                    <button type="button" onclick="saveDokumenPendukung()" class="w-full bg-green-600 text-white py-3 px-4 rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors duration-200 font-medium">
-                        <i class="fas fa-save mr-2"></i>Simpan Link Dokumen Pendukung
+                    <button type="button" onclick="saveDokumenPendukung()" class="w-full bg-green-600 text-white py-2.5 md:py-3 px-4 rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors duration-200 font-medium text-sm md:text-base">
+                        <i class="fas fa-save mr-2"></i>Simpan Dokumen
                     </button>
                     @else
                     <div class="text-center py-2 text-gray-500 bg-gray-50 rounded border border-gray-200">

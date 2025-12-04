@@ -1,73 +1,73 @@
 <!-- Dosen Pembimbing Dashboard -->
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+<div class="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
     <!-- Mahasiswa Bimbingan -->
-    <div class="group bg-white overflow-hidden shadow-lg rounded-2xl transform transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl border border-gray-100">
-        <div class="p-6 relative overflow-hidden">
-            <div class="absolute top-0 right-0 w-32 h-32 bg-blue-50 rounded-full -mr-16 -mt-16 opacity-50 group-hover:scale-150 transition-transform duration-500"></div>
+    <div class="group bg-white overflow-hidden shadow-md md:shadow-lg rounded-xl md:rounded-2xl transform transition-all duration-300 hover:-translate-y-1 md:hover:-translate-y-2 hover:shadow-xl md:hover:shadow-2xl border border-gray-100">
+        <div class="p-3 md:p-6 relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-20 md:w-32 h-20 md:h-32 bg-blue-50 rounded-full -mr-10 md:-mr-16 -mt-10 md:-mt-16 opacity-50"></div>
             <div class="relative z-10">
-                <div class="flex items-center justify-between mb-4">
-                    <div class="w-14 h-14 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg transform group-hover:scale-110 group-hover:rotate-6 transition-all duration-300">
-                        <i class="fas fa-users text-2xl text-white"></i>
+                <div class="flex items-center justify-between mb-2 md:mb-4">
+                    <div class="w-10 h-10 md:w-14 md:h-14 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg md:rounded-xl flex items-center justify-center shadow-md md:shadow-lg">
+                        <i class="fas fa-users text-lg md:text-2xl text-white"></i>
                     </div>
-                    <div class="bg-blue-100 text-blue-600 text-xs font-bold px-3 py-1 rounded-full">Bimbingan</div>
+                    <div class="bg-blue-100 text-blue-600 text-[10px] md:text-xs font-bold px-2 md:px-3 py-0.5 md:py-1 rounded-full">Bimbingan</div>
                 </div>
-                <dt class="text-sm font-medium text-gray-500 mb-2">Mahasiswa Bimbingan</dt>
-                <dd class="text-3xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors">{{ $stats['mahasiswa_bimbingan'] }}</dd>
-                <p class="text-xs text-gray-400 mt-1">Mahasiswa Aktif</p>
+                <dt class="text-xs md:text-sm font-medium text-gray-500 mb-1 md:mb-2">Mahasiswa</dt>
+                <dd class="text-xl md:text-3xl font-bold text-gray-900">{{ $stats['mahasiswa_bimbingan'] }}</dd>
+                <p class="text-[10px] md:text-xs text-gray-400 mt-0.5 md:mt-1 hidden md:block">Mahasiswa Aktif</p>
             </div>
         </div>
     </div>
 
     <!-- Berkas Perlu Validasi -->
-    <div class="group bg-white overflow-hidden shadow-lg rounded-2xl transform transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl border border-gray-100">
-        <div class="p-6 relative overflow-hidden">
-            <div class="absolute top-0 right-0 w-32 h-32 bg-yellow-50 rounded-full -mr-16 -mt-16 opacity-50 group-hover:scale-150 transition-transform duration-500"></div>
+    <div class="group bg-white overflow-hidden shadow-md md:shadow-lg rounded-xl md:rounded-2xl transform transition-all duration-300 hover:-translate-y-1 md:hover:-translate-y-2 hover:shadow-xl md:hover:shadow-2xl border border-gray-100">
+        <div class="p-3 md:p-6 relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-20 md:w-32 h-20 md:h-32 bg-yellow-50 rounded-full -mr-10 md:-mr-16 -mt-10 md:-mt-16 opacity-50"></div>
             <div class="relative z-10">
-                <div class="flex items-center justify-between mb-4">
-                    <div class="w-14 h-14 bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-xl flex items-center justify-center shadow-lg transform group-hover:scale-110 group-hover:rotate-6 transition-all duration-300">
-                        <i class="fas fa-clock text-2xl text-white"></i>
+                <div class="flex items-center justify-between mb-2 md:mb-4">
+                    <div class="w-10 h-10 md:w-14 md:h-14 bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-lg md:rounded-xl flex items-center justify-center shadow-md md:shadow-lg">
+                        <i class="fas fa-clock text-lg md:text-2xl text-white"></i>
                     </div>
-                    <div class="bg-yellow-100 text-yellow-700 text-xs font-bold px-3 py-1 rounded-full">Pending</div>
+                    <div class="bg-yellow-100 text-yellow-700 text-[10px] md:text-xs font-bold px-2 md:px-3 py-0.5 md:py-1 rounded-full">Pending</div>
                 </div>
-                <dt class="text-sm font-medium text-gray-500 mb-2">Perlu Validasi</dt>
-                <dd class="text-3xl font-bold text-gray-900 group-hover:text-yellow-600 transition-colors">{{ $stats['berkas_perlu_validasi'] }}</dd>
-                <p class="text-xs text-gray-400 mt-1">Menunggu Validasi</p>
+                <dt class="text-xs md:text-sm font-medium text-gray-500 mb-1 md:mb-2">Validasi</dt>
+                <dd class="text-xl md:text-3xl font-bold text-gray-900">{{ $stats['berkas_perlu_validasi'] }}</dd>
+                <p class="text-[10px] md:text-xs text-gray-400 mt-0.5 md:mt-1 hidden md:block">Menunggu Validasi</p>
             </div>
         </div>
     </div>
 
     <!-- Berkas Tervalidasi -->
-    <div class="group bg-white overflow-hidden shadow-lg rounded-2xl transform transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl border border-gray-100">
-        <div class="p-6 relative overflow-hidden">
-            <div class="absolute top-0 right-0 w-32 h-32 bg-green-50 rounded-full -mr-16 -mt-16 opacity-50 group-hover:scale-150 transition-transform duration-500"></div>
+    <div class="group bg-white overflow-hidden shadow-md md:shadow-lg rounded-xl md:rounded-2xl transform transition-all duration-300 hover:-translate-y-1 md:hover:-translate-y-2 hover:shadow-xl md:hover:shadow-2xl border border-gray-100">
+        <div class="p-3 md:p-6 relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-20 md:w-32 h-20 md:h-32 bg-green-50 rounded-full -mr-10 md:-mr-16 -mt-10 md:-mt-16 opacity-50"></div>
             <div class="relative z-10">
-                <div class="flex items-center justify-between mb-4">
-                    <div class="w-14 h-14 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center shadow-lg transform group-hover:scale-110 group-hover:rotate-6 transition-all duration-300">
-                        <i class="fas fa-check-circle text-2xl text-white"></i>
+                <div class="flex items-center justify-between mb-2 md:mb-4">
+                    <div class="w-10 h-10 md:w-14 md:h-14 bg-gradient-to-br from-green-500 to-green-600 rounded-lg md:rounded-xl flex items-center justify-center shadow-md md:shadow-lg">
+                        <i class="fas fa-check-circle text-lg md:text-2xl text-white"></i>
                     </div>
-                    <div class="bg-green-100 text-green-700 text-xs font-bold px-3 py-1 rounded-full">Valid</div>
+                    <div class="bg-green-100 text-green-700 text-[10px] md:text-xs font-bold px-2 md:px-3 py-0.5 md:py-1 rounded-full">Valid</div>
                 </div>
-                <dt class="text-sm font-medium text-gray-500 mb-2">Tervalidasi</dt>
-                <dd class="text-3xl font-bold text-gray-900 group-hover:text-green-600 transition-colors">{{ $stats['berkas_tervalidasi'] }}</dd>
-                <p class="text-xs text-gray-400 mt-1">Selesai Validasi</p>
+                <dt class="text-xs md:text-sm font-medium text-gray-500 mb-1 md:mb-2">Tervalidasi</dt>
+                <dd class="text-xl md:text-3xl font-bold text-gray-900">{{ $stats['berkas_tervalidasi'] }}</dd>
+                <p class="text-[10px] md:text-xs text-gray-400 mt-0.5 md:mt-1 hidden md:block">Selesai Validasi</p>
             </div>
         </div>
     </div>
 
     <!-- Total Mitra -->
-    <div class="group bg-white overflow-hidden shadow-lg rounded-2xl transform transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl border border-gray-100">
-        <div class="p-6 relative overflow-hidden">
-            <div class="absolute top-0 right-0 w-32 h-32 bg-purple-50 rounded-full -mr-16 -mt-16 opacity-50 group-hover:scale-150 transition-transform duration-500"></div>
+    <div class="group bg-white overflow-hidden shadow-md md:shadow-lg rounded-xl md:rounded-2xl transform transition-all duration-300 hover:-translate-y-1 md:hover:-translate-y-2 hover:shadow-xl md:hover:shadow-2xl border border-gray-100">
+        <div class="p-3 md:p-6 relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-20 md:w-32 h-20 md:h-32 bg-purple-50 rounded-full -mr-10 md:-mr-16 -mt-10 md:-mt-16 opacity-50"></div>
             <div class="relative z-10">
-                <div class="flex items-center justify-between mb-4">
-                    <div class="w-14 h-14 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg transform group-hover:scale-110 group-hover:rotate-6 transition-all duration-300">
-                        <i class="fas fa-building text-2xl text-white"></i>
+                <div class="flex items-center justify-between mb-2 md:mb-4">
+                    <div class="w-10 h-10 md:w-14 md:h-14 bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg md:rounded-xl flex items-center justify-center shadow-md md:shadow-lg">
+                        <i class="fas fa-building text-lg md:text-2xl text-white"></i>
                     </div>
-                    <div class="bg-purple-100 text-purple-600 text-xs font-bold px-3 py-1 rounded-full">Mitra</div>
+                    <div class="bg-purple-100 text-purple-600 text-[10px] md:text-xs font-bold px-2 md:px-3 py-0.5 md:py-1 rounded-full">Mitra</div>
                 </div>
-                <dt class="text-sm font-medium text-gray-500 mb-2">Total Mitra</dt>
-                <dd class="text-3xl font-bold text-gray-900 group-hover:text-purple-600 transition-colors">{{ $stats['total_mitra'] }}</dd>
-                <p class="text-xs text-gray-400 mt-1">Mitra Tersedia</p>
+                <dt class="text-xs md:text-sm font-medium text-gray-500 mb-1 md:mb-2">Total Mitra</dt>
+                <dd class="text-xl md:text-3xl font-bold text-gray-900">{{ $stats['total_mitra'] }}</dd>
+                <p class="text-[10px] md:text-xs text-gray-400 mt-0.5 md:mt-1 hidden md:block">Mitra Tersedia</p>
             </div>
         </div>
     </div>

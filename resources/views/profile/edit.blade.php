@@ -3,36 +3,36 @@
 @section('title', 'Edit Profile - SIP PKL')
 
 @section('content')
-<div class="space-y-6">
+<div class="space-y-4 md:space-y-6">
     <!-- Success/Error Messages handled in layout -->
 
     @if($errors->any())
-    <div class="bg-red-50 border-l-4 border-red-500 text-red-700 p-4 rounded-r-lg shadow-sm" role="alert">
+    <div class="bg-red-50 border-l-4 border-red-500 text-red-700 p-3 md:p-4 rounded-r-lg shadow-sm" role="alert">
         <div class="flex items-center mb-2">
-            <i class="fas fa-exclamation-circle mr-3 text-xl"></i>
-            <p class="font-medium">Terdapat kesalahan dalam pengisian form:</p>
+            <i class="fas fa-exclamation-circle mr-2 md:mr-3 text-lg md:text-xl"></i>
+            <p class="font-medium text-sm md:text-base">Terdapat kesalahan:</p>
         </div>
-        <ul class="list-disc list-inside ml-8">
+        <ul class="list-disc list-inside ml-6 md:ml-8">
             @foreach($errors->all() as $error)
-                <li class="text-sm">{{ $error }}</li>
+                <li class="text-xs md:text-sm">{{ $error }}</li>
             @endforeach
         </ul>
     </div>
     @endif
 
     <!-- Header with Minimalist Style -->
-    <div class="bg-white shadow-sm rounded-2xl p-8 border border-gray-200">
-        <div class="flex justify-between items-center">
+    <div class="bg-white shadow-sm rounded-xl md:rounded-2xl p-4 md:p-8 border border-gray-200">
+        <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
             <div class="flex items-center">
-                <div class="w-16 h-16 bg-green-50 rounded-xl flex items-center justify-center mr-4">
-                    <i class="fas fa-user-edit text-4xl text-green-600"></i>
+                <div class="w-12 h-12 md:w-16 md:h-16 bg-green-50 rounded-lg md:rounded-xl flex items-center justify-center mr-3 md:mr-4">
+                    <i class="fas fa-user-edit text-2xl md:text-4xl text-green-600"></i>
                 </div>
                 <div>
-                    <h1 class="text-3xl font-bold text-gray-900">Edit Profile</h1>
-                    <p class="text-gray-500 mt-1">Lengkapi dan perbarui informasi pribadi Anda</p>
+                    <h1 class="text-xl md:text-3xl font-bold text-gray-900">Edit Profile</h1>
+                    <p class="text-gray-500 mt-0.5 md:mt-1 text-sm md:text-base">Perbarui informasi Anda</p>
                 </div>
             </div>
-            <a href="{{ route('profile.index') }}" class="bg-white text-gray-700 px-6 py-2.5 rounded-xl transition-all duration-200 shadow-sm hover:shadow-md font-medium border border-gray-300 hover:bg-gray-50">
+            <a href="{{ route('profile.index') }}" class="bg-white text-gray-700 px-4 md:px-6 py-2 md:py-2.5 rounded-lg md:rounded-xl transition-all duration-200 shadow-sm hover:shadow-md font-medium border border-gray-300 hover:bg-gray-50 text-center text-sm md:text-base">
                 <i class="fas fa-arrow-left mr-2"></i>Kembali
             </a>
         </div>
@@ -44,12 +44,12 @@
         @method('PUT')
 
         <!-- Profile Photo Section -->
-        <div class="bg-white shadow-sm rounded-2xl p-6 border border-gray-200">
-            <div class="flex items-center mb-6">
-                <div class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
-                    <i class="fas fa-camera text-gray-600 text-lg"></i>
+        <div class="bg-white shadow-sm rounded-xl md:rounded-2xl p-4 md:p-6 border border-gray-200">
+            <div class="flex items-center mb-4 md:mb-6">
+                <div class="w-8 h-8 md:w-10 md:h-10 bg-gray-100 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-camera text-gray-600 text-sm md:text-lg"></i>
                 </div>
-                <h3 class="text-lg font-bold text-gray-900 ml-3">Foto Profil</h3>
+                <h3 class="text-base md:text-lg font-bold text-gray-900 ml-2 md:ml-3">Foto Profil</h3>
             </div>
 
             <div class="flex flex-col md:flex-row items-center md:items-start gap-6">
@@ -94,12 +94,12 @@
         </div>
 
         <!-- Basic Information -->
-        <div class="bg-white shadow-sm rounded-2xl p-6 border border-gray-200">
-            <div class="flex items-center mb-6">
-                <div class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
-                    <i class="fas fa-id-card text-gray-600 text-lg"></i>
+        <div class="bg-white shadow-sm rounded-xl md:rounded-2xl p-4 md:p-6 border border-gray-200">
+            <div class="flex items-center mb-4 md:mb-6">
+                <div class="w-8 h-8 md:w-10 md:h-10 bg-gray-100 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-id-card text-gray-600 text-sm md:text-lg"></i>
                 </div>
-                <h3 class="text-lg font-bold text-gray-900 ml-3">Informasi Dasar</h3>
+                <h3 class="text-base md:text-lg font-bold text-gray-900 ml-2 md:ml-3">Informasi Dasar</h3>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
@@ -132,12 +132,12 @@
 
         @if($user->role === 'dospem')
         <!-- Biodata Dosen -->
-        <div class="bg-white shadow-sm rounded-2xl p-6 border border-gray-200">
-            <div class="flex items-center mb-6">
-                <div class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
-                    <i class="fas fa-chalkboard-teacher text-gray-600 text-lg"></i>
+        <div class="bg-white shadow-sm rounded-xl md:rounded-2xl p-4 md:p-6 border border-gray-200">
+            <div class="flex items-center mb-4 md:mb-6">
+                <div class="w-8 h-8 md:w-10 md:h-10 bg-gray-100 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-chalkboard-teacher text-gray-600 text-sm md:text-lg"></i>
                 </div>
-                <h3 class="text-lg font-bold text-gray-900 ml-3">Biodata Dosen</h3>
+                <h3 class="text-base md:text-lg font-bold text-gray-900 ml-2 md:ml-3">Biodata Dosen</h3>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
@@ -157,12 +157,12 @@
 
         @if($user->role === 'mahasiswa')
         <!-- Biodata Information -->
-        <div class="bg-white shadow-sm rounded-2xl p-6 border border-gray-200">
-            <div class="flex items-center mb-6">
-                <div class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
-                    <i class="fas fa-user-graduate text-gray-600 text-lg"></i>
+        <div class="bg-white shadow-sm rounded-xl md:rounded-2xl p-4 md:p-6 border border-gray-200">
+            <div class="flex items-center mb-4 md:mb-6">
+                <div class="w-8 h-8 md:w-10 md:h-10 bg-gray-100 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-user-graduate text-gray-600 text-sm md:text-lg"></i>
                 </div>
-                <h3 class="text-lg font-bold text-gray-900 ml-3">Biodata Mahasiswa</h3>
+                <h3 class="text-base md:text-lg font-bold text-gray-900 ml-2 md:ml-3">Biodata Mahasiswa</h3>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
@@ -293,12 +293,12 @@
         </div>
 
         <!-- Checkboxes -->
-        <div id="konfirmasi-persyaratan" class="bg-white shadow-sm rounded-2xl p-6 border border-gray-200">
-            <div class="flex items-center mb-6">
-                <div class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
-                    <i class="fas fa-check-double text-gray-600 text-lg"></i>
+        <div id="konfirmasi-persyaratan" class="bg-white shadow-sm rounded-xl md:rounded-2xl p-4 md:p-6 border border-gray-200">
+            <div class="flex items-center mb-4 md:mb-6">
+                <div class="w-8 h-8 md:w-10 md:h-10 bg-gray-100 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-check-double text-gray-600 text-sm md:text-lg"></i>
                 </div>
-                <h3 class="text-lg font-bold text-gray-900 ml-3">Konfirmasi Persyaratan</h3>
+                <h3 class="text-base md:text-lg font-bold text-gray-900 ml-2 md:ml-3">Konfirmasi Persyaratan</h3>
             </div>
             <div class="space-y-4">
                 <div class="bg-gray-50 p-5 rounded-xl border border-gray-200">
@@ -345,12 +345,12 @@
         @endif
 
         <!-- Submit Button -->
-        <div class="flex justify-end space-x-3">
-            <a href="{{ route('profile.index') }}" class="px-6 py-3 bg-white border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition-all duration-200 font-semibold shadow-sm">
+        <div class="flex flex-col-reverse md:flex-row justify-end gap-2 md:gap-3">
+            <a href="{{ route('profile.index') }}" class="px-4 md:px-6 py-2.5 md:py-3 bg-white border border-gray-300 text-gray-700 rounded-lg md:rounded-xl hover:bg-gray-50 transition-all duration-200 font-semibold shadow-sm text-center text-sm md:text-base">
                 <i class="fas fa-times mr-2"></i>Batal
             </a>
-            <button type="button" onclick="confirmSaveChanges()" class="px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-300 shadow-md hover:shadow-lg transition-all duration-200 font-semibold">
-                <i class="fas fa-save mr-2"></i>Simpan Perubahan
+            <button type="button" onclick="confirmSaveChanges()" class="px-4 md:px-6 py-2.5 md:py-3 bg-blue-600 text-white rounded-lg md:rounded-xl hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-300 shadow-md hover:shadow-lg transition-all duration-200 font-semibold text-sm md:text-base">
+                <i class="fas fa-save mr-2"></i>Simpan
             </button>
         </div>
     </form>

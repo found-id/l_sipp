@@ -37,13 +37,22 @@
             --content-scale-desktop: 1;     /* Baris 37: Scale untuk DESKTOP (> 1024px) */
             
             /* Jarak Header ke Konten (dalam px) */
-            --header-gap-mobile: 69;        /* Baris 40: Jarak header-konten MOBILE */
+            --header-gap-mobile: 65;        /* Baris 40: Jarak header-konten MOBILE */
             --header-gap-tablet: 80;        /* Baris 41: Jarak header-konten TABLET */
             --header-gap-desktop: 65;       /* Baris 42: Jarak header-konten DESKTOP */
             
             /* Header Scale (hanya untuk mobile) */
             --header-scale-mobile: 0.85;    /* Baris 45: Scale header MOBILE (logo, icon, dll) */
             --header-height-mobile: 50px;   /* Baris 46: Tinggi header MOBILE */
+            
+            /* ============================================
+               MOBILE BOTTOM NAVIGATION SETTINGS
+               ============================================ */
+            --nav-scale-mobile: 0.9;        /* Scale navigasi bottom (0.8 = 80%, 1 = 100%) */
+            --nav-margin-x-mobile: -20px;     /* Margin kiri-kanan navigasi (px) */
+            --nav-padding-x-mobile: 30px;    /* Padding kiri-kanan dalam navigasi (px) */
+            --nav-border-radius-mobile: 0;  /* Border radius navigasi (px), set > 0 untuk rounded */
+            --nav-bottom-offset: 0px;       /* Jarak dari bawah layar (px) */
         }
 
         body {
@@ -164,16 +173,19 @@
         @media (max-width: 767px) {
             .mobile-bottom-nav {
                 position: fixed;
-                bottom: 0;
-                left: 0;
-                right: 0;
+                bottom: var(--nav-bottom-offset);
+                left: var(--nav-margin-x-mobile);
+                right: var(--nav-margin-x-mobile);
                 z-index: 50;
                 background: rgba(255, 255, 255, 0.77);
                 backdrop-filter: blur(12px);
                 -webkit-backdrop-filter: blur(12px);
                 border-top: 1px solid #e5e7eb;
-                padding: 8px 0;
+                padding: 8px var(--nav-padding-x-mobile);
                 padding-bottom: calc(8px + env(safe-area-inset-bottom));
+                border-radius: var(--nav-border-radius-mobile);
+                transform: scale(var(--nav-scale-mobile));
+                transform-origin: bottom center;
             }
             .mobile-nav-container {
                 display: flex;

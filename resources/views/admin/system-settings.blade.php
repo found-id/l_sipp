@@ -3,48 +3,48 @@
 @section('title', 'Menu Sistem')
 
 @section('content')
-<div class="py-6">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+<div class="py-3 md:py-6">
+    <div class="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 space-y-4 md:space-y-8">
         <!-- Header with Minimalist Style -->
-        <div class="relative overflow-hidden bg-slate-800 shadow-lg rounded-2xl p-8 border border-slate-700">
+        <div class="relative overflow-hidden bg-slate-800 shadow-lg rounded-xl md:rounded-2xl p-4 md:p-8 border border-slate-700">
             <div class="absolute inset-0 bg-gradient-to-br from-slate-700 to-slate-900 opacity-50"></div>
             <div class="relative z-10">
-                <h1 class="text-3xl font-bold text-white mb-2 tracking-tight">Menu Sistem</h1>
-                <p class="text-slate-300 text-lg">Kelola pengaturan sistem untuk mengontrol fitur-fitur yang tersedia</p>
+                <h1 class="text-xl md:text-3xl font-bold text-white mb-1 md:mb-2 tracking-tight">Menu Sistem</h1>
+                <p class="text-sm md:text-lg text-slate-300">Kelola pengaturan sistem</p>
             </div>
             <!-- Decorative circles -->
-            <div class="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -mr-32 -mt-32 blur-3xl"></div>
-            <div class="absolute bottom-0 left-0 w-48 h-48 bg-white/5 rounded-full -ml-24 -mb-24 blur-2xl"></div>
+            <div class="absolute top-0 right-0 w-32 md:w-64 h-32 md:h-64 bg-white/5 rounded-full -mr-16 md:-mr-32 -mt-16 md:-mt-32 blur-3xl"></div>
+            <div class="absolute bottom-0 left-0 w-24 md:w-48 h-24 md:h-48 bg-white/5 rounded-full -ml-12 md:-ml-24 -mb-12 md:-mb-24 blur-2xl"></div>
         </div>
 
         <!-- Settings Form -->
-        <div class="bg-white shadow-sm rounded-2xl border border-slate-200 overflow-hidden">
-            <div class="bg-slate-50 px-6 py-5 border-b border-slate-200">
+        <div class="bg-white shadow-sm rounded-xl md:rounded-2xl border border-slate-200 overflow-hidden">
+            <div class="bg-slate-50 px-4 md:px-6 py-3 md:py-5 border-b border-slate-200">
                 <div class="flex items-center">
-                    <div class="w-10 h-10 bg-slate-800 rounded-lg flex items-center justify-center mr-3 shadow-sm">
-                        <i class="fas fa-sliders-h text-slate-200"></i>
+                    <div class="w-8 h-8 md:w-10 md:h-10 bg-slate-800 rounded-lg flex items-center justify-center mr-2 md:mr-3 shadow-sm">
+                        <i class="fas fa-sliders-h text-sm md:text-base text-slate-200"></i>
                     </div>
                     <div>
-                        <h2 class="text-lg font-bold text-slate-800">Pengaturan Fitur</h2>
-                        <p class="text-sm text-slate-500">Aktifkan atau nonaktifkan fitur-fitur yang tersedia</p>
+                        <h2 class="text-base md:text-lg font-bold text-slate-800">Pengaturan Fitur</h2>
+                        <p class="text-xs md:text-sm text-slate-500 hidden md:block">Aktifkan atau nonaktifkan fitur</p>
                     </div>
                 </div>
             </div>
 
-            <form action="{{ route('admin.system-settings.update') }}" method="POST" class="p-6">
+            <form action="{{ route('admin.system-settings.update') }}" method="POST" class="p-4 md:p-6">
                 @csrf
                 @method('PUT')
 
                 <!-- Tampilan Section -->
-                <div class="mb-8">
-                    <h2 class="text-xl font-bold text-slate-800 mb-4 flex items-center">
+                <div class="mb-6 md:mb-8">
+                    <h2 class="text-lg md:text-xl font-bold text-slate-800 mb-3 md:mb-4 flex items-center">
                         <i class="fas fa-paint-brush mr-2 text-indigo-600"></i>
                         Tampilan
                     </h2>
-                    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                    <div class="bg-white rounded-lg md:rounded-xl shadow-sm border border-slate-200 p-4 md:p-6">
                         <div class="max-w-xl">
-                            <label for="system_font" class="block text-sm font-medium text-slate-700 mb-2">Jenis Font Sistem</label>
-                            <select id="system_font" name="system_font" class="w-full rounded-lg bg-white border-slate-300 text-slate-800 focus:border-indigo-500 focus:ring-indigo-500 shadow-sm transition-colors">
+                            <label for="system_font" class="block text-sm font-medium text-slate-700 mb-2">Jenis Font</label>
+                            <select id="system_font" name="system_font" class="w-full rounded-lg bg-white border-slate-300 text-slate-800 focus:border-indigo-500 focus:ring-indigo-500 shadow-sm transition-colors text-sm md:text-base">
                                 <option value="default" {{ $systemFont === 'default' ? 'selected' : '' }}>Default (System UI)</option>
                                 <option value="poppins" {{ $systemFont === 'poppins' ? 'selected' : '' }}>Poppins</option>
                                 <option value="inter" {{ $systemFont === 'inter' ? 'selected' : '' }}>Inter</option>
@@ -53,155 +53,155 @@
                                 <option value="space_grotesk" {{ $systemFont === 'space_grotesk' ? 'selected' : '' }}>Space Grotesk</option>
                                 <option value="bricolage_grotesque" {{ $systemFont === 'bricolage_grotesque' ? 'selected' : '' }}>Bricolage Grotesque</option>
                             </select>
-                            <p class="mt-2 text-sm text-slate-500">Pilih font yang akan digunakan pada seluruh halaman aplikasi.</p>
+                            <p class="mt-2 text-xs md:text-sm text-slate-500">Font untuk aplikasi.</p>
                         </div>
                     </div>
                 </div>
 
                 <!-- Feature Toggles Section -->
-                <div class="mb-8">
-                    <h2 class="text-xl font-bold text-slate-800 mb-4 flex items-center">
+                <div class="mb-6 md:mb-8">
+                    <h2 class="text-lg md:text-xl font-bold text-slate-800 mb-3 md:mb-4 flex items-center">
                         <i class="fas fa-toggle-on mr-2 text-indigo-600"></i>
                         Pengaturan Fitur
                     </h2>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div class="grid grid-cols-2 md:grid-cols-2 gap-3 md:gap-5">
                     <!-- WhatsApp Notification Toggle -->
-                    <div class="group bg-white border border-slate-200 rounded-xl p-5 hover:border-slate-400 hover:shadow-md transition-all duration-300">
-                        <div class="flex items-start justify-between mb-3">
-                            <div class="w-10 h-10 bg-slate-100 rounded-lg flex items-center justify-center group-hover:bg-slate-200 transition-colors">
-                                <i class="fab fa-whatsapp text-slate-700 text-xl"></i>
+                    <div class="group bg-white border border-slate-200 rounded-lg md:rounded-xl p-3 md:p-5 hover:border-slate-400 hover:shadow-md transition-all duration-300">
+                        <div class="flex items-start justify-between mb-2 md:mb-3">
+                            <div class="w-8 h-8 md:w-10 md:h-10 bg-slate-100 rounded-lg flex items-center justify-center">
+                                <i class="fab fa-whatsapp text-slate-700 text-sm md:text-xl"></i>
                             </div>
                             <label class="relative inline-flex items-center cursor-pointer">
                                 <input type="checkbox" name="whatsapp_notification_enabled" value="1" class="sr-only peer" {{ $whatsappNotificationEnabled ? 'checked' : '' }}>
-                                <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-slate-100 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-slate-700"></div>
+                                <div class="w-9 h-5 md:w-11 md:h-6 bg-slate-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-slate-100 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 md:after:h-5 md:after:w-5 after:transition-all peer-checked:bg-slate-700"></div>
                             </label>
                         </div>
-                        <h3 class="text-base font-bold text-slate-800 mb-1">Notifikasi WhatsApp</h3>
-                        <p class="text-sm text-slate-500 mb-3">Kirim notifikasi WA via Fonnte</p>
+                        <h3 class="text-xs md:text-base font-bold text-slate-800 mb-0.5 md:mb-1">Notifikasi WA</h3>
+                        <p class="text-[10px] md:text-sm text-slate-500 mb-2 md:mb-3 hidden md:block">Kirim notifikasi WA via Fonnte</p>
                         <div>
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $whatsappNotificationEnabled ? 'bg-slate-800 text-slate-100' : 'bg-slate-100 text-slate-500' }}">
+                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] md:text-xs font-medium {{ $whatsappNotificationEnabled ? 'bg-slate-800 text-slate-100' : 'bg-slate-100 text-slate-500' }}">
                                 {{ $whatsappNotificationEnabled ? 'Aktif' : 'Nonaktif' }}
                             </span>
                         </div>
                     </div>
 
                     <!-- Tab Pemberkasan Akhir Toggle -->
-                    <div class="group bg-white border border-slate-200 rounded-xl p-5 hover:border-slate-400 hover:shadow-md transition-all duration-300">
-                        <div class="flex items-start justify-between mb-3">
-                            <div class="w-10 h-10 bg-slate-100 rounded-lg flex items-center justify-center group-hover:bg-slate-200 transition-colors">
-                                <i class="fas fa-file-alt text-slate-700"></i>
+                    <div class="group bg-white border border-slate-200 rounded-lg md:rounded-xl p-3 md:p-5 hover:border-slate-400 hover:shadow-md transition-all duration-300">
+                        <div class="flex items-start justify-between mb-2 md:mb-3">
+                            <div class="w-8 h-8 md:w-10 md:h-10 bg-slate-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-file-alt text-slate-700 text-sm md:text-base"></i>
                             </div>
                             <label class="relative inline-flex items-center cursor-pointer">
                                 <input type="checkbox" name="laporan_pkl_enabled" value="1" class="sr-only peer" {{ $laporanPklEnabled ? 'checked' : '' }}>
-                                <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-slate-100 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-slate-700"></div>
+                                <div class="w-9 h-5 md:w-11 md:h-6 bg-slate-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-slate-100 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 md:after:h-5 md:after:w-5 after:transition-all peer-checked:bg-slate-700"></div>
                             </label>
                         </div>
-                        <h3 class="text-base font-bold text-slate-800 mb-1">Tab Pemberkasan Akhir</h3>
-                        <p class="text-sm text-slate-500 mb-3">Akses Tab Pemberkasan Akhir</p>
+                        <h3 class="text-xs md:text-base font-bold text-slate-800 mb-0.5 md:mb-1">Laporan Akhir</h3>
+                        <p class="text-[10px] md:text-sm text-slate-500 mb-2 md:mb-3 hidden md:block">Akses Tab Pemberkasan Akhir</p>
                         <div>
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $laporanPklEnabled ? 'bg-slate-800 text-slate-100' : 'bg-slate-100 text-slate-500' }}">
+                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] md:text-xs font-medium {{ $laporanPklEnabled ? 'bg-slate-800 text-slate-100' : 'bg-slate-100 text-slate-500' }}">
                                 {{ $laporanPklEnabled ? 'Aktif' : 'Nonaktif' }}
                             </span>
                         </div>
                     </div>
 
                     <!-- Penilaian Toggle -->
-                    <div class="group bg-white border border-slate-200 rounded-xl p-5 hover:border-slate-400 hover:shadow-md transition-all duration-300">
-                        <div class="flex items-start justify-between mb-3">
-                            <div class="w-10 h-10 bg-slate-100 rounded-lg flex items-center justify-center group-hover:bg-slate-200 transition-colors">
-                                <i class="fas fa-star text-slate-700"></i>
+                    <div class="group bg-white border border-slate-200 rounded-lg md:rounded-xl p-3 md:p-5 hover:border-slate-400 hover:shadow-md transition-all duration-300">
+                        <div class="flex items-start justify-between mb-2 md:mb-3">
+                            <div class="w-8 h-8 md:w-10 md:h-10 bg-slate-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-star text-slate-700 text-sm md:text-base"></i>
                             </div>
                             <label class="relative inline-flex items-center cursor-pointer">
                                 <input type="checkbox" name="penilaian_enabled" value="1" class="sr-only peer" {{ $penilaianEnabled ? 'checked' : '' }}>
-                                <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-slate-100 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-slate-700"></div>
+                                <div class="w-9 h-5 md:w-11 md:h-6 bg-slate-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-slate-100 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 md:after:h-5 md:after:w-5 after:transition-all peer-checked:bg-slate-700"></div>
                             </label>
                         </div>
-                        <h3 class="text-base font-bold text-slate-800 mb-1">Penilaian</h3>
-                        <p class="text-sm text-slate-500 mb-3">Penilaian dosen pembimbing</p>
+                        <h3 class="text-xs md:text-base font-bold text-slate-800 mb-0.5 md:mb-1">Penilaian</h3>
+                        <p class="text-[10px] md:text-sm text-slate-500 mb-2 md:mb-3 hidden md:block">Penilaian dosen pembimbing</p>
                         <div>
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $penilaianEnabled ? 'bg-slate-800 text-slate-100' : 'bg-slate-100 text-slate-500' }}">
+                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] md:text-xs font-medium {{ $penilaianEnabled ? 'bg-slate-800 text-slate-100' : 'bg-slate-100 text-slate-500' }}">
                                 {{ $penilaianEnabled ? 'Aktif' : 'Nonaktif' }}
                             </span>
                         </div>
                     </div>
 
                     <!-- Jadwal Seminar Toggle -->
-                    <div class="group bg-white border border-slate-200 rounded-xl p-5 hover:border-slate-400 hover:shadow-md transition-all duration-300">
-                        <div class="flex items-start justify-between mb-3">
-                            <div class="w-10 h-10 bg-slate-100 rounded-lg flex items-center justify-center group-hover:bg-slate-200 transition-colors">
-                                <i class="fas fa-calendar-alt text-slate-700"></i>
+                    <div class="group bg-white border border-slate-200 rounded-lg md:rounded-xl p-3 md:p-5 hover:border-slate-400 hover:shadow-md transition-all duration-300">
+                        <div class="flex items-start justify-between mb-2 md:mb-3">
+                            <div class="w-8 h-8 md:w-10 md:h-10 bg-slate-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-calendar-alt text-slate-700 text-sm md:text-base"></i>
                             </div>
                             <label class="relative inline-flex items-center cursor-pointer">
                                 <input type="checkbox" name="jadwal_seminar_enabled" value="1" class="sr-only peer" {{ $jadwalSeminarEnabled ? 'checked' : '' }}>
-                                <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-slate-100 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-slate-700"></div>
+                                <div class="w-9 h-5 md:w-11 md:h-6 bg-slate-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-slate-100 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 md:after:h-5 md:after:w-5 after:transition-all peer-checked:bg-slate-700"></div>
                             </label>
                         </div>
-                        <h3 class="text-base font-bold text-slate-800 mb-1">Jadwal Seminar</h3>
-                        <p class="text-sm text-slate-500 mb-3">Fitur Jadwal Seminar</p>
+                        <h3 class="text-xs md:text-base font-bold text-slate-800 mb-0.5 md:mb-1">Seminar</h3>
+                        <p class="text-[10px] md:text-sm text-slate-500 mb-2 md:mb-3 hidden md:block">Fitur Jadwal Seminar</p>
                         <div>
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $jadwalSeminarEnabled ? 'bg-slate-800 text-slate-100' : 'bg-slate-100 text-slate-500' }}">
+                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] md:text-xs font-medium {{ $jadwalSeminarEnabled ? 'bg-slate-800 text-slate-100' : 'bg-slate-100 text-slate-500' }}">
                                 {{ $jadwalSeminarEnabled ? 'Aktif' : 'Nonaktif' }}
                             </span>
                         </div>
                     </div>
 
                     <!-- Instansi Mitra Toggle -->
-                    <div class="group bg-white border border-slate-200 rounded-xl p-5 hover:border-slate-400 hover:shadow-md transition-all duration-300">
-                        <div class="flex items-start justify-between mb-3">
-                            <div class="w-10 h-10 bg-slate-100 rounded-lg flex items-center justify-center group-hover:bg-slate-200 transition-colors">
-                                <i class="fas fa-building text-slate-700"></i>
+                    <div class="group bg-white border border-slate-200 rounded-lg md:rounded-xl p-3 md:p-5 hover:border-slate-400 hover:shadow-md transition-all duration-300">
+                        <div class="flex items-start justify-between mb-2 md:mb-3">
+                            <div class="w-8 h-8 md:w-10 md:h-10 bg-slate-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-building text-slate-700 text-sm md:text-base"></i>
                             </div>
                             <label class="relative inline-flex items-center cursor-pointer">
                                 <input type="checkbox" name="instansi_mitra_enabled" value="1" class="sr-only peer" {{ $instansiMitraEnabled ? 'checked' : '' }}>
-                                <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-slate-100 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-slate-700"></div>
+                                <div class="w-9 h-5 md:w-11 md:h-6 bg-slate-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-slate-100 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 md:after:h-5 md:after:w-5 after:transition-all peer-checked:bg-slate-700"></div>
                             </label>
                         </div>
-                        <h3 class="text-base font-bold text-slate-800 mb-1">Instansi Mitra</h3>
-                        <p class="text-sm text-slate-500 mb-3">Fitur Instansi Mitra</p>
+                        <h3 class="text-xs md:text-base font-bold text-slate-800 mb-0.5 md:mb-1">Mitra</h3>
+                        <p class="text-[10px] md:text-sm text-slate-500 mb-2 md:mb-3 hidden md:block">Fitur Instansi Mitra</p>
                         <div>
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $instansiMitraEnabled ? 'bg-slate-800 text-slate-100' : 'bg-slate-100 text-slate-500' }}">
+                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] md:text-xs font-medium {{ $instansiMitraEnabled ? 'bg-slate-800 text-slate-100' : 'bg-slate-100 text-slate-500' }}">
                                 {{ $instansiMitraEnabled ? 'Aktif' : 'Nonaktif' }}
                             </span>
                         </div>
                     </div>
 
                     <!-- Tab Pemberkasan Instansi Mitra Toggle -->
-                    <div class="group bg-white border border-slate-200 rounded-xl p-5 hover:border-slate-400 hover:shadow-md transition-all duration-300">
-                        <div class="flex items-start justify-between mb-3">
-                            <div class="w-10 h-10 bg-slate-100 rounded-lg flex items-center justify-center group-hover:bg-slate-200 transition-colors">
-                                <i class="fas fa-folder-open text-slate-700"></i>
+                    <div class="group bg-white border border-slate-200 rounded-lg md:rounded-xl p-3 md:p-5 hover:border-slate-400 hover:shadow-md transition-all duration-300">
+                        <div class="flex items-start justify-between mb-2 md:mb-3">
+                            <div class="w-8 h-8 md:w-10 md:h-10 bg-slate-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-folder-open text-slate-700 text-sm md:text-base"></i>
                             </div>
                             <label class="relative inline-flex items-center cursor-pointer">
                                 <input type="checkbox" name="dokumen_pemberkasan_enabled" value="1" class="sr-only peer" {{ $dokumenPemberkasanEnabled ? 'checked' : '' }}>
-                                <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-slate-100 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-slate-700"></div>
+                                <div class="w-9 h-5 md:w-11 md:h-6 bg-slate-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-slate-100 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 md:after:h-5 md:after:w-5 after:transition-all peer-checked:bg-slate-700"></div>
                             </label>
                         </div>
-                        <h3 class="text-base font-bold text-slate-800 mb-1">Tab Pemberkasan Mitra</h3>
-                        <p class="text-sm text-slate-500 mb-3">Akses Tab Pemberkasan Mitra</p>
+                        <h3 class="text-xs md:text-base font-bold text-slate-800 mb-0.5 md:mb-1">Tab Mitra</h3>
+                        <p class="text-[10px] md:text-sm text-slate-500 mb-2 md:mb-3 hidden md:block">Akses Tab Pemberkasan Mitra</p>
                         <div>
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $dokumenPemberkasanEnabled ? 'bg-slate-800 text-slate-100' : 'bg-slate-100 text-slate-500' }}">
+                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] md:text-xs font-medium {{ $dokumenPemberkasanEnabled ? 'bg-slate-800 text-slate-100' : 'bg-slate-100 text-slate-500' }}">
                                 {{ $dokumenPemberkasanEnabled ? 'Aktif' : 'Nonaktif' }}
                             </span>
                         </div>
                     </div>
 
                     <!-- Registration Toggle -->
-                    <div class="group bg-white border border-slate-200 rounded-xl p-5 hover:border-slate-400 hover:shadow-md transition-all duration-300">
-                        <div class="flex items-start justify-between mb-3">
-                            <div class="w-10 h-10 bg-slate-100 rounded-lg flex items-center justify-center group-hover:bg-slate-200 transition-colors">
-                                <i class="fas fa-user-lock text-slate-700"></i>
+                    <div class="group bg-white border border-slate-200 rounded-lg md:rounded-xl p-3 md:p-5 hover:border-slate-400 hover:shadow-md transition-all duration-300">
+                        <div class="flex items-start justify-between mb-2 md:mb-3">
+                            <div class="w-8 h-8 md:w-10 md:h-10 bg-slate-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-user-lock text-slate-700 text-sm md:text-base"></i>
                             </div>
                             <label class="relative inline-flex items-center cursor-pointer">
                                 <input type="checkbox" name="registration_enabled" value="1" class="sr-only peer" {{ $registrationEnabled ? 'checked' : '' }}>
-                                <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-slate-100 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-slate-700"></div>
+                                <div class="w-9 h-5 md:w-11 md:h-6 bg-slate-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-slate-100 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 md:after:h-5 md:after:w-5 after:transition-all peer-checked:bg-slate-700"></div>
                             </label>
                         </div>
-                        <h3 class="text-base font-bold text-slate-800 mb-1">Tutup Pendaftaran</h3>
-                        <p class="text-sm text-slate-500 mb-3">Kontrol pendaftaran akun baru</p>
+                        <h3 class="text-xs md:text-base font-bold text-slate-800 mb-0.5 md:mb-1">Registrasi</h3>
+                        <p class="text-[10px] md:text-sm text-slate-500 mb-2 md:mb-3 hidden md:block">Kontrol pendaftaran akun baru</p>
                         <div>
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $registrationEnabled ? 'bg-slate-800 text-slate-100' : 'bg-slate-100 text-slate-500' }}">
+                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] md:text-xs font-medium {{ $registrationEnabled ? 'bg-slate-800 text-slate-100' : 'bg-slate-100 text-slate-500' }}">
                                 {{ $registrationEnabled ? 'Aktif' : 'Nonaktif' }}
                             </span>
                         </div>
@@ -209,10 +209,10 @@
                 </div>
 
                 <!-- Submit Button -->
-                <div class="flex justify-end mt-6 pt-6 border-t border-slate-200">
-                    <button type="submit" class="bg-slate-800 text-white px-6 py-2.5 rounded-xl hover:bg-slate-900 focus:outline-none focus:ring-4 focus:ring-slate-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-300 font-semibold text-sm flex items-center">
+                <div class="flex justify-end mt-4 md:mt-6 pt-4 md:pt-6 border-t border-slate-200">
+                    <button type="submit" class="bg-slate-800 text-white px-4 md:px-6 py-2 md:py-2.5 rounded-lg md:rounded-xl hover:bg-slate-900 focus:outline-none focus:ring-4 focus:ring-slate-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-300 font-semibold text-xs md:text-sm flex items-center">
                         <i class="fas fa-save mr-2"></i>
-                        Simpan Pengaturan
+                        Simpan
                     </button>
                 </div>
             </form>

@@ -3,31 +3,31 @@
 @section('title', 'Instansi Mitra - SIP PKL')
 
 @section('content')
-<div class="space-y-6">
+<div class="space-y-4 md:space-y-6">
     <!-- Header -->
-    <div class="bg-white shadow-sm rounded-xl p-6 border border-gray-100">
-        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div class="bg-white shadow-sm rounded-xl p-4 md:p-6 border border-gray-100">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 md:gap-4">
             <div>
-                <h1 class="text-2xl font-bold text-gray-900 flex items-center gap-3">
-                    <div class="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center border border-blue-100">
-                        <i class="fas fa-building text-blue-600"></i>
+                <h1 class="text-xl md:text-2xl font-bold text-gray-900 flex items-center gap-2 md:gap-3">
+                    <div class="w-9 h-9 md:w-10 md:h-10 bg-blue-50 rounded-lg flex items-center justify-center border border-blue-100">
+                        <i class="fas fa-building text-blue-600 text-sm md:text-base"></i>
                     </div>
-                    Instansi Mitra PKL
+                    Instansi Mitra
                 </h1>
-                <p class="text-gray-500 mt-1 ml-14">Pilih instansi mitra terbaik untuk PKL Anda</p>
+                <p class="text-gray-500 mt-0.5 md:mt-1 ml-11 md:ml-14 text-sm hidden md:block">Pilih instansi mitra terbaik untuk PKL Anda</p>
             </div>
             @if($profilMahasiswa && $profilMahasiswa->mitra_selected)
                 @php
                     $selectedMitra = \App\Models\Mitra::find($profilMahasiswa->mitra_selected);
                 @endphp
                 @if($selectedMitra)
-                <div class="bg-green-50 border border-green-200 rounded-lg px-4 py-3 flex items-center gap-3">
-                    <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center text-green-600">
-                        <i class="fas fa-check"></i>
+                <div class="bg-green-50 border border-green-200 rounded-lg px-3 md:px-4 py-2 md:py-3 flex items-center gap-2 md:gap-3">
+                    <div class="w-6 h-6 md:w-8 md:h-8 bg-green-100 rounded-full flex items-center justify-center text-green-600">
+                        <i class="fas fa-check text-xs md:text-sm"></i>
                     </div>
                     <div>
-                        <p class="text-xs text-green-700 font-semibold uppercase tracking-wide">Mitra Terpilih</p>
-                        <p class="font-medium text-gray-900">{{ $selectedMitra->nama }}</p>
+                        <p class="text-[10px] md:text-xs text-green-700 font-semibold uppercase tracking-wide">Mitra Terpilih</p>
+                        <p class="font-medium text-gray-900 text-xs md:text-base truncate max-w-[150px] md:max-w-none">{{ $selectedMitra->nama }}</p>
                     </div>
                 </div>
                 @endif
@@ -35,50 +35,60 @@
         </div>
 
         <!-- Search Box -->
-        <div class="mt-6">
-            <form method="GET" action="{{ route('mitra') }}" class="flex flex-col md:flex-row gap-3">
-                <div class="flex-1 relative">
-                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <i class="fas fa-search text-gray-400"></i>
+        <div class="mt-4 md:mt-6">
+            <form method="GET" action="{{ route('mitra') }}" class="flex flex-col gap-2 md:gap-3">
+                <div class="flex flex-col md:flex-row gap-2 md:gap-3">
+                    <div class="flex-1 relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="fas fa-search text-gray-400"></i>
+                        </div>
+                        <input type="text"
+                               name="search"
+                               id="searchInput"
+                               value="{{ request('search') }}"
+                               placeholder="Cari nama, alamat..."
+                               class="w-full pl-10 pr-4 py-2 md:py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm transition-shadow">
                     </div>
-                    <input type="text"
-                           name="search"
-                           id="searchInput"
-                           value="{{ request('search') }}"
-                           placeholder="Cari berdasarkan nama, alamat, atau kontak..."
-                           class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm transition-shadow">
-                </div>
-                
-                <div class="relative min-w-[200px]">
-                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <i class="fas fa-sort text-gray-400"></i>
-                    </div>
-                    <select name="sort" onchange="this.form.submit()" 
-                            class="w-full pl-10 pr-8 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm appearance-none bg-white cursor-pointer">
-                        <option value="" {{ request('sort') == '' ? 'selected' : '' }}>Abjad (A-Z)</option>
-                        <option value="ranking" {{ request('sort') == 'ranking' ? 'selected' : '' }}>Rekomendasi Sistem</option>
-                        <option value="jarak" {{ request('sort') == 'jarak' ? 'selected' : '' }}>Jarak Terdekat</option>
-                        <option value="honor" {{ request('sort') == 'honor' ? 'selected' : '' }}>Honor Tertinggi</option>
-                        <option value="fasilitas" {{ request('sort') == 'fasilitas' ? 'selected' : '' }}>Fasilitas Terbaik</option>
-                        <option value="kesesuaian" {{ request('sort') == 'kesesuaian' ? 'selected' : '' }}>Kesesuaian Jurusan</option>
-                        <option value="kebersihan" {{ request('sort') == 'kebersihan' ? 'selected' : '' }}>Kebersihan Terbaik</option>
-                    </select>
-                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
-                        <i class="fas fa-chevron-down text-xs"></i>
+                    
+                    <div class="relative min-w-0 md:min-w-[200px]">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="fas fa-sort text-gray-400"></i>
+                        </div>
+                        <select name="sort" onchange="this.form.submit()" 
+                                class="w-full pl-10 pr-8 py-2 md:py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm appearance-none bg-white cursor-pointer">
+                            <option value="" {{ request('sort') == '' ? 'selected' : '' }}>Abjad (A-Z)</option>
+                            <option value="ranking" {{ request('sort') == 'ranking' ? 'selected' : '' }}>Rekomendasi</option>
+                            <option value="jarak" {{ request('sort') == 'jarak' ? 'selected' : '' }}>Jarak</option>
+                            <option value="honor" {{ request('sort') == 'honor' ? 'selected' : '' }}>Honor</option>
+                            <option value="fasilitas" {{ request('sort') == 'fasilitas' ? 'selected' : '' }}>Fasilitas</option>
+                            <option value="kesesuaian" {{ request('sort') == 'kesesuaian' ? 'selected' : '' }}>Kesesuaian</option>
+                            <option value="kebersihan" {{ request('sort') == 'kebersihan' ? 'selected' : '' }}>Kebersihan</option>
+                        </select>
+                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
+                            <i class="fas fa-chevron-down text-xs"></i>
+                        </div>
                     </div>
                 </div>
 
-                <button type="submit"
-                        class="px-6 py-2.5 bg-gray-900 text-white rounded-lg hover:bg-black font-medium text-sm transition-colors shadow-sm">
-                    Cari
-                </button>
+                <div class="flex gap-2">
+                    <button type="submit"
+                            class="flex-1 md:flex-none px-4 md:px-6 py-2 md:py-2.5 bg-gray-900 text-white rounded-lg hover:bg-black font-medium text-sm transition-colors shadow-sm">
+                        Cari
+                    </button>
+                    
+                    <button type="button" onclick="openAddMitraModal()"
+                            class="px-4 md:px-6 py-2 md:py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium text-sm transition-colors shadow-sm flex items-center justify-center">
+                        <i class="fas fa-plus md:mr-2"></i>
+                        <span class="hidden md:inline">Tambah</span>
+                    </button>
 
-                @if(request('search'))
-                <a href="{{ route('mitra') }}"
-                   class="px-4 py-2.5 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 transition-colors text-center">
-                    <i class="fas fa-times"></i>
-                </a>
-                @endif
+                    @if(request('search'))
+                    <a href="{{ route('mitra') }}"
+                       class="px-4 py-2 md:py-2.5 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 transition-colors text-center">
+                        <i class="fas fa-times"></i>
+                    </a>
+                    @endif
+                </div>
             </form>
         </div>
 
@@ -92,20 +102,20 @@
     </div>
 
     <!-- Mitra List -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div class="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6">
         @forelse($mitra as $m)
-        <div class="relative bg-white shadow-sm rounded-xl border border-gray-200 p-6 hover:shadow-md hover:border-blue-300 transition-all duration-300 group flex flex-col
+        <div class="relative bg-white shadow-sm rounded-xl border border-gray-200 p-3 md:p-6 hover:shadow-md hover:border-blue-300 transition-all duration-300 group flex flex-col
             {{ $profilMahasiswa && $profilMahasiswa->mitra_selected == $m->id ? 'ring-2 ring-green-500 border-green-500 bg-green-50/30' : '' }}">
 
             @if($profilMahasiswa && $profilMahasiswa->mitra_selected == $m->id)
-            <div class="absolute -top-3 -left-3 bg-green-600 text-white px-3 py-1 rounded-full shadow-sm flex items-center gap-1 text-xs font-bold">
+            <div class="absolute -top-2 -left-2 md:-top-3 md:-left-3 bg-green-600 text-white px-2 md:px-3 py-0.5 md:py-1 rounded-full shadow-sm flex items-center gap-1 text-[10px] md:text-xs font-bold">
                 <i class="fas fa-check"></i>
-                <span>Pilihan Anda</span>
+                <span class="hidden md:inline">Pilihan Anda</span>
             </div>
             @endif
             
             @if($isRankingSort && isset($m->rank))
-            <div class="absolute top-4 right-4 w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm border
+            <div class="absolute top-2 right-2 md:top-4 md:right-4 w-6 h-6 md:w-8 md:h-8 rounded-full flex items-center justify-center font-bold text-[10px] md:text-sm border
                 {{ $m->rank == 1 ? 'bg-yellow-50 text-yellow-700 border-yellow-200' :
                    ($m->rank == 2 ? 'bg-gray-50 text-gray-700 border-gray-200' :
                    ($m->rank == 3 ? 'bg-orange-50 text-orange-700 border-orange-200' :
@@ -114,23 +124,23 @@
             </div>
             @endif
 
-            <div class="flex items-start flex-1 mb-4">
-                <div class="flex-shrink-0">
+            <div class="flex items-start flex-1 mb-2 md:mb-4">
+                <div class="flex-shrink-0 hidden md:block">
                     <div class="h-12 w-12 rounded-lg bg-gray-50 flex items-center justify-center border border-gray-100 group-hover:bg-blue-50 group-hover:border-blue-100 transition-colors">
                         <i class="fas fa-building text-gray-400 group-hover:text-blue-500 transition-colors"></i>
                     </div>
                 </div>
-                <div class="ml-4 flex-1 pr-8">
-                    <h3 class="text-lg font-bold text-gray-900 group-hover:text-blue-600 transition-colors line-clamp-2">{{ $m->nama }}</h3>
+                <div class="md:ml-4 flex-1 pr-6 md:pr-8">
+                    <h3 class="text-sm md:text-lg font-bold text-gray-900 group-hover:text-blue-600 transition-colors line-clamp-2">{{ $m->nama }}</h3>
                     
                     @if($m->alamat)
-                    <div class="mt-1 flex flex-col gap-y-1 text-sm text-gray-500">
+                    <div class="mt-1 flex flex-col gap-y-0.5 md:gap-y-1 text-xs md:text-sm text-gray-500">
                         <div class="flex items-start">
-                            <i class="fas fa-map-marker-alt text-gray-400 mr-1.5 mt-0.5 text-xs"></i>
+                            <i class="fas fa-map-marker-alt text-gray-400 mr-1 md:mr-1.5 mt-0.5 text-[10px] md:text-xs"></i>
                             <span class="line-clamp-1">{{ $m->alamat }}</span>
                         </div>
                         @if($m->kontak)
-                        <div class="flex items-center">
+                        <div class="flex items-center hidden md:flex">
                             <i class="fas fa-phone text-gray-400 mr-1.5 text-xs"></i>
                             <span class="truncate">{{ $m->kontak }}</span>
                         </div>
@@ -140,78 +150,74 @@
                 </div>
             </div>
             
-            <div class="space-y-3 mb-4">
+            <div class="space-y-2 md:space-y-3 mb-2 md:mb-4">
                 <!-- Kriteria Penilaian - Hidden for user-added mitra -->
                 @if(!$m->created_by)
-                <div class="grid grid-cols-2 gap-2 text-xs">
-                    <div class="bg-gray-50 p-2 rounded-lg border border-gray-100">
+                <div class="grid grid-cols-2 gap-1 md:gap-2 text-[10px] md:text-xs">
+                    <div class="bg-gray-50 p-1.5 md:p-2 rounded-lg border border-gray-100">
                         <span class="text-gray-500 block mb-0.5">Honor</span>
                         <span class="font-semibold {{ $m->honor >= 5 ? 'text-green-600' : 'text-gray-700' }}">{{ $m->honor_label }}</span>
                     </div>
-                    <div class="bg-gray-50 p-2 rounded-lg border border-gray-100">
+                    <div class="bg-gray-50 p-1.5 md:p-2 rounded-lg border border-gray-100">
                         <span class="text-gray-500 block mb-0.5">Fasilitas</span>
                         <span class="font-semibold {{ $m->fasilitas >= 4 ? 'text-green-600' : 'text-gray-700' }}">{{ $m->fasilitas_label }}</span>
                     </div>
-                    <div class="bg-gray-50 p-2 rounded-lg border border-gray-100">
+                    <div class="bg-gray-50 p-1.5 md:p-2 rounded-lg border border-gray-100">
                         <span class="text-gray-500 block mb-0.5">Jarak</span>
                         <span class="font-semibold text-gray-700">{{ $m->jarak }} km</span>
                     </div>
-                    <div class="bg-gray-50 p-2 rounded-lg border border-gray-100">
+                    <div class="bg-gray-50 p-1.5 md:p-2 rounded-lg border border-gray-100">
                         <span class="text-gray-500 block mb-0.5">Kesesuaian</span>
                         <span class="font-semibold {{ $m->kesesuaian_jurusan >= 4 ? 'text-green-600' : 'text-gray-700' }}">{{ $m->kesesuaian_jurusan_label }}</span>
-                    </div>
-                    <div class="bg-gray-50 p-2 rounded-lg border border-gray-100">
-                        <span class="text-gray-500 block mb-0.5">Kebersihan</span>
-                        <span class="font-semibold {{ $m->tingkat_kebersihan >= 4 ? 'text-green-600' : 'text-gray-700' }}">{{ $m->tingkat_kebersihan_label ?? '-' }}</span>
                     </div>
                 </div>
                 @endif
             </div>
 
             <!-- Jumlah Mahasiswa & Kuota -->
-            <div class="mt-auto pt-4 border-t border-gray-100">
+            <div class="mt-auto pt-2 md:pt-4 border-t border-gray-100">
                 @php
                     $sisaKuota = $m->max_mahasiswa - $m->mahasiswa_count;
                     $persentaseTerisi = $m->max_mahasiswa > 0 ? ($m->mahasiswa_count / $m->max_mahasiswa) * 100 : 0;
                     $kuotaPenuh = $m->mahasiswa_count >= $m->max_mahasiswa;
                 @endphp
-                <div class="space-y-2">
-                    <div class="flex justify-between items-center text-xs">
-                        <span class="text-gray-500">Kuota Terisi</span>
+                <div class="space-y-1.5 md:space-y-2">
+                    <div class="flex justify-between items-center text-[10px] md:text-xs">
+                        <span class="text-gray-500">Kuota</span>
                         <span class="font-medium text-gray-700">{{ $m->mahasiswa_count }}/{{ $m->max_mahasiswa }}</span>
                     </div>
-                    <div class="w-full bg-gray-100 rounded-full h-1.5 overflow-hidden">
-                        <div class="h-1.5 rounded-full transition-all duration-300 {{ $kuotaPenuh ? 'bg-red-500' : ($persentaseTerisi > 80 ? 'bg-yellow-500' : 'bg-blue-500') }}"
+                    <div class="w-full bg-gray-100 rounded-full h-1 md:h-1.5 overflow-hidden">
+                        <div class="h-1 md:h-1.5 rounded-full transition-all duration-300 {{ $kuotaPenuh ? 'bg-red-500' : ($persentaseTerisi > 80 ? 'bg-yellow-500' : 'bg-blue-500') }}"
                              style="width: {{ min($persentaseTerisi, 100) }}%"></div>
                     </div>
                     
                     @if($kuotaPenuh)
-                        <p class="text-xs text-red-600 font-medium flex items-center justify-center bg-red-50 py-1 rounded">
-                            <i class="fas fa-lock mr-1"></i>Kuota Penuh
+                        <p class="text-[9px] md:text-xs text-red-600 font-medium flex items-center justify-center bg-red-50 py-0.5 md:py-1 rounded">
+                            <i class="fas fa-lock mr-1"></i>Penuh
                         </p>
                     @elseif($sisaKuota <= 2)
-                        <p class="text-xs text-gray-500 font-medium flex items-center justify-center bg-gray-50 py-1 rounded">
-                            <i class="fas fa-info-circle mr-1"></i>Tersedia {{ $sisaKuota }} Kuota
+                        <p class="text-[9px] md:text-xs text-gray-500 font-medium flex items-center justify-center bg-gray-50 py-0.5 md:py-1 rounded">
+                            <i class="fas fa-info-circle mr-1"></i>Sisa {{ $sisaKuota }}
                         </p>
                     @endif
                 </div>
 
                 <!-- Pilih Mitra Button -->
-                <div class="mt-4">
+                <div class="mt-2 md:mt-4">
                     @if($profilMahasiswa && $profilMahasiswa->mitra_selected == $m->id)
                         <button disabled
-                                class="w-full bg-green-600 text-white py-2 px-4 rounded-lg cursor-not-allowed font-medium text-sm shadow-sm opacity-90">
-                            <i class="fas fa-check mr-2"></i>Telah Dipilih
+                                class="w-full bg-green-600 text-white py-1.5 md:py-2 px-3 md:px-4 rounded-lg cursor-not-allowed font-medium text-[10px] md:text-sm shadow-sm opacity-90">
+                            <i class="fas fa-check mr-1 md:mr-2"></i>Dipilih
                         </button>
                     @elseif($kuotaPenuh)
                         <button disabled
-                                class="w-full bg-gray-100 text-gray-400 py-2 px-4 rounded-lg cursor-not-allowed font-medium text-sm border border-gray-200">
-                            <i class="fas fa-lock mr-2"></i>Penuh
+                                class="w-full bg-gray-100 text-gray-400 py-1.5 md:py-2 px-3 md:px-4 rounded-lg cursor-not-allowed font-medium text-[10px] md:text-sm border border-gray-200">
+                            <i class="fas fa-lock mr-1 md:mr-2"></i>Penuh
                         </button>
                     @else
                         <button onclick="selectMitra({{ $m->id }}, '{{ $m->nama }}')"
-                                class="w-full bg-white border border-blue-600 text-blue-600 py-2 px-4 rounded-lg hover:bg-blue-50 transition-colors duration-200 font-medium text-sm">
-                            Pilih Mitra
+                                class="w-full bg-white border border-blue-600 text-blue-600 py-1.5 md:py-2 px-3 md:px-4 rounded-lg hover:bg-blue-50 transition-colors duration-200 font-medium text-[10px] md:text-sm">
+                            Pilih
                         </button>
                     @endif
                 </div>
@@ -428,10 +434,7 @@ function kirimPilihanMitra(mitraId, mitraName, jenisAlasan, alasanLengkap) {
 }
 </script>
 
-<!-- Floating Action Button -->
-<button onclick="openAddMitraModal()" class="fixed bottom-24 md:bottom-8 right-6 md:right-8 bg-gray-900 hover:bg-black text-white rounded-full p-4 shadow-lg transition-transform hover:scale-110 focus:outline-none focus:ring-4 focus:ring-gray-300 z-40 flex items-center justify-center w-14 h-14">
-    <i class="fas fa-plus text-xl"></i>
-</button>
+
 
 <!-- Add Mitra Modal -->
 <div id="addMitraModal" class="fixed inset-0 z-50 hidden overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
