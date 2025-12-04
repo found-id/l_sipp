@@ -43,18 +43,14 @@ Route::get('auth/google', [AuthController::class, 'redirectToGoogle'])->name('au
 Route::get('auth/google/callback', [AuthController::class, 'handleGoogleCallback']);
 Route::post('cancel-registration', [AuthController::class, 'cancelRegistration'])->name('cancel-registration');
 
-// FAQ Route (Public Access)
+// Landing Page & FAQ (Public)
+Route::get('/', [HomeController::class, 'index'])->name('welcome');
 Route::get('faq', [FAQController::class, 'index'])->name('faq');
-
-
 // =========================================================================
 // PROTECTED ROUTES (Require Login)
 // =========================================================================
 Route::middleware(['auth'])->group(function () {
     
-    // Landing Page
-    Route::get('/', [HomeController::class, 'index'])->name('welcome');
-
     // Dashboard & Main Features
     Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('mitra', [MitraController::class, 'index'])->name('mitra');

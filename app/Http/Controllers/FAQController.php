@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\SystemSetting;
 
 class FAQController extends Controller
 {
@@ -11,7 +12,7 @@ class FAQController extends Controller
      */
     public function index()
     {
-        return view('faq');
+        $fontConfig = SystemSetting::getFontConfig();
+        return view('faq', compact('fontConfig'));
     }
 }
-
