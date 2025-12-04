@@ -46,6 +46,9 @@
 
     @include('partials.public-header')
 
+    <!-- Wrapper untuk konten yang bisa di-scale (kecuali header) -->
+    <div class="mobile-scalable">
+
     <!-- Hero Section -->
     <section class="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden hero-pattern">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
@@ -63,8 +66,9 @@
             </p>
 
             <div class="flex flex-col sm:flex-row justify-center gap-4 reveal delay-300">
-                <a href="{{ route('login') }}" class="px-8 py-4 text-base font-semibold rounded-xl text-white bg-indigo-600 hover:bg-indigo-700 transition-all shadow-lg hover:shadow-xl hover:-translate-y-1">
+                <a id="hero-cta" href="{{ route('login') }}" class="inline-flex items-center justify-center gap-2 px-8 py-4 text-base font-semibold rounded-xl text-white bg-indigo-600 hover:bg-indigo-700 transition-all shadow-lg hover:shadow-xl hover:-translate-y-1">
                     Mulai Sekarang
+                    <i class="fas fa-arrow-right"></i>
                 </a>
                 <a href="#about" class="px-8 py-4 text-base font-semibold rounded-xl text-indigo-600 bg-indigo-50 hover:bg-indigo-100 transition-all">
                     Pelajari Lebih Lanjut
@@ -78,54 +82,54 @@
     </section>
 
     <!-- About Section -->
-    <section id="about" class="py-20 bg-white scroll-mt-20">
+    <section id="about" class="py-20 bg-slate-50 scroll-mt-20">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
                 <div class="reveal">
                     <h2 class="text-3xl font-bold text-gray-900 mb-6">Tentang SIP PKL</h2>
-                    <p class="text-lg text-gray-600 mb-6 leading-relaxed">
+                    <p class="text-base text-gray-600 mb-4 leading-relaxed">
                         Sistem Informasi Pengelolaan Praktik Kerja Lapangan (SIP PKL) adalah solusi digital yang dirancang khusus untuk Program Studi Teknologi Informasi Politeknik Negeri Tanah Laut.
                     </p>
-                    <ul class="space-y-4">
-                        <li class="flex items-start">
-                            <div class="flex-shrink-0 w-6 h-6 rounded-full bg-green-100 flex items-center justify-center mt-1">
-                                <i class="fas fa-check text-green-600 text-xs"></i>
-                            </div>
-                            <span class="ml-3 text-lg text-gray-600">Digitalisasi penuh dari pendaftaran hingga pelaporan.</span>
+                    <p class="text-base text-gray-600 mb-6 leading-relaxed">
+                        Kami menghubungkan mahasiswa, dosen pembimbing, dan mitra industri dalam satu ekosistem terpadu. Tujuannya adalah untuk mempermudah proses administrasi, meningkatkan transparansi penilaian, dan memastikan kualitas pelaksanaan PKL yang optimal.
+                    </p>
+                    <ul class="space-y-3">
+                        <li class="flex items-center">
+                            <i class="fas fa-check-circle text-teal-500 mr-3"></i>
+                            <span class="text-gray-600">Digitalisasi penuh dari pendaftaran hingga pelaporan.</span>
                         </li>
-                        <li class="flex items-start">
-                            <div class="flex-shrink-0 w-6 h-6 rounded-full bg-green-100 flex items-center justify-center mt-1">
-                                <i class="fas fa-check text-green-600 text-xs"></i>
-                            </div>
-                            <span class="ml-3 text-lg text-gray-600">Transparansi proses bimbingan dan penilaian.</span>
+                        <li class="flex items-center">
+                            <i class="fas fa-check-circle text-teal-500 mr-3"></i>
+                            <span class="text-gray-600">Transparansi proses bimbingan dan penilaian.</span>
                         </li>
-                        <li class="flex items-start">
-                            <div class="flex-shrink-0 w-6 h-6 rounded-full bg-green-100 flex items-center justify-center mt-1">
-                                <i class="fas fa-check text-green-600 text-xs"></i>
-                            </div>
-                            <span class="ml-3 text-lg text-gray-600">Arsip data yang aman dan terstruktur.</span>
+                        <li class="flex items-center">
+                            <i class="fas fa-check-circle text-teal-500 mr-3"></i>
+                            <span class="text-gray-600">Arsip data yang aman dan terstruktur.</span>
                         </li>
                     </ul>
                 </div>
-                <div class="relative reveal delay-200">
-                    <div class="absolute inset-0 bg-gradient-to-r from-indigo-600 to-purple-600 transform skew-y-6 sm:skew-y-0 sm:-rotate-6 sm:rounded-3xl opacity-20"></div>
-                    <div class="relative bg-white rounded-2xl shadow-xl border border-gray-100 p-8">
-                        <div class="grid grid-cols-2 gap-6">
-                            <div class="text-center p-4 bg-indigo-50 rounded-xl">
-                                <i class="fas fa-users text-3xl text-indigo-600 mb-2"></i>
-                                <div class="font-bold text-gray-900">Mahasiswa</div>
+                <div class="reveal delay-200">
+                    <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="text-center p-5 bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
+                                <i class="fas fa-users text-3xl text-indigo-600 mb-3"></i>
+                                <div class="font-bold text-gray-900 mb-1">Mahasiswa</div>
+                                <div class="text-sm text-gray-500">Kemudahan Akses</div>
                             </div>
-                            <div class="text-center p-4 bg-purple-50 rounded-xl">
-                                <i class="fas fa-chalkboard-teacher text-3xl text-purple-600 mb-2"></i>
-                                <div class="font-bold text-gray-900">Dosen</div>
+                            <div class="text-center p-5 bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
+                                <i class="fas fa-desktop text-3xl text-indigo-600 mb-3"></i>
+                                <div class="font-bold text-gray-900 mb-1">Dosen</div>
+                                <div class="text-sm text-gray-500">Monitoring Efektif</div>
                             </div>
-                            <div class="text-center p-4 bg-pink-50 rounded-xl">
-                                <i class="fas fa-building text-3xl text-pink-600 mb-2"></i>
-                                <div class="font-bold text-gray-900">Mitra</div>
+                            <div class="text-center p-5 bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
+                                <i class="fas fa-building text-3xl text-indigo-600 mb-3"></i>
+                                <div class="font-bold text-gray-900 mb-1">Mitra</div>
+                                <div class="text-sm text-gray-500">Kolaborasi Luas</div>
                             </div>
-                            <div class="text-center p-4 bg-green-50 rounded-xl">
-                                <i class="fas fa-user-shield text-3xl text-green-600 mb-2"></i>
-                                <div class="font-bold text-gray-900">Admin</div>
+                            <div class="text-center p-5 bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
+                                <i class="fas fa-university text-3xl text-indigo-600 mb-3"></i>
+                                <div class="font-bold text-gray-900 mb-1">Prodi</div>
+                                <div class="text-sm text-gray-500">Manajemen Terpusat</div>
                             </div>
                         </div>
                     </div>
@@ -343,6 +347,14 @@
         </div>
     </footer>
 
+    </div> <!-- End of .mobile-scalable wrapper -->
+
+    <!-- Floating CTA Button -->
+    <a id="floating-cta" href="{{ route('login') }}" class="fixed top-24 left-1/2 -translate-x-1/2 z-40 px-6 py-3 text-sm font-semibold rounded-full text-indigo-600 bg-white/30 backdrop-blur-md border border-indigo-200/50 hover:bg-indigo-600 hover:text-white transition-all duration-300 shadow-none hover:shadow-lg opacity-0 -translate-y-10 pointer-events-none flex items-center gap-2">
+        Mulai Sekarang
+        <i class="fas fa-arrow-right"></i>
+    </a>
+
     <script>
         // Reveal Animation on Scroll
         function reveal() {
@@ -356,8 +368,34 @@
                 }
             }
         }
-        window.addEventListener("scroll", reveal);
+
+        // Floating CTA visibility
+        function toggleFloatingCTA() {
+            const heroCta = document.getElementById('hero-cta');
+            const floatingCta = document.getElementById('floating-cta');
+            
+            if (heroCta && floatingCta) {
+                const heroCtaRect = heroCta.getBoundingClientRect();
+                const isHeroCtaVisible = heroCtaRect.bottom > 0 && heroCtaRect.top < window.innerHeight;
+                
+                if (isHeroCtaVisible) {
+                    // Hero CTA is visible, hide floating
+                    floatingCta.classList.add('opacity-0', '-translate-y-10', 'pointer-events-none');
+                    floatingCta.classList.remove('opacity-100', 'translate-y-0', 'pointer-events-auto');
+                } else {
+                    // Hero CTA is not visible, show floating
+                    floatingCta.classList.remove('opacity-0', '-translate-y-10', 'pointer-events-none');
+                    floatingCta.classList.add('opacity-100', 'translate-y-0', 'pointer-events-auto');
+                }
+            }
+        }
+        
+        window.addEventListener("scroll", function() {
+            reveal();
+            toggleFloatingCTA();
+        });
         reveal(); // Trigger once on load
+        toggleFloatingCTA(); // Check initial state
     </script>
 </body>
 </html>
