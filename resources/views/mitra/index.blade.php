@@ -429,7 +429,7 @@ function kirimPilihanMitra(mitraId, mitraName, jenisAlasan, alasanLengkap) {
 </script>
 
 <!-- Floating Action Button -->
-<button onclick="openAddMitraModal()" class="fixed bottom-8 right-8 bg-gray-900 hover:bg-black text-white rounded-full p-4 shadow-lg transition-transform hover:scale-110 focus:outline-none focus:ring-4 focus:ring-gray-300 z-40 flex items-center justify-center w-14 h-14">
+<button onclick="openAddMitraModal()" class="fixed bottom-24 md:bottom-8 right-6 md:right-8 bg-gray-900 hover:bg-black text-white rounded-full p-4 shadow-lg transition-transform hover:scale-110 focus:outline-none focus:ring-4 focus:ring-gray-300 z-40 flex items-center justify-center w-14 h-14">
     <i class="fas fa-plus text-xl"></i>
 </button>
 
