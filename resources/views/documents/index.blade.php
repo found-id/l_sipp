@@ -9,6 +9,26 @@
     $dokumenPemberkasanEnabled = \App\Models\SystemSetting::isEnabled('dokumen_pemberkasan_enabled');
 @endphp
 
+<style>
+/* Collapsible Section Styles - Instant Toggle */
+
+/* Icon rotation */
+[id$="-section-icon"] {
+    display: inline-block;
+    transition: transform 0.2s; /* Optional: keep icon rotation smooth or remove for instant */
+}
+
+/* Rotated state */
+[id$="-section-icon"].rotated {
+    transform: rotate(180deg);
+}
+
+/* Header hover effect */
+.cursor-pointer:hover {
+    background-color: rgb(248 250 252) !important;
+}
+</style>
+
 <div class="space-y-6">
     <!-- Header -->
     <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
@@ -333,7 +353,7 @@
                     </div>
                 </div>
                 
-                <div id="analisa-kelayakan-section" class="p-6 transition-all duration-300">
+                <div id="analisa-kelayakan-section" class="p-6">
                 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                     <div class="bg-white rounded-lg p-4 border border-gray-200">
@@ -400,7 +420,7 @@
                     </div>
                 </div>
 
-                <div id="khs-upload-section" class="p-6 transition-all duration-300">
+                <div id="khs-upload-section" class="p-6">
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                         @for($semester = 1; $semester <= 4; $semester++)
                             <div class="bg-white rounded-xl p-6 border border-slate-200 shadow-sm hover:shadow-md transition-shadow duration-200 flex flex-col items-center text-center">
@@ -520,7 +540,7 @@
                     </div>
                 </div>
                 
-                <div id="transkrip-sipadu-section" class="p-6 transition-all duration-300">
+                <div id="transkrip-sipadu-section" class="p-6">
                     <!-- Semester Tabs Navigation -->
                     <div class="mb-6">
                         <div class="border-b border-gray-200">
@@ -935,6 +955,38 @@ function showTab(tabName) {
         selectedButton.classList.add('active', 'bg-blue-600', 'text-white', 'shadow-md');
     }
 }
+
+// Collapsible section toggle - Instant toggle using Tailwind hidden class
+function toggleSection(sectionId) {
+    const section = document.getElementById(sectionId);
+    const icon = document.getElementById(`${sectionId}-icon`);
+    
+    if (!section) return;
+    
+    // Toggle hidden class
+    section.classList.toggle('hidden');
+    
+    // Toggle icon rotation
+    if (icon) {
+        icon.classList.toggle('rotated');
+    }
+    
+    // Toggle border on header to remove space/line when collapsed
+    const header = section.previousElementSibling;
+    if (header) {
+        if (section.classList.contains('hidden')) {
+            header.classList.remove('border-b');
+        } else {
+            header.classList.add('border-b');
+        }
+    }
+}
+
+// Initialize sections on page load
+document.addEventListener('DOMContentLoaded', function() {
+    // All sections start expanded by default (no collapsed class)
+    // No specific initialization needed as CSS handles default state
+});
 
 // Initialize first tab as active
 document.addEventListener('DOMContentLoaded', function() {
