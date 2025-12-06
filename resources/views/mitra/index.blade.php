@@ -153,22 +153,43 @@
             <div class="space-y-2 md:space-y-3 mb-2 md:mb-4">
                 <!-- Kriteria Penilaian - Hidden for user-added mitra -->
                 @if(!$m->created_by)
-                <div class="grid grid-cols-2 gap-1 md:gap-2 text-[10px] md:text-xs">
-                    <div class="bg-gray-50 p-1.5 md:p-2 rounded-lg border border-gray-100">
-                        <span class="text-gray-500 block mb-0.5">Honor</span>
-                        <span class="font-semibold {{ $m->honor >= 5 ? 'text-green-600' : 'text-gray-700' }}">{{ $m->honor_label }}</span>
-                    </div>
-                    <div class="bg-gray-50 p-1.5 md:p-2 rounded-lg border border-gray-100">
-                        <span class="text-gray-500 block mb-0.5">Fasilitas</span>
-                        <span class="font-semibold {{ $m->fasilitas >= 4 ? 'text-green-600' : 'text-gray-700' }}">{{ $m->fasilitas_label }}</span>
-                    </div>
-                    <div class="bg-gray-50 p-1.5 md:p-2 rounded-lg border border-gray-100">
-                        <span class="text-gray-500 block mb-0.5">Jarak</span>
-                        <span class="font-semibold text-gray-700">{{ $m->jarak }} km</span>
-                    </div>
-                    <div class="bg-gray-50 p-1.5 md:p-2 rounded-lg border border-gray-100">
-                        <span class="text-gray-500 block mb-0.5">Kesesuaian</span>
-                        <span class="font-semibold {{ $m->kesesuaian_jurusan >= 4 ? 'text-green-600' : 'text-gray-700' }}">{{ $m->kesesuaian_jurusan_label }}</span>
+                <div class="border-t border-b border-gray-100 py-3 md:py-4">
+                    <div class="space-y-2 text-xs md:text-sm">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center text-gray-500">
+                                <i class="fas fa-money-bill-wave w-5 text-center mr-2 text-green-500"></i>
+                                <span>Honor</span>
+                            </div>
+                            <span class="font-semibold {{ $m->honor >= 5 ? 'text-green-600' : 'text-gray-700' }}">{{ $m->honor_label }}</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center text-gray-500">
+                                <i class="fas fa-star w-5 text-center mr-2 text-yellow-500"></i>
+                                <span>Fasilitas</span>
+                            </div>
+                            <span class="font-semibold {{ $m->fasilitas >= 4 ? 'text-green-600' : 'text-gray-700' }}">{{ $m->fasilitas_label }}</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center text-gray-500">
+                                <i class="fas fa-road w-5 text-center mr-2 text-blue-500"></i>
+                                <span>Jarak</span>
+                            </div>
+                            <span class="font-semibold text-gray-700">{{ $m->jarak }} km</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center text-gray-500">
+                                <i class="fas fa-user-check w-5 text-center mr-2 text-indigo-500"></i>
+                                <span>Kesesuaian</span>
+                            </div>
+                            <span class="font-semibold {{ $m->kesesuaian_jurusan >= 4 ? 'text-green-600' : 'text-gray-700' }}">{{ $m->kesesuaian_jurusan_label }}</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center text-gray-500">
+                                <i class="fas fa-broom w-5 text-center mr-2 text-purple-500"></i>
+                                <span>Kebersihan</span>
+                            </div>
+                            <span class="font-semibold {{ $m->tingkat_kebersihan >= 4 ? 'text-green-600' : 'text-gray-700' }}">{{ $m->tingkat_kebersihan_label }}</span>
+                        </div>
                     </div>
                 </div>
                 @endif

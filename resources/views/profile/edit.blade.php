@@ -382,7 +382,7 @@
 </div>
 
 <script>
-// Profile photo preview
+// Profile photo preview and AJAX upload
 document.addEventListener('DOMContentLoaded', function() {
     const profilePhotoInput = document.getElementById('profilePhotoInput');
     const profilePhotoPreview = document.getElementById('profilePhotoPreview');
@@ -390,28 +390,80 @@ document.addEventListener('DOMContentLoaded', function() {
     if (profilePhotoInput) {
         profilePhotoInput.addEventListener('change', function(e) {
             const file = e.target.files[0];
-            if (file) {
-                // Validate file size (max 8MB)
-                if (file.size > 8388608) {
-                    alert('Ukuran file terlalu besar! Maksimal 8MB.');
-                    this.value = '';
-                    return;
-                }
-
-                // Validate file type
-                if (!['image/jpeg', 'image/png', 'image/jpg'].includes(file.type)) {
-                    alert('Format file harus JPEG, PNG, atau JPG!');
-                    this.value = '';
-                    return;
-                }
-
-                // Show preview
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    profilePhotoPreview.src = e.target.result;
-                };
-                reader.readAsDataURL(file);
+            if (!file) {
+                return;
             }
+
+            // Validate file size (max 8MB)
+            if (file.size > 8388608) {
+                alert('Ukuran file terlalu besar! Maksimal 8MB.');
+                this.value = '';
+                return;
+            }
+
+            // Validate file type
+            if (!['image/jpeg', 'image/png', 'image/jpg'].includes(file.type)) {
+                alert('Format file harus JPEG, PNG, atau JPG!');
+                this.value = '';
+                return;
+            }
+
+            // --- 1. Show Instant Preview ---
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                profilePhotoPreview.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+
+            // --- 2. Upload via AJAX ---
+            const formData = new FormData();
+            formData.append('profile_photo', file);
+
+            // Simple loading indicator
+            profilePhotoPreview.style.opacity = '0.5';
+
+            axios.post('{{ route("profile.photo.upload") }}', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                }
+            })
+            .then(function(response) {
+                if (response.data.success) {
+                    const newUrl = response.data.new_photo_url;
+                    
+                    // --- 3. Update images with final URL from server ---
+                    // Update main preview image
+                    profilePhotoPreview.src = newUrl;
+
+                    // Update all header icons
+                    const headerIcons = document.querySelectorAll('.profile-icon img');
+                    headerIcons.forEach(icon => {
+                        icon.src = newUrl;
+                    });
+                    
+                    // You can replace this alert with a more subtle toast notification if you have one
+                    // alert(response.data.message);
+                } else {
+                    alert(response.data.message || 'Gagal mengupload foto.');
+                }
+            })
+            .catch(function(error) {
+                console.error('Upload error:', error);
+                if (error.response && error.response.status === 422) {
+                    let errorMsg = 'Gagal validasi:\n';
+                    for (const field in error.response.data.errors) {
+                        errorMsg += `- ${error.response.data.errors[field][0]}\n`;
+                    }
+                    alert(errorMsg);
+                } else {
+                    alert('Terjadi kesalahan saat mengupload foto.');
+                }
+            })
+            .finally(function() {
+                // Restore opacity
+                profilePhotoPreview.style.opacity = '1';
+            });
         });
     }
 });

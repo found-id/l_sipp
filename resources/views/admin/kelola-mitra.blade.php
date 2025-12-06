@@ -49,7 +49,8 @@
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">Urutkan Berdasarkan</label>
                 <select name="sort_by" onchange="updateSort()" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
-                    <option value="nama" {{ request('sort_by') == 'nama' ? 'selected' : '' }}>Nama</option>
+                    <option value="rekomendasi" {{ request('sort_by') == 'rekomendasi' ? 'selected' : '' }}>Rekomendasi</option>
+                    <option value="nama" {{ request('sort_by', 'nama') == 'nama' ? 'selected' : '' }}>Nama</option>
                     <option value="alamat" {{ request('sort_by') == 'alamat' ? 'selected' : '' }}>Alamat</option>
                     <option value="kontak" {{ request('sort_by') == 'kontak' ? 'selected' : '' }}>Kontak</option>
                     <option value="created_at" {{ request('sort_by') == 'created_at' ? 'selected' : '' }}>Tanggal Dibuat</option>
@@ -90,9 +91,19 @@
                     <tr class="hover:bg-gray-50 transition-colors">
                         <td class="px-4 py-4 sticky left-0 bg-white z-10 hover:bg-gray-50 transition-colors" style="min-width: 280px; max-width: 280px;">
                             <div class="flex items-center space-x-3">
-                                <div class="h-10 w-10 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center flex-shrink-0 shadow-sm">
-                                    <i class="fas fa-building text-white text-sm"></i>
-                                </div>
+                                @if($isRankingSort && isset($m->rank))
+                                    <div class="h-10 w-10 rounded-lg flex items-center justify-center flex-shrink-0 font-bold text-sm border
+                                        {{ $m->rank == 1 ? 'bg-yellow-100 text-yellow-800 border-yellow-300' :
+                                           ($m->rank == 2 ? 'bg-gray-100 text-gray-800 border-gray-300' :
+                                           ($m->rank == 3 ? 'bg-orange-100 text-orange-700 border-orange-200' :
+                                           'bg-blue-100 text-blue-800 border-blue-200')) }}">
+                                        {{ $m->rank }}
+                                    </div>
+                                @else
+                                    <div class="h-10 w-10 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center flex-shrink-0 shadow-sm">
+                                        <i class="fas fa-building text-white text-sm"></i>
+                                    </div>
+                                @endif
                                 <div class="min-w-0 flex-1">
                                     <div class="text-sm font-semibold text-gray-900 truncate" title="{{ $m->nama }}">
                                         {{ $m->nama }}
@@ -164,9 +175,11 @@
         </div>
         
         <!-- Pagination -->
+        @if(!$isRankingSort)
         <div class="px-6 py-3 border-t border-gray-200">
             {{ $mitra->links() }}
         </div>
+        @endif
     </div>
 </div>
 

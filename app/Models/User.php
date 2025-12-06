@@ -117,16 +117,17 @@ class User extends Authenticatable
     // Helper method to get profile photo (custom or Google fallback)
     public function getProfilePhotoUrlAttribute()
     {
-        // Priority: custom photo > default avatar
-        if ($this->photo) {
-            // Check if it's a URL or a storage path
-            if (filter_var($this->photo, FILTER_VALIDATE_URL)) {
-                return $this->photo;
-            }
-            return asset('storage/' . $this->photo);
+        // Priority 1: Custom uploaded photo
+        if ($this->profile_photo) {
+            return asset('storage/' . $this->profile_photo);
         }
 
-        // Default avatar based on role
+        // Priority 2: Google's photo URL
+        if ($this->photo && filter_var($this->photo, FILTER_VALIDATE_URL)) {
+            return $this->photo;
+        }
+
+        // Priority 3: Default avatar based on role
         $defaultAvatars = [
             'mahasiswa' => 'https://ui-avatars.com/api/?name=' . urlencode($this->name) . '&background=3b82f6&color=fff',
             'dospem' => 'https://ui-avatars.com/api/?name=' . urlencode($this->name) . '&background=10b981&color=fff',

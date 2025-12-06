@@ -11,19 +11,7 @@
         <div class="flex justify-between items-start">
             <div class="flex items-center">
                 <div class="relative">
-                    @php
-                        // Get photo URL with proper handling
-                        if ($user->photo) {
-                            if (filter_var($user->photo, FILTER_VALIDATE_URL)) {
-                                $photoUrl = $user->photo;
-                            } else {
-                                $photoUrl = url('storage/' . $user->photo);
-                            }
-                        } else {
-                            $photoUrl = 'https://ui-avatars.com/api/?name=' . urlencode($user->name) . '&background=f3f4f6&color=374151&size=200';
-                        }
-                    @endphp
-                    <img src="{{ $photoUrl }}"
+                    <img src="{{ $user->profile_photo_url }}"
                          alt="{{ $user->name }}"
                          class="h-20 w-20 rounded-full object-cover border-4 border-white shadow-md"
                          referrerpolicy="no-referrer"

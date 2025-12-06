@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Log;
 use App\Models\User;
 use App\Models\ProfilMahasiswa;
 use App\Models\Mitra;
+use App\Services\SawCalculationService;
 
 class AdminController extends Controller
 {
@@ -322,14 +323,31 @@ class AdminController extends Controller
         // Sort functionality
         $sortBy = $request->get('sort_by', 'nama');
         $sortOrder = $request->get('sort_order', 'asc');
-        
-        if (in_array($sortBy, ['nama', 'alamat', 'kontak', 'created_at'])) {
-            $query->orderBy($sortBy, $sortOrder);
+        $isRankingSort = false;
+
+        if ($sortBy === 'rekomendasi') {
+            $mitrasToRank = $query->withCount(['mahasiswaTerpilih as mahasiswa_count'])->get();
+            if ($mitrasToRank->isNotEmpty()) {
+                $saw = new SawCalculationService($mitrasToRank);
+                $mitra = $saw->calculate();
+                $rank = 1;
+                foreach ($mitra as $m) {
+                    $m->rank = $rank++;
+                }
+            } else {
+                $mitra = $mitrasToRank;
+            }
+            $isRankingSort = true;
+        } else {
+            if (in_array($sortBy, ['nama', 'alamat', 'kontak', 'created_at', 'jarak', 'honor', 'fasilitas', 'kesesuaian_jurusan', 'tingkat_kebersihan', 'max_mahasiswa'])) {
+                $query->orderBy($sortBy, $sortOrder);
+            } else {
+                $query->orderBy('nama', 'asc');
+            }
+            $mitra = $query->paginate(15)->withQueryString();
         }
         
-        $mitra = $query->paginate(15)->withQueryString();
-        
-        return view('admin.kelola-mitra', compact('mitra'));
+        return view('admin.kelola-mitra', compact('mitra', 'isRankingSort'));
     }
 
     public function createMitra(Request $request)

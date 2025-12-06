@@ -101,8 +101,8 @@ class ProfileController extends Controller
         // Handle profile photo upload
         if ($request->hasFile('profile_photo')) {
             // Delete old profile photo if exists
-            if ($user->photo && !filter_var($user->photo, FILTER_VALIDATE_URL)) {
-                Storage::disk('public')->delete($user->photo);
+            if ($user->profile_photo) {
+                Storage::disk('public')->delete($user->profile_photo);
             }
 
             // Store new photo
@@ -111,7 +111,7 @@ class ProfileController extends Controller
             $path = $file->storeAs('profile_photos', $filename, 'public');
 
             // Update user photo
-            $user->photo = $path;
+            $user->profile_photo = $path;
             // Set google_linked to false since user uploaded custom photo
             $user->google_linked = false;
 
@@ -131,8 +131,8 @@ class ProfileController extends Controller
             $userData['password'] = Hash::make($request->password);
         }
 
-        if (isset($user->photo)) {
-            $userData['photo'] = $user->photo;
+        if (isset($user->profile_photo)) {
+            $userData['profile_photo'] = $user->profile_photo;
         }
 
         if (isset($user->google_linked)) {
@@ -384,8 +384,8 @@ class ProfileController extends Controller
         $user = Auth::user();
 
         // Delete old profile photo if exists
-        if ($user->photo && !filter_var($user->photo, FILTER_VALIDATE_URL)) {
-            Storage::disk('public')->delete($user->photo);
+        if ($user->profile_photo) {
+            Storage::disk('public')->delete($user->profile_photo);
         }
 
         // Store new photo
@@ -395,14 +395,26 @@ class ProfileController extends Controller
 
         // Update user photo and set google_linked to false
         $user->update([
-            'photo' => $path,
+            'profile_photo' => $path,
             'google_linked' => false
         ]);
+
+        // Manually update the in-memory user object to ensure session is updated
+        $user->profile_photo = $path;
+        $user->google_linked = false;
 
         Log::info('Profile photo uploaded', [
             'user_id' => $user->id,
             'filename' => $filename
         ]);
+
+        if ($request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Foto profil berhasil diupload!',
+                'new_photo_url' => $user->profile_photo_url
+            ]);
+        }
 
         return back()->with('success', 'Foto profil berhasil diupload!');
     }
@@ -414,17 +426,21 @@ class ProfileController extends Controller
     {
         $user = Auth::user();
 
-        if (!$user->photo) {
+        if (!$user->profile_photo && !$user->photo) {
             return back()->withErrors(['error' => 'Tidak ada foto profil yang akan dihapus.']);
         }
 
-        // Delete file from storage (only if it's not a URL)
-        if (!filter_var($user->photo, FILTER_VALIDATE_URL)) {
-            Storage::disk('public')->delete($user->photo);
+        // Delete file from storage
+        if ($user->profile_photo) {
+            Storage::disk('public')->delete($user->profile_photo);
         }
 
-        // Clear photo field
-        $user->update(['photo' => null]);
+        // Clear photo fields in the database
+        $user->update(['profile_photo' => null, 'photo' => null]);
+        
+        // Manually update the user object in the session to reflect changes immediately
+        $user->profile_photo = null;
+        $user->photo = null;
 
         Log::info('Profile photo deleted', ['user_id' => $user->id]);
 
