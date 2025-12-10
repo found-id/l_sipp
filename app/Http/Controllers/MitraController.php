@@ -27,24 +27,43 @@ class MitraController extends Controller
         $sort = $request->query('sort', 'ranking'); // Default to ranking
 
         if ($sort === 'ranking' || $sort === null) {
-            // Load with count before SAW calculation
-            $mitrasToRank = $query->withCount(['mahasiswaTerpilih as mahasiswa_count'])->get();
-            if ($mitrasToRank->isNotEmpty()) {
-                $saw = new SawCalculationService($mitrasToRank);
-                $mitra = $saw->calculate(); // This is a sorted collection with count already loaded
+            // Load with count
+            $allMitras = $query->withCount(['mahasiswaTerpilih as mahasiswa_count'])->get();
+            
+            // Separate into rankable (has criteria) and unrankable (no criteria/user added without criteria)
+            $rankableMitras = $allMitras->filter(function ($m) {
+                return !is_null($m->honor) && !is_null($m->fasilitas) && 
+                       !is_null($m->kesesuaian_jurusan) && !is_null($m->tingkat_kebersihan);
+            });
+            
+            $unrankableMitras = $allMitras->reject(function ($m) {
+                return !is_null($m->honor) && !is_null($m->fasilitas) && 
+                       !is_null($m->kesesuaian_jurusan) && !is_null($m->tingkat_kebersihan);
+            });
 
-                // Add rank number to each mitra
+            if ($rankableMitras->isNotEmpty()) {
+                $saw = new SawCalculationService($rankableMitras);
+                $rankedMitras = $saw->calculate(); // Returns sorted collection
+
+                // Add rank number
                 $rank = 1;
-                foreach ($mitra as $m) {
+                foreach ($rankedMitras as $m) {
                     $m->rank = $rank++;
                 }
+                
+                // Merge: Ranked first, then Unranked
+                $mitra = $rankedMitras->merge($unrankableMitras);
             } else {
-                $mitra = $mitrasToRank; // Empty collection
+                $mitra = $unrankableMitras;
             }
             $isRankingSort = true;
         } else {
             $query->withCount(['mahasiswaTerpilih as mahasiswa_count']);
             
+            // For standard DB sorts, we want "Has Criteria" first, then "No Criteria" (which usually means user added)
+            // MySQL: boolean expression (column IS NOT NULL) is 1 if true, 0 if false. DESC puts 1 first.
+            $query->orderByRaw('(honor IS NOT NULL AND fasilitas IS NOT NULL) DESC');
+
             switch ($sort) {
                 case 'terbaru':
                     $query->orderBy('created_at', 'desc');
@@ -53,7 +72,8 @@ class MitraController extends Controller
                     $query->orderBy('nama', 'asc');
                     break;
                 case 'jarak':
-                    $query->orderBy('jarak', 'asc');
+                    // Push nulls to bottom for ascending sort
+                    $query->orderByRaw('CASE WHEN jarak IS NULL THEN 1 ELSE 0 END, jarak ASC');
                     break;
                 case 'honor':
                     $query->orderBy('honor', 'desc');
@@ -98,19 +118,19 @@ class MitraController extends Controller
         ]);
 
         $user = \Illuminate\Support\Facades\Auth::user();
-        $creatorName = $user->name;
+        // $creatorName = $user->name; // No longer used for created_by
 
         Mitra::create([
             'nama' => $request->nama,
             'alamat' => $request->alamat ?? '-',
             'kontak' => $request->kontak ?? '-',
-            'jarak' => $request->jarak ?? 0,
-            'honor' => $request->honor ?? 3,
-            'fasilitas' => $request->fasilitas ?? 3,
-            'kesesuaian_jurusan' => $request->kesesuaian_jurusan ?? 3,
-            'tingkat_kebersihan' => $request->tingkat_kebersihan ?? 3,
+            'jarak' => $request->jarak ?? null,
+            'honor' => $request->honor ?? null,
+            'fasilitas' => $request->fasilitas ?? null,
+            'kesesuaian_jurusan' => $request->kesesuaian_jurusan ?? null,
+            'tingkat_kebersihan' => $request->tingkat_kebersihan ?? null,
             'max_mahasiswa' => $request->max_mahasiswa ?? 4,
-            'created_by' => $creatorName,
+            'created_by' => $user->id,
         ]);
 
         return redirect()->route('mitra')->with('success', 'Instansi Mitra berhasil ditambahkan!');

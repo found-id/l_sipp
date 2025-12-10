@@ -32,6 +32,11 @@ class Mitra extends Model
         return $this->hasMany(ProfilMahasiswa::class, 'mitra_selected', 'id');
     }
 
+    public function creator()
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
+
     /**
      * Get label mapping for criteria values (1-5)
      */

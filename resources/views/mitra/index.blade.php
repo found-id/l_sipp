@@ -163,7 +163,9 @@
                         @if($m->created_by)
                         <div class="flex items-center mt-1">
                             <i class="fas fa-user-plus text-blue-400 mr-1 md:mr-1.5 text-[10px] md:text-xs"></i>
-                            <span class="text-blue-600 text-[10px] md:text-xs">Dibuat oleh {{ $m->created_by }}</span>
+                            <span class="text-blue-600 text-[10px] md:text-xs">
+                                Dibuat oleh {{ $m->creator ? $m->creator->name : $m->created_by }}
+                            </span>
                         </div>
                         @endif
                     </div>
@@ -172,8 +174,8 @@
             </div>
             
             <div class="space-y-2 md:space-y-3 mb-2 md:mb-4">
-                <!-- Kriteria Penilaian - Hidden for user-added mitra -->
-                @if(!$m->created_by)
+                <!-- Kriteria Penilaian - Hidden if numeric criteria are missing/null -->
+                @if($m->honor !== null)
                 <div class="border-t border-b border-gray-100 py-3 md:py-4">
                     <div class="space-y-2 text-xs md:text-sm">
                         <div class="flex items-center justify-between">
