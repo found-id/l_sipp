@@ -269,9 +269,9 @@
     </div>
 </div>
 
-<!-- Modal Konfirmasi Penggantian Mitra -->
-<div id="modalPenggantianMitra" class="fixed inset-0 bg-gray-900 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50 backdrop-blur-sm">
-    <div class="relative top-20 mx-auto p-0 border-0 w-full max-w-lg shadow-xl rounded-2xl bg-white">
+<!-- Modal Konfirmasi Penggantian Mitra - Will be moved to body via JavaScript -->
+<div id="modalPenggantianMitra" class="fixed inset-0 bg-gray-900 bg-opacity-50 overflow-y-auto h-full w-full hidden backdrop-blur-sm flex items-center justify-center p-4" style="z-index: 9999;">
+    <div class="relative bg-white w-full max-w-lg shadow-xl rounded-2xl mx-auto">
         <div class="p-6 border-b border-gray-100">
             <h3 class="text-lg font-bold text-gray-900">Konfirmasi Penggantian Mitra</h3>
             <p class="text-sm text-gray-500 mt-1">Anda sudah memilih mitra. Mengapa ingin mengganti?</p>
@@ -337,6 +337,17 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
+    
+    // Move modals to body to escape transform stacking context
+    const modalPenggantian = document.getElementById('modalPenggantianMitra');
+    const addMitraModal = document.getElementById('addMitraModal');
+    
+    if (modalPenggantian) {
+        document.body.appendChild(modalPenggantian);
+    }
+    if (addMitraModal) {
+        document.body.appendChild(addMitraModal);
+    }
 });
 
 let selectedMitraId = null;
@@ -457,8 +468,8 @@ function kirimPilihanMitra(mitraId, mitraName, jenisAlasan, alasanLengkap) {
 
 
 
-<!-- Add Mitra Modal -->
-<div id="addMitraModal" class="fixed inset-0 z-50 hidden overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+<!-- Add Mitra Modal - Will be moved to body via JavaScript -->
+<div id="addMitraModal" class="fixed inset-0 hidden overflow-y-auto flex items-center justify-center p-4" style="z-index: 9999;" aria-labelledby="modal-title" role="dialog" aria-modal="true">
     <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
         <div class="fixed inset-0 bg-gray-900 bg-opacity-50 transition-opacity backdrop-blur-sm" aria-hidden="true" onclick="closeAddMitraModal()"></div>
 

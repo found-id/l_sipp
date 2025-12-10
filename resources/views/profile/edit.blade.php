@@ -362,24 +362,6 @@
     @method('DELETE')
 </form>
 
-<!-- Confirmation Modal -->
-<div id="confirmModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
-    <div class="bg-white rounded-xl shadow-2xl p-8 max-w-md w-full mx-4 transform transition-all">
-        <div class="text-center">
-            <i class="fas fa-question-circle text-5xl text-blue-500 mb-4"></i>
-            <h3 class="text-xl font-bold text-gray-900 mb-3">Konfirmasi Perubahan</h3>
-            <p class="text-gray-600 mb-6">Apakah Anda yakin ingin menyimpan perubahan profil?</p>
-            <div class="flex justify-center space-x-3">
-                <button onclick="closeConfirmModal()" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-2.5 px-6 rounded-lg transition-all duration-200">
-                    Batal
-                </button>
-                <button onclick="submitForm()" class="bg-green-600 hover:bg-green-700 text-white font-semibold py-2.5 px-6 rounded-lg transition-all duration-200">
-                    Ya, Simpan
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
 
 <script>
 // Profile photo preview and AJAX upload
@@ -541,4 +523,39 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 </script>
+
+<!-- Confirmation Modal - Will be moved to body via JavaScript to escape transform stacking context -->
+<div id="confirmModal" class="fixed inset-0 hidden flex items-center justify-center p-4" style="z-index: 9999;">
+    <!-- Backdrop - Extended 3x -->
+    <div class="fixed inset-0 bg-black bg-opacity-60" style="transform: scale(3);" onclick="closeConfirmModal()"></div>
+    <!-- Modal Content -->
+    <div class="relative bg-white rounded-xl shadow-2xl p-8 max-w-md w-full mx-4 transform transition-all">
+        <div class="text-center">
+            <i class="fas fa-question-circle text-5xl text-blue-500 mb-4"></i>
+            <h3 class="text-xl font-bold text-gray-900 mb-3">Konfirmasi Perubahan</h3>
+            <p class="text-gray-600 mb-6">Apakah Anda yakin ingin menyimpan perubahan profil?</p>
+            <div class="flex justify-center space-x-3">
+                <button onclick="closeConfirmModal()" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-2.5 px-6 rounded-lg transition-all duration-200">
+                    Batal
+                </button>
+                <button onclick="submitForm()" class="bg-green-600 hover:bg-green-700 text-white font-semibold py-2.5 px-6 rounded-lg transition-all duration-200">
+                    Ya, Simpan
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Move modal to body to escape transform stacking context
+document.addEventListener('DOMContentLoaded', function() {
+    const modal = document.getElementById('confirmModal');
+    if (modal) {
+        // Move modal to end of body to escape any parent transform/stacking context
+        document.body.appendChild(modal);
+    }
+});
+</script>
+
 @endsection
+

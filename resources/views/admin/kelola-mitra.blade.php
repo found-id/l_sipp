@@ -183,32 +183,35 @@
     </div>
 </div>
 
-<!-- Create Mitra Modal -->
-<div id="createModal" class="fixed inset-0 bg-gray-900 bg-opacity-75 overflow-y-auto h-full w-full hidden z-50">
-    <div class="relative top-10 mx-auto p-6 border max-w-3xl shadow-lg rounded-md bg-white">
+<!-- Create Mitra Modal - Will be moved to body via JavaScript -->
+<div id="createModal" class="fixed inset-0 bg-gray-900 bg-opacity-75 overflow-y-auto h-full w-full hidden flex items-center justify-center p-4" style="z-index: 9999;">
+    <div class="relative p-6 border max-w-5xl w-full shadow-lg rounded-md bg-white mx-auto">
         <h3 class="text-lg font-semibold text-gray-900 mb-5 pb-3 border-b">Tambah Mitra Baru</h3>
 
         <form method="POST" action="{{ route('admin.create-mitra') }}">
             @csrf
 
-            <!-- Nama Mitra -->
-            <div class="mb-4">
-                <label for="nama" class="block text-sm font-medium text-gray-700 mb-1">Nama Mitra</label>
-                <input type="text" id="nama" name="nama" required
-                       class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500 text-sm"
-                       placeholder="Masukkan nama mitra">
-            </div>
+            <!-- Two Column Layout -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Left Column: Informasi Dasar -->
+                <div class="space-y-4">
+                    <!-- Nama Mitra -->
+                    <div>
+                        <label for="nama" class="block text-sm font-medium text-gray-700 mb-1">Nama Mitra</label>
+                        <input type="text" id="nama" name="nama" required
+                               class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500 text-sm"
+                               placeholder="Masukkan nama mitra">
+                    </div>
 
-            <!-- Informasi Dasar -->
-            <div class="mb-4 p-4 bg-gray-50 rounded-md border border-gray-200">
-                <h4 class="text-xs font-semibold text-gray-600 uppercase tracking-wide mb-3">Informasi Dasar</h4>
-                <div class="grid grid-cols-2 gap-3">
+                    <!-- Alamat -->
                     <div>
                         <label for="alamat" class="block text-sm font-medium text-gray-700 mb-1">Alamat</label>
-                        <textarea id="alamat" name="alamat" rows="2"
+                        <textarea id="alamat" name="alamat" rows="3"
                                   class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500 text-sm bg-white resize-none"
                                   placeholder="Masukkan alamat mitra"></textarea>
                     </div>
+
+                    <!-- Kontak -->
                     <div>
                         <label for="kontak" class="block text-sm font-medium text-gray-700 mb-1">Kontak</label>
                         <input type="text" id="kontak" name="kontak"
@@ -216,64 +219,64 @@
                                placeholder="Masukkan kontak mitra">
                     </div>
                 </div>
-            </div>
 
-            <!-- Kriteria Penilaian -->
-            <div class="mb-4 p-4 bg-blue-50 rounded-md border border-blue-200">
-                <h4 class="text-xs font-semibold text-gray-600 uppercase tracking-wide mb-3">Kriteria Penilaian</h4>
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label for="jarak" class="block text-sm font-medium text-gray-700 mb-1">Jarak (km)</label>
-                        <input type="text" id="jarak" name="jarak" required value="0" pattern="^\d+([,.]\d+)?$"
-                               class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500 text-sm bg-white"
-                               placeholder="contoh: 6,6 atau 6.6">
-                    </div>
-                    <div>
-                        <label for="honor" class="block text-sm font-medium text-gray-700 mb-1">Honor</label>
-                        <select id="honor" name="honor" required class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500 text-sm bg-white">
-                            <option value="1">Tidak Ada</option>
-                            <option value="5">Ada</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label for="fasilitas" class="block text-sm font-medium text-gray-700 mb-1">Fasilitas</label>
-                        <select id="fasilitas" name="fasilitas" required class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500 text-sm bg-white">
-                            <option value="1">Biasa saja</option>
-                            <option value="2">Baik</option>
-                            <option value="3">Bagus</option>
-                            <option value="4">Sangat Bagus</option>
-                            <option value="5">Luar Biasa</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label for="kesesuaian_jurusan" class="block text-sm font-medium text-gray-700 mb-1">Kesesuaian Jurusan</label>
-                        <select id="kesesuaian_jurusan" name="kesesuaian_jurusan" required class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500 text-sm bg-white">
-                            <option value="1">Biasa saja</option>
-                            <option value="2">Baik</option>
-                            <option value="3">Bagus</option>
-                            <option value="4">Sangat Bagus</option>
-                            <option value="5">Luar Biasa</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label for="tingkat_kebersihan" class="block text-sm font-medium text-gray-700 mb-1">Tingkat Kebersihan</label>
-                        <select id="tingkat_kebersihan" name="tingkat_kebersihan" required class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500 text-sm bg-white">
-                            <option value="1">Biasa saja</option>
-                            <option value="2">Baik</option>
-                            <option value="3">Bagus</option>
-                            <option value="4">Sangat Bagus</option>
-                            <option value="5">Luar Biasa</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label for="max_mahasiswa" class="block text-sm font-medium text-gray-700 mb-1">Maksimal Mahasiswa</label>
-                        <input type="number" id="max_mahasiswa" name="max_mahasiswa" required value="4" min="1" max="20"
-                               class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500 text-sm bg-white">
+                <!-- Right Column: Kriteria Penilaian -->
+                <div class="p-4 bg-blue-50 rounded-md border border-blue-200">
+                    <h4 class="text-xs font-semibold text-gray-600 uppercase tracking-wide mb-4">Kriteria Penilaian</h4>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label for="jarak" class="block text-sm font-medium text-gray-700 mb-1">Jarak (km)</label>
+                            <input type="text" id="jarak" name="jarak" required value="0" pattern="^\d+([,.]\d+)?$"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500 text-sm bg-white"
+                                   placeholder="contoh: 6,6">
+                        </div>
+                        <div>
+                            <label for="honor" class="block text-sm font-medium text-gray-700 mb-1">Honor</label>
+                            <select id="honor" name="honor" required class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500 text-sm bg-white">
+                                <option value="1">Tidak Ada</option>
+                                <option value="5">Ada</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="fasilitas" class="block text-sm font-medium text-gray-700 mb-1">Fasilitas</label>
+                            <select id="fasilitas" name="fasilitas" required class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500 text-sm bg-white">
+                                <option value="1">Biasa saja</option>
+                                <option value="2">Baik</option>
+                                <option value="3">Bagus</option>
+                                <option value="4">Sangat Bagus</option>
+                                <option value="5">Luar Biasa</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="kesesuaian_jurusan" class="block text-sm font-medium text-gray-700 mb-1">Kesesuaian Jurusan</label>
+                            <select id="kesesuaian_jurusan" name="kesesuaian_jurusan" required class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500 text-sm bg-white">
+                                <option value="1">Biasa saja</option>
+                                <option value="2">Baik</option>
+                                <option value="3">Bagus</option>
+                                <option value="4">Sangat Bagus</option>
+                                <option value="5">Luar Biasa</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="tingkat_kebersihan" class="block text-sm font-medium text-gray-700 mb-1">Tingkat Kebersihan</label>
+                            <select id="tingkat_kebersihan" name="tingkat_kebersihan" required class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500 text-sm bg-white">
+                                <option value="1">Biasa saja</option>
+                                <option value="2">Baik</option>
+                                <option value="3">Bagus</option>
+                                <option value="4">Sangat Bagus</option>
+                                <option value="5">Luar Biasa</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="max_mahasiswa" class="block text-sm font-medium text-gray-700 mb-1">Max Mahasiswa</label>
+                            <input type="number" id="max_mahasiswa" name="max_mahasiswa" required value="4" min="1" max="20"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500 text-sm bg-white">
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <div class="flex justify-end space-x-2 pt-3 border-t">
+            <div class="flex justify-end space-x-2 pt-4 mt-4 border-t">
                 <button type="button" onclick="closeCreateModal()"
                         class="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400 text-sm">
                     Batal
@@ -287,105 +290,109 @@
     </div>
 </div>
 
-<!-- Edit Mitra Modal -->
-<div id="editModal" class="fixed inset-0 bg-gray-900 bg-opacity-75 overflow-y-auto h-full w-full hidden z-50">
-    <div class="relative top-10 mx-auto p-6 border max-w-3xl shadow-lg rounded-md bg-white">
+
+<!-- Edit Mitra Modal - Will be moved to body via JavaScript -->
+<div id="editModal" class="fixed inset-0 bg-gray-900 bg-opacity-75 overflow-y-auto h-full w-full hidden flex items-center justify-center p-4" style="z-index: 9999;">
+    <div class="relative p-6 border max-w-5xl w-full shadow-lg rounded-md bg-white mx-auto">
         <h3 class="text-lg font-semibold text-gray-900 mb-5 pb-3 border-b">Edit Mitra</h3>
 
         <form id="editForm" method="POST">
             @csrf
             @method('PUT')
 
-            <!-- Nama Mitra -->
-            <div class="mb-4">
-                <label for="edit_nama" class="block text-sm font-medium text-gray-700 mb-1">Nama Mitra</label>
-                <input type="text" id="edit_nama" name="nama" required
-                       class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500 text-sm">
-            </div>
+            <!-- Two Column Layout -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Left Column: Informasi Dasar -->
+                <div class="space-y-4">
+                    <!-- Nama Mitra -->
+                    <div>
+                        <label for="edit_nama" class="block text-sm font-medium text-gray-700 mb-1">Nama Mitra</label>
+                        <input type="text" id="edit_nama" name="nama" required
+                               class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500 text-sm">
+                    </div>
 
-            <!-- Tampilan Toggle -->
-            <div class="mb-4">
-                <label for="edit_tampilan_selector" class="block text-sm font-medium text-gray-700 mb-1">Tampilan</label>
-                <select id="edit_tampilan_selector" onchange="updateCreatedBy()" class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500 text-sm bg-white">
-                    <option value="normal">Normal (Menampilkan Kriteria)</option>
-                    <option value="user_added">Added by Mahasiswa (Menyembunyikan Kriteria)</option>
-                </select>
-                <input type="hidden" id="edit_created_by" name="created_by">
-            </div>
+                    <!-- Tampilan Toggle -->
+                    <div>
+                        <label for="edit_tampilan_selector" class="block text-sm font-medium text-gray-700 mb-1">Tampilan</label>
+                        <select id="edit_tampilan_selector" onchange="updateCreatedBy()" class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500 text-sm bg-white">
+                            <option value="normal">Normal (Menampilkan Kriteria)</option>
+                            <option value="user_added">Added by Mahasiswa (Menyembunyikan Kriteria)</option>
+                        </select>
+                        <input type="hidden" id="edit_created_by" name="created_by">
+                    </div>
 
-            <!-- Informasi Dasar -->
-            <div class="mb-4 p-4 bg-gray-50 rounded-md border border-gray-200">
-                <h4 class="text-xs font-semibold text-gray-600 uppercase tracking-wide mb-3">Informasi Dasar</h4>
-                <div class="grid grid-cols-2 gap-3">
+                    <!-- Alamat -->
                     <div>
                         <label for="edit_alamat" class="block text-sm font-medium text-gray-700 mb-1">Alamat</label>
-                        <textarea id="edit_alamat" name="alamat" rows="2"
+                        <textarea id="edit_alamat" name="alamat" rows="3"
                                   class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500 text-sm bg-white resize-none"></textarea>
                     </div>
+
+                    <!-- Kontak -->
                     <div>
                         <label for="edit_kontak" class="block text-sm font-medium text-gray-700 mb-1">Kontak</label>
                         <input type="text" id="edit_kontak" name="kontak"
                                class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500 text-sm bg-white">
                     </div>
                 </div>
-            </div>
 
-            <!-- Kriteria Penilaian -->
-            <div class="mb-4 p-4 bg-blue-50 rounded-md border border-blue-200">
-                <h4 class="text-xs font-semibold text-gray-600 uppercase tracking-wide mb-3">Kriteria Penilaian</h4>
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label for="edit_jarak" class="block text-sm font-medium text-gray-700 mb-1">Jarak (km)</label>
-                        <input type="text" id="edit_jarak" name="jarak" required pattern="^\d+([,.]\d+)?$"
-                               class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500 text-sm bg-white"
-                               placeholder="contoh: 6,6 atau 6.6">
-                    </div>
-                    <div>
-                        <label for="edit_honor" class="block text-sm font-medium text-gray-700 mb-1">Honor</label>
-                        <select id="edit_honor" name="honor" required class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500 text-sm bg-white">
-                            <option value="1">Tidak Ada</option>
-                            <option value="5">Ada</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label for="edit_fasilitas" class="block text-sm font-medium text-gray-700 mb-1">Fasilitas</label>
-                        <select id="edit_fasilitas" name="fasilitas" required class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500 text-sm bg-white">
-                            <option value="1">Biasa saja</option>
-                            <option value="2">Baik</option>
-                            <option value="3">Bagus</option>
-                            <option value="4">Sangat Bagus</option>
-                            <option value="5">Luar Biasa</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label for="edit_kesesuaian_jurusan" class="block text-sm font-medium text-gray-700 mb-1">Kesesuaian Jurusan</label>
-                        <select id="edit_kesesuaian_jurusan" name="kesesuaian_jurusan" required class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500 text-sm bg-white">
-                            <option value="1">Biasa saja</option>
-                            <option value="2">Baik</option>
-                            <option value="3">Bagus</option>
-                            <option value="4">Sangat Bagus</option>
-                            <option value="5">Luar Biasa</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label for="edit_tingkat_kebersihan" class="block text-sm font-medium text-gray-700 mb-1">Tingkat Kebersihan</label>
-                        <select id="edit_tingkat_kebersihan" name="tingkat_kebersihan" required class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500 text-sm bg-white">
-                            <option value="1">Biasa saja</option>
-                            <option value="2">Baik</option>
-                            <option value="3">Bagus</option>
-                            <option value="4">Sangat Bagus</option>
-                            <option value="5">Luar Biasa</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label for="edit_max_mahasiswa" class="block text-sm font-medium text-gray-700 mb-1">Maksimal Mahasiswa</label>
-                        <input type="number" id="edit_max_mahasiswa" name="max_mahasiswa" required value="4" min="1" max="20"
-                               class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500 text-sm bg-white">
+                <!-- Right Column: Kriteria Penilaian -->
+                <div class="p-4 bg-blue-50 rounded-md border border-blue-200">
+                    <h4 class="text-xs font-semibold text-gray-600 uppercase tracking-wide mb-4">Kriteria Penilaian</h4>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label for="edit_jarak" class="block text-sm font-medium text-gray-700 mb-1">Jarak (km)</label>
+                            <input type="text" id="edit_jarak" name="jarak" required pattern="^\d+([,.]\d+)?$"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500 text-sm bg-white"
+                                   placeholder="contoh: 6,6">
+                        </div>
+                        <div>
+                            <label for="edit_honor" class="block text-sm font-medium text-gray-700 mb-1">Honor</label>
+                            <select id="edit_honor" name="honor" required class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500 text-sm bg-white">
+                                <option value="1">Tidak Ada</option>
+                                <option value="5">Ada</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="edit_fasilitas" class="block text-sm font-medium text-gray-700 mb-1">Fasilitas</label>
+                            <select id="edit_fasilitas" name="fasilitas" required class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500 text-sm bg-white">
+                                <option value="1">Biasa saja</option>
+                                <option value="2">Baik</option>
+                                <option value="3">Bagus</option>
+                                <option value="4">Sangat Bagus</option>
+                                <option value="5">Luar Biasa</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="edit_kesesuaian_jurusan" class="block text-sm font-medium text-gray-700 mb-1">Kesesuaian Jurusan</label>
+                            <select id="edit_kesesuaian_jurusan" name="kesesuaian_jurusan" required class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500 text-sm bg-white">
+                                <option value="1">Biasa saja</option>
+                                <option value="2">Baik</option>
+                                <option value="3">Bagus</option>
+                                <option value="4">Sangat Bagus</option>
+                                <option value="5">Luar Biasa</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="edit_tingkat_kebersihan" class="block text-sm font-medium text-gray-700 mb-1">Tingkat Kebersihan</label>
+                            <select id="edit_tingkat_kebersihan" name="tingkat_kebersihan" required class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500 text-sm bg-white">
+                                <option value="1">Biasa saja</option>
+                                <option value="2">Baik</option>
+                                <option value="3">Bagus</option>
+                                <option value="4">Sangat Bagus</option>
+                                <option value="5">Luar Biasa</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="edit_max_mahasiswa" class="block text-sm font-medium text-gray-700 mb-1">Max Mahasiswa</label>
+                            <input type="number" id="edit_max_mahasiswa" name="max_mahasiswa" required value="4" min="1" max="20"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500 text-sm bg-white">
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <div class="flex justify-end space-x-2 pt-3 border-t">
+            <div class="flex justify-end space-x-2 pt-4 mt-4 border-t">
                 <button type="button" onclick="closeEditModal()"
                         class="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400 text-sm">
                     Batal
@@ -425,6 +432,23 @@ document.addEventListener('DOMContentLoaded', function() {
             if (jarakInput) {
                 jarakInput.value = normalizeDecimal(jarakInput.value);
             }
+        });
+    }
+    
+    // Move modals to body to escape transform stacking context
+    const createModal = document.getElementById('createModal');
+    const editModal = document.getElementById('editModal');
+    
+    if (createModal) {
+        document.body.appendChild(createModal);
+        createModal.addEventListener('click', function(e) {
+            if (e.target === this) closeCreateModal();
+        });
+    }
+    if (editModal) {
+        document.body.appendChild(editModal);
+        editModal.addEventListener('click', function(e) {
+            if (e.target === this) closeEditModal();
         });
     }
 });

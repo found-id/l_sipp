@@ -1008,9 +1008,9 @@
     </div>
 </div>
 
-<!-- Validation Modal -->
-<div id="validationModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
-    <div class="relative top-20 mx-auto p-5 border w-full max-w-md shadow-lg rounded-md bg-white">
+<!-- Validation Modal - Will be moved to body via JavaScript -->
+<div id="validationModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden flex items-center justify-center p-4" style="z-index: 9999;">
+    <div class="relative p-5 border w-full max-w-md shadow-lg rounded-md bg-white mx-auto">
         <div class="mt-3">
             <div class="flex items-center justify-between mb-4">
                 <h3 class="text-lg font-medium text-gray-900" id="modalTitle">Validasi Pemberkasan</h3>
@@ -1160,6 +1160,14 @@ function closeValidationModal() {
     const modal = document.getElementById('validationModal');
     modal.classList.add('hidden');
 }
+
+// Move modal to body to escape transform stacking context
+document.addEventListener('DOMContentLoaded', function() {
+    const validationModal = document.getElementById('validationModal');
+    if (validationModal) {
+        document.body.appendChild(validationModal);
+    }
+});
 
 // Close modal when clicking outside
 document.getElementById('validationModal')?.addEventListener('click', function(e) {

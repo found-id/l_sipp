@@ -238,8 +238,8 @@
     </div>
 </div>
 
-<!-- Change Password Modal -->
-<div id="passwordModal" class="fixed inset-0 bg-gray-900 bg-opacity-60 overflow-y-auto h-full w-full hidden z-50 backdrop-blur-sm flex items-center justify-center p-4">
+<!-- Change Password Modal - Will be moved to body via JavaScript -->
+<div id="passwordModal" class="fixed inset-0 bg-gray-900 bg-opacity-60 overflow-y-auto h-full w-full hidden backdrop-blur-sm flex items-center justify-center p-4" style="z-index: 9999;">
     <div class="relative p-0 border-0 w-full max-w-md shadow-xl rounded-xl md:rounded-2xl bg-white mx-auto">
         <!-- Modal Header -->
         <div class="bg-white p-4 md:p-6 rounded-t-xl md:rounded-t-2xl border-b border-gray-100">
@@ -335,96 +335,6 @@ function closePasswordModal() {
     document.getElementById('current_password').value = '';
     document.getElementById('new_password').value = '';
     document.getElementById('new_password_confirmation').value = '';
-}
-
-// Close modal when clicking outside
-document.getElementById('passwordModal').addEventListener('click', function(e) {
-    if (e.target === this) {
-        closePasswordModal();
-    }
-});
-
-// Close modal with Escape key
-document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') {
-        closePasswordModal();
-        closeLogoutModal();
-    }
-});
-
-// Logout confirmation modal functions
-function confirmLogout() {
-    document.getElementById('logoutModal').classList.remove('hidden');
-    document.getElementById('logoutModal').classList.add('flex');
-    document.body.style.overflow = 'hidden';
-}
-
-function closeLogoutModal() {
-    document.getElementById('logoutModal').classList.add('hidden');
-    document.getElementById('logoutModal').classList.remove('flex');
-    document.body.style.overflow = 'auto';
-}
-
-function proceedLogout() {
-    document.getElementById('logoutForm').submit();
-}
-
-// Close logout modal when clicking outside
-document.getElementById('logoutModal')?.addEventListener('click', function(e) {
-    if (e.target === this) {
-        closeLogoutModal();
-    }
-});
-</script>
-
-<!-- Logout Confirmation Modal -->
-<div id="logoutModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">
-    <div class="bg-white rounded-xl shadow-2xl p-6 md:p-8 max-w-md w-full mx-auto">
-        <div class="text-center">
-            <div class="w-14 h-14 md:w-16 md:h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3 md:mb-4">
-                <i class="fas fa-sign-out-alt text-xl md:text-2xl text-gray-500"></i>
-            </div>
-            <h3 class="text-lg md:text-xl font-bold text-gray-900 mb-2">Konfirmasi Logout</h3>
-            <p class="text-gray-600 mb-4 md:mb-6 text-sm md:text-base">Yakin ingin keluar?</p>
-            <div class="flex flex-col-reverse md:flex-row justify-center gap-2 md:gap-3">
-                <button onclick="closeLogoutModal()" class="bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 font-semibold py-2 md:py-2.5 px-4 md:px-6 rounded-lg transition-all duration-200 shadow-sm text-sm md:text-base">
-                    Batal
-                </button>
-                <button onclick="proceedLogout()" class="bg-gray-900 hover:bg-black text-white font-semibold py-2 md:py-2.5 px-4 md:px-6 rounded-lg transition-all duration-200 shadow-md text-sm md:text-base">
-                    Ya, Logout
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
-@endsection
-<script>
-function toggleAccounts() {
-    const list = document.getElementById('accountList');
-    const chevron = document.getElementById('accountChevron');
-    
-    if (list.classList.contains('hidden')) {
-        list.classList.remove('hidden');
-        chevron.style.transform = 'rotate(180deg)';
-    } else {
-        list.classList.add('hidden');
-        chevron.style.transform = 'rotate(0deg)';
-    }
-}
-
-function openPasswordModal() {
-    document.getElementById('passwordModal').classList.remove('hidden');
-    document.body.style.overflow = 'hidden';
-}
-
-function closePasswordModal() {
-    document.getElementById('passwordModal').classList.add('hidden');
-    document.body.style.overflow = 'auto';
-    // Reset form
-    document.getElementById('current_password').value = '';
-    document.getElementById('new_password').value = '';
-    document.getElementById('new_password_confirmation').value = '';
-    
     // Reset visibility
     resetPasswordVisibility('current_password', 'icon_current');
     resetPasswordVisibility('new_password', 'icon_new');
@@ -457,21 +367,18 @@ function resetPasswordVisibility(inputId, iconId) {
     }
 }
 
-// Close modal when clicking outside
-document.getElementById('passwordModal').addEventListener('click', function(e) {
-    if (e.target === this) {
-        closePasswordModal();
+function toggleAccounts() {
+    const list = document.getElementById('accountList');
+    const chevron = document.getElementById('accountChevron');
+    
+    if (list.classList.contains('hidden')) {
+        list.classList.remove('hidden');
+        chevron.style.transform = 'rotate(180deg)';
+    } else {
+        list.classList.add('hidden');
+        chevron.style.transform = 'rotate(0deg)';
     }
-});
-
-// Close modal with Escape key
-document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') {
-        closePasswordModal();
-        closeLogoutModal();
-        closeAddAccountModal();
-    }
-});
+}
 
 // Logout confirmation modal functions
 function confirmLogout() {
@@ -490,10 +397,63 @@ function proceedLogout() {
     document.getElementById('logoutForm').submit();
 }
 
-// Close logout modal when clicking outside
-document.getElementById('logoutModal')?.addEventListener('click', function(e) {
-    if (e.target === this) {
+// Move modals to body to escape transform stacking context
+document.addEventListener('DOMContentLoaded', function() {
+    const passwordModal = document.getElementById('passwordModal');
+    const logoutModal = document.getElementById('logoutModal');
+    
+    if (passwordModal) {
+        document.body.appendChild(passwordModal);
+    }
+    if (logoutModal) {
+        document.body.appendChild(logoutModal);
+    }
+    
+    // Close modal when clicking outside
+    if (passwordModal) {
+        passwordModal.addEventListener('click', function(e) {
+            if (e.target === this) {
+                closePasswordModal();
+            }
+        });
+    }
+    
+    if (logoutModal) {
+        logoutModal.addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeLogoutModal();
+            }
+        });
+    }
+});
+
+// Close modal with Escape key
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        closePasswordModal();
         closeLogoutModal();
     }
 });
 </script>
+
+<!-- Logout Confirmation Modal - Will be moved to body via JavaScript -->
+<div id="logoutModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center p-4" style="z-index: 9999;">
+    <div class="bg-white rounded-xl shadow-2xl p-6 md:p-8 max-w-md w-full mx-auto">
+        <div class="text-center">
+            <div class="w-14 h-14 md:w-16 md:h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3 md:mb-4">
+                <i class="fas fa-sign-out-alt text-xl md:text-2xl text-gray-500"></i>
+            </div>
+            <h3 class="text-lg md:text-xl font-bold text-gray-900 mb-2">Konfirmasi Logout</h3>
+            <p class="text-gray-600 mb-4 md:mb-6 text-sm md:text-base">Yakin ingin keluar?</p>
+            <div class="flex flex-col-reverse md:flex-row justify-center gap-2 md:gap-3">
+                <button onclick="closeLogoutModal()" class="bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 font-semibold py-2 md:py-2.5 px-4 md:px-6 rounded-lg transition-all duration-200 shadow-sm text-sm md:text-base">
+                    Batal
+                </button>
+                <button onclick="proceedLogout()" class="bg-gray-900 hover:bg-black text-white font-semibold py-2 md:py-2.5 px-4 md:px-6 rounded-lg transition-all duration-200 shadow-md text-sm md:text-base">
+                    Ya, Logout
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+@endsection

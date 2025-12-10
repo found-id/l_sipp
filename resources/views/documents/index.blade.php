@@ -37,6 +37,50 @@
     max-height: 2000px; /* Arbitrary large height */
     opacity: 1;
 }
+
+/* Card Margin Fix - Ensure cards have margin from screen edge */
+/* This is needed because of transform:scale() in the layout */
+
+/* Mobile (< 768px) */
+@media (max-width: 767px) {
+    #content-dokumen-pendukung .collapsible-section,
+    #content-dokumen-pendukung > .grid > div,
+    #content-surat-balasan .collapsible-section,
+    #content-surat-balasan > .grid > div,
+    #content-laporan .collapsible-section,
+    #content-laporan > .grid > div {
+        margin-left: 16px;
+        margin-right: 16px;
+        max-width: calc(100% - 32px);
+    }
+}
+
+/* Tablet (768px - 1024px) */
+@media (min-width: 768px) and (max-width: 1024px) {
+    #content-dokumen-pendukung .collapsible-section,
+    #content-dokumen-pendukung > .grid > div,
+    #content-surat-balasan .collapsible-section,
+    #content-surat-balasan > .grid > div,
+    #content-laporan .collapsible-section,
+    #content-laporan > .grid > div {
+        margin-left: 24px;
+        margin-right: 24px;
+        max-width: calc(100% - 48px);
+    }
+}
+
+/* Desktop (> 1024px) - Add horizontal padding to grid container */
+@media (min-width: 1025px) {
+    #content-dokumen-pendukung > .grid,
+    #content-surat-balasan > .grid,
+    #content-laporan > .grid {
+        padding-left: 1rem;
+        padding-right: 1rem;
+        max-width: 1250px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+}
 </style>
 
 <div class="space-y-4 md:space-y-6">
@@ -346,7 +390,7 @@
 
     <!-- Tab Content -->
     <div id="content-pemberkasan" class="tab-content">
-        <div class="grid grid-cols-1 gap-6 mt-6">
+        <div class="grid grid-cols-1 gap-4 md:gap-6 mt-3 md:mt-6">
             <!-- Final IPK Calculation -->
             <div class="bg-white shadow-sm rounded-xl border border-gray-100 overflow-hidden collapsible-section">
                 <div class="collapsible-header bg-white px-6 py-4 border-b border-gray-100 flex items-center justify-between" onclick="toggleCollapsible(this)">
@@ -688,53 +732,55 @@
 
 
     <div id="content-laporan" class="tab-content hidden">
-        <div class="max-w-5xl mx-auto mt-4 md:mt-6" style="max-width: 76rem;">
-        @if(!$laporanPklEnabled)
+        <div class="grid grid-cols-1 gap-4 md:gap-6 mt-3 md:mt-6">
+            @if(!$laporanPklEnabled)
             <!-- Disabled State -->
-            <div class="bg-white shadow-lg rounded-xl border border-gray-100 overflow-hidden">
-                <div class="bg-gradient-to-r from-gray-400 to-gray-500 px-4 md:px-6 py-3 md:py-4">
-                        <div class="flex items-center">
-                            <div class="flex-shrink-0">
-                            <i class="fas fa-ban text-xl md:text-2xl text-white"></i>
-                            </div>
-                            <div class="ml-2 md:ml-3">
-                            <h3 class="text-base md:text-lg font-semibold text-white">Laporan PKL</h3>
-                            <p class="text-gray-100 text-xs md:text-sm">Fitur dinonaktifkan</p>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="p-4 md:p-6 text-center">
-                    <i class="fas fa-lock text-3xl md:text-4xl text-gray-300 mb-3 md:mb-4"></i>
-                    <p class="text-gray-500 text-sm md:text-base">Fitur upload laporan PKL dinonaktifkan</p>
-                                    </div>
-                                    </div>
-        @else
-            <div class="bg-white shadow-sm rounded-xl border border-slate-200 overflow-hidden">
-                <div class="bg-white px-4 md:px-6 py-3 md:py-4 border-b border-slate-100">
+            <div class="bg-white shadow-sm rounded-xl border border-gray-100 overflow-hidden">
+                <div class="bg-gradient-to-r from-gray-400 to-gray-500 px-6 py-4">
                     <div class="flex items-center">
                         <div class="flex-shrink-0">
-                            <div class="w-8 h-8 md:w-10 md:h-10 rounded-lg bg-indigo-50 flex items-center justify-center">
-                                <i class="fas fa-file-alt text-indigo-600 text-sm md:text-base"></i>
-                            </div>
+                            <i class="fas fa-ban text-2xl text-white"></i>
                         </div>
-                        <div class="ml-3 md:ml-4">
-                            <h3 class="text-base md:text-lg font-bold text-slate-800">Laporan PKL</h3>
-                            <p class="text-slate-500 text-xs md:text-sm hidden md:block">Upload laporan akhir PKL</p>
+                        <div class="ml-3">
+                            <h3 class="text-lg font-semibold text-white">Laporan PKL</h3>
+                            <p class="text-gray-100 text-sm">Fitur dinonaktifkan</p>
                         </div>
                     </div>
                 </div>
+                <div class="p-6 text-center">
+                    <i class="fas fa-lock text-4xl text-gray-300 mb-4"></i>
+                    <p class="text-gray-500">Fitur upload laporan PKL dinonaktifkan</p>
+                </div>
+            </div>
+            @else
+            <!-- Laporan PKL Section -->
+            <div class="bg-white shadow-sm rounded-xl border border-gray-100 overflow-hidden collapsible-section">
+                <div class="collapsible-header bg-white px-6 py-4 border-b border-gray-100 flex items-center justify-between" onclick="toggleCollapsible(this)">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <div class="w-10 h-10 rounded-lg bg-indigo-50 flex items-center justify-center border border-indigo-100">
+                                <i class="fas fa-file-alt text-indigo-600"></i>
+                            </div>
+                        </div>
+                        <div class="ml-4">
+                            <h3 class="text-lg font-bold text-gray-900">Laporan PKL</h3>
+                            <p class="text-gray-500 text-sm">Upload laporan akhir PKL</p>
+                        </div>
+                    </div>
+                    <i class="fas fa-chevron-down text-gray-400 collapsible-icon"></i>
+                </div>
                 
-                <div class="p-4 md:p-6">
-                    @if($laporan && is_object($laporan))
-                        <div class="mb-6 p-4 bg-gray-50 rounded-lg border">
+                <div class="collapsible-content">
+                    <div class="p-6">
+                        @if($laporan && is_object($laporan))
+                        <div class="mb-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
                             <div class="flex items-start justify-between">
                                 <div class="flex-1">
                                     <div class="flex items-center justify-between mb-2">
                                         <div class="flex items-center">
                                             <i class="fas fa-file-pdf text-red-500 mr-2"></i>
                                             <p class="text-sm font-medium text-gray-900">{{ basename($laporan->file_path ?? '') }}</p>
-                                </div>
+                                        </div>
                                         <div class="flex space-x-2">
                                             <button type="button" onclick="window.previewFile('{{ $laporan->file_path ?? '' }}')" class="text-blue-600 hover:text-blue-800 text-sm px-2 py-1 rounded hover:bg-blue-50">
                                                 <i class="fas fa-eye mr-1"></i>Lihat
@@ -744,7 +790,7 @@
                                                 <i class="fas fa-trash mr-1"></i>Hapus
                                             </button>
                                             @endif
-                            </div>
+                                        </div>
                                     </div>
                                     <p class="text-xs text-gray-500 mb-3">Uploaded: {{ isset($laporan->created_at) ? $laporan->created_at->format('d M Y H:i') : 'N/A' }}</p>
                                     
@@ -765,154 +811,158 @@
                                             @endif
                                         </span>
                                     </div>
-                                    </div>
-                                    </div>
-                                    </div>
-                    @endif
-
-                    @if(!$isLockedAkhir)
-                    <form action="{{ route('documents.laporan.upload') }}" method="POST" enctype="multipart/form-data" class="space-y-4">
-                        @csrf
-                        <div>
-                            <label for="laporan_file" class="block text-sm font-medium text-gray-700 mb-2">Pilih File Laporan PKL</label>
-                            <div class="relative">
-                                <input type="file" id="laporan_file" name="file" accept=".pdf" required
-                                       class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 border border-gray-300 rounded-lg cursor-pointer focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
-                                    </div>
-                            <p class="mt-2 text-xs text-gray-500 flex items-center">
-                                <i class="fas fa-info-circle mr-1"></i>
-                                Format: PDF, Maksimal: 10MB
-                            </p>
                                 </div>
-                        
-                        <button type="submit" class="w-full bg-indigo-600 text-white py-3 px-4 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors duration-200 font-medium">
-                            <i class="fas fa-upload mr-2"></i>Upload Laporan PKL
-                        </button>
-                    </form>
-                    @else
-                    <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 text-center">
-                        <div class="flex items-center justify-center text-yellow-700 mb-2">
-                            <i class="fas fa-lock text-xl mr-2"></i>
-                            <span class="font-semibold">Upload Laporan Terkunci</span>
+                            </div>
                         </div>
-                        <p class="text-sm text-yellow-600">Anda tidak dapat mengupload laporan baru karena status PKL sedang Aktif/Selesai.</p>
+                        @endif
+
+                        @if(!$isLockedAkhir)
+                        <form action="{{ route('documents.laporan.upload') }}" method="POST" enctype="multipart/form-data" class="space-y-4">
+                            @csrf
+                            <div>
+                                <label for="laporan_file" class="block text-sm font-medium text-gray-700 mb-2">Pilih File Laporan PKL</label>
+                                <div class="relative">
+                                    <input type="file" id="laporan_file" name="file" accept=".pdf" required
+                                           class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 border border-gray-300 rounded-lg cursor-pointer focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                                </div>
+                                <p class="mt-2 text-xs text-gray-500 flex items-center">
+                                    <i class="fas fa-info-circle mr-1"></i>
+                                    Format: PDF, Maksimal: 10MB
+                                </p>
+                            </div>
+                            
+                            <button type="submit" class="w-full bg-indigo-600 text-white py-3 px-4 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors duration-200 font-medium">
+                                <i class="fas fa-upload mr-2"></i>Upload Laporan PKL
+                            </button>
+                        </form>
+                        @else
+                        <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 text-center">
+                            <div class="flex items-center justify-center text-yellow-700 mb-2">
+                                <i class="fas fa-lock text-xl mr-2"></i>
+                                <span class="font-semibold">Upload Laporan Terkunci</span>
+                            </div>
+                            <p class="text-sm text-yellow-600">Anda tidak dapat mengupload laporan baru karena status PKL sedang Aktif/Selesai.</p>
+                        </div>
+                        @endif
                     </div>
-                    @endif
                 </div>
             </div>
-        @endif
-                            </div>
+            @endif
         </div>
     </div>
 
     <div id="content-dokumen-pendukung" class="tab-content hidden">
-        <div class="max-w-5xl mx-auto mt-4 md:mt-6" style="max-width: 76rem;">
-        <div class="bg-white shadow-sm rounded-xl border border-slate-200 overflow-hidden">
-            <div class="bg-white px-4 md:px-6 py-3 md:py-4 border-b border-slate-100">
-                <div class="flex items-center">
-                    <div class="flex-shrink-0">
-                        <div class="w-8 h-8 md:w-10 md:h-10 rounded-lg bg-emerald-50 flex items-center justify-center">
-                            <i class="fab fa-google-drive text-emerald-600 text-sm md:text-base"></i>
+        <div class="grid grid-cols-1 gap-4 md:gap-6 mt-3 md:mt-6">
+            <!-- Dokumen Pendukung Section -->
+            <div class="bg-white shadow-sm rounded-xl border border-gray-100 overflow-hidden collapsible-section">
+                <div class="collapsible-header bg-white px-6 py-4 border-b border-gray-100 flex items-center justify-between" onclick="toggleCollapsible(this)">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <div class="w-10 h-10 rounded-lg bg-emerald-50 flex items-center justify-center border border-emerald-100">
+                                <i class="fab fa-google-drive text-emerald-600"></i>
+                            </div>
+                        </div>
+                        <div class="ml-4">
+                            <h3 class="text-lg font-bold text-gray-900">Dokumen Pendukung</h3>
+                            <p class="text-gray-500 text-sm">Masukkan link Google Drive untuk dokumen pendukung</p>
                         </div>
                     </div>
-                    <div class="ml-3 md:ml-4">
-                        <h3 class="text-base md:text-lg font-bold text-slate-800">Dokumen Pendukung</h3>
-                        <p class="text-slate-500 text-xs md:text-sm hidden md:block">Masukkan link Google Drive untuk dokumen pendukung</p>
+                    <i class="fas fa-chevron-down text-gray-400 collapsible-icon"></i>
+                </div>
+
+                <div class="collapsible-content">
+                    <div class="p-6 space-y-6">
+                        <!-- Sertifikat PKKMB -->
+                        <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                            <div class="flex items-center justify-between mb-3">
+                                <div class="flex items-center">
+                                    <i class="fab fa-google-drive text-blue-500 mr-2"></i>
+                                    <h4 class="text-lg font-medium text-gray-900">Sertifikat PKKMB</h4>
+                                </div>
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                    <i class="fas fa-asterisk mr-1"></i>Wajib
+                                </span>
+                            </div>
+                            <div class="space-y-3">
+                                <div>
+                                    <label for="link_pkkmb" class="block text-sm font-medium text-gray-700 mb-2">Link Google Drive</label>
+                                    <input type="url" id="link_pkkmb" name="link_pkkmb" placeholder="https://drive.google.com/..." 
+                                           class="block w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:text-gray-500"
+                                           {{ $isLockedGeneral ? 'disabled' : '' }}>
+                                </div>
+                                <p class="text-xs text-gray-500 flex items-center">
+                                    <i class="fas fa-info-circle mr-1"></i>
+                                    Link Google Drive publik
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Sertifikat English Course -->
+                        <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                            <div class="flex items-center justify-between mb-3">
+                                <div class="flex items-center">
+                                    <i class="fab fa-google-drive text-blue-500 mr-2"></i>
+                                    <h4 class="text-lg font-medium text-gray-900">Sertifikat English Course</h4>
+                                </div>
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                    <i class="fas fa-asterisk mr-1"></i>Wajib
+                                </span>
+                            </div>
+                            <div class="space-y-3">
+                                <div>
+                                    <label for="link_english" class="block text-sm font-medium text-gray-700 mb-2">Link Google Drive</label>
+                                    <input type="url" id="link_english" name="link_english" placeholder="https://drive.google.com/..." 
+                                           class="block w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:text-gray-500"
+                                           {{ $isLockedGeneral ? 'disabled' : '' }}>
+                                </div>
+                                <p class="text-xs text-gray-500 flex items-center">
+                                    <i class="fas fa-info-circle mr-1"></i>
+                                    Link Google Drive publik
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Sertifikat Lainnya -->
+                        <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                            <div class="flex items-center justify-between mb-3">
+                                <div class="flex items-center">
+                                    <i class="fab fa-google-drive text-blue-500 mr-2"></i>
+                                    <h4 class="text-lg font-medium text-gray-900">Sertifikat Lainnya</h4>
+                                </div>
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                    <i class="fas fa-info-circle mr-1"></i>Opsional
+                                </span>
+                            </div>
+                            <div class="space-y-3">
+                                <div>
+                                    <label for="link_semasa" class="block text-sm font-medium text-gray-700 mb-2">Link Google Drive</label>
+                                    <input type="url" id="link_semasa" name="link_semasa" placeholder="https://drive.google.com/..." 
+                                           class="block w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:text-gray-500"
+                                           {{ $isLockedGeneral ? 'disabled' : '' }}>
+                                </div>
+                                <p class="text-xs text-gray-500 flex items-center">
+                                    <i class="fas fa-info-circle mr-1"></i>
+                                    Link Google Drive publik
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Save Button -->
+                        <div class="pt-4 border-t border-gray-200">
+                            @if(!$isLockedGeneral)
+                            <button type="button" onclick="saveDokumenPendukung()" class="w-full bg-green-600 text-white py-3 px-4 rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors duration-200 font-medium">
+                                <i class="fas fa-save mr-2"></i>Simpan Dokumen
+                            </button>
+                            @else
+                            <div class="text-center py-2 text-gray-500 bg-gray-50 rounded border border-gray-200">
+                                <i class="fas fa-lock mr-2"></i>
+                                <span>Penyimpanan dinonaktifkan (Status PKL Aktif/Selesai)</span>
+                            </div>
+                            @endif
+                        </div>
                     </div>
                 </div>
             </div>
-
-            <div class="p-4 md:p-6 space-y-4 md:space-y-6">
-                <!-- Sertifikat PKKMB -->
-                <div class="bg-gray-50 rounded-lg p-3 md:p-4 border border-gray-200">
-                    <div class="flex items-center justify-between mb-2 md:mb-3">
-                        <div class="flex items-center">
-                            <i class="fab fa-google-drive text-blue-500 mr-1.5 md:mr-2 text-sm md:text-base"></i>
-                            <h4 class="text-sm md:text-lg font-medium text-gray-900">Sertifikat PKKMB</h4>
-                        </div>
-                        <span class="inline-flex items-center px-2 md:px-3 py-0.5 md:py-1 rounded-full text-[10px] md:text-xs font-medium bg-red-100 text-red-800">
-                            <i class="fas fa-asterisk mr-1 text-[8px] md:text-xs"></i>Wajib
-                        </span>
-                    </div>
-                    <div class="space-y-2 md:space-y-3">
-                        <div>
-                            <label for="link_pkkmb" class="block text-xs md:text-sm font-medium text-gray-700 mb-1 md:mb-2">Link Google Drive</label>
-                            <input type="url" id="link_pkkmb" name="link_pkkmb" placeholder="https://drive.google.com/..." 
-                                   class="block w-full px-2.5 md:px-3 py-1.5 md:py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:text-gray-500"
-                                   {{ $isLockedGeneral ? 'disabled' : '' }}>
-                        </div>
-                        <p class="text-[10px] md:text-xs text-gray-500 flex items-center">
-                            <i class="fas fa-info-circle mr-1"></i>
-                            Link Google Drive publik
-                        </p>
-                    </div>
-                </div>
-
-                <!-- Sertifikat English Course -->
-                <div class="bg-gray-50 rounded-lg p-3 md:p-4 border border-gray-200">
-                    <div class="flex items-center justify-between mb-2 md:mb-3">
-                        <div class="flex items-center">
-                            <i class="fab fa-google-drive text-blue-500 mr-1.5 md:mr-2 text-sm md:text-base"></i>
-                            <h4 class="text-sm md:text-lg font-medium text-gray-900">Sertifikat English Course</h4>
-                        </div>
-                        <span class="inline-flex items-center px-2 md:px-3 py-0.5 md:py-1 rounded-full text-[10px] md:text-xs font-medium bg-red-100 text-red-800">
-                            <i class="fas fa-asterisk mr-1 text-[8px] md:text-xs"></i>Wajib
-                        </span>
-                    </div>
-                    <div class="space-y-2 md:space-y-3">
-                        <div>
-                            <label for="link_english" class="block text-xs md:text-sm font-medium text-gray-700 mb-1 md:mb-2">Link Google Drive</label>
-                            <input type="url" id="link_english" name="link_english" placeholder="https://drive.google.com/..." 
-                                   class="block w-full px-2.5 md:px-3 py-1.5 md:py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:text-gray-500"
-                                   {{ $isLockedGeneral ? 'disabled' : '' }}>
-                        </div>
-                        <p class="text-[10px] md:text-xs text-gray-500 flex items-center">
-                            <i class="fas fa-info-circle mr-1"></i>
-                            Link Google Drive publik
-                        </p>
-                    </div>
-                </div>
-
-                <!-- Sertifikat Semasa Berkuliah -->
-                <div class="bg-gray-50 rounded-lg p-3 md:p-4 border border-gray-200">
-                    <div class="flex items-center justify-between mb-2 md:mb-3">
-                        <div class="flex items-center">
-                            <i class="fab fa-google-drive text-blue-500 mr-1.5 md:mr-2 text-sm md:text-base"></i>
-                            <h4 class="text-sm md:text-lg font-medium text-gray-900">Sertifikat Lainnya</h4>
-                        </div>
-                        <span class="inline-flex items-center px-2 md:px-3 py-0.5 md:py-1 rounded-full text-[10px] md:text-xs font-medium bg-blue-100 text-blue-800">
-                            <i class="fas fa-info-circle mr-1 text-[8px] md:text-xs"></i>Opsional
-                        </span>
-                    </div>
-                    <div class="space-y-2 md:space-y-3">
-                        <div>
-                            <label for="link_semasa" class="block text-xs md:text-sm font-medium text-gray-700 mb-1 md:mb-2">Link Google Drive</label>
-                            <input type="url" id="link_semasa" name="link_semasa" placeholder="https://drive.google.com/..." 
-                                   class="block w-full px-2.5 md:px-3 py-1.5 md:py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:text-gray-500"
-                                   {{ $isLockedGeneral ? 'disabled' : '' }}>
-                        </div>
-                        <p class="text-[10px] md:text-xs text-gray-500 flex items-center">
-                            <i class="fas fa-info-circle mr-1"></i>
-                            Link Google Drive publik
-                        </p>
-                    </div>
-                </div>
-
-                <!-- Save Button -->
-                <div class="pt-3 md:pt-4 border-t border-gray-200">
-                    @if(!$isLockedGeneral)
-                    <button type="button" onclick="saveDokumenPendukung()" class="w-full bg-green-600 text-white py-2.5 md:py-3 px-4 rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors duration-200 font-medium text-sm md:text-base">
-                        <i class="fas fa-save mr-2"></i>Simpan Dokumen
-                    </button>
-                    @else
-                    <div class="text-center py-2 text-gray-500 bg-gray-50 rounded border border-gray-200">
-                        <i class="fas fa-lock mr-2"></i>
-                        <span>Penyimpanan dinonaktifkan (Status PKL Aktif/Selesai)</span>
-                    </div>
-                    @endif
-                </div>
-            </div>
-        </div>
         </div>
     </div>
 
@@ -2791,20 +2841,18 @@ function renderTable(rows, container) {
 </script>
 
 
-        </div>
-    </div>
-
     <div id="content-surat-balasan" class="tab-content hidden">
-        @if(!$instansiMitraEnabled)
+        <div class="grid grid-cols-1 gap-4 md:gap-6 mt-3 md:mt-6">
+            @if(!$instansiMitraEnabled)
             <!-- Disabled State -->
-            <div class="bg-white shadow-lg rounded-xl border border-gray-100 overflow-hidden">
+            <div class="bg-white shadow-sm rounded-xl border border-gray-100 overflow-hidden">
                 <div class="bg-gradient-to-r from-gray-400 to-gray-500 px-6 py-4">
                     <div class="flex items-center">
                         <div class="flex-shrink-0">
                             <i class="fas fa-ban text-2xl text-white"></i>
                         </div>
                         <div class="ml-3">
-                            <h3 class="text-lg font-semibold text-white">Surat Balasan Dinonaktifkan</h3>
+                            <h3 class="text-lg font-semibold text-white">Pemberkasan Instansi Mitra</h3>
                             <p class="text-gray-100 text-sm">Fitur ini sedang dinonaktifkan oleh admin</p>
                         </div>
                     </div>
@@ -2813,14 +2861,12 @@ function renderTable(rows, container) {
                     <div class="mb-4">
                         <i class="fas fa-lock text-4xl text-gray-400"></i>
                     </div>
-                    <h4 class="text-lg font-medium text-gray-900 mb-2">Surat Balasan Tidak Tersedia</h4>
-                    <p class="text-gray-600 mb-4">Admin telah menonaktifkan fitur upload Surat Balasan. Silakan hubungi admin jika Anda memerlukan akses.</p>
+                    <h4 class="text-lg font-medium text-gray-900 mb-2">Fitur Tidak Tersedia</h4>
+                    <p class="text-gray-600 mb-4">Admin telah menonaktifkan fitur ini. Silakan hubungi admin jika Anda memerlukan akses.</p>
                 </div>
             </div>
-        @else
+            @else
             <!-- Pemberkasan Instansi Mitra Content -->
-            <div class="max-w-5xl mx-auto mt-6" style="max-width: 76rem;">
-                <div class="grid grid-cols-1 gap-6">
 
                 <!-- Row 1: Surat Pengantar -->
                 <div class="bg-white shadow-sm rounded-xl border border-gray-100 overflow-hidden collapsible-section">
@@ -2828,7 +2874,7 @@ function renderTable(rows, container) {
                         <div class="flex items-center">
                             <div class="flex-shrink-0">
                                 <div class="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center border border-blue-100">
-                                    <i class="fas fa-file-alt text-xl text-blue-600"></i>
+                                    <i class="fas fa-file-alt text-blue-600"></i>
                                 </div>
                             </div>
                             <div class="ml-4">
@@ -2922,7 +2968,7 @@ function renderTable(rows, container) {
                         <div class="flex items-center">
                             <div class="flex-shrink-0">
                                 <div class="w-10 h-10 bg-indigo-50 rounded-lg flex items-center justify-center border border-indigo-100">
-                                    <i class="fas fa-building text-xl text-indigo-600"></i>
+                                    <i class="fas fa-building text-indigo-600"></i>
                                 </div>
                             </div>
                             <div class="ml-4">
@@ -3043,7 +3089,7 @@ function renderTable(rows, container) {
                     <div class="flex items-center">
                         <div class="flex-shrink-0">
                             <div class="w-10 h-10 bg-green-50 rounded-lg flex items-center justify-center border border-green-100">
-                                <i class="fas fa-envelope text-xl text-green-600"></i>
+                                <i class="fas fa-envelope text-green-600"></i>
                             </div>
                         </div>
                         <div class="ml-4">
@@ -3149,9 +3195,8 @@ function renderTable(rows, container) {
                     </div>
                 </div>
                 </div>
-                </div>
-            </div>
-        @endif
+            @endif
+        </div>
     </div>
 
     <div id="content-laporan" class="tab-content hidden">
@@ -3261,53 +3306,6 @@ function renderTable(rows, container) {
 </div>
 
 <script>
-function showTab(tabName) {
-    // Check if Laporan PKL is disabled
-    @if(!$laporanPklEnabled)
-    if (tabName === 'laporan') {
-        alert('Fitur Laporan PKL sedang dinonaktifkan oleh admin.');
-        return;
-    }
-    @endif
-    
-    // Check if Surat Balasan is disabled
-    @if(!$instansiMitraEnabled)
-    if (tabName === 'surat-balasan') {
-        alert('Fitur Surat Balasan sedang dinonaktifkan oleh admin.');
-        return;
-    }
-    @endif
-    
-    // Hide all tab contents with smooth transition
-    document.querySelectorAll('.tab-content').forEach(content => {
-        content.style.opacity = '0';
-        setTimeout(() => {
-            content.classList.add('hidden');
-        }, 150);
-    });
-    
-    // Remove active class from all tabs
-    document.querySelectorAll('.tab-button').forEach(button => {
-        button.classList.remove('active', 'bg-blue-600', 'text-white', 'shadow-md');
-        button.classList.add('bg-white', 'text-gray-600', 'border', 'border-gray-200');
-    });
-
-    // Show selected tab content with smooth transition
-    setTimeout(() => {
-        const targetContent = document.getElementById('content-' + tabName);
-        targetContent.classList.remove('hidden');
-        targetContent.style.opacity = '0';
-        setTimeout(() => {
-            targetContent.style.opacity = '1';
-        }, 50);
-    }, 150);
-
-    // Add active class to selected tab
-    const activeTab = document.getElementById('tab-' + tabName);
-    activeTab.classList.remove('bg-white', 'text-gray-600', 'border', 'border-gray-200');
-    activeTab.classList.add('active', 'bg-blue-600', 'text-white', 'shadow-md');
-}
-
 // Semester tab switching functionality with fade animation
 function showSemesterTab(semester) {
     // Get all semester contents

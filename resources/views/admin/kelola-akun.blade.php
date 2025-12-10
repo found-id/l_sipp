@@ -202,9 +202,9 @@
     </div>
 </div>
 
-<!-- Create User Modal -->
-<div id="createModal" class="fixed inset-0 bg-gray-900 bg-opacity-75 backdrop-blur-sm overflow-y-auto h-full w-full hidden z-50">
-    <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+<!-- Create User Modal - Will be moved to body via JavaScript -->
+<div id="createModal" class="fixed inset-0 bg-gray-900 bg-opacity-75 backdrop-blur-sm overflow-y-auto h-full w-full hidden flex items-center justify-center p-4" style="z-index: 9999;">
+    <div class="relative p-5 border w-96 shadow-lg rounded-md bg-white mx-auto">
         <div class="mt-3">
             <h3 class="text-lg font-medium text-gray-900 mb-4">Tambah User Baru</h3>
             <form method="POST" action="{{ route('admin.create-user') }}">
@@ -274,9 +274,9 @@
     </div>
 </div>
 
-<!-- Edit User Modal -->
-<div id="editModal" class="fixed inset-0 bg-gray-900 bg-opacity-75 backdrop-blur-sm overflow-y-auto h-full w-full hidden z-50">
-    <div class="relative top-20 mx-auto p-5 border w-4/5 max-w-4xl shadow-lg rounded-md bg-white">
+<!-- Edit User Modal - Will be moved to body via JavaScript -->
+<div id="editModal" class="fixed inset-0 bg-gray-900 bg-opacity-75 backdrop-blur-sm overflow-y-auto h-full w-full hidden flex items-center justify-center p-4" style="z-index: 9999;">
+    <div class="relative p-5 border w-4/5 max-w-4xl shadow-lg rounded-md bg-white mx-auto">
         <div class="mt-3">
             <h3 class="text-lg font-medium text-gray-900 mb-4">Edit Akun</h3>
             <form id="editForm" method="POST">
@@ -362,9 +362,9 @@
     </div>
 </div>
 
-<!-- Bulk Edit Dospem Modal -->
-<div id="bulkEditDospemModal" class="fixed inset-0 bg-gray-900 bg-opacity-75 backdrop-blur-sm overflow-y-auto h-full w-full hidden z-50">
-    <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+<!-- Bulk Edit Dospem Modal - Will be moved to body via JavaScript -->
+<div id="bulkEditDospemModal" class="fixed inset-0 bg-gray-900 bg-opacity-75 backdrop-blur-sm overflow-y-auto h-full w-full hidden flex items-center justify-center p-4" style="z-index: 9999;">
+    <div class="relative p-5 border w-96 shadow-lg rounded-md bg-white mx-auto">
         <div class="mt-3">
             <h3 class="text-lg font-medium text-gray-900 mb-4">Edit Dosen Pembimbing</h3>
             <form id="bulkEditDospemForm" method="POST" action="{{ route('admin.bulk-edit-dospem') }}">
@@ -680,6 +680,30 @@ document.addEventListener('DOMContentLoaded', function() {
     if (roleSelect) {
         roleSelect.addEventListener('change', function() {
             toggleMahasiswaFields(this.value);
+        });
+    }
+    
+    // Move modals to body to escape transform stacking context
+    const createModal = document.getElementById('createModal');
+    const editModal = document.getElementById('editModal');
+    const bulkEditDospemModal = document.getElementById('bulkEditDospemModal');
+    
+    if (createModal) {
+        document.body.appendChild(createModal);
+        createModal.addEventListener('click', function(e) {
+            if (e.target === this) closeCreateModal();
+        });
+    }
+    if (editModal) {
+        document.body.appendChild(editModal);
+        editModal.addEventListener('click', function(e) {
+            if (e.target === this) closeEditModal();
+        });
+    }
+    if (bulkEditDospemModal) {
+        document.body.appendChild(bulkEditDospemModal);
+        bulkEditDospemModal.addEventListener('click', function(e) {
+            if (e.target === this) closeBulkEditDospemModal();
         });
     }
 });

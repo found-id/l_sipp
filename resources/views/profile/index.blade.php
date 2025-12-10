@@ -7,37 +7,37 @@
     <!-- Success/Error Messages handled in layout -->
 
     <!-- Header with Minimalist Style -->
-    <div class="bg-white shadow-sm rounded-2xl p-8 border border-gray-200">
-        <div class="flex justify-between items-start">
-            <div class="flex items-center">
-                <div class="relative">
+    <div class="bg-white shadow-sm rounded-2xl p-6 md:p-8 border border-gray-200">
+        <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
+            <div class="flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-left">
+                <div class="relative flex-shrink-0">
                     <img src="{{ $user->profile_photo_url }}"
                          alt="{{ $user->name }}"
-                         class="h-20 w-20 rounded-full object-cover border-4 border-white shadow-md"
+                         class="h-16 w-16 sm:h-20 sm:w-20 rounded-full object-cover border-4 border-white shadow-md"
                          referrerpolicy="no-referrer"
                          onerror="this.src='https://ui-avatars.com/api/?name={{ urlencode($user->name) }}&background=f3f4f6&color=374151&size=200'">
 
                     <!-- Edit Photo Button -->
-                    <button type="button" onclick="document.getElementById('photoInput').click()" class="absolute -bottom-1 -right-1 w-8 h-8 bg-white hover:bg-gray-50 rounded-full shadow-md flex items-center justify-center transition-all duration-200 border border-gray-200">
-                        <i class="fas fa-camera text-gray-600 text-sm"></i>
+                    <button type="button" onclick="document.getElementById('photoInput').click()" class="absolute -bottom-1 -right-1 w-7 h-7 sm:w-8 sm:h-8 bg-white hover:bg-gray-50 rounded-full shadow-md flex items-center justify-center transition-all duration-200 border border-gray-200">
+                        <i class="fas fa-camera text-gray-600 text-xs sm:text-sm"></i>
                     </button>
                 </div>
-                <div class="ml-5">
-                    <h1 class="text-3xl font-bold text-gray-900">{{ $user->name }}</h1>
-                    <p class="text-gray-500 mt-1">{{ $user->email }}</p>
+                <div class="mt-3 sm:mt-0 sm:ml-5">
+                    <h1 class="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">{{ $user->name }}</h1>
+                    <p class="text-gray-500 text-sm sm:text-base mt-1 break-all">{{ $user->email }}</p>
                     <div class="mt-2">
-                        <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-700 border border-gray-200">
+                        <span class="inline-flex items-center px-2.5 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-medium bg-gray-100 text-gray-700 border border-gray-200">
                             <i class="fas
                                 @if($user->role === 'admin') fa-shield-alt
                                 @elseif($user->role === 'dospem') fa-chalkboard-teacher
-                                @else fa-user-graduate @endif mr-2 text-gray-500"></i>
+                                @else fa-user-graduate @endif mr-1.5 sm:mr-2 text-gray-500"></i>
                             {{ ucfirst($user->role) }}
                         </span>
                     </div>
                 </div>
             </div>
-            <a href="{{ route('profile.edit') }}" class="bg-white text-gray-700 px-6 py-2.5 rounded-xl transition-all duration-200 shadow-sm hover:shadow-md font-medium border border-gray-300 hover:bg-gray-50">
-                <i class="fas fa-edit mr-2"></i>Edit Profile
+            <a href="{{ route('profile.edit') }}" class="bg-white text-gray-700 px-4 sm:px-6 py-2 sm:py-2.5 rounded-xl transition-all duration-200 shadow-sm hover:shadow-md font-medium border border-gray-300 hover:bg-gray-50 text-sm sm:text-base self-center sm:self-start whitespace-nowrap">
+                <i class="fas fa-edit mr-1.5 sm:mr-2"></i>Edit Profile
             </a>
         </div>
     </div>

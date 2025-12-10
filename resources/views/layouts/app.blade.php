@@ -46,6 +46,14 @@
             --header-height-mobile: 50px;   /* Baris 46: Tinggi header MOBILE */
             
             /* ============================================
+               MODAL/FLOATING WINDOW SCALE SETTINGS
+               Atur scale untuk popup/modal pada mobile
+               ============================================ */
+            --modal-scale-mobile: 0.85;     /* Baris 52: Scale modal MOBILE (0.85 = 85%) */
+            --modal-scale-tablet: 0.95;     /* Baris 53: Scale modal TABLET */
+            --modal-scale-desktop: 1;       /* Baris 54: Scale modal DESKTOP */
+            
+            /* ============================================
                MOBILE BOTTOM NAVIGATION SETTINGS
                ============================================ */
             --nav-scale-mobile: 0.9;        /* Scale navigasi bottom (0.8 = 80%, 1 = 100%) */
@@ -137,6 +145,33 @@
             }
             #top-nav .profile-icon {
                 transform: scale(var(--header-scale-mobile));
+            }
+        }
+
+        /* ============================================
+           MODAL/FLOATING WINDOW SCALE
+           Scale untuk popup/modal yang di-move ke body
+           Baris 52-54 di :root untuk mengatur nilai
+           ============================================ */
+        /* Mobile Modal Scale */
+        @media (max-width: 767px) {
+            body > [style*="z-index: 9999"] > div {
+                transform: scale(var(--modal-scale-mobile));
+                transform-origin: center center;
+            }
+        }
+        /* Tablet Modal Scale */
+        @media (min-width: 768px) and (max-width: 1024px) {
+            body > [style*="z-index: 9999"] > div {
+                transform: scale(var(--modal-scale-tablet));
+                transform-origin: center center;
+            }
+        }
+        /* Desktop Modal Scale */
+        @media (min-width: 1025px) {
+            body > [style*="z-index: 9999"] > div {
+                transform: scale(var(--modal-scale-desktop));
+                transform-origin: center center;
             }
         }
 
