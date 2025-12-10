@@ -51,6 +51,33 @@
                 </p>
             </div>
             
+            @if(session('add_account_mode'))
+                <div class="mb-6 p-4 bg-yellow-50 border border-yellow-300 rounded-lg">
+                    <div class="flex items-start">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-exclamation-triangle text-yellow-600 text-lg"></i>
+                        </div>
+                        <div class="ml-3">
+                            <h3 class="text-sm font-semibold text-yellow-800">Perhatian</h3>
+                            <p class="text-sm text-yellow-700 mt-1">
+                                Fitur pindah akun dapat digunakan pada akun yang sudah terdaftar. 
+                                Jika ingin mendaftar akun baru, silakan <strong>logout terlebih dahulu</strong>.
+                            </p>
+                            <div class="mt-3 flex space-x-3">
+                                <a href="{{ route('profile.accounts.add-login') }}" 
+                                   class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-yellow-800 bg-yellow-100 hover:bg-yellow-200 rounded-md transition">
+                                    <i class="fas fa-arrow-left mr-1"></i>Kembali ke Login
+                                </a>
+                                <a href="{{ route('profile.settings') }}" 
+                                   class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 rounded-md transition">
+                                    <i class="fas fa-cog mr-1"></i>Pengaturan
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @endif
+
             <form class="mt-8 space-y-6" method="POST" action="{{ route('register') }}" id="registerForm">
                 @csrf
                 

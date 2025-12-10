@@ -279,8 +279,13 @@ class ProfileController extends Controller
      */
     public function showAddAccountLogin()
     {
+        // Mark session as add account mode and store original user ID
+        session()->put('add_account_mode', true);
+        session()->put('add_account_original_user_id', Auth::id());
+        
         return view('auth.login', [
-            'action' => route('profile.accounts.add-login.post')
+            'action' => route('profile.accounts.add-login.post'),
+            'addAccountMode' => true
         ]);
     }
 
@@ -326,8 +331,9 @@ class ProfileController extends Controller
         // Login as the new user
         Auth::login($userToAdd);
 
-        // Restore linked accounts to the new session
+        // Restore linked accounts to the new session and clear add account mode
         session()->put('linked_accounts', $savedLinkedAccounts);
+        session()->forget('add_account_mode');
 
         return redirect()->route('profile.settings')->with('success', 'Akun berhasil ditambahkan dan dialihkan!');
     }

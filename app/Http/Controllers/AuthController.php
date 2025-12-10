@@ -236,6 +236,8 @@ class AuthController extends Controller
     {
         try {
             $user = Auth::user();
+            $isAddAccountMode = session('add_account_mode', false);
+            $originalUserId = session('add_account_original_user_id');
             
             if ($user && $user->google_linked) {
                 // Log cancellation activity
@@ -255,6 +257,18 @@ class AuthController extends Controller
                 $user->delete();
                 
                 Auth::logout();
+                
+                // If in add account mode, login back as original user and redirect to settings
+                if ($isAddAccountMode && $originalUserId) {
+                    // Clear add account mode session data
+                    $request->session()->forget(['add_account_mode', 'add_account_original_user_id']);
+                    
+                    // Login as original user
+                    Auth::loginUsingId($originalUserId);
+                    
+                    return redirect()->route('profile.settings')->with('info', 'Registrasi dibatalkan. Akun Google telah dihapus.');
+                }
+                
                 $request->session()->invalidate();
                 $request->session()->regenerateToken();
                 
@@ -263,6 +277,14 @@ class AuthController extends Controller
             
             // If not Google user, just logout normally
             Auth::logout();
+            
+            // If in add account mode, login back as original user
+            if ($isAddAccountMode && $originalUserId) {
+                $request->session()->forget(['add_account_mode', 'add_account_original_user_id']);
+                Auth::loginUsingId($originalUserId);
+                return redirect()->route('profile.settings')->with('info', 'Registrasi dibatalkan.');
+            }
+            
             $request->session()->invalidate();
             $request->session()->regenerateToken();
             
@@ -273,6 +295,15 @@ class AuthController extends Controller
             
             // Fallback: just logout
             Auth::logout();
+            
+            // Try to recover original user if in add account mode
+            $originalUserId = session('add_account_original_user_id');
+            if ($originalUserId) {
+                $request->session()->forget(['add_account_mode', 'add_account_original_user_id']);
+                Auth::loginUsingId($originalUserId);
+                return redirect()->route('profile.settings')->with('error', 'Terjadi kesalahan, tetapi Anda sudah kembali.');
+            }
+            
             $request->session()->invalidate();
             $request->session()->regenerateToken();
             
@@ -518,7 +549,44 @@ class AuthController extends Controller
             $user = User::where('google_email', $googleUser->getEmail())->first();
             
             if ($user) {
-                // User exists, log them in
+                // User exists, check if in add account mode
+                $isAddAccountMode = session('add_account_mode', false);
+                $originalUserId = session('add_account_original_user_id');
+                
+                if ($isAddAccountMode && $originalUserId) {
+                    // Add account mode: add this account to linked accounts
+                    Log::info('Add account mode: linking existing Google user', [
+                        'original_user_id' => $originalUserId,
+                        'new_user_id' => $user->id
+                    ]);
+                    
+                    // Get existing linked accounts
+                    $linkedAccounts = session()->get('linked_accounts', []);
+                    
+                    // Ensure original user is in the list
+                    if (!in_array($originalUserId, $linkedAccounts)) {
+                        $linkedAccounts[] = $originalUserId;
+                    }
+                    
+                    // Add new user if not already in list
+                    if (!in_array($user->id, $linkedAccounts)) {
+                        $linkedAccounts[] = $user->id;
+                    }
+                    
+                    // Save linked accounts
+                    $savedLinkedAccounts = $linkedAccounts;
+                    
+                    // Login as the new user
+                    Auth::login($user);
+                    
+                    // Restore linked accounts and clear add account mode
+                    session()->put('linked_accounts', $savedLinkedAccounts);
+                    session()->forget(['add_account_mode', 'add_account_original_user_id']);
+                    
+                    return redirect()->route('profile.settings')->with('success', 'Akun berhasil ditambahkan dan dialihkan!');
+                }
+                
+                // Normal login flow
                 Log::info('Existing Google user found, logging in', ['user_id' => $user->id]);
                 Auth::login($user);
                 

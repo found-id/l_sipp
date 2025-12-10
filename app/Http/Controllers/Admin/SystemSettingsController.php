@@ -18,9 +18,10 @@ class SystemSettingsController extends Controller
         $dokumenPemberkasanEnabled = SystemSetting::isEnabled('dokumen_pemberkasan_enabled');
         $registrationEnabled = SystemSetting::isEnabled('registration_enabled');
         $whatsappNotificationEnabled = SystemSetting::isEnabled('whatsapp_notification_enabled');
+        $switchAccountEnabled = SystemSetting::isEnabled('switch_account_enabled', true); // Default true
         $systemFont = SystemSetting::getValue('system_font', 'default');
         
-        return view('admin.system-settings', compact('laporanPklEnabled', 'penilaianEnabled', 'jadwalSeminarEnabled', 'instansiMitraEnabled', 'dokumenPemberkasanEnabled', 'registrationEnabled', 'whatsappNotificationEnabled', 'systemFont'));
+        return view('admin.system-settings', compact('laporanPklEnabled', 'penilaianEnabled', 'jadwalSeminarEnabled', 'instansiMitraEnabled', 'dokumenPemberkasanEnabled', 'registrationEnabled', 'whatsappNotificationEnabled', 'switchAccountEnabled', 'systemFont'));
     }
 
     public function update(Request $request)
@@ -33,6 +34,7 @@ class SystemSettingsController extends Controller
             'dokumen_pemberkasan_enabled' => 'boolean',
             'registration_enabled' => 'boolean',
             'whatsapp_notification_enabled' => 'boolean',
+            'switch_account_enabled' => 'boolean',
             'system_font' => 'required|string|in:default,poppins,inter,ibm_plex_sans,archivo,space_grotesk,bricolage_grotesque',
         ]);
 
@@ -80,6 +82,12 @@ class SystemSettingsController extends Controller
                 'Toggle untuk mengaktifkan/menonaktifkan notifikasi WhatsApp via Fonnte'
             );
 
+            SystemSetting::setEnabled(
+                'switch_account_enabled',
+                $request->boolean('switch_account_enabled'),
+                'Toggle untuk mengaktifkan/menonaktifkan fitur Pindah Akun di halaman pengaturan'
+            );
+
             SystemSetting::setValue(
                 'system_font',
                 $request->input('system_font'),
@@ -94,6 +102,7 @@ class SystemSettingsController extends Controller
                 'dokumen_pemberkasan_enabled' => $request->boolean('dokumen_pemberkasan_enabled'),
                 'registration_enabled' => $request->boolean('registration_enabled'),
                 'whatsapp_notification_enabled' => $request->boolean('whatsapp_notification_enabled'),
+                'switch_account_enabled' => $request->boolean('switch_account_enabled'),
                 'system_font' => $request->input('system_font'),
                 'updated_by' => auth()->id()
             ]);

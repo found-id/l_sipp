@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Log;
 use App\Models\User;
 use App\Models\ProfilMahasiswa;
 use App\Models\Mitra;
+use App\Models\Dospem;
 use App\Services\SawCalculationService;
 
 class AdminController extends Controller
@@ -80,6 +81,7 @@ class AdminController extends Controller
             'email' => 'required|string|email|max:190|unique:users',
             'password' => 'required|string|min:6',
             'role' => 'required|in:mahasiswa,dospem,admin',
+            'nip' => 'nullable|string|max:50',
         ]);
 
         $user = User::create([
@@ -105,6 +107,14 @@ class AdminController extends Controller
                 'id_dospem' => $request->id_dospem ?? null,
             ]);
         }
+        
+        // If dospem, create dospem profile with NIP
+        if ($request->role === 'dospem' && $request->nip) {
+            Dospem::create([
+                'user_id' => $user->id,
+                'nip' => $request->nip,
+            ]);
+        }
 
         return redirect()->back()->with('success', 'User berhasil dibuat!');
     }
@@ -121,6 +131,7 @@ class AdminController extends Controller
             'prodi' => 'nullable|string|max:100',
             'semester' => 'nullable|integer|min:1|max:14',
             'dospem_id' => 'nullable|exists:users,id',
+            'nip' => 'nullable|string|max:50',
         ]);
 
         $user->update([
@@ -145,10 +156,30 @@ class AdminController extends Controller
                 'id_dospem' => $request->dospem_id,
             ]);
             $user->profilMahasiswa()->save($profilMahasiswa);
-        } else {
-            // Delete mahasiswa profile if role is not mahasiswa
+            
+            // Delete dospem profile if exists
+            if ($user->dospem) {
+                $user->dospem->delete();
+            }
+        } elseif ($request->role === 'dospem') {
+            // Handle dospem profile
+            $dospemProfile = $user->dospem ?? new Dospem(['user_id' => $user->id]);
+            $dospemProfile->fill([
+                'nip' => $request->nip,
+            ]);
+            $user->dospem()->save($dospemProfile);
+            
+            // Delete mahasiswa profile if exists
             if ($user->profilMahasiswa) {
                 $user->profilMahasiswa->delete();
+            }
+        } else {
+            // Delete both profiles if role is admin
+            if ($user->profilMahasiswa) {
+                $user->profilMahasiswa->delete();
+            }
+            if ($user->dospem) {
+                $user->dospem->delete();
             }
         }
 
@@ -320,9 +351,9 @@ class AdminController extends Controller
             });
         }
         
-        // Sort functionality
-        $sortBy = $request->get('sort_by', 'nama');
-        $sortOrder = $request->get('sort_order', 'asc');
+        // Sort functionality - default to rekomendasi
+        $sortBy = $request->get('sort_by', 'rekomendasi');
+        $sortOrder = $request->get('sort_order', 'desc');
         $isRankingSort = false;
 
         if ($sortBy === 'rekomendasi') {
@@ -339,10 +370,35 @@ class AdminController extends Controller
             }
             $isRankingSort = true;
         } else {
-            if (in_array($sortBy, ['nama', 'alamat', 'kontak', 'created_at', 'jarak', 'honor', 'fasilitas', 'kesesuaian_jurusan', 'tingkat_kebersihan', 'max_mahasiswa'])) {
-                $query->orderBy($sortBy, $sortOrder);
-            } else {
-                $query->orderBy('nama', 'asc');
+            // Handle different sort options
+            switch ($sortBy) {
+                case 'terbaru':
+                    $query->orderBy('created_at', 'desc');
+                    break;
+                case 'nama':
+                    $query->orderBy('nama', $sortOrder);
+                    break;
+                case 'jarak':
+                    $query->orderBy('jarak', $sortOrder);
+                    break;
+                case 'honor':
+                    $query->orderBy('honor', $sortOrder);
+                    break;
+                case 'fasilitas':
+                    $query->orderBy('fasilitas', $sortOrder);
+                    break;
+                case 'kesesuaian':
+                    $query->orderBy('kesesuaian_jurusan', $sortOrder);
+                    break;
+                case 'kebersihan':
+                    $query->orderBy('tingkat_kebersihan', $sortOrder);
+                    break;
+                case 'kuota':
+                    $query->orderBy('max_mahasiswa', $sortOrder);
+                    break;
+                default:
+                    $query->orderBy('nama', 'asc');
+                    break;
             }
             $mitra = $query->paginate(15)->withQueryString();
         }

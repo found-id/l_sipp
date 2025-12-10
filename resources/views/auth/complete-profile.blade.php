@@ -51,6 +51,49 @@
                 </p>
             </div>
             
+            @if(session('add_account_mode'))
+                <!-- Full Screen Modal Overlay for Add Account Mode Warning -->
+                <div class="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center p-4" style="z-index: 99999;">
+                    <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 md:p-8">
+                        <div class="text-center">
+                            <div class="mx-auto h-16 w-16 bg-yellow-100 rounded-full flex items-center justify-center mb-4">
+                                <i class="fas fa-exclamation-triangle text-yellow-600 text-2xl"></i>
+                            </div>
+                            <h3 class="text-xl font-bold text-gray-900 mb-2">Perhatian</h3>
+                            <p class="text-gray-600 mb-6">
+                                Fitur pindah akun dapat digunakan pada akun yang <strong class="text-gray-900">sudah terdaftar</strong>. 
+                                Jika ingin mendaftar akun baru, silakan <strong class="text-gray-900">logout terlebih dahulu</strong>.
+                            </p>
+                            
+                            <div class="flex flex-col gap-3">
+                                <!-- Kembali Button - Hapus akun baru dan kembali -->
+                                <form action="{{ route('cancel-registration') }}" method="POST">
+                                    @csrf
+                                    <button type="submit" 
+                                            class="w-full inline-flex items-center justify-center px-5 py-3 text-sm font-semibold text-gray-700 bg-gray-100 hover:bg-gray-200 border border-gray-300 rounded-xl transition">
+                                        <i class="fas fa-arrow-left mr-2"></i>Kembali
+                                    </button>
+                                </form>
+                                
+                                <!-- Log Out Button -->
+                                <form action="{{ route('logout') }}" method="POST">
+                                    @csrf
+                                    <button type="submit" 
+                                            class="w-full inline-flex items-center justify-center px-5 py-3 text-sm font-semibold text-white bg-red-600 hover:bg-red-700 rounded-xl transition shadow-md">
+                                        <i class="fas fa-sign-out-alt mr-2"></i>Log Out Sekarang
+                                    </button>
+                                </form>
+                            </div>
+                            
+                            <p class="mt-4 text-xs text-gray-500">
+                                <i class="fas fa-info-circle mr-1"></i>
+                                Klik "Kembali" untuk membatalkan dan kembali ke login
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            @endif
+            
             <form class="mt-8 space-y-6" method="POST" action="{{ route('complete-profile') }}">
                 @csrf
                 

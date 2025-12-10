@@ -48,12 +48,17 @@
             <!-- Sort By -->
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">Urutkan Berdasarkan</label>
+                @php $currentSort = request('sort_by', 'rekomendasi'); @endphp
                 <select name="sort_by" onchange="updateSort()" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
-                    <option value="rekomendasi" {{ request('sort_by') == 'rekomendasi' ? 'selected' : '' }}>Rekomendasi</option>
-                    <option value="nama" {{ request('sort_by', 'nama') == 'nama' ? 'selected' : '' }}>Nama</option>
-                    <option value="alamat" {{ request('sort_by') == 'alamat' ? 'selected' : '' }}>Alamat</option>
-                    <option value="kontak" {{ request('sort_by') == 'kontak' ? 'selected' : '' }}>Kontak</option>
-                    <option value="created_at" {{ request('sort_by') == 'created_at' ? 'selected' : '' }}>Tanggal Dibuat</option>
+                    <option value="rekomendasi" {{ $currentSort == 'rekomendasi' ? 'selected' : '' }}>Rekomendasi</option>
+                    <option value="terbaru" {{ $currentSort == 'terbaru' ? 'selected' : '' }}>Terbaru</option>
+                    <option value="nama" {{ $currentSort == 'nama' ? 'selected' : '' }}>Nama (A-Z)</option>
+                    <option value="jarak" {{ $currentSort == 'jarak' ? 'selected' : '' }}>Jarak</option>
+                    <option value="honor" {{ $currentSort == 'honor' ? 'selected' : '' }}>Honor</option>
+                    <option value="fasilitas" {{ $currentSort == 'fasilitas' ? 'selected' : '' }}>Fasilitas</option>
+                    <option value="kesesuaian" {{ $currentSort == 'kesesuaian' ? 'selected' : '' }}>Kesesuaian</option>
+                    <option value="kebersihan" {{ $currentSort == 'kebersihan' ? 'selected' : '' }}>Kebersihan</option>
+                    <option value="kuota" {{ $currentSort == 'kuota' ? 'selected' : '' }}>Kuota</option>
                 </select>
             </div>
             
@@ -61,8 +66,8 @@
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">Urutan</label>
                 <select name="sort_order" onchange="updateSort()" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
-                    <option value="asc" {{ request('sort_order') == 'asc' ? 'selected' : '' }}>A-Z</option>
-                    <option value="desc" {{ request('sort_order') == 'desc' ? 'selected' : '' }}>Z-A</option>
+                    <option value="asc" {{ request('sort_order') == 'asc' ? 'selected' : '' }}>Ascending</option>
+                    <option value="desc" {{ request('sort_order', 'desc') == 'desc' ? 'selected' : '' }}>Descending</option>
                 </select>
             </div>
         </div>

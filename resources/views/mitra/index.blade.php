@@ -3,6 +3,19 @@
 @section('title', 'Instansi Mitra - SIP PKL')
 
 @section('content')
+<style>
+/* Modal centering - Desktop (default) */
+#addMitraModal .modal-dialog-scale {
+    transform: translate(-50%, -50%);
+}
+
+/* Scale down modal on mobile */
+@media (max-width: 768px) {
+    #addMitraModal .modal-dialog-scale {
+        transform: translate(-50%, -50%) scale(0.75);
+    }
+}
+</style>
 <div class="space-y-4 md:space-y-6">
     <!-- Header -->
     <div class="bg-white shadow-sm rounded-xl p-4 md:p-6 border border-gray-100">
@@ -54,15 +67,17 @@
                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                             <i class="fas fa-sort text-gray-400"></i>
                         </div>
+                        @php $currentSort = request('sort', 'ranking'); @endphp
                         <select name="sort" onchange="this.form.submit()" 
                                 class="w-full pl-10 pr-8 py-2 md:py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm appearance-none bg-white cursor-pointer">
-                            <option value="" {{ request('sort') == '' ? 'selected' : '' }}>Abjad (A-Z)</option>
-                            <option value="ranking" {{ request('sort') == 'ranking' ? 'selected' : '' }}>Rekomendasi</option>
-                            <option value="jarak" {{ request('sort') == 'jarak' ? 'selected' : '' }}>Jarak</option>
-                            <option value="honor" {{ request('sort') == 'honor' ? 'selected' : '' }}>Honor</option>
-                            <option value="fasilitas" {{ request('sort') == 'fasilitas' ? 'selected' : '' }}>Fasilitas</option>
-                            <option value="kesesuaian" {{ request('sort') == 'kesesuaian' ? 'selected' : '' }}>Kesesuaian</option>
-                            <option value="kebersihan" {{ request('sort') == 'kebersihan' ? 'selected' : '' }}>Kebersihan</option>
+                            <option value="ranking" {{ $currentSort == 'ranking' ? 'selected' : '' }}>Rekomendasi</option>
+                            <option value="terbaru" {{ $currentSort == 'terbaru' ? 'selected' : '' }}>Terbaru</option>
+                            <option value="abjad" {{ $currentSort == 'abjad' ? 'selected' : '' }}>Abjad (A-Z)</option>
+                            <option value="jarak" {{ $currentSort == 'jarak' ? 'selected' : '' }}>Jarak</option>
+                            <option value="honor" {{ $currentSort == 'honor' ? 'selected' : '' }}>Honor</option>
+                            <option value="fasilitas" {{ $currentSort == 'fasilitas' ? 'selected' : '' }}>Fasilitas</option>
+                            <option value="kesesuaian" {{ $currentSort == 'kesesuaian' ? 'selected' : '' }}>Kesesuaian</option>
+                            <option value="kebersihan" {{ $currentSort == 'kebersihan' ? 'selected' : '' }}>Kebersihan</option>
                         </select>
                         <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
                             <i class="fas fa-chevron-down text-xs"></i>
@@ -143,6 +158,12 @@
                         <div class="flex items-center hidden md:flex">
                             <i class="fas fa-phone text-gray-400 mr-1.5 text-xs"></i>
                             <span class="truncate">{{ $m->kontak }}</span>
+                        </div>
+                        @endif
+                        @if($m->created_by)
+                        <div class="flex items-center mt-1">
+                            <i class="fas fa-user-plus text-blue-400 mr-1 md:mr-1.5 text-[10px] md:text-xs"></i>
+                            <span class="text-blue-600 text-[10px] md:text-xs">Dibuat oleh {{ $m->created_by }}</span>
                         </div>
                         @endif
                     </div>
@@ -244,13 +265,7 @@
                 </div>
             </div>
             
-            @if($m->created_by)
-            <div class="absolute top-2 right-2">
-                <span class="text-[10px] bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full border border-gray-200" title="Ditambahkan oleh {{ $m->created_by }}">
-                    User Added
-                </span>
-            </div>
-            @endif
+
         </div>
         @empty
         <div class="col-span-full">
@@ -469,13 +484,13 @@ function kirimPilihanMitra(mitraId, mitraName, jenisAlasan, alasanLengkap) {
 
 
 <!-- Add Mitra Modal - Will be moved to body via JavaScript -->
-<div id="addMitraModal" class="fixed inset-0 hidden overflow-y-auto flex items-center justify-center p-4" style="z-index: 9999;" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-    <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-        <div class="fixed inset-0 bg-gray-900 bg-opacity-50 transition-opacity backdrop-blur-sm" aria-hidden="true" onclick="closeAddMitraModal()"></div>
-
-        <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-
-        <div class="inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+<div id="addMitraModal" class="fixed hidden overflow-y-auto backdrop-blur-sm" style="z-index: 9999; top: -50%; left: -50%; width: 200%; height: 200%;" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+    <!-- Background overlay - 2x size to cover full screen -->
+    <div class="absolute inset-0 bg-gray-900 bg-opacity-50 transition-opacity" aria-hidden="true" onclick="closeAddMitraModal()"></div>
+    
+    <!-- Modal container - centered at 50% of 200% = actual center -->
+    <div class="absolute flex items-center justify-center modal-dialog-scale" style="top: 50%; left: 50%; width: 100vw; height: 100vh;">
+        <div class="relative bg-white rounded-2xl text-left overflow-hidden shadow-xl w-full max-w-lg mx-4">
             <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
                 <div class="sm:flex sm:items-start">
                     <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-blue-50 sm:mx-0 sm:h-10 sm:w-10">

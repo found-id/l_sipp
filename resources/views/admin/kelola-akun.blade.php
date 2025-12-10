@@ -174,7 +174,7 @@
                             {{ $user->profilMahasiswa->dosenPembimbing->name ?? 'N/A' }}
                         </td>
                         <td class="px-4 py-4 whitespace-nowrap text-sm font-medium text-center sticky right-0 bg-white z-10 hover:bg-gray-50 transition-colors shadow-[-4px_0_6px_-1px_rgba(0,0,0,0.1)]">
-                            <button onclick="openEditModal({{ $user->id }}, '{{ $user->name }}', '{{ $user->email }}', '{{ $user->role }}', '{{ $user->profilMahasiswa->nim ?? '' }}', '{{ $user->profilMahasiswa->prodi ?? '' }}', '{{ $user->profilMahasiswa->semester ?? '' }}', '{{ $user->profilMahasiswa->id_dospem ?? '' }}')"
+                            <button onclick="openEditModal({{ $user->id }}, '{{ $user->name }}', '{{ $user->email }}', '{{ $user->role }}', '{{ $user->profilMahasiswa->nim ?? '' }}', '{{ $user->profilMahasiswa->prodi ?? '' }}', '{{ $user->profilMahasiswa->semester ?? '' }}', '{{ $user->profilMahasiswa->id_dospem ?? '' }}', '{{ $user->dospem->nip ?? '' }}')"
                                     class="text-blue-600 hover:text-blue-900 mr-2">
                                 <i class="fas fa-edit mr-1"></i>Edit
                             </button>
@@ -257,6 +257,15 @@
                             </select>
                         </div>
                     </div>
+                    
+                    <div id="dospem-fields" class="hidden space-y-4">
+                        <div>
+                            <label for="nip" class="block text-sm font-medium text-gray-700">NIP Dosen</label>
+                            <input type="text" id="nip" name="nip" placeholder="Masukkan NIP dosen"
+                                   class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                            <p class="mt-1 text-xs text-gray-500">NIP akan disimpan di profil dosen pembimbing</p>
+                        </div>
+                    </div>
                 </div>
                 
                 <div class="flex justify-end space-x-3 mt-6">
@@ -315,7 +324,7 @@
                     </div>
                     
                     <!-- Right Column - Mahasiswa Fields -->
-                    <div id="mahasiswa_fields" class="space-y-4 hidden md:block">
+                    <div id="mahasiswa_fields" class="space-y-4 hidden">
                         <div>
                             <label for="edit_nim" class="block text-sm font-medium text-gray-700">NIM (mahasiswa)</label>
                             <input type="text" id="edit_nim" name="nim"
@@ -343,6 +352,16 @@
                                     <option value="{{ $dospem->id }}">{{ $dospem->name }}</option>
                                 @endforeach
                             </select>
+                        </div>
+                    </div>
+                    
+                    <!-- Right Column - Dospem Fields -->
+                    <div id="dospem_fields" class="space-y-4 hidden">
+                        <div>
+                            <label for="edit_nip" class="block text-sm font-medium text-gray-700">NIP (dosen)</label>
+                            <input type="text" id="edit_nip" name="nip" placeholder="Masukkan NIP dosen"
+                                   class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                            <p class="mt-1 text-xs text-gray-500">NIP akan disimpan di profil dosen pembimbing</p>
                         </div>
                     </div>
                 </div>
@@ -643,7 +662,7 @@ function closeCreateModal() {
     document.getElementById('createModal').classList.add('hidden');
 }
 
-function openEditModal(id, name, email, role, nim, prodi, semester, idDospem) {
+function openEditModal(id, name, email, role, nim, prodi, semester, idDospem, nip) {
     document.getElementById('editForm').action = `/admin/kelola-akun/${id}`;
     document.getElementById('edit_name').value = name;
     document.getElementById('edit_email').value = email;
@@ -652,22 +671,33 @@ function openEditModal(id, name, email, role, nim, prodi, semester, idDospem) {
     document.getElementById('edit_prodi').value = prodi || 'Teknologi Informasi';
     document.getElementById('edit_semester').value = semester || 5;
     document.getElementById('edit_dospem_id').value = idDospem || '';
+    document.getElementById('edit_nip').value = nip || '';
     
-    // Show/hide mahasiswa fields based on role
-    toggleMahasiswaFields(role);
+    // Show/hide role-specific fields
+    toggleEditRoleFields(role);
     
     document.getElementById('editModal').classList.remove('hidden');
 }
 
-function toggleMahasiswaFields(role) {
+function toggleEditRoleFields(role) {
     const mahasiswaFields = document.getElementById('mahasiswa_fields');
+    const dospemFields = document.getElementById('dospem_fields');
+    
+    // Hide all role-specific fields first
+    mahasiswaFields.classList.add('hidden');
+    dospemFields.classList.add('hidden');
+    
+    // Show the appropriate fields
     if (role === 'mahasiswa') {
         mahasiswaFields.classList.remove('hidden');
-        mahasiswaFields.classList.add('md:block');
-    } else {
-        mahasiswaFields.classList.add('hidden');
-        mahasiswaFields.classList.remove('md:block');
+    } else if (role === 'dospem') {
+        dospemFields.classList.remove('hidden');
     }
+}
+
+// Keep old function name for backwards compatibility
+function toggleMahasiswaFields(role) {
+    toggleEditRoleFields(role);
 }
 
 function closeEditModal() {
@@ -679,7 +709,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const roleSelect = document.getElementById('edit_role');
     if (roleSelect) {
         roleSelect.addEventListener('change', function() {
-            toggleMahasiswaFields(this.value);
+            toggleEditRoleFields(this.value);
         });
     }
     
@@ -731,13 +761,20 @@ function deleteUser(id) {
     }
 }
 
-// Show/hide mahasiswa fields based on role
+// Show/hide mahasiswa and dospem fields based on role
 document.getElementById('role').addEventListener('change', function() {
     const mahasiswaFields = document.getElementById('mahasiswa-fields');
+    const dospemFields = document.getElementById('dospem-fields');
+    
+    // Hide all role-specific fields first
+    mahasiswaFields.classList.add('hidden');
+    dospemFields.classList.add('hidden');
+    
+    // Show the appropriate fields
     if (this.value === 'mahasiswa') {
         mahasiswaFields.classList.remove('hidden');
-    } else {
-        mahasiswaFields.classList.add('hidden');
+    } else if (this.value === 'dospem') {
+        dospemFields.classList.remove('hidden');
     }
 });
 </script>

@@ -206,6 +206,26 @@
                             </span>
                         </div>
                     </div>
+
+                    <!-- Switch Account Toggle -->
+                    <div class="group bg-white border border-slate-200 rounded-lg md:rounded-xl p-3 md:p-5 hover:border-slate-400 hover:shadow-md transition-all duration-300">
+                        <div class="flex items-start justify-between mb-2 md:mb-3">
+                            <div class="w-8 h-8 md:w-10 md:h-10 bg-slate-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-exchange-alt text-slate-700 text-sm md:text-base"></i>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" name="switch_account_enabled" value="1" class="sr-only peer" {{ $switchAccountEnabled ? 'checked' : '' }}>
+                                <div class="w-9 h-5 md:w-11 md:h-6 bg-slate-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-slate-100 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 md:after:h-5 md:after:w-5 after:transition-all peer-checked:bg-slate-700"></div>
+                            </label>
+                        </div>
+                        <h3 class="text-xs md:text-base font-bold text-slate-800 mb-0.5 md:mb-1">Pindah Akun</h3>
+                        <p class="text-[10px] md:text-sm text-slate-500 mb-2 md:mb-3 hidden md:block">Fitur Pindah Akun di pengaturan</p>
+                        <div>
+                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] md:text-xs font-medium {{ $switchAccountEnabled ? 'bg-slate-800 text-slate-100' : 'bg-slate-100 text-slate-500' }}">
+                                {{ $switchAccountEnabled ? 'Aktif' : 'Nonaktif' }}
+                            </span>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Submit Button -->

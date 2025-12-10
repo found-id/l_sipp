@@ -28,14 +28,14 @@
     transform: rotate(180deg);
 }
 .collapsible-content {
-    max-height: 0;
+    max-height: 2000px; /* Default open */
     overflow: hidden;
     transition: max-height 0.3s ease-out, opacity 0.3s ease-out;
-    opacity: 0;
-}
-.collapsible-content.expanded {
-    max-height: 2000px; /* Arbitrary large height */
     opacity: 1;
+}
+.collapsible-content.collapsed {
+    max-height: 0;
+    opacity: 0;
 }
 
 /* Card Margin Fix - Ensure cards have margin from screen edge */
@@ -86,16 +86,25 @@
 <div class="space-y-4 md:space-y-6">
     <!-- Header -->
     <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 md:p-6">
-        <div class="flex items-center">
-            <div class="flex-shrink-0">
-                <div class="w-10 h-10 md:w-12 md:h-12 rounded-lg bg-blue-50 flex items-center justify-center border border-blue-100">
-                    <i class="fas fa-file-upload text-lg md:text-xl text-blue-600"></i>
+        <div class="flex items-center justify-between">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <div class="w-10 h-10 md:w-12 md:h-12 rounded-lg bg-blue-50 flex items-center justify-center border border-blue-100">
+                        <i class="fas fa-file-upload text-lg md:text-xl text-blue-600"></i>
+                    </div>
+                </div>
+                <div class="ml-3 md:ml-4">
+                    <h1 class="text-xl md:text-2xl font-bold text-gray-900">Pemberkasan PKL</h1>
+                    <p class="text-gray-500 mt-0.5 md:mt-1 text-sm hidden md:block">Upload dan kelola dokumen yang diperlukan untuk PKL</p>
                 </div>
             </div>
-            <div class="ml-3 md:ml-4">
-                <h1 class="text-xl md:text-2xl font-bold text-gray-900">Pemberkasan PKL</h1>
-                <p class="text-gray-500 mt-0.5 md:mt-1 text-sm hidden md:block">Upload dan kelola dokumen yang diperlukan untuk PKL</p>
-            </div>
+            <a href="https://drive.google.com/file/d/1mjO7gzc1m_CDezcaauO2fn5vlk83wObf/view?usp=sharing" 
+               target="_blank" 
+               rel="noopener noreferrer"
+               class="flex-shrink-0 w-8 h-8 md:w-10 md:h-10 rounded-full bg-gray-100 hover:bg-blue-100 border border-gray-200 hover:border-blue-300 flex items-center justify-center transition-all duration-200 group"
+               title="Panduan Pemberkasan PKL">
+                <i class="fas fa-question text-gray-500 group-hover:text-blue-600 text-sm md:text-base transition-colors"></i>
+            </a>
         </div>
     </div>
 
@@ -3805,8 +3814,8 @@ function toggleCollapsible(header) {
     const content = header.nextElementSibling;
     const icon = header.querySelector('.collapsible-icon');
     
-    // Toggle expanded class
-    content.classList.toggle('expanded');
+    // Toggle collapsed class (default is open, so we toggle collapsed)
+    content.classList.toggle('collapsed');
     
     // Toggle icon rotation
     if (icon) {

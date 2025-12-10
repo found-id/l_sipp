@@ -76,22 +76,12 @@
                             <i class="fas fa-chart-line text-lg text-blue-600"></i>
                         </div>
                     </div>
-                    @if($ipkSame)
-                        <dd class="text-2xl font-bold {{ $ipkFromProfile >= 3.0 ? 'text-green-600' : 'text-orange-600' }}">
-                            {{ number_format($ipkFromProfile, 2) }}
-                        </dd>
-                    @else
-                        <dd class="space-y-1">
-                            <div class="text-sm font-medium text-gray-500">Profil:</div>
-                            <div class="text-xl font-bold {{ $ipkFromProfile >= 3.0 ? 'text-green-600' : 'text-orange-600' }}">
-                                {{ $ipkFromProfile > 0 ? number_format($ipkFromProfile, 2) : '-' }}
-                            </div>
-                            <div class="text-sm font-medium text-gray-500 mt-2">KHS:</div>
-                            <div id="ipkKhsCard" class="text-xl font-bold {{ $ipkFromTranskrip >= 3.0 ? 'text-green-600' : 'text-orange-600' }}">
-                                {{ $ipkFromTranskrip > 0 ? number_format($ipkFromTranskrip, 2) : '-' }}
-                            </div>
-                        </dd>
-                    @endif
+                    <dd class="space-y-1">
+                        <div class="text-sm font-medium text-gray-500">IPK Transkrip:</div>
+                        <div id="ipkKhsCard" class="text-2xl font-bold {{ $ipkFromTranskrip >= 3.0 ? 'text-green-600' : 'text-orange-600' }}">
+                            {{ $ipkFromTranskrip > 0 ? number_format($ipkFromTranskrip, 2) : '-' }}
+                        </div>
+                    </dd>
                 </div>
             </div>
         </div>

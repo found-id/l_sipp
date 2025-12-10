@@ -24,9 +24,9 @@ class MitraController extends Controller
             });
         }
 
-        $sort = $request->query('sort');
+        $sort = $request->query('sort', 'ranking'); // Default to ranking
 
-        if ($sort === 'ranking') {
+        if ($sort === 'ranking' || $sort === null) {
             // Load with count before SAW calculation
             $mitrasToRank = $query->withCount(['mahasiswaTerpilih as mahasiswa_count'])->get();
             if ($mitrasToRank->isNotEmpty()) {
@@ -46,6 +46,12 @@ class MitraController extends Controller
             $query->withCount(['mahasiswaTerpilih as mahasiswa_count']);
             
             switch ($sort) {
+                case 'terbaru':
+                    $query->orderBy('created_at', 'desc');
+                    break;
+                case 'abjad':
+                    $query->orderBy('nama', 'asc');
+                    break;
                 case 'jarak':
                     $query->orderBy('jarak', 'asc');
                     break;
@@ -103,7 +109,7 @@ class MitraController extends Controller
             'fasilitas' => $request->fasilitas ?? 3,
             'kesesuaian_jurusan' => $request->kesesuaian_jurusan ?? 3,
             'tingkat_kebersihan' => $request->tingkat_kebersihan ?? 3,
-            'max_mahasiswa' => $request->max_mahasiswa ?? 10,
+            'max_mahasiswa' => $request->max_mahasiswa ?? 4,
             'created_by' => $creatorName,
         ]);
 

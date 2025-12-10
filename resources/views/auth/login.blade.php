@@ -41,13 +41,21 @@
             <div class="max-w-md w-full space-y-8">
             <div>
                 <div class="mx-auto h-12 w-12 flex items-center justify-center">
-                    <i class="fas fa-graduation-cap text-3xl text-indigo-600"></i>
+                    <i class="fas {{ isset($addAccountMode) && $addAccountMode ? 'fa-user-plus' : 'fa-graduation-cap' }} text-3xl text-indigo-600"></i>
                 </div>
                 <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
-                    Sistem Informasi Pengelolaan PKL
+                    @if(isset($addAccountMode) && $addAccountMode)
+                        Tambah Akun
+                    @else
+                        Sistem Informasi Pengelolaan PKL
+                    @endif
                 </h2>
                 <p class="mt-2 text-center text-sm text-gray-600">
-                    Silakan login untuk mengakses sistem
+                    @if(isset($addAccountMode) && $addAccountMode)
+                        Login dengan akun lain yang sudah terdaftar
+                    @else
+                        Silakan login untuk mengakses sistem
+                    @endif
                 </p>
             </div>
             
@@ -130,12 +138,24 @@
                 </div>
 
                 <div class="text-center">
-                    <p class="text-sm text-gray-600" id="registration-text">
-                        Belum punya akun? 
-                        <a href="{{ route('register') }}" class="font-medium text-indigo-600 hover:text-indigo-500" id="registration-link">
-                            Daftar di sini
-                        </a>
-                    </p>
+                    @if(isset($addAccountMode) && $addAccountMode)
+                        <div class="p-3 bg-blue-50 border border-blue-200 rounded-md">
+                            <i class="fas fa-info-circle text-blue-600 mr-2"></i>
+                            <span class="text-sm text-blue-800">Fitur pindah akun hanya untuk akun yang sudah terdaftar.</span>
+                            <p class="text-xs text-blue-600 mt-2">
+                                <a href="{{ route('profile.settings') }}" class="font-medium hover:text-blue-800">
+                                    <i class="fas fa-arrow-left mr-1"></i>Kembali ke Pengaturan
+                                </a>
+                            </p>
+                        </div>
+                    @else
+                        <p class="text-sm text-gray-600" id="registration-text">
+                            Belum punya akun? 
+                            <a href="{{ route('register') }}" class="font-medium text-indigo-600 hover:text-indigo-500" id="registration-link">
+                                Daftar di sini
+                            </a>
+                        </p>
+                    @endif
                 </div>
                 
                 <!-- Divider -->

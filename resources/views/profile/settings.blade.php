@@ -116,6 +116,7 @@
     </div>
 
     <!-- Pindah Akun Section -->
+    @if(\App\Models\SystemSetting::isEnabled('switch_account_enabled', true))
     <div class="bg-white shadow-sm rounded-xl border border-gray-100 overflow-hidden">
         <div class="p-4 md:p-6 cursor-pointer hover:bg-gray-50 transition-colors duration-200" onclick="toggleAccounts()">
             <div class="flex items-center justify-between">
@@ -143,15 +144,9 @@
             <div class="bg-white p-4 rounded-xl border border-blue-200 ring-1 ring-blue-100 flex items-center justify-between">
                 <div class="flex items-center">
                     <div class="relative">
-                        @if($user->photo)
-                            <img src="{{ filter_var($user->photo, FILTER_VALIDATE_URL) ? $user->photo : asset('storage/' . $user->photo) }}" 
-                                 class="w-10 h-10 rounded-full object-cover border border-gray-200"
-                                 alt="{{ $user->name }}">
-                        @else
-                            <img src="https://ui-avatars.com/api/?name={{ urlencode($user->name) }}&background=3b82f6&color=fff" 
-                                 class="w-10 h-10 rounded-full"
-                                 alt="{{ $user->name }}">
-                        @endif
+                        <img src="{{ $user->profile_photo_url }}" 
+                             class="w-10 h-10 rounded-full object-cover border border-gray-200"
+                             alt="{{ $user->name }}">
                         <div class="absolute -bottom-1 -right-1 bg-green-500 w-3 h-3 rounded-full border-2 border-white"></div>
                     </div>
                     <div class="ml-3">
@@ -166,17 +161,11 @@
             @forelse($linkedAccounts as $account)
                 <div class="bg-white p-4 rounded-xl border border-gray-200 hover:border-gray-300 transition-all duration-200 flex items-center justify-between group">
                     <div class="flex items-center">
-                        <div class="relative">
-                            @if($account->photo)
-                                <img src="{{ filter_var($account->photo, FILTER_VALIDATE_URL) ? $account->photo : asset('storage/' . $account->photo) }}" 
-                                     class="w-10 h-10 rounded-full object-cover border border-gray-200 grayscale group-hover:grayscale-0 transition-all"
-                                     alt="{{ $account->name }}">
-                            @else
-                                <img src="https://ui-avatars.com/api/?name={{ urlencode($account->name) }}&background=gray&color=fff" 
-                                     class="w-10 h-10 rounded-full grayscale group-hover:grayscale-0 transition-all"
-                                     alt="{{ $account->name }}">
-                            @endif
-                        </div>
+                    <div class="relative">
+                        <img src="{{ $account->profile_photo_url }}" 
+                             class="w-10 h-10 rounded-full object-cover border border-gray-200 grayscale group-hover:grayscale-0 transition-all"
+                             alt="{{ $account->name }}">
+                    </div>
                         <div class="ml-3">
                             <h4 class="font-bold text-gray-700 group-hover:text-gray-900 transition-colors">{{ $account->name }}</h4>
                             <p class="text-xs text-gray-500">{{ $account->email }}</p>
@@ -205,6 +194,7 @@
             @endforelse
         </div>
     </div>
+    @endif
 
     <!-- Account Actions -->
     <div class="bg-white shadow-sm rounded-xl p-4 md:p-6 border border-gray-100">
