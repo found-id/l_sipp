@@ -330,12 +330,12 @@
                                     // Check if eligible for PKL
                                     $user = $m->user;
                                     if ($user) {
-                                        $khsCount = $user->khs()->whereBetween('semester', [1, 5])->distinct()->count('semester');
+                                        $khsCount = $user->khs()->whereBetween('semester', [1, 4])->distinct()->count('semester');
                                         $hasPkkmb = !empty($m->gdrive_pkkmb ?? '');
                                         $hasEcourse = !empty($m->gdrive_ecourse ?? '');
                                         $hasDokumenPendukung = $hasPkkmb && $hasEcourse;
 
-                                        $isEligible = $khsCount >= 5 &&
+                                        $isEligible = $khsCount >= 4 &&
                                                       ($m->ipk ?? 0) >= 2.5 &&
                                                       $m->cek_min_semester &&
                                                       $m->cek_ipk_nilaisks &&
@@ -381,15 +381,26 @@
                             @php
                                 $user = $m->user;
 
-                                // 1. Pemberkasan Kelayakan (KHS)
-                                $khsCount = $user ? $user->khs()->whereBetween('semester', [1, 5])->distinct()->count('semester') : 0;
-                                $hasValidatedKhs = $user ? $user->khs()->where('status_validasi', 'tervalidasi')->exists() : false;
-                                $kelayakanStatus = $khsCount >= 5 ? ($hasValidatedKhs ? 'validated' : 'complete') : 'incomplete';
-
-                                // 2. Dokumen Pendukung (PKKMB & English Course)
+                                // Dokumen Pendukung Check (Needed for Eligibility)
                                 $hasPkkmb = !empty($m->gdrive_pkkmb ?? '');
                                 $hasEcourse = !empty($m->gdrive_ecourse ?? '');
                                 $dokPendukungComplete = $hasPkkmb && $hasEcourse;
+
+                                // 1. Pemberkasan Kelayakan (Based on Eligibility/Layak)
+                                $khsCount = $user ? $user->khs()->whereBetween('semester', [1, 4])->distinct()->count('semester') : 0;
+                                
+                                $isEligible = $khsCount >= 4 &&
+                                              ($m->ipk ?? 0) >= 2.5 &&
+                                              $m->cek_min_semester &&
+                                              $m->cek_ipk_nilaisks &&
+                                              $m->cek_valid_biodata &&
+                                              $dokPendukungComplete;
+
+                                $hasValidatedKhs = $user ? $user->khs()->where('status_validasi', 'tervalidasi')->exists() : false;
+                                // Hijau jika Layak (Eligible), Biru jika Tervalidasi
+                                $kelayakanStatus = $hasValidatedKhs ? 'validated' : ($isEligible ? 'complete' : 'incomplete');
+
+                                // 2. Dokumen Pendukung Status
                                 $statusDokPendukung = $m->status_dokumen_pendukung ?? 'menunggu';
                                 if (!$dokPendukungComplete) {
                                     $dokPendukungStatus = 'incomplete';

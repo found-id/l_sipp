@@ -183,18 +183,6 @@
                 $pklStatusText = 'Selesai PKL';
                 $pklStatusColor = 'green';
                 $pklStatusIcon = 'check-circle';
-            } elseif (!$isEligibleForPkl) {
-                // Tahap 1: Menyiapkan Berkas (belum layak)
-                $pklStatus = 'menyiapkan_berkas';
-                $pklStatusText = 'Menyiapkan Berkas';
-                $pklStatusColor = 'gray';
-                $pklStatusIcon = 'file-alt';
-            } elseif ($isEligibleForPkl && $hasValidKhs && $hasValidSuratBalasan && $hasValidLaporan) {
-                // Tahap 4: PKL Selesai
-                $pklStatus = 'selesai';
-                $pklStatusText = 'Selesai PKL';
-                $pklStatusColor = 'green';
-                $pklStatusIcon = 'check-circle';
             } elseif ($dbStatusPkl === 'aktif') {
                 // Tahap 3: Aktif PKL (status diaktifkan oleh mahasiswa)
                 $pklStatus = 'aktif';
@@ -202,6 +190,12 @@
                 $pklStatusColor = 'blue';
                 $pklStatusIcon = 'building';
                 $mitraName = $user->profilMahasiswa->mitraSelected->nama ?? 'Instansi Mitra';
+            } elseif (!$isEligibleForPkl) {
+                // Tahap 1: Menyiapkan Berkas (belum layak)
+                $pklStatus = 'menyiapkan_berkas';
+                $pklStatusText = 'Menyiapkan Berkas';
+                $pklStatusColor = 'gray';
+                $pklStatusIcon = 'file-alt';
             } else {
                 // Default: Siap (jika eligible)
                 $pklStatus = 'siap';
@@ -400,6 +394,7 @@
     <!-- Tab Content -->
     <div id="content-pemberkasan" class="tab-content">
         <div class="grid grid-cols-1 gap-4 md:gap-6 mt-3 md:mt-6">
+            @if(!$isLockedGeneral)
             <!-- Final IPK Calculation -->
             <div class="bg-white shadow-sm rounded-xl border border-gray-100 overflow-hidden collapsible-section">
                 <div class="collapsible-header bg-white px-6 py-4 border-b border-gray-100 flex items-center justify-between" onclick="toggleCollapsible(this)">
@@ -466,6 +461,7 @@
                 </div>
             </div>
 
+            @endif
             <!-- Multiple Semester KHS Upload System -->
             <!-- Multiple Semester KHS Upload System -->
             <div class="bg-white shadow-sm rounded-xl border border-gray-100 overflow-hidden collapsible-section">
