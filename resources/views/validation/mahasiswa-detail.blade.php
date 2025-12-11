@@ -553,7 +553,7 @@
                             <!-- Kelengkapan Transkrip -->
                             <div class="bg-white rounded-lg p-4 text-center shadow-sm">
                                 <p class="text-2xl font-bold {{ $totalSemesters >= 5 ? 'text-blue-600' : 'text-orange-600' }}">
-                                    {{ $totalSemesters }}/5
+                                    {{ $totalSemesters }}/4
                                 </p>
                                 <p class="text-sm text-gray-600 mt-1">Kelengkapan Transkrip</p>
                             </div>
@@ -579,7 +579,7 @@
                             <!-- Upload Berkas KHS -->
                             <div class="bg-white rounded-lg p-4 text-center shadow-sm">
                                 <p class="text-2xl font-bold {{ $khsFilesCount >= 5 ? 'text-purple-600' : 'text-orange-600' }}">
-                                    {{ $khsFilesCount }}/5
+                                    {{ $khsFilesCount }}/4
                                 </p>
                                 <p class="text-sm text-gray-600 mt-1">Upload Berkas KHS</p>
                             </div>
