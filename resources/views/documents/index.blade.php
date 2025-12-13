@@ -267,7 +267,7 @@
         @else
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <!-- PKL Eligibility Status -->
-            <div class="{{ $isEligibleForPkl ? 'bg-emerald-50 border-emerald-100' : 'bg-rose-50 border-rose-100' }} border rounded-xl p-3 md:p-6">
+            <div class="{{ $isEligibleForPkl ? 'bg-emerald-50 border-emerald-100' : 'bg-rose-50 border-rose-100' }} border rounded-xl p-3 md:p-6 relative">
                 <div class="flex items-center">
                     <div class="flex-shrink-0">
                         @if($isEligibleForPkl)
@@ -285,17 +285,23 @@
                         <p class="text-sm md:text-xl font-bold {{ $isEligibleForPkl ? 'text-emerald-700' : 'text-rose-700' }}">
                             {{ $isEligibleForPkl ? 'LAYAK' : 'BELUM' }}
                         </p>
-                        <p class="text-[10px] md:text-xs {{ $isEligibleForPkl ? 'text-emerald-600' : 'text-rose-600' }} mt-0.5 md:mt-1 hidden md:block">
+                        <p class="text-[10px] md:text-xs {{ $isEligibleForPkl ? 'text-emerald-600' : 'text-rose-600' }} mt-0.5 md:mt-1 hidden md:flex md:items-center md:gap-1">
                             {{ $isEligibleForPkl ? 'Memenuhi persyaratan' : 'Belum memenuhi syarat' }}
+                            @if(!$isEligibleForPkl && !empty($missingRequirements))
+                            <i id="requirementsInfoIcon" class="fas fa-eye text-rose-400 hover:text-rose-600 cursor-pointer text-xs" onclick="toggleRequirementsTooltip(event)"></i>
+                            @endif
                         </p>
                     </div>
                 </div>
+                <!-- Floating Tooltip for Missing Requirements -->
                 @if(!$isEligibleForPkl && !empty($missingRequirements))
-                <div class="mt-3 pt-3 border-t border-rose-200">
+                <div id="requirementsTooltip" class="hidden absolute bg-white border border-rose-200 rounded-lg shadow-xl p-4 z-[9999] min-w-[280px] max-w-[350px]" style="top: 100%; left: 50%; transform: translateX(-50%); margin-top: 8px;">
+                    <div class="absolute -top-2 left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-8 border-r-8 border-b-8 border-l-transparent border-r-transparent border-b-rose-200"></div>
+                    <div class="absolute -top-1.5 left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-7 border-r-7 border-b-7 border-l-transparent border-r-transparent border-b-white"></div>
                     <p class="text-xs font-semibold text-rose-700 mb-2">
                         <i class="fas fa-exclamation-triangle mr-1"></i>Syarat yang belum terpenuhi:
                     </p>
-                    <ul class="space-y-1">
+                    <ul class="space-y-1.5">
                         @foreach($missingRequirements as $requirement)
                         <li class="text-xs text-rose-600 flex items-start">
                             <i class="fas fa-circle text-[4px] mr-2 mt-1.5 flex-shrink-0"></i>
@@ -454,7 +460,7 @@
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                             <div class="bg-white rounded-xl p-4 border border-gray-200 hover:border-gray-300 transition-colors">
                                 <div class="text-center">
-                                    <div id="finalIpk" class="text-3xl font-bold text-green-600 mb-1">{{ number_format($finalIpk, 6) }}</div>
+                                    <div id="finalIpk" class="text-3xl font-bold text-green-600 mb-1">{{ $totalSemesters == 0 ? '-' : number_format($finalIpk, 2) }}</div>
                                     <div class="text-sm text-gray-600 font-medium flex items-center justify-center gap-1">
                                         IPK Akhir
                                         <i id="ipkInfoIcon" class="fas fa-info-circle text-gray-400 hover:text-blue-500 cursor-pointer text-xs" onclick="toggleIpkTooltip(event)"></i>
@@ -1024,6 +1030,10 @@ function toggleIpkTooltip(event) {
     const tooltip = document.getElementById('ipkTooltip');
     const icon = document.getElementById('ipkInfoIcon');
     
+    // Close requirements tooltip if open
+    const reqTooltip = document.getElementById('requirementsTooltip');
+    if (reqTooltip) reqTooltip.classList.add('hidden');
+    
     if (tooltip.classList.contains('hidden')) {
         // Show tooltip and position it below the icon
         const iconRect = icon.getBoundingClientRect();
@@ -1043,12 +1053,57 @@ function toggleIpkTooltip(event) {
     }
 }
 
-// Close tooltip when clicking outside
-document.addEventListener('click', function(event) {
-    const tooltip = document.getElementById('ipkTooltip');
-    const icon = document.getElementById('ipkInfoIcon');
-    if (tooltip && icon && !tooltip.contains(event.target) && event.target !== icon) {
+// Requirements Tooltip toggle function
+function toggleRequirementsTooltip(event) {
+    event.stopPropagation();
+    const tooltip = document.getElementById('requirementsTooltip');
+    const icon = document.getElementById('requirementsInfoIcon');
+    
+    if (!tooltip || !icon) return;
+    
+    // Close IPK tooltip if open
+    const ipkTooltip = document.getElementById('ipkTooltip');
+    if (ipkTooltip) ipkTooltip.classList.add('hidden');
+    
+    if (tooltip.classList.contains('hidden')) {
+        // Show tooltip and position it below the icon
+        const iconRect = icon.getBoundingClientRect();
+        tooltip.classList.remove('hidden');
+        
+        // Get tooltip dimensions after showing
+        const tooltipRect = tooltip.getBoundingClientRect();
+        
+        // Position tooltip below the icon, centered
+        const top = iconRect.bottom + 10; // 10px below icon
+        let left = iconRect.left + (iconRect.width / 2) - (tooltipRect.width / 2);
+        
+        // Prevent going off-screen
+        const maxLeft = window.innerWidth - tooltipRect.width - 10;
+        left = Math.max(10, Math.min(left, maxLeft));
+        
+        tooltip.style.position = 'fixed';
+        tooltip.style.top = top + 'px';
+        tooltip.style.left = left + 'px';
+        tooltip.style.transform = 'none';
+    } else {
         tooltip.classList.add('hidden');
+    }
+}
+
+// Close tooltips when clicking outside
+document.addEventListener('click', function(event) {
+    // Close IPK tooltip
+    const ipkTooltip = document.getElementById('ipkTooltip');
+    const ipkIcon = document.getElementById('ipkInfoIcon');
+    if (ipkTooltip && ipkIcon && !ipkTooltip.contains(event.target) && event.target !== ipkIcon) {
+        ipkTooltip.classList.add('hidden');
+    }
+    
+    // Close Requirements tooltip
+    const reqTooltip = document.getElementById('requirementsTooltip');
+    const reqIcon = document.getElementById('requirementsInfoIcon');
+    if (reqTooltip && reqIcon && !reqTooltip.contains(event.target) && event.target !== reqIcon) {
+        reqTooltip.classList.add('hidden');
     }
 });
 

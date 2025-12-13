@@ -235,11 +235,7 @@
                              style="width: {{ min($persentaseTerisi, 100) }}%"></div>
                     </div>
                     
-                    @if($kuotaPenuh)
-                        <p class="text-[9px] md:text-xs text-red-600 font-medium flex items-center justify-center bg-red-50 py-0.5 md:py-1 rounded">
-                            <i class="fas fa-lock mr-1"></i>Penuh
-                        </p>
-                    @elseif($sisaKuota <= 2)
+                    @if(!$kuotaPenuh && $sisaKuota <= 2)
                         <p class="text-[9px] md:text-xs text-gray-500 font-medium flex items-center justify-center bg-gray-50 py-0.5 md:py-1 rounded">
                             <i class="fas fa-info-circle mr-1"></i>Sisa {{ $sisaKuota }}
                         </p>
