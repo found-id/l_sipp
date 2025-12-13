@@ -179,27 +179,35 @@ class DashboardController extends Controller
             ->distinct()
             ->count('semester');
 
-        // Calculate IPK and check eligibility criteria
+        // Calculate IPK and check eligibility criteria using Weighted Average
         // SINKRONISASI dengan resources/views/documents/index.blade.php
+        $totalSksAll = 0;
+        $totalQualityPoints = 0;
         $totalSksD = 0;
         $totalE = 0;
-        $totalIps = 0;
         $countSemestersWithIps = 0;
 
         foreach ($khsTranskrip as $transcript) {
-            $totalSksD += $transcript->total_sks_d ?? 0;
+            // Use stored values directly (already calculated by JavaScript when saving)
+            $ips = floatval($transcript->ips ?? 0);
+            $sks = intval($transcript->total_sks ?? 0);
+            
+            // Calculate weighted contribution: IPS × SKS
+            if ($ips > 0 && $sks > 0) {
+                $totalQualityPoints += ($ips * $sks);
+                $totalSksAll += $sks;
+                $countSemestersWithIps++;
+            }
+            
+            // Sum up SKS D and E count
+            $totalSksD += intval($transcript->total_sks_d ?? 0);
             if ($transcript->has_e) {
                 $totalE++;
             }
-            // Only count IPS if it has a value
-            if (!empty($transcript->ips) && $transcript->ips > 0) {
-                $totalIps += $transcript->ips;
-                $countSemestersWithIps++;
-            }
         }
 
-        // Calculate final IPK - only from semesters that have IPS values (Simple Average)
-        $finalIpk = $countSemestersWithIps > 0 ? $totalIps / $countSemestersWithIps : 0;
+        // Calculate final IPK using Weighted Average
+        $finalIpk = $totalSksAll > 0 ? $totalQualityPoints / $totalSksAll : 0;
 
         // Check Google Drive links (only PKKMB and E-Course are required, Semasa is optional)
         $hasPkkmb = !empty($profil->gdrive_pkkmb ?? '');
