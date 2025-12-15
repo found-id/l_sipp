@@ -5,69 +5,183 @@
 @section('content')
 <div class="space-y-6">
     <!-- Header -->
-    <div class="bg-white shadow rounded-lg p-6">
-        <div>
-            <h1 class="text-2xl font-bold text-gray-900">Validasi Pemberkasan Mahasiswa</h1>
-            <p class="text-gray-600 mt-2">Pilih mahasiswa untuk melihat dan memvalidasi pemberkasan lengkap</p>
+    <div class="bg-gradient-to-r from-blue-600 to-indigo-700 shadow-lg rounded-xl p-8 text-white">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-3xl font-bold">Validasi Pemberkasan Semua Mahasiswa</h1>
+                <p class="text-blue-100 mt-2 text-lg">Pilih mahasiswa untuk melihat dan memvalidasi pemberkasan lengkap</p>
+            </div>
+            <div class="hidden md:block">
+                <i class="fas fa-user-check text-6xl text-blue-300 opacity-50"></i>
+            </div>
         </div>
     </div>
 
     <!-- Statistics Card -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div class="bg-white overflow-hidden shadow rounded-lg">
-            <div class="p-5">
-                <div class="flex items-center">
-                    <div class="flex-shrink-0">
-                        <i class="fas fa-users text-2xl text-blue-600"></i>
+        <div class="bg-white overflow-hidden shadow-md rounded-xl border border-gray-100 hover:shadow-xl transition-shadow duration-300">
+            <div class="p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">Total Mahasiswa</dt>
+                        <dd class="text-3xl font-bold text-gray-900 mt-2">{{ $mahasiswa->count() }}</dd>
                     </div>
-                    <div class="ml-5 w-0 flex-1">
-                        <dl>
-                            <dt class="text-sm font-medium text-gray-500 truncate">Total Mahasiswa</dt>
-                            <dd class="text-lg font-medium text-gray-900">{{ $mahasiswa->count() }}</dd>
-                        </dl>
+                    <div class="bg-blue-100 p-4 rounded-xl">
+                        <i class="fas fa-users text-3xl text-blue-600"></i>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="bg-white overflow-hidden shadow rounded-lg">
-            <div class="p-5">
-                <div class="flex items-center">
-                    <div class="flex-shrink-0">
-                        <i class="fas fa-check-circle text-2xl text-green-600"></i>
+        <div class="bg-white overflow-hidden shadow-md rounded-xl border border-gray-100 hover:shadow-xl transition-shadow duration-300">
+            <div class="p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">Biodata Valid</dt>
+                        <dd class="text-3xl font-bold text-gray-900 mt-2">{{ $mahasiswa->where('cek_valid_biodata', true)->count() }}</dd>
                     </div>
-                    <div class="ml-5 w-0 flex-1">
-                        <dl>
-                            <dt class="text-sm font-medium text-gray-500 truncate">Biodata Valid</dt>
-                            <dd class="text-lg font-medium text-gray-900">{{ $mahasiswa->where('cek_valid_biodata', true)->count() }}</dd>
-                        </dl>
+                    <div class="bg-green-100 p-4 rounded-xl">
+                        <i class="fas fa-check-circle text-3xl text-green-600"></i>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="bg-white overflow-hidden shadow rounded-lg">
-            <div class="p-5">
-                <div class="flex items-center">
-                    <div class="flex-shrink-0">
-                        <i class="fas fa-graduation-cap text-2xl text-purple-600"></i>
+        <div class="bg-white overflow-hidden shadow-md rounded-xl border border-gray-100 hover:shadow-xl transition-shadow duration-300">
+            <div class="p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <dt class="text-sm font-medium text-gray-500">IPK Memenuhi</dt>
+                        <dd class="text-3xl font-bold text-gray-900 mt-2">{{ $mahasiswa->where('cek_ipk_nilaisks', true)->count() }}</dd>
                     </div>
-                    <div class="ml-5 w-0 flex-1">
-                        <dl>
-                            <dt class="text-sm font-medium text-gray-500 truncate">IPK Memenuhi</dt>
-                            <dd class="text-lg font-medium text-gray-900">{{ $mahasiswa->where('cek_ipk_nilaisks', true)->count() }}</dd>
-                        </dl>
+                    <div class="bg-purple-100 p-4 rounded-xl">
+                        <i class="fas fa-graduation-cap text-3xl text-purple-600"></i>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- Recent Activities -->
+    <div class="bg-white shadow-md rounded-xl border border-gray-100 overflow-hidden">
+        <div class="px-6 py-5 border-b border-gray-200 bg-gradient-to-r from-indigo-50 to-blue-50">
+            <h2 class="text-xl font-bold text-gray-900 flex items-center">
+                <i class="fas fa-history text-indigo-600 mr-3"></i>
+                Riwayat Pemberkasan Terbaru
+            </h2>
+            <p class="text-sm text-gray-600 mt-1">3 aktivitas pemberkasan terakhir (upload & validasi)</p>
+        </div>
+        <div class="p-6">
+            @forelse($recentActivities as $activity)
+                @php
+                    $pesan = is_array($activity->pesan) ? $activity->pesan : json_decode($activity->pesan, true);
+                    $documentTypeLabels = [
+                        'KHS' => 'KHS',
+                        'khs' => 'KHS',
+                        'surat_balasan' => 'Surat Balasan',
+                        'laporan_pkl' => 'Laporan PKL',
+                        'pemberkasan_kelayakan' => 'Pemberkasan Kelayakan',
+                        'pemberkasan_dokumen_pendukung' => 'Dokumen Pendukung',
+                        'pemberkasan_instansi_mitra' => 'Instansi Mitra',
+                        'pemberkasan_akhir' => 'Pemberkasan Akhir',
+                    ];
+                    $docType = $pesan['document_type'] ?? 'unknown';
+                    $docLabel = $documentTypeLabels[$docType] ?? ucfirst(str_replace('_', ' ', $docType));
+
+                    // Determine activity type and icon
+                    $isUpload = $activity->tipe === 'upload_dokumen';
+                    $activityIcon = $isUpload ? 'fa-upload' : 'fa-check-circle';
+                    $activityBg = $isUpload ? 'from-green-500 to-emerald-600' : 'from-blue-500 to-indigo-600';
+                    $activityText = $isUpload ? 'mengupload' : 'memvalidasi';
+
+                    $statusColors = [
+                        'tervalidasi' => 'bg-green-100 text-green-800 border-green-200',
+                        'belum_valid' => 'bg-red-100 text-red-800 border-red-200',
+                        'revisi' => 'bg-orange-100 text-orange-800 border-orange-200',
+                        'menunggu' => 'bg-yellow-100 text-yellow-800 border-yellow-200',
+                        'uploaded' => 'bg-blue-100 text-blue-800 border-blue-200',
+                    ];
+                    $statusIcons = [
+                        'tervalidasi' => 'fa-check-circle',
+                        'belum_valid' => 'fa-times-circle',
+                        'revisi' => 'fa-exclamation-circle',
+                        'menunggu' => 'fa-clock',
+                        'uploaded' => 'fa-check',
+                    ];
+
+                    if ($isUpload) {
+                        $displayStatus = 'uploaded';
+                        $statusLabel = 'Berhasil Upload';
+                    } else {
+                        $displayStatus = $pesan['new_status'] ?? 'menunggu';
+                        $statusLabel = ucfirst(str_replace('_', ' ', $displayStatus));
+                    }
+
+                    $statusColor = $statusColors[$displayStatus] ?? 'bg-gray-100 text-gray-800 border-gray-200';
+                    $statusIcon = $statusIcons[$displayStatus] ?? 'fa-circle';
+                @endphp
+                <div class="flex items-start space-x-4 pb-4 mb-4 {{ !$loop->last ? 'border-b border-gray-100' : '' }}">
+                    <div class="flex-shrink-0 mt-1">
+                        <div class="w-10 h-10 rounded-full bg-gradient-to-br {{ $activityBg }} flex items-center justify-center">
+                            <i class="fas {{ $activityIcon }} text-white"></i>
+                        </div>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-start justify-between">
+                            <div class="flex-1">
+                                <p class="text-sm font-semibold text-gray-900">
+                                    {{ $activity->user->name ?? 'System' }}
+                                    <span class="font-normal text-gray-600">{{ $activityText }}</span>
+                                    <span class="font-semibold text-blue-600">{{ $docLabel }}</span>
+                                    @if($isUpload && !empty($pesan['semester']))
+                                        <span class="font-normal text-gray-600">Semester {{ $pesan['semester'] }}</span>
+                                    @endif
+                                </p>
+                                @if(!$isUpload)
+                                    <p class="text-sm text-gray-600 mt-1">
+                                        Mahasiswa: <span class="font-medium text-gray-900">{{ $pesan['mahasiswa'] ?? 'N/A' }}</span>
+                                    </p>
+                                @endif
+                                @if(!empty($pesan['catatan']))
+                                    <p class="text-sm text-gray-500 mt-1 italic">
+                                        <i class="fas fa-comment-dots mr-1"></i>{{ $pesan['catatan'] }}
+                                    </p>
+                                @endif
+                                @if($isUpload && !empty($pesan['file_name']))
+                                    <p class="text-xs text-gray-500 mt-1">
+                                        <i class="fas fa-file-pdf mr-1"></i>{{ $pesan['file_name'] }}
+                                    </p>
+                                @endif
+                            </div>
+                            <div class="flex flex-col items-end ml-4">
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold border {{ $statusColor }}">
+                                    <i class="fas {{ $statusIcon }} mr-1"></i>
+                                    {{ $statusLabel }}
+                                </span>
+                                <span class="text-xs text-gray-400 mt-2">
+                                    <i class="fas fa-clock mr-1"></i>{{ $activity->tanggal_dibuat ? $activity->tanggal_dibuat->diffForHumans() : '-' }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @empty
+                <div class="text-center py-8">
+                    <i class="fas fa-inbox text-5xl text-gray-300 mb-3"></i>
+                    <p class="text-gray-500">Belum ada riwayat validasi</p>
+                </div>
+            @endforelse
+        </div>
+    </div>
+
     <!-- Mahasiswa Table -->
-    <div class="bg-white shadow rounded-lg overflow-hidden">
-        <div class="px-6 py-4 border-b border-gray-200">
+    <div class="bg-white shadow-md rounded-xl border border-gray-100 overflow-hidden">
+        <div class="px-6 py-5 border-b border-gray-200 bg-gray-50">
             <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                <h2 class="text-lg font-medium text-gray-900">Daftar Mahasiswa</h2>
+                <h2 class="text-xl font-bold text-gray-900 flex items-center">
+                    <i class="fas fa-list-ul text-blue-600 mr-3"></i>
+                    Daftar Mahasiswa
+                </h2>
 
                 <!-- Search and Sort Controls -->
                 <div class="flex flex-col sm:flex-row gap-3">
@@ -148,14 +262,32 @@
                         <td class="px-4 py-4 whitespace-nowrap sticky left-0 bg-white z-10 hover:bg-gray-50 transition-colors">
                             <div class="flex items-center">
                                 <div class="flex-shrink-0 h-10 w-10">
-                                    @if($m->user && $m->user->photo && $m->user->google_linked)
-                                        <img src="{{ $m->user->photo }}"
-                                             alt="{{ $m->user->name }}"
-                                             class="h-10 w-10 rounded-full object-cover"
-                                             onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                                        <div class="h-10 w-10 rounded-full bg-blue-100 items-center justify-center hidden">
-                                            <i class="fas fa-user text-blue-600"></i>
-                                        </div>
+                                    @if($m->user && $m->user->photo)
+                                        @if($m->user->google_linked)
+                                            @php
+                                                $photoUrl = $m->user->photo;
+                                                if (str_contains($photoUrl, 'googleusercontent.com')) {
+                                                    $photoUrl = preg_replace('/=s\d+-c/', '', $photoUrl);
+                                                    $photoUrl .= '=s96-c';
+                                                }
+                                            @endphp
+                                            <img src="{{ $photoUrl }}"
+                                                 alt="{{ $m->user->name }}"
+                                                 class="h-10 w-10 rounded-full object-cover"
+                                                 referrerpolicy="no-referrer"
+                                                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                            <div class="h-10 w-10 rounded-full bg-blue-100 items-center justify-center" style="display: none;">
+                                                <i class="fas fa-user text-blue-600"></i>
+                                            </div>
+                                        @else
+                                            <img src="{{ asset('storage/' . $m->user->photo) }}"
+                                                 alt="{{ $m->user->name }}"
+                                                 class="h-10 w-10 rounded-full object-cover"
+                                                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                            <div class="h-10 w-10 rounded-full bg-blue-100 items-center justify-center" style="display: none;">
+                                                <i class="fas fa-user text-blue-600"></i>
+                                            </div>
+                                        @endif
                                     @else
                                         <div class="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
                                             <i class="fas fa-user text-blue-600"></i>
@@ -191,12 +323,12 @@
                                     // Check if eligible for PKL
                                     $user = $m->user;
                                     if ($user) {
-                                        $khsCount = $user->khs()->whereBetween('semester', [1, 5])->distinct()->count('semester');
+                                        $khsCount = $user->khs()->whereBetween('semester', [1, 4])->distinct()->count('semester');
                                         $hasPkkmb = !empty($m->gdrive_pkkmb ?? '');
                                         $hasEcourse = !empty($m->gdrive_ecourse ?? '');
                                         $hasDokumenPendukung = $hasPkkmb && $hasEcourse;
 
-                                        $isEligible = $khsCount >= 5 &&
+                                        $isEligible = $khsCount >= 4 &&
                                                       ($m->ipk ?? 0) >= 2.5 &&
                                                       $m->cek_min_semester &&
                                                       $m->cek_ipk_nilaisks &&
@@ -240,15 +372,26 @@
                             @php
                                 $user = $m->user;
 
-                                // 1. Pemberkasan Kelayakan (KHS)
-                                $khsCount = $user ? $user->khs()->whereBetween('semester', [1, 5])->distinct()->count('semester') : 0;
-                                $hasValidatedKhs = $user ? $user->khs()->where('status_validasi', 'tervalidasi')->exists() : false;
-                                $kelayakanStatus = $khsCount >= 5 ? ($hasValidatedKhs ? 'validated' : 'complete') : 'incomplete';
-
-                                // 2. Dokumen Pendukung (PKKMB & English Course)
+                                // Dokumen Pendukung Check (for Dokumen Pendukung icon only)
                                 $hasPkkmb = !empty($m->gdrive_pkkmb ?? '');
                                 $hasEcourse = !empty($m->gdrive_ecourse ?? '');
                                 $dokPendukungComplete = $hasPkkmb && $hasEcourse;
+
+                                // 1. Pemberkasan Kelayakan (Based on KHS, IPK, Semester, Biodata - WITHOUT Dokumen Pendukung)
+                                $khsCount = $user ? $user->khs()->whereBetween('semester', [1, 4])->distinct()->count('semester') : 0;
+                                
+                                // Kelayakan eligibility: KHS >= 4, IPK >= 2.5, semester check, ipk check, biodata valid
+                                $isKelayakanEligible = $khsCount >= 4 &&
+                                              ($m->ipk ?? 0) >= 2.5 &&
+                                              $m->cek_min_semester &&
+                                              $m->cek_ipk_nilaisks &&
+                                              $m->cek_valid_biodata;
+
+                                $hasValidatedKhs = $user ? $user->khs()->where('status_validasi', 'tervalidasi')->exists() : false;
+                                // Hijau jika Layak (Eligible), Biru jika Tervalidasi
+                                $kelayakanStatus = $hasValidatedKhs ? 'validated' : ($isKelayakanEligible ? 'complete' : 'incomplete');
+
+                                // 2. Dokumen Pendukung Status
                                 $statusDokPendukung = $m->status_dokumen_pendukung ?? 'menunggu';
                                 if (!$dokPendukungComplete) {
                                     $dokPendukungStatus = 'incomplete';

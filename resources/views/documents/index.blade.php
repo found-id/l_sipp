@@ -129,40 +129,62 @@
 
             // Calculate PKL eligibility from khsManualTranskrip data
             $isEligibleForPkl = false;
+            $missingRequirements = [];
             $totalSemesters = $khsManualTranskrip->count();
             $totalSksD = 0;
             $totalE = 0;
             $totalIps = 0;
 
-            // Calculate from transcript data
+            // Calculate from transcript data (Weighted Average Method)
+            $totalSksAll = 0;
+            $totalQualityPoints = 0;
             $countSemestersWithIps = 0;
+            $totalSksD = 0;
+            $totalE = 0;
+
             foreach ($khsManualTranskrip as $transcript) {
-                $totalSksD += $transcript->total_sks_d ?? 0;
+                // Use stored values directly (already calculated by JavaScript when saving)
+                $ips = floatval($transcript->ips ?? 0);
+                $sks = intval($transcript->total_sks ?? 0);
+                
+                // Calculate weighted contribution: IPS × SKS
+                if ($ips > 0 && $sks > 0) {
+                    $totalQualityPoints += ($ips * $sks);
+                    $totalSksAll += $sks;
+                    $countSemestersWithIps++;
+                }
+                
+                // Sum up SKS D and E count
+                $totalSksD += intval($transcript->total_sks_d ?? 0);
                 if ($transcript->has_e) {
                     $totalE++;
                 }
-                // Only count IPS if it has a value
-                if (!empty($transcript->ips) && $transcript->ips > 0) {
-                    $totalIps += $transcript->ips;
-                    $countSemestersWithIps++;
-                }
             }
 
-            // Calculate final IPK - only from semesters that have IPS values
-            $finalIpk = $countSemestersWithIps > 0 ? $totalIps / $countSemestersWithIps : 0;
+            // Calculate final IPK
+            $finalIpk = $totalSksAll > 0 ? $totalQualityPoints / $totalSksAll : 0;
 
             // Check dokumen pendukung (PKKMB dan English Course wajib)
             $hasPkkmb = !empty($user->profilMahasiswa->gdrive_pkkmb ?? '');
             $hasEcourse = !empty($user->profilMahasiswa->gdrive_ecourse ?? '');
             $hasDokumenPendukung = $hasPkkmb && $hasEcourse;
 
-            // Check eligibility: transcript complete (4 semesters), KHS files uploaded (4), IPK >= 2.5, SKS D <= 6, no E, dokumen pendukung lengkap
+            // Check eligibility: transcript complete (4 semesters), KHS files uploaded (4), IPK >= 2.5, SKS D <= 6, no E
+            // SINKRONISASI dengan DashboardController: Dokumen pendukung tidak masuk dalam hitungan kelayakan
             $isTranscriptComplete = $totalSemesters >= 4;
             $isKhsComplete = $khsFileCount >= 4;
 
-            if ($isTranscriptComplete && $isKhsComplete && $finalIpk >= 2.5 && $totalSksD <= 6 && $totalE == 0 && $hasDokumenPendukung) {
+            if ($isTranscriptComplete && $isKhsComplete && $finalIpk >= 2.5 && $totalSksD <= 6 && $totalE == 0) {
                 $isEligibleForPkl = true;
             }
+
+            // Collect missing requirements for display
+            $missingRequirements = [];
+            if (!$isTranscriptComplete) $missingRequirements[] = "Transkrip belum lengkap (min 4 semester, saat ini: {$totalSemesters})";
+            if (!$isKhsComplete) $missingRequirements[] = "File KHS belum lengkap (min 4 file, saat ini: {$khsFileCount})";
+            if ($finalIpk < 2.5) $missingRequirements[] = "IPK kurang dari 2.50 (saat ini: " . number_format($finalIpk, 2) . ")";
+            if ($totalSksD > 6) $missingRequirements[] = "Total SKS D lebih dari 6 (saat ini: {$totalSksD})";
+            if ($totalE > 0) $missingRequirements[] = "Terdapat nilai E ({$totalE} mata kuliah)";
 
             $hasValidKhs = $khs && is_object($khs) && $khs->status_validasi === 'tervalidasi';
             $hasValidSuratBalasan = $suratBalasan && is_object($suratBalasan) && $suratBalasan->status_validasi === 'tervalidasi';
@@ -245,7 +267,7 @@
         @else
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <!-- PKL Eligibility Status -->
-            <div class="{{ $isEligibleForPkl ? 'bg-emerald-50 border-emerald-100' : 'bg-rose-50 border-rose-100' }} border rounded-xl p-3 md:p-6">
+            <div class="{{ $isEligibleForPkl ? 'bg-emerald-50 border-emerald-100' : 'bg-rose-50 border-rose-100' }} border rounded-xl p-3 md:p-6 relative">
                 <div class="flex items-center">
                     <div class="flex-shrink-0">
                         @if($isEligibleForPkl)
@@ -258,16 +280,37 @@
                             </div>
                         @endif
                     </div>
-                    <div class="ml-2 md:ml-4">
+                    <div class="ml-2 md:ml-4 flex-1">
                         <h4 class="text-xs md:text-base font-medium text-slate-500">Kelayakan</h4>
                         <p class="text-sm md:text-xl font-bold {{ $isEligibleForPkl ? 'text-emerald-700' : 'text-rose-700' }}">
                             {{ $isEligibleForPkl ? 'LAYAK' : 'BELUM' }}
                         </p>
-                        <p class="text-[10px] md:text-xs {{ $isEligibleForPkl ? 'text-emerald-600' : 'text-rose-600' }} mt-0.5 md:mt-1 hidden md:block">
+                        <p class="text-[10px] md:text-xs {{ $isEligibleForPkl ? 'text-emerald-600' : 'text-rose-600' }} mt-0.5 md:mt-1 hidden md:flex md:items-center md:gap-1">
                             {{ $isEligibleForPkl ? 'Memenuhi persyaratan' : 'Belum memenuhi syarat' }}
+                            @if(!$isEligibleForPkl && !empty($missingRequirements))
+                            <i id="requirementsInfoIcon" class="fas fa-eye text-rose-400 hover:text-rose-600 cursor-pointer text-xs" onclick="toggleRequirementsTooltip(event)"></i>
+                            @endif
                         </p>
                     </div>
                 </div>
+                <!-- Floating Tooltip for Missing Requirements -->
+                @if(!$isEligibleForPkl && !empty($missingRequirements))
+                <div id="requirementsTooltip" class="hidden absolute bg-white border border-rose-200 rounded-lg shadow-xl p-4 z-[9999] min-w-[280px] max-w-[350px]" style="top: 100%; left: 50%; transform: translateX(-50%); margin-top: 8px;">
+                    <div class="absolute -top-2 left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-8 border-r-8 border-b-8 border-l-transparent border-r-transparent border-b-rose-200"></div>
+                    <div class="absolute -top-1.5 left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-7 border-r-7 border-b-7 border-l-transparent border-r-transparent border-b-white"></div>
+                    <p class="text-xs font-semibold text-rose-700 mb-2">
+                        <i class="fas fa-exclamation-triangle mr-1"></i>Syarat yang belum terpenuhi:
+                    </p>
+                    <ul class="space-y-1.5">
+                        @foreach($missingRequirements as $requirement)
+                        <li class="text-xs text-rose-600 flex items-start">
+                            <i class="fas fa-circle text-[4px] mr-2 mt-1.5 flex-shrink-0"></i>
+                            <span>{{ $requirement }}</span>
+                        </li>
+                        @endforeach
+                    </ul>
+                </div>
+                @endif
             </div>
 
             <!-- PKL Activity Status -->
@@ -304,24 +347,39 @@
         $hasSuratPengantarUploaded = $suratPengantar && is_object($suratPengantar);
         $hasMitraSelectedCheck = $hasMitraSelected ?? false;
         $hasSuratBalasanUploaded = $suratBalasan && is_object($suratBalasan);
-        $canActivatePkl = $hasSuratPengantarUploaded && $hasMitraSelectedCheck && $hasSuratBalasanUploaded && $pklStatus === 'siap';
-        $canDeactivatePkl = $pklStatus === 'aktif';
+        $hasPkkmbAndEcourseCheck = $hasPkkmbAndEcourse ?? false;
+        $canActivatePkl = $hasSuratPengantarUploaded && $hasMitraSelectedCheck && $hasSuratBalasanUploaded && ($statusPkl ?? 'siap') === 'siap';
+        $canClickActivateButton = $canActivatePkl && $hasPkkmbAndEcourseCheck;
+        $canDeactivatePkl = ($statusPkl ?? 'siap') === 'aktif';
     @endphp
 
     @if($canActivatePkl)
     <div class="bg-gradient-to-r from-blue-50 to-blue-100 border border-blue-200 rounded-xl p-4 mb-4">
-        <div class="flex items-center justify-between">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-3">
             <div class="flex items-center">
                 <i class="fas fa-info-circle text-blue-600 text-xl mr-3"></i>
                 <div>
                     <h4 class="text-blue-800 font-semibold">Dokumen Instansi Mitra Lengkap</h4>
                     <p class="text-blue-600 text-sm">Surat Pengantar, Instansi Mitra, dan Surat Balasan telah tersedia. Anda dapat mengaktifkan status PKL Anda.</p>
+                    @if(!$hasPkkmbAndEcourseCheck)
+                    <p class="text-orange-600 text-xs mt-1 flex items-center">
+                        <i class="fas fa-exclamation-triangle mr-1"></i>
+                        <span>Lengkapi <strong>Sertifikat PKKMB</strong> dan <strong>English Course</strong> di tab Dokumen Pendukung untuk mengaktifkan tombol.</span>
+                    </p>
+                    @endif
                 </div>
             </div>
-            <button onclick="activatePklStatus()" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 px-6 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg flex items-center">
+            @if($canClickActivateButton)
+            <button onclick="activatePklStatus()" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 px-6 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg flex items-center whitespace-nowrap">
                 <i class="fas fa-check-circle mr-2"></i>
                 Aktifkan Status Aktif PKL Saya
             </button>
+            @else
+            <button disabled title="Lengkapi PKKMB dan English Course terlebih dahulu" class="bg-gray-400 cursor-not-allowed text-white font-semibold py-2.5 px-6 rounded-lg flex items-center whitespace-nowrap opacity-60">
+                <i class="fas fa-lock mr-2"></i>
+                Aktifkan Status Aktif PKL Saya
+            </button>
+            @endif
         </div>
     </div>
     @elseif($canDeactivatePkl)
@@ -417,37 +475,42 @@
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                             <div class="bg-white rounded-xl p-4 border border-gray-200 hover:border-gray-300 transition-colors">
                                 <div class="text-center">
-                                    <div id="finalIpk" class="text-3xl font-bold text-green-600 mb-1">-</div>
-                                    <div class="text-sm text-gray-600 font-medium">IPK Akhir</div>
+                                    <div id="finalIpk" class="text-3xl font-bold text-green-600 mb-1">{{ $totalSemesters == 0 ? '-' : number_format($finalIpk, 2) }}</div>
+                                    <div class="text-sm text-gray-600 font-medium flex items-center justify-center gap-1">
+                                        IPK Akhir
+                                        <i id="ipkInfoIcon" class="fas fa-info-circle text-gray-400 hover:text-blue-500 cursor-pointer text-xs" onclick="toggleIpkTooltip(event)"></i>
+                                    </div>
                                 </div>
                             </div>
                             <div class="bg-white rounded-xl p-4 border border-gray-200 hover:border-gray-300 transition-colors">
                                 <div class="text-center">
-                                    <div id="totalSemester" class="text-3xl font-bold text-blue-600 mb-1">0/4</div>
+                                    <div id="totalSemester" class="text-3xl font-bold text-blue-600 mb-1">{{ $totalSemesters }}/4</div>
                                     <div class="text-sm text-gray-600 font-medium">Kelengkapan Transkrip</div>
                                 </div>
                             </div>
                             <div class="bg-white rounded-xl p-4 border border-gray-200 hover:border-gray-300 transition-colors">
                                 <div class="text-center">
-                                    <div id="pklStatus" class="text-3xl font-bold text-gray-600 mb-1">-</div>
+                                    <div id="pklStatus" class="text-3xl font-bold text-gray-600 mb-1">
+                                        {{ $isEligibleForPkl ? 'LAYAK' : 'BELUM' }}
+                                    </div>
                                     <div class="text-sm text-gray-600 font-medium">Status PKL</div>
                                 </div>
                             </div>
                             <div class="bg-white rounded-xl p-4 border border-gray-200 hover:border-gray-300 transition-colors">
                                 <div class="text-center">
-                                    <div id="totalSksD" class="text-3xl font-bold text-yellow-600 mb-1">0</div>
+                                    <div id="totalSksD" class="text-3xl font-bold text-yellow-600 mb-1">{{ $totalSksD }}</div>
                                     <div class="text-sm text-gray-600 font-medium">Total SKS D</div>
                                 </div>
                             </div>
                             <div class="bg-white rounded-xl p-4 border border-gray-200 hover:border-gray-300 transition-colors">
                                 <div class="text-center">
-                                    <div id="totalE" class="text-3xl font-bold text-red-600 mb-1">0</div>
+                                    <div id="totalE" class="text-3xl font-bold text-red-600 mb-1">{{ $totalE }}</div>
                                     <div class="text-sm text-gray-600 font-medium">Jumlah E</div>
                                 </div>
                             </div>
                             <div class="bg-white rounded-xl p-4 border border-gray-200 hover:border-gray-300 transition-colors">
                                 <div class="text-center">
-                                    <div id="uploadKhs" class="text-3xl font-bold text-purple-600 mb-1">0/5</div>
+                                    <div id="uploadKhs" class="text-3xl font-bold text-purple-600 mb-1">{{ $khsFileCount }}/4</div>
                                     <div class="text-sm text-gray-600 font-medium">Upload Berkas KHS</div>
                                 </div>
                             </div>
@@ -716,6 +779,10 @@
                                                 <span class="text-gray-600">Total SKS:</span>
                                                 <span id="totalSks{{ $semester }}" class="font-medium text-blue-600">-</span>
                                                         </div>
+                                            <div class="flex justify-between">
+                                                <span class="text-gray-600">Total Bobot:</span>
+                                                <span id="totalBobot{{ $semester }}" class="font-medium text-green-600">-</span>
+                                                        </div>
                                             </div>
                                                     </div>
                                                 </div>
@@ -891,9 +958,17 @@
                             <div class="space-y-3">
                                 <div>
                                     <label for="link_pkkmb" class="block text-sm font-medium text-gray-700 mb-2">Link Google Drive</label>
-                                    <input type="url" id="link_pkkmb" name="link_pkkmb" placeholder="https://drive.google.com/..." 
-                                           class="block w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:text-gray-500"
-                                           {{ $isLockedGeneral ? 'disabled' : '' }}>
+                                    <div class="relative flex items-center">
+                                        <input type="url" id="link_pkkmb" name="link_pkkmb" placeholder="https://drive.google.com/..." 
+                                               class="block w-full px-3 py-2 pr-10 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:text-gray-500"
+                                               {{ $isLockedGeneral ? 'disabled' : '' }}>
+                                        @if(!$isLockedGeneral)
+                                        <button type="button" onclick="clearDokumenInput('link_pkkmb')" title="Hapus link" 
+                                                class="absolute right-2 p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-all duration-200">
+                                            <i class="fas fa-times text-sm"></i>
+                                        </button>
+                                        @endif
+                                    </div>
                                 </div>
                                 <p class="text-xs text-gray-500 flex items-center">
                                     <i class="fas fa-info-circle mr-1"></i>
@@ -916,9 +991,17 @@
                             <div class="space-y-3">
                                 <div>
                                     <label for="link_english" class="block text-sm font-medium text-gray-700 mb-2">Link Google Drive</label>
-                                    <input type="url" id="link_english" name="link_english" placeholder="https://drive.google.com/..." 
-                                           class="block w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:text-gray-500"
-                                           {{ $isLockedGeneral ? 'disabled' : '' }}>
+                                    <div class="relative flex items-center">
+                                        <input type="url" id="link_english" name="link_english" placeholder="https://drive.google.com/..." 
+                                               class="block w-full px-3 py-2 pr-10 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:text-gray-500"
+                                               {{ $isLockedGeneral ? 'disabled' : '' }}>
+                                        @if(!$isLockedGeneral)
+                                        <button type="button" onclick="clearDokumenInput('link_english')" title="Hapus link" 
+                                                class="absolute right-2 p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-all duration-200">
+                                            <i class="fas fa-times text-sm"></i>
+                                        </button>
+                                        @endif
+                                    </div>
                                 </div>
                                 <p class="text-xs text-gray-500 flex items-center">
                                     <i class="fas fa-info-circle mr-1"></i>
@@ -941,9 +1024,17 @@
                             <div class="space-y-3">
                                 <div>
                                     <label for="link_semasa" class="block text-sm font-medium text-gray-700 mb-2">Link Google Drive</label>
-                                    <input type="url" id="link_semasa" name="link_semasa" placeholder="https://drive.google.com/..." 
-                                           class="block w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:text-gray-500"
-                                           {{ $isLockedGeneral ? 'disabled' : '' }}>
+                                    <div class="relative flex items-center">
+                                        <input type="url" id="link_semasa" name="link_semasa" placeholder="https://drive.google.com/..." 
+                                               class="block w-full px-3 py-2 pr-10 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:text-gray-500"
+                                               {{ $isLockedGeneral ? 'disabled' : '' }}>
+                                        @if(!$isLockedGeneral)
+                                        <button type="button" onclick="clearDokumenInput('link_semasa')" title="Hapus link" 
+                                                class="absolute right-2 p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-all duration-200">
+                                            <i class="fas fa-times text-sm"></i>
+                                        </button>
+                                        @endif
+                                    </div>
                                 </div>
                                 <p class="text-xs text-gray-500 flex items-center">
                                     <i class="fas fa-info-circle mr-1"></i>
@@ -972,6 +1063,99 @@
     </div>
 
 <script>
+// Clear document input field function
+function clearDokumenInput(inputId) {
+    const input = document.getElementById(inputId);
+    if (input) {
+        input.value = '';
+        input.focus();
+        console.log(`Cleared input: ${inputId}`);
+    }
+}
+
+// IPK Tooltip toggle function
+function toggleIpkTooltip(event) {
+    event.stopPropagation();
+    const tooltip = document.getElementById('ipkTooltip');
+    const icon = document.getElementById('ipkInfoIcon');
+    
+    // Close requirements tooltip if open
+    const reqTooltip = document.getElementById('requirementsTooltip');
+    if (reqTooltip) reqTooltip.classList.add('hidden');
+    
+    if (tooltip.classList.contains('hidden')) {
+        // Show tooltip and position it below the icon
+        const iconRect = icon.getBoundingClientRect();
+        tooltip.classList.remove('hidden');
+        
+        // Get tooltip dimensions after showing
+        const tooltipRect = tooltip.getBoundingClientRect();
+        
+        // Position tooltip below the icon, centered
+        const top = iconRect.bottom + 10; // 10px below icon
+        const left = iconRect.left + (iconRect.width / 2) - (tooltipRect.width / 2);
+        
+        tooltip.style.top = top + 'px';
+        tooltip.style.left = Math.max(10, left) + 'px'; // Prevent going off-screen left
+    } else {
+        tooltip.classList.add('hidden');
+    }
+}
+
+// Requirements Tooltip toggle function
+function toggleRequirementsTooltip(event) {
+    event.stopPropagation();
+    const tooltip = document.getElementById('requirementsTooltip');
+    const icon = document.getElementById('requirementsInfoIcon');
+    
+    if (!tooltip || !icon) return;
+    
+    // Close IPK tooltip if open
+    const ipkTooltip = document.getElementById('ipkTooltip');
+    if (ipkTooltip) ipkTooltip.classList.add('hidden');
+    
+    if (tooltip.classList.contains('hidden')) {
+        // Show tooltip and position it below the icon
+        const iconRect = icon.getBoundingClientRect();
+        tooltip.classList.remove('hidden');
+        
+        // Get tooltip dimensions after showing
+        const tooltipRect = tooltip.getBoundingClientRect();
+        
+        // Position tooltip below the icon, centered
+        const top = iconRect.bottom + 10; // 10px below icon
+        let left = iconRect.left + (iconRect.width / 2) - (tooltipRect.width / 2);
+        
+        // Prevent going off-screen
+        const maxLeft = window.innerWidth - tooltipRect.width - 10;
+        left = Math.max(10, Math.min(left, maxLeft));
+        
+        tooltip.style.position = 'fixed';
+        tooltip.style.top = top + 'px';
+        tooltip.style.left = left + 'px';
+        tooltip.style.transform = 'none';
+    } else {
+        tooltip.classList.add('hidden');
+    }
+}
+
+// Close tooltips when clicking outside
+document.addEventListener('click', function(event) {
+    // Close IPK tooltip
+    const ipkTooltip = document.getElementById('ipkTooltip');
+    const ipkIcon = document.getElementById('ipkInfoIcon');
+    if (ipkTooltip && ipkIcon && !ipkTooltip.contains(event.target) && event.target !== ipkIcon) {
+        ipkTooltip.classList.add('hidden');
+    }
+    
+    // Close Requirements tooltip
+    const reqTooltip = document.getElementById('requirementsTooltip');
+    const reqIcon = document.getElementById('requirementsInfoIcon');
+    if (reqTooltip && reqIcon && !reqTooltip.contains(event.target) && event.target !== reqIcon) {
+        reqTooltip.classList.add('hidden');
+    }
+});
+
 // Tab switching functionality
 function showTab(tabName) {
     // Check if features are disabled
@@ -1665,8 +1849,10 @@ function autoAnalyzeSemester(semester) {
                 `;
             }
             
-            // Recalculate final IPK
-            calculateFinalIpk();
+                // Recalculate final IPK after table is rendered
+                setTimeout(() => {
+                    calculateFinalIpk();
+                }, 150);
         } else {
             console.log(`Analysis failed for semester ${semester}:`, analysis);
             if (result) {
@@ -1775,6 +1961,7 @@ function saveSemester(semester) {
             formData.append('total_sks_d', analysis.total_sks_d || 0);
             formData.append('has_e', analysis.has_e ? 1 : 0);
             formData.append('eligible', analysis.eligible ? 1 : 0);
+            formData.append('total_bobot', analysis.total_bobot || 0);
 
             fetch("{{ route('documents.save-semester-data') }}", {
                 method: 'POST',
@@ -1971,6 +2158,16 @@ function saveSemester(semester) {
             console.log(`Total SKS element not found for semester ${semester}`);
         }
         
+        // Update Total Bobot
+        const totalBobotElement = document.getElementById(`totalBobot${semester}`);
+        if (totalBobotElement) {
+            const bobotValue = analysis.total_bobot || 0;
+            totalBobotElement.textContent = bobotValue.toFixed(2);
+            console.log(`Set Total Bobot for semester ${semester} to:`, bobotValue);
+        } else {
+            console.log(`Total Bobot element not found for semester ${semester}`);
+        }
+        
         // Show the result table
         tableResult.style.display = 'block';
         console.log(`✅ Showing result table for semester ${semester}`);
@@ -2118,30 +2315,70 @@ function calculateFinalIpk() {
         return;
     }
     
-    // Calculate total IPS and show detailed breakdown
-    let totalIps = 0;
+    // Calculate IPK using IPS from rendered tables (if edited) or fallback to bobot/sks
+    let totalWeightedIps = 0; // Σ(IPS × SKS)
+    let totalSks = 0;
+    let totalBobot = 0; // Keep for tooltip display
     let totalSksD = 0;
     let totalE = 0;
-    console.log('IPS breakdown:');
+    console.log('IPK calculation breakdown (using IPS from table if available):');
+    
     activeSemesters.forEach(sem => {
-        const ips = semesterData[sem].ips || 0;
+        const sks = semesterData[sem].total_sks || 0;
+        const bobot = semesterData[sem].total_bobot || 0;
         const sksD = semesterData[sem].total_sks_d || 0;
         const hasE = semesterData[sem].has_e || false;
         
-        totalIps += ips;
+        // Try to get IPS from rendered table first
+        let ips = 0;
+        const preview = document.getElementById(`preview${sem}`);
+        if (preview) {
+            const table = preview.querySelector('table');
+            if (table) {
+                const tableRows = table.querySelectorAll('tr');
+                for (let tr of tableRows) {
+                    const rowText = tr.textContent.toLowerCase();
+                    if (rowText.includes('indeks prestasi semester')) {
+                        const cells = tr.querySelectorAll('td, th');
+                        if (cells.length >= 2) {
+                            const ipsText = cells[1].textContent.trim();
+                            const parsedIps = parseFloat(ipsText);
+                            if (!isNaN(parsedIps) && parsedIps > 0 && parsedIps <= 4) {
+                                ips = parsedIps;
+                                console.log(`  Semester ${sem}: IPS from table = ${ips}`);
+                            }
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+        
+        // Fallback: calculate IPS from bobot/sks
+        if (ips === 0 && sks > 0) {
+            ips = bobot / sks;
+            console.log(`  Semester ${sem}: IPS calculated = ${ips.toFixed(2)} (${bobot}/${sks})`);
+        }
+        
+        // Add to weighted total
+        totalWeightedIps += ips * sks;
+        totalSks += sks;
+        totalBobot += bobot; // Keep original bobot for tooltip
         totalSksD += sksD;
         if (hasE) totalE += 1;
         
-        console.log(`  Semester ${sem}: IPS = ${ips}, SKS D = ${sksD}, Has E = ${hasE}`);
+        console.log(`  Semester ${sem}: SKS = ${sks}, IPS = ${ips.toFixed(2)}, Weighted = ${(ips * sks).toFixed(2)}, SKS D = ${sksD}, Has E = ${hasE}`);
     });
     
-    const finalIpk = totalIps / totalSemester;
+    // Calculate final IPK as weighted average of IPS: Σ(IPS × SKS) / Σ(SKS)
+    const finalIpk = totalSks > 0 ? totalWeightedIps / totalSks : 0;
     const isEligible = finalIpk >= 2.5;
     
-    console.log(`Total IPS: ${totalIps}`);
+    console.log(`Total Weighted IPS: ${totalWeightedIps.toFixed(2)}`);
+    console.log(`Total SKS: ${totalSks}`);
     console.log(`Total SKS D: ${totalSksD}`);
     console.log(`Total E: ${totalE}`);
-    console.log(`Final IPK: ${finalIpk.toFixed(2)} (${totalIps} / ${totalSemester})`);
+    console.log(`Final IPK: ${finalIpk.toFixed(6)} (${totalWeightedIps.toFixed(2)} / ${totalSks})`);
     
     // Update display values
     document.getElementById('finalIpk').textContent = finalIpk.toFixed(2);
@@ -2149,6 +2386,71 @@ function calculateFinalIpk() {
     document.getElementById('totalSksD').textContent = totalSksD;
     document.getElementById('totalE').textContent = totalE;
     document.getElementById('uploadKhs').textContent = `${khsFileCount}/4`;
+    
+    // Update tooltip values for IPK calculation details
+    const tooltipSks = document.getElementById('tooltipTotalSks');
+    const tooltipBobot = document.getElementById('tooltipTotalBobot');
+    if (tooltipSks) tooltipSks.textContent = totalSks;
+    if (tooltipBobot) tooltipBobot.textContent = totalBobot.toFixed(2);
+    
+    // Update per-semester breakdown in tooltip (with IPS from table or calculation)
+    for (let sem = 1; sem <= 4; sem++) {
+        const semRow = document.getElementById(`semRow${sem}`);
+        const semSks = document.getElementById(`semSks${sem}`);
+        const semBobot = document.getElementById(`semBobot${sem}`);
+        const semIps = document.getElementById(`semIps${sem}`);
+        
+        if (semesterData[sem] && (semesterData[sem].total_sks > 0 || semesterData[sem].total_bobot > 0)) {
+            // Show row and populate values
+            if (semRow) semRow.classList.remove('hidden');
+            
+            const sks = semesterData[sem].total_sks || 0;
+            const bobot = semesterData[sem].total_bobot || 0;
+            
+            // Try to get IPS from the rendered table first (in case user edited it)
+            let ips = 0;
+            const preview = document.getElementById(`preview${sem}`);
+            if (preview) {
+                const table = preview.querySelector('table');
+                if (table) {
+                    const tableRows = table.querySelectorAll('tr');
+                    for (let tr of tableRows) {
+                        const rowText = tr.textContent.toLowerCase();
+                        if (rowText.includes('indeks prestasi semester')) {
+                            const cells = tr.querySelectorAll('td, th');
+                            // IPS value is typically in the second cell (index 1)
+                            if (cells.length >= 2) {
+                                const ipsText = cells[1].textContent.trim();
+                                const parsedIps = parseFloat(ipsText);
+                                if (!isNaN(parsedIps) && parsedIps > 0 && parsedIps <= 4) {
+                                    ips = parsedIps;
+                                    console.log(`IPS for semester ${sem} extracted from table:`, ips);
+                                }
+                            }
+                            break;
+                        }
+                    }
+                }
+            }
+            
+            // Fallback: calculate IPS from bobot/sks if not found in table
+            if (ips === 0 && sks > 0) {
+                ips = bobot / sks;
+                console.log(`IPS for semester ${sem} calculated from bobot/sks:`, ips);
+            }
+            
+            if (semSks) semSks.textContent = sks;
+            if (semBobot) semBobot.textContent = bobot.toFixed(2);
+            if (semIps) {
+                semIps.textContent = ips > 0 ? ips.toFixed(2) : '-';
+                // Color based on IPS value
+                semIps.className = 'font-semibold ' + (ips >= 3.0 ? 'text-green-600' : (ips > 0 ? 'text-blue-600' : 'text-gray-400'));
+            }
+        } else {
+            // Hide row if no data
+            if (semRow) semRow.classList.add('hidden');
+        }
+    }
 
     // Update Status PKL based on Kelengkapan Transkrip and Upload Berkas KHS
     const pklStatusEl = document.getElementById('pklStatus');
@@ -2167,8 +2469,8 @@ function calculateFinalIpk() {
     const isTranscriptComplete = totalSemester >= 4;
     const isKhsComplete = khsFileCount >= 4;
 
-    // Check eligibility criteria
-    const isEligibleForPkl = isTranscriptComplete && isKhsComplete && finalIpk >= 2.5 && totalSksD <= 9 && totalE == 0;
+    // Check eligibility criteria - SYNCED with DashboardController
+    const isEligibleForPkl = isTranscriptComplete && isKhsComplete && finalIpk >= 2.5 && totalSksD <= 6 && totalE == 0;
 
     console.log('PKL Status Logic Check:');
     console.log(`- totalSemester: ${totalSemester}, isTranscriptComplete: ${isTranscriptComplete}`);
@@ -2492,26 +2794,44 @@ function analyzeTranscriptData(rows) {
         }
     }
     
-    if (totalSksFromText === null) {
-        for (let i = 0; i < rows.length; i++) {
-            const row = rows[i];
-            const rowText = row.join(' ').toLowerCase();
+    // Variable to store total bobot from transcript
+    let totalBobotFromText = null;
+    
+    // Always extract total bobot from Total SKS row (independent of totalSksFromText)
+    for (let i = 0; i < rows.length; i++) {
+        const row = rows[i];
+        const rowText = row.join(' ').toLowerCase();
+        
+        if (rowText.includes('total sks')) {
+            console.log('Found Total SKS row for bobot extraction:', row);
+            console.log('Row length:', row.length);
             
-            if (rowText.includes('total sks')) {
-                console.log('Found Total SKS row:', row);
-                
-                // Cari angka di baris ini
-                for (let j = 0; j < row.length; j++) {
-                    const cellValue = row[j];
-                    const parsedSks = parseInt(cellValue);
-                    if (!isNaN(parsedSks) && parsedSks > 0 && parsedSks <= 50) {
-                        totalSksFromText = parsedSks;
-                        console.log('Total SKS found in table row:', totalSksFromText);
-                        break;
+            // Also extract Total SKS if not found yet
+            if (totalSksFromText === null && row[1]) {
+                const parsedSks = parseInt(row[1].trim());
+                if (!isNaN(parsedSks) && parsedSks > 0 && parsedSks <= 200) {
+                    totalSksFromText = parsedSks;
+                    console.log('Total SKS found in table row[1]:', totalSksFromText);
+                }
+            }
+            
+            // Extract Total Bobot - try multiple positions
+            // Format could be: [Total SKS, 20, (space), 72.40, (space)]
+            // Or: [Total SKS, 20, 72.40, ...]
+            for (let j = 2; j < row.length; j++) {
+                const cellValue = row[j] ? row[j].trim() : '';
+                if (cellValue && cellValue !== '') {
+                    const parsedBobot = parseFloat(cellValue);
+                    // Total Bobot should be a decimal number > 0, typically > total SKS
+                    if (!isNaN(parsedBobot) && parsedBobot > 0) {
+                        totalBobotFromText = parsedBobot;
+                        console.log(`Total Bobot found at row[${j}]:`, totalBobotFromText);
+                        break; // Take the first valid number after position 1
                     }
                 }
-                break;
             }
+            
+            break;
         }
     }
     
@@ -2589,7 +2909,8 @@ function analyzeTranscriptData(rows) {
         total_sks_d: totalSksD,
         has_e: hasE,
         eligible: eligible,
-        total_sks: totalSksFromText || 0
+        total_sks: totalSksFromText || sumSks || 0,
+        total_bobot: totalBobotFromText || sumQuality || 0
     };
 }
 
@@ -2740,14 +3061,58 @@ function renderTable(rows, container) {
             
             // Check if this row contains "Indeks Prestasi Semester"
             const isIpsRow = rowText.includes('indeks prestasi semester') || rowText.includes('ips');
+            // Check if this row is Total SKS row
+            const isTotalSksRow = rowText.includes('total sks');
             
             // Apply different styling for IPS row
-            const rowClass = isIpsRow ? 'bg-blue-50 hover:bg-blue-100 border-l-4 border-blue-500' : 'hover:bg-gray-50';
-            const cellClass = isIpsRow ? 'px-4 py-3 text-sm font-semibold text-blue-900 border-b border-gray-200' : 'px-4 py-3 text-sm text-gray-900 border-b border-gray-200';
+            const rowClass = isIpsRow ? 'bg-blue-50 hover:bg-blue-100 border-l-4 border-blue-500' : 
+                            isTotalSksRow ? 'bg-green-50 hover:bg-green-100 border-l-4 border-green-500 font-semibold' : 
+                            'hover:bg-gray-50';
+            const cellClass = isIpsRow ? 'px-4 py-3 text-sm font-semibold text-blue-900 border-b border-gray-200' : 
+                             isTotalSksRow ? 'px-4 py-3 text-sm font-semibold text-green-900 border-b border-gray-200' :
+                             'px-4 py-3 text-sm text-gray-900 border-b border-gray-200';
             
             html += `<tr class="${rowClass}">`;
-            for (let c of row) {
-                html += `<td class="${cellClass}">${c}</td>`;
+            
+            // Special handling for Total SKS row - reposition values to correct columns
+            if (isTotalSksRow && row.length >= 2 && header.length >= 6) {
+                // Original format: [Total SKS, 20, 73.5, ...]
+                // Target format: [Total SKS, -, -, 20, -, 73.5, ...]
+                // Find column indices for SKS (index 3) and BOBOT (index 5) based on header
+                let sksColIdx = header.findIndex(h => h.toUpperCase() === 'SKS');
+                let bobotColIdx = header.findIndex(h => h.toUpperCase() === 'BOBOT');
+                
+                // Default to 3 and 5 if not found
+                if (sksColIdx === -1) sksColIdx = 3;
+                if (bobotColIdx === -1) bobotColIdx = 5;
+                
+                // Get the values from the original row
+                // Format: [Total SKS, 20, (space), 75, (space)]
+                // row[1] = Total SKS value, row[3] = Total Bobot value
+                const totalSksLabel = row[0] || 'Total SKS';
+                const sksValue = (row[1] && row[1].trim()) ? row[1].trim() : '-';
+                // Bobot is typically at position 3 (after the empty "Nilai Mutu" column)
+                const bobotValue = (row[3] && row[3].trim()) ? row[3].trim() : '-';
+                
+                // Build row with values in correct positions
+                for (let j = 0; j < header.length; j++) {
+                    let cellValue = '';
+                    if (j === 0) {
+                        cellValue = totalSksLabel;
+                    } else if (j === sksColIdx) {
+                        cellValue = sksValue;
+                    } else if (j === bobotColIdx) {
+                        cellValue = bobotValue;
+                    } else {
+                        cellValue = '';
+                    }
+                    html += `<td class="${cellClass}">${cellValue}</td>`;
+                }
+            } else {
+                // Normal row rendering
+                for (let c of row) {
+                    html += `<td class="${cellClass}">${c}</td>`;
+                }
             }
             html += '</tr>';
         }
@@ -3632,14 +3997,22 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Function to save dokumen pendukung links
 function saveDokumenPendukung() {
-    const linkPkkmb = document.getElementById('link_pkkmb').value;
-    const linkEnglish = document.getElementById('link_english').value;
-    const linkSemasa = document.getElementById('link_semasa').value;
+    const linkPkkmb = document.getElementById('link_pkkmb').value.trim();
+    const linkEnglish = document.getElementById('link_english').value.trim();
+    const linkSemasa = document.getElementById('link_semasa').value.trim();
 
-    // Validation: PKKMB dan English Course wajib diisi
-    if (!linkPkkmb || !linkEnglish) {
-        alert('Sertifikat PKKMB dan English Course wajib diisi!');
-        return;
+    // Build warning message if required fields are empty
+    let emptyFields = [];
+    if (!linkPkkmb) emptyFields.push('Sertifikat PKKMB');
+    if (!linkEnglish) emptyFields.push('Sertifikat English Course');
+
+    // If any required fields are empty, show confirmation
+    if (emptyFields.length > 0) {
+        const confirmMessage = `Anda yakin ingin menyimpan perubahan?\n\nAnda belum mengisi:\n• ${emptyFields.join('\n• ')}\n\nField yang kosong akan dihapus dari database.`;
+        
+        if (!confirm(confirmMessage)) {
+            return; // User cancelled
+        }
     }
 
     // Show loading state
@@ -3656,9 +4029,9 @@ function saveDokumenPendukung() {
             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
         },
         body: JSON.stringify({
-            gdrive_pkkmb: linkPkkmb,
-            gdrive_ecourse: linkEnglish,
-            gdrive_more: linkSemasa
+            gdrive_pkkmb: linkPkkmb || null,
+            gdrive_ecourse: linkEnglish || null,
+            gdrive_more: linkSemasa || null
         })
     })
     .then(response => response.json())
@@ -3993,4 +4366,47 @@ function revertPklStatus() {
     </div>
 </div>
 @endif
+
+<!-- Fixed IPK Tooltip (outside all containers, below header layer) -->
+<div id="ipkTooltip" class="fixed hidden bg-white text-gray-800 text-xs rounded-lg py-3 px-4 shadow-2xl border border-gray-200" style="z-index: 40; min-width: 300px;">
+    <div class="font-semibold mb-3 text-gray-900 border-b border-gray-200 pb-2">
+        <i class="fas fa-calculator mr-1 text-blue-500"></i>Detail Perhitungan IPK
+    </div>
+    
+    <!-- Table format for Per Semester Breakdown with IPS -->
+    <div class="overflow-x-auto mb-2">
+        <table class="w-full text-xs">
+            <thead>
+                <tr class="border-b border-gray-200">
+                    <th class="text-left py-1.5 text-gray-500 font-medium">Semester</th>
+                    <th class="text-right py-1.5 text-gray-500 font-medium">SKS</th>
+                    <th class="text-right py-1.5 text-gray-500 font-medium">Bobot</th>
+                    <th class="text-right py-1.5 text-gray-500 font-medium">IPS</th>
+                </tr>
+            </thead>
+            <tbody id="semesterBreakdown">
+                @for($i = 1; $i <= 4; $i++)
+                <tr id="semRow{{ $i }}" class="hidden border-b border-gray-50">
+                    <td class="py-1.5 text-gray-600">Semester {{ $i }}</td>
+                    <td class="py-1.5 text-right"><span id="semSks{{ $i }}" class="text-gray-700">-</span></td>
+                    <td class="py-1.5 text-right"><span id="semBobot{{ $i }}" class="text-green-600">-</span></td>
+                    <td class="py-1.5 text-right"><span id="semIps{{ $i }}" class="font-semibold text-blue-600">-</span></td>
+                </tr>
+                @endfor
+            </tbody>
+            <tfoot>
+                <tr class="border-t border-gray-200 bg-gray-50">
+                    <td class="py-2 font-semibold text-gray-700">Total</td>
+                    <td class="py-2 text-right font-semibold"><span id="tooltipTotalSks" class="text-gray-700">{{ $totalSksAll ?? '-' }}</span></td>
+                    <td class="py-2 text-right font-semibold"><span id="tooltipTotalBobot" class="text-green-600">{{ number_format($totalQualityPoints ?? 0, 2) }}</span></td>
+                    <td class="py-2 text-right font-bold text-blue-600">-</td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+    
+    <div class="border-t border-gray-200 pt-2 text-[10px] text-gray-500 text-center">
+        <i class="fas fa-info-circle mr-1"></i>IPK = Total Bobot / Total SKS | IPS = Bobot Semester / SKS Semester
+    </div>
+</div>
 @endsection

@@ -16,13 +16,194 @@ class AdminController extends Controller
 {
     public function index()
     {
+        // Basic stats
+        $totalMahasiswa = User::mahasiswa()->count();
+        $totalDosen = User::dosenPembimbing()->count();
+        $totalAdmin = User::admin()->count();
+        $totalMitra = Mitra::count();
+        $totalUsers = User::count();
+        
+        // Pending validation stats
+        $berkasPending = $this->getPendingValidationCount();
+        $berkasKhsPending = \App\Models\Khs::menunggu()->count();
+        $berkasSuratBalasanPending = \App\Models\SuratBalasan::menunggu()->count();
+        $berkasLaporanPending = \App\Models\LaporanPkl::menunggu()->count();
+        $berkasSuratPengantarPending = \App\Models\SuratPengantar::menunggu()->count();
+        
+        // Total berkas per jenis
+        $totalKhs = \App\Models\Khs::count();
+        $totalSuratBalasan = \App\Models\SuratBalasan::count();
+        $totalLaporan = \App\Models\LaporanPkl::count();
+        $totalSuratPengantar = \App\Models\SuratPengantar::count();
+        
+        // Validated stats
+        $berkasKhsTervalidasi = \App\Models\Khs::where('status_validasi', 'tervalidasi')->count();
+        $berkasSuratBalasanTervalidasi = \App\Models\SuratBalasan::where('status_validasi', 'tervalidasi')->count();
+        $berkasLaporanTervalidasi = \App\Models\LaporanPkl::where('status_validasi', 'tervalidasi')->count();
+        $berkasSuratPengantarTervalidasi = \App\Models\SuratPengantar::where('status_validasi', 'tervalidasi')->count();
+        $berkasTervalidasi = $berkasKhsTervalidasi + $berkasSuratBalasanTervalidasi + $berkasLaporanTervalidasi + $berkasSuratPengantarTervalidasi;
+        
+        // Belum valid (revisi/ditolak)
+        $berkasKhsRevisi = \App\Models\Khs::where('status_validasi', 'revisi')->count();
+        $berkasSuratBalasanRevisi = \App\Models\SuratBalasan::where('status_validasi', 'revisi')->count();
+        $berkasLaporanRevisi = \App\Models\LaporanPkl::where('status_validasi', 'revisi')->count();
+        $berkasBelumValid = $berkasKhsRevisi + $berkasSuratBalasanRevisi + $berkasLaporanRevisi;
+        
+        // Mahasiswa stats
+        $mahasiswaDenganDospem = ProfilMahasiswa::whereNotNull('id_dospem')->count();
+        $mahasiswaTanpaDospem = ProfilMahasiswa::whereNull('id_dospem')->count();
+        $mahasiswaDenganMitra = ProfilMahasiswa::whereNotNull('mitra_selected')->count();
+        $mahasiswaTanpaMitra = ProfilMahasiswa::whereNull('mitra_selected')->count();
+        
+        // Kelayakan PKL stats
+        $mahasiswaLayak = ProfilMahasiswa::where('cek_min_semester', true)
+                          ->where('cek_ipk_nilaisks', true)
+                          ->where('cek_valid_biodata', true)
+                          ->count();
+        $mahasiswaBelumLayak = $totalMahasiswa - $mahasiswaLayak;
+        
+        // Rata-rata IPK mahasiswa
+        $avgIpk = ProfilMahasiswa::whereNotNull('ipk')->avg('ipk');
+        $minIpk = ProfilMahasiswa::whereNotNull('ipk')->min('ipk');
+        $maxIpk = ProfilMahasiswa::whereNotNull('ipk')->max('ipk');
+        
+        // Statistik jenis kelamin
+        $mahasiswaLakiLaki = ProfilMahasiswa::where('jenis_kelamin', 'L')->count();
+        $mahasiswaPerempuan = ProfilMahasiswa::where('jenis_kelamin', 'P')->count();
+        
+        // Mitra stats
+        $mitraAktif = Mitra::whereHas('mahasiswaTerpilih')->count();
+        $allMitra = Mitra::withCount('mahasiswaTerpilih')->get();
+        $mitraPenuh = $allMitra->filter(function($m) { return $m->mahasiswa_terpilih_count >= $m->max_mahasiswa; })->count();
+        $mitraTersedia = $totalMitra - $mitraPenuh;
+        $totalKuotaMitra = Mitra::sum('max_mahasiswa');
+        $kuotaTerisi = ProfilMahasiswa::whereNotNull('mitra_selected')->count();
+        $kuotaTersisa = $totalKuotaMitra - $kuotaTerisi;
+        
+        // Top 5 mitra populer
+        $mitraPopuler = Mitra::withCount('mahasiswaTerpilih')
+                        ->orderBy('mahasiswa_terpilih_count', 'desc')
+                        ->take(5)
+                        ->get();
+        
+        // Dospem dengan mahasiswa terbanyak
+        $dospemPopuler = User::where('role', 'dospem')
+                        ->withCount(['mahasiswaBimbingan'])
+                        ->orderBy('mahasiswa_bimbingan_count', 'desc')
+                        ->take(5)
+                        ->get();
+        
+        // Statistik per prodi
+        $mahasiswaPerProdi = ProfilMahasiswa::groupBy('prodi')
+                            ->selectRaw('prodi, count(*) as total')
+                            ->get();
+        
+        // Statistik per semester
+        $mahasiswaPerSemester = ProfilMahasiswa::groupBy('semester')
+                               ->selectRaw('semester, count(*) as total')
+                               ->orderBy('semester')
+                               ->get();
+        
+        // Aktivitas terbaru
+        $recentActivities = \App\Models\HistoryAktivitas::with(['user', 'mahasiswa'])
+                           ->orderBy('tanggal_dibuat', 'desc')
+                           ->take(10)
+                           ->get();
+        
+        // Statistik aktivitas per hari (7 hari terakhir)
+        $aktivitasPerHari = \App\Models\HistoryAktivitas::selectRaw('DATE(tanggal_dibuat) as tanggal, count(*) as total')
+                           ->where('tanggal_dibuat', '>=', now()->subDays(7))
+                           ->groupBy('tanggal')
+                           ->orderBy('tanggal')
+                           ->get();
+        
+        // Mahasiswa terbaru yang mendaftar
+        $mahasiswaTerbaru = User::mahasiswa()
+                           ->with('profilMahasiswa')
+                           ->orderBy('created_at', 'desc')
+                           ->take(5)
+                           ->get();
+        
+        // Registrasi per bulan (6 bulan terakhir)
+        $registrasiPerBulan = User::where('role', 'mahasiswa')
+                             ->selectRaw('MONTH(created_at) as bulan, YEAR(created_at) as tahun, count(*) as total')
+                             ->where('created_at', '>=', now()->subMonths(6))
+                             ->groupBy('tahun', 'bulan')
+                             ->orderBy('tahun')
+                             ->orderBy('bulan')
+                             ->get();
+        
+        // Statistik login hari ini
+        $loginHariIni = \App\Models\HistoryAktivitas::where('tipe', 'login')
+                       ->whereDate('tanggal_dibuat', today())
+                       ->count();
+        
+        // Total aktivitas hari ini
+        $aktivitasHariIni = \App\Models\HistoryAktivitas::whereDate('tanggal_dibuat', today())->count();
+        
+        // Upload dokumen hari ini
+        $uploadHariIni = \App\Models\HistoryAktivitas::where('tipe', 'upload_dokumen')
+                        ->whereDate('tanggal_dibuat', today())
+                        ->count();
+        
+        // Validasi hari ini
+        $validasiHariIni = \App\Models\HistoryAktivitas::where('tipe', 'validasi_dokumen')
+                          ->whereDate('tanggal_dibuat', today())
+                          ->count();
+        
         $stats = [
-            'total_users' => User::count(),
-            'total_mahasiswa' => User::mahasiswa()->count(),
-            'total_dosen' => User::dosenPembimbing()->count(),
-            'total_admin' => User::admin()->count(),
-            'total_mitra' => Mitra::count(),
-            'pending_validation' => $this->getPendingValidationCount(),
+            'total_users' => $totalUsers,
+            'total_mahasiswa' => $totalMahasiswa,
+            'total_dosen' => $totalDosen,
+            'total_admin' => $totalAdmin,
+            'total_mitra' => $totalMitra,
+            'berkas_pending' => $berkasPending,
+            'berkas_khs_pending' => $berkasKhsPending,
+            'berkas_surat_balasan_pending' => $berkasSuratBalasanPending,
+            'berkas_laporan_pending' => $berkasLaporanPending,
+            'berkas_surat_pengantar_pending' => $berkasSuratPengantarPending,
+            'total_khs' => $totalKhs,
+            'total_surat_balasan' => $totalSuratBalasan,
+            'total_laporan' => $totalLaporan,
+            'total_surat_pengantar' => $totalSuratPengantar,
+            'berkas_tervalidasi' => $berkasTervalidasi,
+            'berkas_khs_tervalidasi' => $berkasKhsTervalidasi,
+            'berkas_surat_balasan_tervalidasi' => $berkasSuratBalasanTervalidasi,
+            'berkas_laporan_tervalidasi' => $berkasLaporanTervalidasi,
+            'berkas_surat_pengantar_tervalidasi' => $berkasSuratPengantarTervalidasi,
+            'berkas_khs_revisi' => $berkasKhsRevisi,
+            'berkas_surat_balasan_revisi' => $berkasSuratBalasanRevisi,
+            'berkas_laporan_revisi' => $berkasLaporanRevisi,
+            'berkas_belum_valid' => $berkasBelumValid,
+            'mahasiswa_dengan_dospem' => $mahasiswaDenganDospem,
+            'mahasiswa_tanpa_dospem' => $mahasiswaTanpaDospem,
+            'mahasiswa_dengan_mitra' => $mahasiswaDenganMitra,
+            'mahasiswa_tanpa_mitra' => $mahasiswaTanpaMitra,
+            'mahasiswa_layak' => $mahasiswaLayak,
+            'mahasiswa_belum_layak' => $mahasiswaBelumLayak,
+            'avg_ipk' => $avgIpk,
+            'min_ipk' => $minIpk,
+            'max_ipk' => $maxIpk,
+            'mahasiswa_laki_laki' => $mahasiswaLakiLaki,
+            'mahasiswa_perempuan' => $mahasiswaPerempuan,
+            'mitra_aktif' => $mitraAktif,
+            'mitra_penuh' => $mitraPenuh,
+            'mitra_tersedia' => $mitraTersedia,
+            'total_kuota_mitra' => $totalKuotaMitra,
+            'kuota_terisi' => $kuotaTerisi,
+            'kuota_tersisa' => $kuotaTersisa,
+            'mitra_populer' => $mitraPopuler,
+            'dospem_populer' => $dospemPopuler,
+            'mahasiswa_per_prodi' => $mahasiswaPerProdi,
+            'mahasiswa_per_semester' => $mahasiswaPerSemester,
+            'recent_activities' => $recentActivities,
+            'aktivitas_per_hari' => $aktivitasPerHari,
+            'mahasiswa_terbaru' => $mahasiswaTerbaru,
+            'registrasi_per_bulan' => $registrasiPerBulan,
+            'login_hari_ini' => $loginHariIni,
+            'aktivitas_hari_ini' => $aktivitasHariIni,
+            'upload_hari_ini' => $uploadHariIni,
+            'validasi_hari_ini' => $validasiHariIni,
         ];
 
         return view('admin.dashboard', compact('stats'));
@@ -462,41 +643,66 @@ class AdminController extends Controller
     public function validation(Request $request)
     {
         // Get all mahasiswa with their related data
-        $query = ProfilMahasiswa::with(['user', 'dosenPembimbing']);
+        $query = ProfilMahasiswa::with([
+            'user',
+            'user.khs',
+            'user.suratBalasan',
+            'user.laporanPkl',
+            'dosenPembimbing'
+        ]);
 
         // Search functionality
-        if ($request->has('search') && $request->search) {
-            $searchTerm = $request->search;
-            $query->whereHas('user', function($q) use ($searchTerm) {
-                $q->where('name', 'like', '%' . $searchTerm . '%');
-            })->orWhere('nim', 'like', '%' . $searchTerm . '%');
+        if ($request->has('search') && $request->search != '') {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->whereHas('user', function($uq) use ($search) {
+                    $uq->where('name', 'like', '%' . $search . '%');
+                })
+                ->orWhere('nim', 'like', '%' . $search . '%')
+                ->orWhere('prodi', 'like', '%' . $search . '%');
+            });
         }
 
         // Sort functionality
         $sortBy = $request->get('sort', 'name');
         $sortOrder = $request->get('order', 'asc');
 
-        if ($sortBy === 'name') {
-            $query->join('users', 'profil_mahasiswa.id_mahasiswa', '=', 'users.id')
-                  ->orderBy('users.name', $sortOrder)
-                  ->select('profil_mahasiswa.*');
-        } elseif ($sortBy === 'nim') {
-            $query->orderBy('nim', $sortOrder);
-        } elseif ($sortBy === 'semester') {
-            $query->orderBy('semester', $sortOrder);
-        } elseif ($sortBy === 'ipk') {
-            $query->orderBy('ipk', $sortOrder);
+        switch($sortBy) {
+            case 'name':
+                $query->join('users', 'profil_mahasiswa.id_mahasiswa', '=', 'users.id')
+                      ->orderBy('users.name', $sortOrder)
+                      ->select('profil_mahasiswa.*');
+                break;
+            case 'prodi':
+                $query->orderBy('prodi', $sortOrder);
+                break;
+            case 'semester':
+                $query->orderBy('semester', $sortOrder);
+                break;
+            case 'ipk':
+                // IPK: jika asc, tampilkan dari tertinggi (desc), jika desc tampilkan dari terendah (asc)
+                $ipkOrder = $sortOrder === 'asc' ? 'desc' : 'asc';
+                $query->orderBy('ipk', $ipkOrder);
+                break;
+            case 'nim':
+                $query->orderBy('nim', $sortOrder);
+                break;
+            default:
+                $query->join('users', 'profil_mahasiswa.id_mahasiswa', '=', 'users.id')
+                      ->orderBy('users.name', $sortOrder)
+                      ->select('profil_mahasiswa.*');
         }
 
         $mahasiswa = $query->get();
 
-        // Legacy data for backward compatibility (if needed)
-        $khs = \App\Models\Khs::with(['mahasiswa.profilMahasiswa.dosenPembimbing'])->get();
-        $suratBalasan = \App\Models\SuratBalasan::with(['mahasiswa.profilMahasiswa.dosenPembimbing'])->get();
-        $laporanPkl = \App\Models\LaporanPkl::with(['mahasiswa.profilMahasiswa.dosenPembimbing'])->get();
-        $suratPengantar = \App\Models\SuratPengantar::with(['mahasiswa.profilMahasiswa.dosenPembimbing'])->get();
+        // Get recent activities (3 latest) - include upload and validation activities
+        $recentActivities = \App\Models\HistoryAktivitas::with(['user', 'mahasiswa'])
+            ->whereIn('tipe', ['validasi_dokumen', 'upload_dokumen'])
+            ->orderBy('tanggal_dibuat', 'desc')
+            ->limit(3)
+            ->get();
 
-        return view('admin.validation', compact('mahasiswa', 'khs', 'suratBalasan', 'laporanPkl', 'suratPengantar'));
+        return view('admin.validation', compact('mahasiswa', 'recentActivities'));
     }
 
     public function validateKhs(Request $request, $id)

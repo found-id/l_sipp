@@ -52,7 +52,7 @@
                     </p>
                 </div>
             </div>
-            <a href="{{ route('dospem.validation') }}" class="inline-flex items-center px-5 py-3 bg-white text-blue-700 rounded-lg hover:bg-blue-50 transition shadow-md font-medium">
+            <a href="{{ auth()->user()->role === 'admin' ? route('admin.validation') : route('dospem.validation') }}" class="inline-flex items-center px-5 py-3 bg-white text-blue-700 rounded-lg hover:bg-blue-50 transition shadow-md font-medium">
                 <i class="fas fa-arrow-left mr-2"></i>
                 Kembali
             </a>
@@ -520,6 +520,10 @@
                                                         <span class="text-gray-600">Total SKS:</span>
                                                         <span id="totalSks{{ $transkrip->semester }}" class="font-medium text-blue-600">-</span>
                                                     </div>
+                                                    <div class="flex justify-between col-span-2 pt-1 border-t border-gray-100">
+                                                        <span class="text-gray-600">Total Bobot:</span>
+                                                        <span id="totalBobot{{ $transkrip->semester }}" class="font-medium text-purple-600">-</span>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
@@ -545,9 +549,74 @@
 
                         <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
                             <!-- IPK Akhir -->
-                            <div class="bg-white rounded-lg p-4 text-center shadow-sm">
+                            <div class="bg-white rounded-lg p-4 text-center shadow-sm relative">
                                 <p id="ipkAkhir" class="text-2xl font-bold text-gray-600">-</p>
-                                <p class="text-sm text-gray-600 mt-1">IPK Akhir</p>
+                                <p class="text-sm text-gray-600 mt-1 flex items-center justify-center gap-1">
+                                    IPK Akhir
+                                    <i id="ipkInfoIconDospem" class="fas fa-info-circle text-gray-400 hover:text-blue-500 cursor-pointer text-xs" onclick="toggleIpkTooltipDospem(event)"></i>
+                                </p>
+                                <!-- Floating Tooltip for IPK Calculation Details -->
+                                <div id="ipkTooltipDospem" class="hidden absolute left-1/2 transform -translate-x-1/2 top-full mt-2 bg-white border border-gray-200 rounded-lg shadow-xl p-4 z-[9999] min-w-[300px] max-w-[380px] text-left">
+                                    <!-- Arrow -->
+                                    <div class="absolute -top-2 left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-8 border-r-8 border-b-8 border-transparent border-b-white"></div>
+                                    <div class="absolute -top-2.5 left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-8 border-r-8 border-b-8 border-transparent border-b-gray-200"></div>
+                                    
+                                    <div class="text-xs font-semibold text-gray-700 mb-3 border-b border-gray-100 pb-2">
+                                        <i class="fas fa-calculator mr-1 text-blue-500"></i>Detail Perhitungan IPK
+                                    </div>
+                                    
+                                    <!-- Table format for semester breakdown -->
+                                    <div class="overflow-x-auto">
+                                        <table class="w-full text-xs">
+                                            <thead>
+                                                <tr class="border-b border-gray-200">
+                                                    <th class="text-left py-1.5 text-gray-500 font-medium">Semester</th>
+                                                    <th class="text-right py-1.5 text-gray-500 font-medium">SKS</th>
+                                                    <th class="text-right py-1.5 text-gray-500 font-medium">Bobot</th>
+                                                    <th class="text-right py-1.5 text-gray-500 font-medium">IPS</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr id="semRowDospem1" class="hidden border-b border-gray-50">
+                                                    <td class="py-1.5 text-gray-600">Semester 1</td>
+                                                    <td class="py-1.5 text-right"><span id="semSksDospem1" class="text-gray-700">-</span></td>
+                                                    <td class="py-1.5 text-right"><span id="semBobotDospem1" class="text-green-600">-</span></td>
+                                                    <td class="py-1.5 text-right"><span id="semIpsDospem1" class="font-semibold text-blue-600">-</span></td>
+                                                </tr>
+                                                <tr id="semRowDospem2" class="hidden border-b border-gray-50">
+                                                    <td class="py-1.5 text-gray-600">Semester 2</td>
+                                                    <td class="py-1.5 text-right"><span id="semSksDospem2" class="text-gray-700">-</span></td>
+                                                    <td class="py-1.5 text-right"><span id="semBobotDospem2" class="text-green-600">-</span></td>
+                                                    <td class="py-1.5 text-right"><span id="semIpsDospem2" class="font-semibold text-blue-600">-</span></td>
+                                                </tr>
+                                                <tr id="semRowDospem3" class="hidden border-b border-gray-50">
+                                                    <td class="py-1.5 text-gray-600">Semester 3</td>
+                                                    <td class="py-1.5 text-right"><span id="semSksDospem3" class="text-gray-700">-</span></td>
+                                                    <td class="py-1.5 text-right"><span id="semBobotDospem3" class="text-green-600">-</span></td>
+                                                    <td class="py-1.5 text-right"><span id="semIpsDospem3" class="font-semibold text-blue-600">-</span></td>
+                                                </tr>
+                                                <tr id="semRowDospem4" class="hidden border-b border-gray-50">
+                                                    <td class="py-1.5 text-gray-600">Semester 4</td>
+                                                    <td class="py-1.5 text-right"><span id="semSksDospem4" class="text-gray-700">-</span></td>
+                                                    <td class="py-1.5 text-right"><span id="semBobotDospem4" class="text-green-600">-</span></td>
+                                                    <td class="py-1.5 text-right"><span id="semIpsDospem4" class="font-semibold text-blue-600">-</span></td>
+                                                </tr>
+                                            </tbody>
+                                            <tfoot>
+                                                <tr class="border-t border-gray-200 bg-gray-50">
+                                                    <td class="py-2 font-semibold text-gray-700">Total</td>
+                                                    <td class="py-2 text-right font-semibold"><span id="tooltipTotalSksDospem" class="text-gray-700">-</span></td>
+                                                    <td class="py-2 text-right font-semibold"><span id="tooltipTotalBobotDospem" class="text-green-600">-</span></td>
+                                                    <td class="py-2 text-right font-bold text-blue-600">-</td>
+                                                </tr>
+                                            </tfoot>
+                                        </table>
+                                    </div>
+                                    
+                                    <div class="text-[10px] text-gray-400 mt-3 pt-2 border-t border-gray-100">
+                                        <i class="fas fa-info-circle mr-1"></i>IPK = Total Bobot / Total SKS | IPS = Bobot Semester / SKS Semester
+                                    </div>
+                                </div>
                             </div>
 
                             <!-- Kelengkapan Transkrip -->
@@ -1214,6 +1283,7 @@ function analyzeTranscriptData(rows) {
     // Search for IPS and Total SKS from text
     let ipsFromText = null;
     let totalSksFromText = null;
+    let totalBobotFromText = null;
 
     // Combine all text from rows for pattern matching
     const allText = rows.flat().join('\t').toLowerCase();
@@ -1263,23 +1333,40 @@ function analyzeTranscriptData(rows) {
         }
     }
 
-    if (totalSksFromText === null) {
-        for (let i = 0; i < rows.length; i++) {
-            const row = rows[i];
-            const rowText = row.join(' ').toLowerCase();
+    // Extract Total SKS and Total Bobot from "Total SKS" row
+    for (let i = 0; i < rows.length; i++) {
+        const row = rows[i];
+        const rowText = row.join(' ').toLowerCase();
 
-            if (rowText.includes('total sks')) {
-                // Search for number in this row
-                for (let j = 0; j < row.length; j++) {
-                    const cellValue = row[j];
-                    const parsedSks = parseInt(cellValue);
-                    if (!isNaN(parsedSks) && parsedSks > 0 && parsedSks <= 50) {
-                        totalSksFromText = parsedSks;
-                        break;
+        if (rowText.includes('total sks')) {
+            console.log('Found Total SKS row for bobot extraction:', row);
+            
+            // Extract Total SKS if not found yet
+            if (totalSksFromText === null && row[1]) {
+                const parsedSks = parseInt(row[1].trim());
+                if (!isNaN(parsedSks) && parsedSks > 0 && parsedSks <= 200) {
+                    totalSksFromText = parsedSks;
+                    console.log('Total SKS found in table row[1]:', totalSksFromText);
+                }
+            }
+            
+            // Extract Total Bobot - try multiple positions
+            // Format could be: [Total SKS, 20, (space), 72.40, (space)]
+            // Or: [Total SKS, 20, 72.40, ...]
+            for (let j = 2; j < row.length; j++) {
+                const cellValue = row[j] ? row[j].trim() : '';
+                if (cellValue && cellValue !== '') {
+                    const parsedBobot = parseFloat(cellValue);
+                    // Total Bobot should be a decimal number > 0
+                    if (!isNaN(parsedBobot) && parsedBobot > 0) {
+                        totalBobotFromText = parsedBobot;
+                        console.log(`Total Bobot found at row[${j}]:`, totalBobotFromText);
+                        break; // Take the first valid number after position 1
                     }
                 }
-                break;
             }
+            
+            break;
         }
     }
 
@@ -1341,12 +1428,16 @@ function analyzeTranscriptData(rows) {
     // Use IPS from text if found, otherwise calculate manually
     const calculatedIps = sumSks > 0 ? sumQuality / sumSks : 0;
     const ips = ipsFromText !== null ? ipsFromText : calculatedIps;
+    
+    // Use total_bobot from text if found, otherwise use calculated sumQuality
+    const totalBobot = totalBobotFromText !== null ? totalBobotFromText : sumQuality;
 
     return {
         ips: parseFloat(ips.toFixed(2)),
         total_sks_d: totalSksD,
         has_e: hasE,
-        total_sks: totalSksFromText || 0
+        total_sks: totalSksFromText || sumSks || 0,
+        total_bobot: totalBobot
     };
 }
 
@@ -1356,34 +1447,78 @@ function renderTable(rows, container) {
         container.innerHTML = '<div class="text-red-600 text-sm">Data tidak valid. Pastikan ada header dan minimal 1 baris data.</div>';
         return;
     }
-
+    
     let html = '<div class="overflow-x-auto"><table class="min-w-full bg-white border border-gray-300 rounded-lg overflow-hidden"><thead class="bg-gray-50"><tr>';
     const header = rows[0];
-
+    
     for (let h of header) {
         html += `<th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-200">${h}</th>`;
     }
-
+    
     html += '</tr></thead><tbody class="bg-white divide-y divide-gray-200">';
-
+    
     for (let i = 1; i < rows.length; i++) {
         const row = rows[i];
         const rowText = row.join(' ').toLowerCase();
-
+        
         // Check if this row contains "Indeks Prestasi Semester"
         const isIpsRow = rowText.includes('indeks prestasi semester') || rowText.includes('ips');
-
+        // Check if this row is Total SKS row
+        const isTotalSksRow = rowText.includes('total sks');
+        
         // Apply different styling for IPS row
-        const rowClass = isIpsRow ? 'bg-blue-50 hover:bg-blue-100 border-l-4 border-blue-500' : 'hover:bg-gray-50';
-        const cellClass = isIpsRow ? 'px-4 py-3 text-sm font-semibold text-blue-900 border-b border-gray-200' : 'px-4 py-3 text-sm text-gray-900 border-b border-gray-200';
-
+        const rowClass = isIpsRow ? 'bg-blue-50 hover:bg-blue-100 border-l-4 border-blue-500' : 
+                        isTotalSksRow ? 'bg-green-50 hover:bg-green-100 border-l-4 border-green-500 font-semibold' : 
+                        'hover:bg-gray-50';
+        const cellClass = isIpsRow ? 'px-4 py-3 text-sm font-semibold text-blue-900 border-b border-gray-200' : 
+                         isTotalSksRow ? 'px-4 py-3 text-sm font-semibold text-green-900 border-b border-gray-200' :
+                         'px-4 py-3 text-sm text-gray-900 border-b border-gray-200';
+        
         html += `<tr class="${rowClass}">`;
-        for (let c of row) {
-            html += `<td class="${cellClass}">${c}</td>`;
+        
+        // Special handling for Total SKS row - reposition values to correct columns
+        if (isTotalSksRow && row.length >= 2 && header.length >= 6) {
+            // Original format: [Total SKS, 20, 73.5, ...]
+            // Target format: [Total SKS, -, -, 20, -, 73.5, ...]
+            // Find column indices for SKS (index 3) and BOBOT (index 5) based on header
+            let sksColIdx = header.findIndex(h => h.toUpperCase() === 'SKS');
+            let bobotColIdx = header.findIndex(h => h.toUpperCase() === 'BOBOT');
+            
+            // Default to 3 and 5 if not found
+            if (sksColIdx === -1) sksColIdx = 3;
+            if (bobotColIdx === -1) bobotColIdx = 5;
+            
+            // Get the values from the original row
+            // Format: [Total SKS, 20, (space), 75, (space)]
+            // row[1] = Total SKS value, row[3] = Total Bobot value
+            const totalSksLabel = row[0] || 'Total SKS';
+            const sksValue = (row[1] && row[1].trim()) ? row[1].trim() : '-';
+            // Bobot is typically at position 3 (after the empty "Nilai Mutu" column)
+            const bobotValue = (row[3] && row[3].trim()) ? row[3].trim() : '-';
+            
+            // Build row with values in correct positions
+            for (let j = 0; j < header.length; j++) {
+                let cellValue = '';
+                if (j === 0) {
+                    cellValue = totalSksLabel;
+                } else if (j === sksColIdx) {
+                    cellValue = sksValue;
+                } else if (j === bobotColIdx) {
+                    cellValue = bobotValue;
+                } else {
+                    cellValue = '';
+                }
+                html += `<td class="${cellClass}">${cellValue}</td>`;
+            }
+        } else {
+            // Normal row rendering
+            for (let c of row) {
+                html += `<td class="${cellClass}">${c}</td>`;
+            }
         }
         html += '</tr>';
     }
-
+    
     html += '</tbody></table></div>';
     container.innerHTML = html;
 }
@@ -1399,31 +1534,131 @@ function updateSummaryDisplay() {
         return;
     }
 
-    // Calculate IPK (weighted average of all IPS)
-    let totalQuality = 0;
+    // Calculate IPK using IPS from rendered tables (weighted average)
+    let totalWeightedIps = 0; // Σ(IPS × SKS)
     let totalSks = 0;
+    let totalBobot = 0; // Keep for tooltip display
     let totalSksDSum = 0;
     let hasECount = 0;
 
     semesters.forEach(semester => {
         const data = semesterAnalysisData[semester];
         if (data && !data.error) {
-            totalQuality += data.ips * data.total_sks;
-            totalSks += data.total_sks;
-            totalSksDSum += data.total_sks_d;
+            const sks = data.total_sks || 0;
+            const bobot = data.total_bobot || 0;
+            
+            // Try to get IPS from rendered table first
+            let ips = 0;
+            const tableDisplay = document.getElementById(`tableDisplay${semester}`);
+            if (tableDisplay) {
+                const table = tableDisplay.querySelector('table');
+                if (table) {
+                    const tableRows = table.querySelectorAll('tr');
+                    for (let tr of tableRows) {
+                        const rowText = tr.textContent.toLowerCase();
+                        if (rowText.includes('indeks prestasi semester')) {
+                            const cells = tr.querySelectorAll('td, th');
+                            if (cells.length >= 2) {
+                                const ipsText = cells[1].textContent.trim();
+                                const parsedIps = parseFloat(ipsText);
+                                if (!isNaN(parsedIps) && parsedIps > 0 && parsedIps <= 4) {
+                                    ips = parsedIps;
+                                }
+                            }
+                            break;
+                        }
+                    }
+                }
+            }
+            
+            // Fallback: calculate IPS from bobot/sks
+            if (ips === 0 && sks > 0) {
+                ips = bobot / sks;
+            }
+            
+            totalWeightedIps += ips * sks;
+            totalSks += sks;
+            totalBobot += bobot;
+            totalSksDSum += data.total_sks_d || 0;
             if (data.has_e) {
                 hasECount++;
             }
         }
     });
 
-    const ipk = totalSks > 0 ? totalQuality / totalSks : 0;
+    // Calculate final IPK as weighted average of IPS
+    const ipk = totalSks > 0 ? totalWeightedIps / totalSks : 0;
 
-    // Update IPK Akhir
+    // Update IPK Akhir - show "-" if no data, otherwise show 2 decimals
     const ipkElement = document.getElementById('ipkAkhir');
     if (ipkElement) {
-        ipkElement.textContent = ipk > 0 ? ipk.toFixed(2) : '0.00';
-        ipkElement.className = 'text-2xl font-bold ' + (ipk >= 3.0 ? 'text-green-600' : 'text-orange-600');
+        ipkElement.textContent = totalSks > 0 ? ipk.toFixed(2) : '-';
+        ipkElement.className = 'text-2xl font-bold ' + (ipk >= 3.0 ? 'text-green-600' : (ipk > 0 ? 'text-orange-600' : 'text-gray-600'));
+    }
+
+    // Update tooltip values
+    const tooltipSks = document.getElementById('tooltipTotalSksDospem');
+    const tooltipBobot = document.getElementById('tooltipTotalBobotDospem');
+    if (tooltipSks) tooltipSks.textContent = totalSks;
+    if (tooltipBobot) tooltipBobot.textContent = totalBobot.toFixed(2);
+
+    // Update per-semester breakdown in tooltip (with IPS from table or calculation)
+    for (let sem = 1; sem <= 4; sem++) {
+        const semRow = document.getElementById(`semRowDospem${sem}`);
+        const semSks = document.getElementById(`semSksDospem${sem}`);
+        const semBobot = document.getElementById(`semBobotDospem${sem}`);
+        const semIps = document.getElementById(`semIpsDospem${sem}`);
+        
+        if (semesterAnalysisData[sem] && (semesterAnalysisData[sem].total_sks > 0 || semesterAnalysisData[sem].total_bobot > 0)) {
+            // Show row and populate values
+            if (semRow) semRow.classList.remove('hidden');
+            
+            const sks = semesterAnalysisData[sem].total_sks || 0;
+            const bobot = semesterAnalysisData[sem].total_bobot || 0;
+            
+            // Try to get IPS from the rendered table first (in case of edits)
+            let ips = 0;
+            const tableDisplay = document.getElementById(`tableDisplay${sem}`);
+            if (tableDisplay) {
+                const table = tableDisplay.querySelector('table');
+                if (table) {
+                    const tableRows = table.querySelectorAll('tr');
+                    for (let tr of tableRows) {
+                        const rowText = tr.textContent.toLowerCase();
+                        if (rowText.includes('indeks prestasi semester')) {
+                            const cells = tr.querySelectorAll('td, th');
+                            // IPS value is typically in the second cell (index 1)
+                            if (cells.length >= 2) {
+                                const ipsText = cells[1].textContent.trim();
+                                const parsedIps = parseFloat(ipsText);
+                                if (!isNaN(parsedIps) && parsedIps > 0 && parsedIps <= 4) {
+                                    ips = parsedIps;
+                                    console.log(`IPS for semester ${sem} extracted from table:`, ips);
+                                }
+                            }
+                            break;
+                        }
+                    }
+                }
+            }
+            
+            // Fallback: calculate IPS from bobot/sks if not found in table
+            if (ips === 0 && sks > 0) {
+                ips = bobot / sks;
+                console.log(`IPS for semester ${sem} calculated from bobot/sks:`, ips);
+            }
+            
+            if (semSks) semSks.textContent = sks;
+            if (semBobot) semBobot.textContent = bobot.toFixed(2);
+            if (semIps) {
+                semIps.textContent = ips > 0 ? ips.toFixed(2) : '-';
+                // Color based on IPS value
+                semIps.className = 'font-semibold ' + (ips >= 3.0 ? 'text-green-600' : (ips > 0 ? 'text-blue-600' : 'text-gray-400'));
+            }
+        } else {
+            // Hide row if no data
+            if (semRow) semRow.classList.add('hidden');
+        }
     }
 
     // Update Total SKS D
@@ -1471,11 +1706,33 @@ function updateSummaryDisplay() {
 
     console.log('Summary updated:', {
         ipk: ipk.toFixed(2),
+        totalBobot: totalBobot.toFixed(2),
+        totalSks,
         totalSksDSum,
         hasECount,
         isEligible
     });
 }
+
+// IPK Tooltip toggle function for Dospem page
+function toggleIpkTooltipDospem(event) {
+    event.stopPropagation();
+    const tooltip = document.getElementById('ipkTooltipDospem');
+    
+    if (!tooltip) return;
+    
+    // Simply toggle hidden class - CSS handles positioning
+    tooltip.classList.toggle('hidden');
+}
+
+// Close tooltip when clicking outside
+document.addEventListener('click', function(event) {
+    const tooltip = document.getElementById('ipkTooltipDospem');
+    const icon = document.getElementById('ipkInfoIconDospem');
+    if (tooltip && icon && !tooltip.contains(event.target) && event.target !== icon) {
+        tooltip.classList.add('hidden');
+    }
+});
 
 // Render transcript tables on page load and analyze data
 document.addEventListener('DOMContentLoaded', function() {
@@ -1525,6 +1782,13 @@ document.addEventListener('DOMContentLoaded', function() {
                             if (totalSksElement) {
                                 totalSksElement.textContent = analysis.total_sks || '-';
                                 totalSksElement.className = 'font-medium text-blue-600';
+                            }
+
+                            // Update Total Bobot
+                            const totalBobotElement = document.getElementById('totalBobot{{ $transkrip->semester }}');
+                            if (totalBobotElement) {
+                                totalBobotElement.textContent = analysis.total_bobot ? analysis.total_bobot.toFixed(2) : '-';
+                                totalBobotElement.className = 'font-medium text-purple-600';
                             }
 
                             // Update summary display after each semester is analyzed

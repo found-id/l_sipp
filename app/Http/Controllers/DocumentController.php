@@ -47,6 +47,11 @@ class DocumentController extends Controller
                 $profilMahasiswa->cek_ipk_nilaisks &&
                 $profilMahasiswa->cek_valid_biodata;
 
+            // Check if PKKMB and English Course documents are filled
+            $hasPkkmbAndEcourse = $profilMahasiswa && 
+                !empty($profilMahasiswa->gdrive_pkkmb) && 
+                !empty($profilMahasiswa->gdrive_ecourse);
+
             return view('documents.index', compact(
                 'user',
                 'khs',
@@ -59,7 +64,9 @@ class DocumentController extends Controller
                 'khsManualTranskrip',
                 'statusPkl',
                 'hasMitraSelected',
-                'requirementsChecked'
+                'requirementsChecked',
+                'hasPkkmbAndEcourse',
+                'profilMahasiswa'
             ));
         }
 

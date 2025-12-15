@@ -1,369 +1,625 @@
 <!-- Admin Dashboard -->
-<div class="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
+
+<!-- Quick Stats Today -->
+<div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+    <div class="bg-white rounded-xl p-3 md:p-4 shadow-sm border border-gray-100 hover:shadow-md transition">
+        <div class="flex items-center gap-2 md:gap-3">
+            <div class="h-8 w-8 md:h-10 md:w-10 rounded-lg bg-blue-50 flex items-center justify-center">
+                <i class="fas fa-sign-in-alt text-blue-500 text-sm md:text-base"></i>
+            </div>
+            <div>
+                <p class="text-lg md:text-2xl font-bold text-gray-800">{{ $stats['login_hari_ini'] ?? 0 }}</p>
+                <p class="text-[10px] md:text-xs text-gray-500">Login Hari Ini</p>
+            </div>
+        </div>
+    </div>
+    <div class="bg-white rounded-xl p-3 md:p-4 shadow-sm border border-gray-100 hover:shadow-md transition">
+        <div class="flex items-center gap-2 md:gap-3">
+            <div class="h-8 w-8 md:h-10 md:w-10 rounded-lg bg-green-50 flex items-center justify-center">
+                <i class="fas fa-upload text-green-500 text-sm md:text-base"></i>
+            </div>
+            <div>
+                <p class="text-lg md:text-2xl font-bold text-gray-800">{{ $stats['upload_hari_ini'] ?? 0 }}</p>
+                <p class="text-[10px] md:text-xs text-gray-500">Upload Hari Ini</p>
+            </div>
+        </div>
+    </div>
+    <div class="bg-white rounded-xl p-3 md:p-4 shadow-sm border border-gray-100 hover:shadow-md transition">
+        <div class="flex items-center gap-2 md:gap-3">
+            <div class="h-8 w-8 md:h-10 md:w-10 rounded-lg bg-purple-50 flex items-center justify-center">
+                <i class="fas fa-check-circle text-purple-500 text-sm md:text-base"></i>
+            </div>
+            <div>
+                <p class="text-lg md:text-2xl font-bold text-gray-800">{{ $stats['validasi_hari_ini'] ?? 0 }}</p>
+                <p class="text-[10px] md:text-xs text-gray-500">Validasi Hari Ini</p>
+            </div>
+        </div>
+    </div>
+    <div class="bg-white rounded-xl p-3 md:p-4 shadow-sm border border-gray-100 hover:shadow-md transition">
+        <div class="flex items-center gap-2 md:gap-3">
+            <div class="h-8 w-8 md:h-10 md:w-10 rounded-lg bg-orange-50 flex items-center justify-center">
+                <i class="fas fa-hourglass-half text-orange-500 text-sm md:text-base"></i>
+            </div>
+            <div>
+                <p class="text-lg md:text-2xl font-bold text-gray-800">{{ $stats['berkas_pending'] ?? 0 }}</p>
+                <p class="text-[10px] md:text-xs text-gray-500">Perlu Validasi</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Main Statistics Cards -->
+<div class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-6">
     <!-- Total Mahasiswa -->
-    <div class="group bg-white overflow-hidden shadow-md md:shadow-lg rounded-xl md:rounded-2xl transform transition-all duration-300 hover:-translate-y-1 md:hover:-translate-y-2 hover:shadow-xl md:hover:shadow-2xl border border-gray-100">
-        <div class="p-3 md:p-6 relative overflow-hidden">
-            <div class="absolute top-0 right-0 w-20 md:w-32 h-20 md:h-32 bg-blue-50 rounded-full -mr-10 md:-mr-16 -mt-10 md:-mt-16 opacity-50"></div>
-            <div class="relative z-10">
-                <div class="flex items-center justify-between mb-2 md:mb-4">
-                    <div class="w-10 h-10 md:w-14 md:h-14 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg md:rounded-xl flex items-center justify-center shadow-md md:shadow-lg">
-                        <i class="fas fa-users text-lg md:text-2xl text-white"></i>
-                    </div>
-                    <div class="bg-blue-100 text-blue-600 text-[10px] md:text-xs font-bold px-2 md:px-3 py-0.5 md:py-1 rounded-full">Mahasiswa</div>
-                </div>
-                <dt class="text-xs md:text-sm font-medium text-gray-500 mb-1 md:mb-2">Mahasiswa</dt>
-                <dd class="text-xl md:text-3xl font-bold text-gray-900">{{ $stats['total_mahasiswa'] ?? 0 }}</dd>
-                <p class="text-[10px] md:text-xs text-gray-400 mt-0.5 md:mt-1 hidden md:block">Mahasiswa Terdaftar</p>
+    <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl md:rounded-2xl p-4 md:p-5 text-white shadow-lg">
+        <div class="flex items-start justify-between">
+            <div>
+                <p class="text-xs md:text-sm font-medium text-blue-100">Mahasiswa</p>
+                <p class="text-2xl md:text-3xl font-bold mt-1 md:mt-2">{{ $stats['total_mahasiswa'] ?? 0 }}</p>
+                <p class="text-[10px] md:text-xs text-blue-200 mt-1 md:mt-2">
+                    <i class="fas fa-male mr-1"></i>{{ $stats['mahasiswa_laki_laki'] ?? 0 }}
+                    <i class="fas fa-female ml-1 mr-1"></i>{{ $stats['mahasiswa_perempuan'] ?? 0 }}
+                </p>
+            </div>
+            <div class="h-10 w-10 md:h-12 md:w-12 rounded-lg md:rounded-xl bg-white/20 flex items-center justify-center">
+                <i class="fas fa-user-graduate text-lg md:text-xl"></i>
             </div>
         </div>
     </div>
 
     <!-- Total Dosen -->
-    <div class="group bg-white overflow-hidden shadow-md md:shadow-lg rounded-xl md:rounded-2xl transform transition-all duration-300 hover:-translate-y-1 md:hover:-translate-y-2 hover:shadow-xl md:hover:shadow-2xl border border-gray-100">
-        <div class="p-3 md:p-6 relative overflow-hidden">
-            <div class="absolute top-0 right-0 w-20 md:w-32 h-20 md:h-32 bg-green-50 rounded-full -mr-10 md:-mr-16 -mt-10 md:-mt-16 opacity-50"></div>
-            <div class="relative z-10">
-                <div class="flex items-center justify-between mb-2 md:mb-4">
-                    <div class="w-10 h-10 md:w-14 md:h-14 bg-gradient-to-br from-green-500 to-green-600 rounded-lg md:rounded-xl flex items-center justify-center shadow-md md:shadow-lg">
-                        <i class="fas fa-chalkboard-teacher text-lg md:text-2xl text-white"></i>
-                    </div>
-                    <div class="bg-green-100 text-green-600 text-[10px] md:text-xs font-bold px-2 md:px-3 py-0.5 md:py-1 rounded-full">Dospem</div>
-                </div>
-                <dt class="text-xs md:text-sm font-medium text-gray-500 mb-1 md:mb-2">Dosen</dt>
-                <dd class="text-xl md:text-3xl font-bold text-gray-900">{{ $stats['total_dosen'] ?? 0 }}</dd>
-                <p class="text-[10px] md:text-xs text-gray-400 mt-0.5 md:mt-1 hidden md:block">Dosen Pembimbing</p>
+    <div class="bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl md:rounded-2xl p-4 md:p-5 text-white shadow-lg">
+        <div class="flex items-start justify-between">
+            <div>
+                <p class="text-xs md:text-sm font-medium text-emerald-100">Dospem</p>
+                <p class="text-2xl md:text-3xl font-bold mt-1 md:mt-2">{{ $stats['total_dosen'] ?? 0 }}</p>
+                <p class="text-[10px] md:text-xs text-emerald-200 mt-1 md:mt-2">
+                    <i class="fas fa-users mr-1"></i>Aktif
+                </p>
+            </div>
+            <div class="h-10 w-10 md:h-12 md:w-12 rounded-lg md:rounded-xl bg-white/20 flex items-center justify-center">
+                <i class="fas fa-chalkboard-teacher text-lg md:text-xl"></i>
             </div>
         </div>
     </div>
 
     <!-- Total Mitra -->
-    <div class="group bg-white overflow-hidden shadow-md md:shadow-lg rounded-xl md:rounded-2xl transform transition-all duration-300 hover:-translate-y-1 md:hover:-translate-y-2 hover:shadow-xl md:hover:shadow-2xl border border-gray-100">
-        <div class="p-3 md:p-6 relative overflow-hidden">
-            <div class="absolute top-0 right-0 w-20 md:w-32 h-20 md:h-32 bg-purple-50 rounded-full -mr-10 md:-mr-16 -mt-10 md:-mt-16 opacity-50"></div>
-            <div class="relative z-10">
-                <div class="flex items-center justify-between mb-2 md:mb-4">
-                    <div class="w-10 h-10 md:w-14 md:h-14 bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg md:rounded-xl flex items-center justify-center shadow-md md:shadow-lg">
-                        <i class="fas fa-building text-lg md:text-2xl text-white"></i>
-                    </div>
-                    <div class="bg-purple-100 text-purple-600 text-[10px] md:text-xs font-bold px-2 md:px-3 py-0.5 md:py-1 rounded-full">Mitra</div>
-                </div>
-                <dt class="text-xs md:text-sm font-medium text-gray-500 mb-1 md:mb-2">Mitra</dt>
-                <dd class="text-xl md:text-3xl font-bold text-gray-900">{{ $stats['total_mitra'] ?? 0 }}</dd>
-                <p class="text-[10px] md:text-xs text-gray-400 mt-0.5 md:mt-1 hidden md:block">Mitra Terdaftar</p>
+    <div class="bg-gradient-to-br from-violet-500 to-violet-600 rounded-xl md:rounded-2xl p-4 md:p-5 text-white shadow-lg">
+        <div class="flex items-start justify-between">
+            <div>
+                <p class="text-xs md:text-sm font-medium text-violet-100">Mitra</p>
+                <p class="text-2xl md:text-3xl font-bold mt-1 md:mt-2">{{ $stats['total_mitra'] ?? 0 }}</p>
+                <p class="text-[10px] md:text-xs text-violet-200 mt-1 md:mt-2">
+                    <i class="fas fa-door-open mr-1"></i>{{ $stats['mitra_tersedia'] ?? 0 }} tersedia
+                </p>
+            </div>
+            <div class="h-10 w-10 md:h-12 md:w-12 rounded-lg md:rounded-xl bg-white/20 flex items-center justify-center">
+                <i class="fas fa-building text-lg md:text-xl"></i>
             </div>
         </div>
     </div>
 
-    <!-- Berkas Pending -->
-    <div class="group bg-white overflow-hidden shadow-md md:shadow-lg rounded-xl md:rounded-2xl transform transition-all duration-300 hover:-translate-y-1 md:hover:-translate-y-2 hover:shadow-xl md:hover:shadow-2xl border border-gray-100">
-        <div class="p-3 md:p-6 relative overflow-hidden">
-            <div class="absolute top-0 right-0 w-20 md:w-32 h-20 md:h-32 bg-yellow-50 rounded-full -mr-10 md:-mr-16 -mt-10 md:-mt-16 opacity-50"></div>
-            <div class="relative z-10">
-                <div class="flex items-center justify-between mb-2 md:mb-4">
-                    <div class="w-10 h-10 md:w-14 md:h-14 bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-lg md:rounded-xl flex items-center justify-center shadow-md md:shadow-lg">
-                        <i class="fas fa-clock text-lg md:text-2xl text-white"></i>
-                    </div>
-                    <div class="bg-yellow-100 text-yellow-700 text-[10px] md:text-xs font-bold px-2 md:px-3 py-0.5 md:py-1 rounded-full">Pending</div>
-                </div>
-                <dt class="text-xs md:text-sm font-medium text-gray-500 mb-1 md:mb-2">Pending</dt>
-                <dd class="text-xl md:text-3xl font-bold text-gray-900">{{ $stats['berkas_pending'] ?? 0 }}</dd>
-                <p class="text-[10px] md:text-xs text-gray-400 mt-0.5 md:mt-1 hidden md:block">Menunggu Validasi</p>
+    <!-- Total Admin -->
+    <div class="bg-gradient-to-br from-slate-600 to-slate-700 rounded-xl md:rounded-2xl p-4 md:p-5 text-white shadow-lg">
+        <div class="flex items-start justify-between">
+            <div>
+                <p class="text-xs md:text-sm font-medium text-slate-200">Admin</p>
+                <p class="text-2xl md:text-3xl font-bold mt-1 md:mt-2">{{ $stats['total_admin'] ?? 0 }}</p>
+                <p class="text-[10px] md:text-xs text-slate-300 mt-1 md:mt-2">
+                    <i class="fas fa-user-cog mr-1"></i>Pengelola
+                </p>
+            </div>
+            <div class="h-10 w-10 md:h-12 md:w-12 rounded-lg md:rounded-xl bg-white/20 flex items-center justify-center">
+                <i class="fas fa-user-shield text-lg md:text-xl"></i>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Statistics Overview -->
-<div class="mt-8">
-    <!-- Berkas Status -->
-    <div class="bg-white shadow-lg rounded-2xl mb-6 border border-gray-100 overflow-hidden">
-        <div class="bg-gradient-to-r from-gray-50 to-gray-100 px-6 py-5 border-b border-gray-200">
-            <div class="flex items-center">
-                <div class="w-10 h-10 bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-lg flex items-center justify-center mr-3">
-                    <i class="fas fa-chart-pie text-white"></i>
-                </div>
-                <div>
-                    <h3 class="text-lg font-bold text-gray-900">Status Berkas</h3>
-                    <p class="text-xs text-gray-600">Ringkasan Validasi</p>
-                </div>
+<!-- Status Berkas - Redesigned Minimalist -->
+<div class="bg-white rounded-xl md:rounded-2xl shadow-sm border border-gray-100 overflow-hidden mb-6">
+    <div class="p-4 md:p-5 border-b border-gray-100 flex items-center justify-between">
+        <div class="flex items-center gap-2 md:gap-3">
+            <div class="h-8 w-8 md:h-10 md:w-10 rounded-lg md:rounded-xl bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center">
+                <i class="fas fa-folder-open text-white text-sm md:text-base"></i>
+            </div>
+            <div>
+                <h3 class="font-semibold text-gray-900 text-sm md:text-base">Status Berkas</h3>
+                <p class="text-[10px] md:text-xs text-gray-500">Ringkasan dokumen</p>
             </div>
         </div>
-        <div class="px-6 py-6">
-            @php
-                $totalBerkas = ($stats['berkas_pending'] ?? 0) + ($stats['berkas_tervalidasi'] ?? 0) + ($stats['berkas_belum_valid'] ?? 0);
-                $tervalidasiPercent = $totalBerkas > 0 ? round((($stats['berkas_tervalidasi'] ?? 0) / $totalBerkas) * 100) : 0;
-                $pendingPercent = $totalBerkas > 0 ? round((($stats['berkas_pending'] ?? 0) / $totalBerkas) * 100) : 0;
-                $belumValidPercent = $totalBerkas > 0 ? round((($stats['berkas_belum_valid'] ?? 0) / $totalBerkas) * 100) : 0;
-            @endphp
-            <div class="space-y-5">
-                <div class="group hover:bg-green-50 p-3 rounded-xl transition-colors">
-                    <div class="flex justify-between items-center mb-2">
-                        <div class="flex items-center">
-                            <div class="w-3 h-3 bg-green-500 rounded-full mr-2"></div>
-                            <span class="text-sm font-medium text-gray-700">Tervalidasi</span>
-                        </div>
-                        <span class="text-sm font-bold text-green-600 bg-green-100 px-3 py-1 rounded-full">{{ $tervalidasiPercent }}%</span>
-                    </div>
-                    <div class="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
-                        <div class="bg-gradient-to-r from-green-500 to-green-600 h-3 rounded-full transition-all duration-500 shadow-sm" style="width: {{ $tervalidasiPercent }}%"></div>
-                    </div>
-                </div>
-
-                <div class="group hover:bg-yellow-50 p-3 rounded-xl transition-colors">
-                    <div class="flex justify-between items-center mb-2">
-                        <div class="flex items-center">
-                            <div class="w-3 h-3 bg-yellow-500 rounded-full mr-2"></div>
-                            <span class="text-sm font-medium text-gray-700">Menunggu Validasi</span>
-                        </div>
-                        <span class="text-sm font-bold text-yellow-600 bg-yellow-100 px-3 py-1 rounded-full">{{ $pendingPercent }}%</span>
-                    </div>
-                    <div class="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
-                        <div class="bg-gradient-to-r from-yellow-500 to-yellow-600 h-3 rounded-full transition-all duration-500 shadow-sm" style="width: {{ $pendingPercent }}%"></div>
-                    </div>
-                </div>
-
-                <div class="group hover:bg-red-50 p-3 rounded-xl transition-colors">
-                    <div class="flex justify-between items-center mb-2">
-                        <div class="flex items-center">
-                            <div class="w-3 h-3 bg-red-500 rounded-full mr-2"></div>
-                            <span class="text-sm font-medium text-gray-700">Belum Valid</span>
-                        </div>
-                        <span class="text-sm font-bold text-red-600 bg-red-100 px-3 py-1 rounded-full">{{ $belumValidPercent }}%</span>
-                    </div>
-                    <div class="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
-                        <div class="bg-gradient-to-r from-red-500 to-red-600 h-3 rounded-full transition-all duration-500 shadow-sm" style="width: {{ $belumValidPercent }}%"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <a href="{{ route('admin.validation') }}" class="text-xs md:text-sm text-indigo-600 hover:text-indigo-700 font-medium">
+            Validasi <i class="fas fa-arrow-right ml-1"></i>
+        </a>
     </div>
-
-    <!-- Recent Activity -->
-    <!-- Unassigned Students -->
-    @if(isset($stats['unassigned_students']) && $stats['unassigned_students']->count() > 0)
-    <div class="bg-blue-50 border-l-4 border-blue-500 rounded-lg p-6 mb-6 shadow-md">
-        <div class="flex items-center justify-between mb-5">
-            <div class="flex items-center">
-                <div class="bg-blue-500 rounded-full p-3 mr-3">
-                    <i class="fas fa-user-plus text-white text-xl"></i>
-                </div>
-                <div>
-                    <h3 class="text-lg font-bold text-gray-800">Mahasiswa Belum Punya Dospem</h3>
-                    <p class="text-sm text-gray-600">{{ $stats['unassigned_students']->count() }} Perlu Dosen Pembimbing</p>
-                </div>
-            </div>
-        </div>
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            @foreach($stats['unassigned_students'] as $student)
-            <div class="bg-white rounded-lg shadow hover:shadow-lg transition-shadow border border-gray-200 overflow-hidden">
-                <div class="p-5">
-                    <div class="flex items-center space-x-4">
-                        <!-- Profile Photo -->
-                        <div class="flex-shrink-0">
-                            @if($student->photo && $student->google_linked)
-                                <img src="{{ $student->photo }}"
-                                     alt="{{ $student->name }}"
-                                     class="h-14 w-14 rounded-full object-cover ring-2 ring-blue-400"
-                                     onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                                <div class="h-14 w-14 rounded-full bg-blue-500 items-center justify-center hidden ring-2 ring-blue-400">
-                                    <i class="fas fa-user text-white text-xl"></i>
-                                </div>
-                            @else
-                                <div class="h-14 w-14 rounded-full bg-blue-500 flex items-center justify-center ring-2 ring-blue-400">
-                                    <i class="fas fa-user text-white text-xl"></i>
-                                </div>
-                            @endif
-                        </div>
-
-                        <!-- Student Info -->
-                        <div class="flex-1 min-w-0">
-                            <h4 class="text-base font-semibold text-gray-900 truncate">{{ $student->name }}</h4>
-                            <div class="flex items-center mt-1 space-x-3 text-sm text-gray-600">
-                                <span class="flex items-center">
-                                    <i class="fas fa-id-card mr-1 text-gray-400"></i>
-                                    {{ $student->profilMahasiswa->nim ?? 'Belum diisi' }}
-                                </span>
-                                <span class="flex items-center">
-                                    <i class="fas fa-envelope mr-1 text-gray-400"></i>
-                                    {{ Str::limit($student->email, 20) }}
-                                </span>
-                            </div>
-                            @if($student->profilMahasiswa && $student->profilMahasiswa->prodi)
-                            <div class="mt-1">
-                                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
-                                    <i class="fas fa-graduation-cap mr-1"></i>
-                                    {{ $student->profilMahasiswa->prodi }}
-                                </span>
-                            </div>
-                            @endif
-                        </div>
-                    </div>
-
-                    <!-- Assign Dospem Form -->
-                    <div class="mt-4 pt-4 border-t border-gray-200">
-                        <div class="flex items-center space-x-2">
-                            <select id="dospem-select-{{ $student->id }}"
-                                    class="flex-1 text-sm border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                                <option value="">-- Pilih Dosen Pembimbing --</option>
-                                @foreach(\App\Models\User::where('role', 'dospem')->orderBy('name')->get() as $dospem)
-                                    <option value="{{ $dospem->id }}">{{ $dospem->name }}</option>
-                                @endforeach
-                            </select>
-                            <button onclick="assignDospem({{ $student->id }}, document.getElementById('dospem-select-{{ $student->id }}').value)"
-                                    class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-all duration-200 shadow-md hover:shadow-lg">
-                                <i class="fas fa-check-circle mr-1"></i>
-                                Tetapkan
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            @endforeach
-        </div>
-    </div>
-    @endif
-
-    <div class="bg-white shadow-lg rounded-2xl border border-gray-100 overflow-hidden">
-        <div class="bg-gradient-to-r from-gray-50 to-gray-100 px-6 py-5 border-b border-gray-200">
-            <div class="flex justify-between items-center">
-                <div class="flex items-center">
-                    <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center mr-3">
-                        <i class="fas fa-history text-white"></i>
-                    </div>
-                    <div>
-                        <h3 class="text-lg font-bold text-gray-900">Aktivitas Terbaru</h3>
-                        <p class="text-xs text-gray-600">Log Aktivitas Sistem</p>
-                    </div>
-                </div>
-                <a href="{{ route('activity') }}" class="text-sm text-blue-600 hover:text-blue-800 font-semibold hover:bg-blue-50 px-4 py-2 rounded-lg transition-colors flex items-center">
-                    Lihat Semua
-                    <i class="fas fa-arrow-right ml-2 text-xs"></i>
-                </a>
-            </div>
-        </div>
-        <div class="px-6 py-4">
-            <div class="mt-5">
-                @if(isset($stats['recent_activities']) && $stats['recent_activities']->count() > 0)
-                    <div class="space-y-4">
-                        @foreach($stats['recent_activities'] as $activity)
-                        <div class="bg-gray-50 rounded-lg p-4">
-                            <div class="flex items-start justify-between">
-                                <div class="flex items-start space-x-3">
-                                    <div class="flex-shrink-0">
-                                        @if($activity->tipe === 'upload_dokumen')
-                                            <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                                                <i class="fas fa-upload text-blue-600 text-sm"></i>
-                                            </div>
-                                        @elseif($activity->tipe === 'validasi_dokumen')
-                                            <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
-                                                <i class="fas fa-check text-green-600 text-sm"></i>
-                                            </div>
-                                        @elseif($activity->tipe === 'login')
-                                            <div class="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
-                                                <i class="fas fa-sign-in-alt text-purple-600 text-sm"></i>
-                                            </div>
-                                        @elseif($activity->tipe === 'logout')
-                                            <div class="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center">
-                                                <i class="fas fa-sign-out-alt text-red-600 text-sm"></i>
-                                            </div>
-                                        @else
-                                            <div class="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center">
-                                                <i class="fas fa-info-circle text-gray-600 text-sm"></i>
-                                            </div>
-                                        @endif
-                                    </div>
-                                    
-                                    <div class="flex-1 min-w-0">
-                                        <p class="text-sm font-medium text-gray-900">
-                                            @if(is_array($activity->pesan))
-                                                @if($activity->pesan['action'] === 'upload_dokumen')
-                                                    {{ $activity->pesan['mahasiswa'] }} mengunggah berkas {{ $activity->pesan['document_type'] }}
-                                                @elseif($activity->pesan['action'] === 'validasi_dokumen')
-                                                    {{ $activity->user->name }} memvalidasi dokumen {{ $activity->pesan['document_type'] }} milik {{ $activity->pesan['mahasiswa'] }}
-                                                @elseif($activity->pesan['action'] === 'login')
-                                                    {{ $activity->pesan['user'] }} ({{ ucfirst($activity->pesan['role']) }}) melakukan login
-                                                @elseif($activity->pesan['action'] === 'logout')
-                                                    {{ $activity->pesan['user'] }} ({{ ucfirst($activity->pesan['role']) }}) melakukan logout
-                                                @elseif($activity->pesan['action'] === 'register_google')
-                                                    {{ $activity->pesan['user'] }} telah registrasi via Google sebagai {{ ucfirst($activity->pesan['role']) }}
-                                                @elseif($activity->pesan['action'] === 'save_gdrive_links')
-                                                    {{ $activity->pesan['mahasiswa'] }} menyimpan link Google Drive
-                                                @elseif($activity->pesan['action'] === 'save_transcript_data')
-                                                    {{ $activity->pesan['mahasiswa'] }} menyimpan data transkrip semester {{ $activity->pesan['semester'] }}
-                                                @else
-                                                    {{ $activity->pesan['message'] ?? 'Aktivitas sistem: ' . $activity->pesan['action'] }}
-                                                @endif
-                                            @else
-                                                {{ $activity->pesan }}
-                                            @endif
-                                        </p>
-                                        
-                                        @if($activity->pesan['file_name'] ?? false)
-                                            <p class="text-sm text-gray-500 mt-1">
-                                                <i class="fas fa-file mr-1"></i>{{ $activity->pesan['file_name'] }}
-                                            </p>
-                                        @endif
-                                    </div>
-                                </div>
-                                
-                                <div class="text-right">
-                                    <p class="text-xs text-gray-500">
-                                        {{ $activity->tanggal_dibuat->format('d M Y H:i') }}
-                                    </p>
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
-                                        @if($activity->tipe === 'upload_dokumen') bg-blue-100 text-blue-800
-                                        @elseif($activity->tipe === 'validasi_dokumen') bg-green-100 text-green-800
-                                        @elseif($activity->tipe === 'login') bg-purple-100 text-purple-800
-                                        @elseif($activity->tipe === 'logout') bg-red-100 text-red-800
-                                        @else bg-gray-100 text-gray-800 @endif">
-                                        {{ ucfirst(str_replace('_', ' ', $activity->tipe)) }}
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                        @endforeach
-                    </div>
-                @else
-                    <div class="text-center py-4">
-                        <p class="text-sm text-gray-500">Belum ada aktivitas terbaru</p>
-                    </div>
-                @endif
-            </div>
-        </div>
-    </div>
-</div>
-
-<script>
-function assignDospem(studentId, dospemId) {
-    if (!dospemId) {
-        alert('Pilih dospem terlebih dahulu!');
-        return;
-    }
     
-    if (confirm('Yakin ingin menetapkan dospem untuk mahasiswa ini?')) {
-        fetch(`/admin/assign-dospem`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': '{{ csrf_token() }}'
-            },
-            body: JSON.stringify({
-                student_id: studentId,
-                dospem_id: dospemId
-            })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                location.reload();
-            } else {
-                alert('Gagal menetapkan dospem: ' + data.message);
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('Terjadi kesalahan saat menetapkan dospem');
-        });
-    }
-}
-</script>
+    <div class="p-4 md:p-5">
+        @php
+            $totalBerkas = ($stats['total_khs'] ?? 0) + ($stats['total_surat_balasan'] ?? 0) + ($stats['total_laporan'] ?? 0) + ($stats['total_surat_pengantar'] ?? 0);
+            $pctTervalidasi = $totalBerkas > 0 ? round(($stats['berkas_tervalidasi'] / $totalBerkas) * 100) : 0;
+            $pctPending = $totalBerkas > 0 ? round(($stats['berkas_pending'] / $totalBerkas) * 100) : 0;
+            $pctRevisi = $totalBerkas > 0 ? round(($stats['berkas_belum_valid'] / $totalBerkas) * 100) : 0;
+        @endphp
+        
+        <!-- Summary Stats -->
+        <div class="grid grid-cols-3 gap-2 md:gap-4 mb-4 md:mb-6">
+            <div class="text-center p-3 md:p-4 bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg md:rounded-xl border border-green-100">
+                <div class="inline-flex items-center justify-center h-8 w-8 md:h-10 md:w-10 rounded-full bg-green-100 mb-1 md:mb-2">
+                    <i class="fas fa-check text-green-600 text-sm md:text-base"></i>
+                </div>
+                <p class="text-xl md:text-2xl font-bold text-green-600">{{ $stats['berkas_tervalidasi'] ?? 0 }}</p>
+                <p class="text-[10px] md:text-xs text-gray-500 mt-0.5">Tervalidasi</p>
+            </div>
+            <div class="text-center p-3 md:p-4 bg-gradient-to-br from-amber-50 to-yellow-50 rounded-lg md:rounded-xl border border-amber-100">
+                <div class="inline-flex items-center justify-center h-8 w-8 md:h-10 md:w-10 rounded-full bg-amber-100 mb-1 md:mb-2">
+                    <i class="fas fa-clock text-amber-600 text-sm md:text-base"></i>
+                </div>
+                <p class="text-xl md:text-2xl font-bold text-amber-600">{{ $stats['berkas_pending'] ?? 0 }}</p>
+                <p class="text-[10px] md:text-xs text-gray-500 mt-0.5">Menunggu</p>
+            </div>
+            <div class="text-center p-3 md:p-4 bg-gradient-to-br from-red-50 to-rose-50 rounded-lg md:rounded-xl border border-red-100">
+                <div class="inline-flex items-center justify-center h-8 w-8 md:h-10 md:w-10 rounded-full bg-red-100 mb-1 md:mb-2">
+                    <i class="fas fa-redo text-red-600 text-sm md:text-base"></i>
+                </div>
+                <p class="text-xl md:text-2xl font-bold text-red-600">{{ $stats['berkas_belum_valid'] ?? 0 }}</p>
+                <p class="text-[10px] md:text-xs text-gray-500 mt-0.5">Revisi</p>
+            </div>
+        </div>
+
+        <!-- Progress Bar -->
+        <div class="mb-4 md:mb-6">
+            <div class="flex items-center justify-between text-[10px] md:text-xs text-gray-500 mb-1.5 md:mb-2">
+                <span>Total: <strong class="text-gray-700">{{ $totalBerkas }}</strong></span>
+                <span>Validasi: <strong class="text-green-600">{{ $pctTervalidasi }}%</strong></span>
+            </div>
+            <div class="h-2.5 md:h-3 bg-gray-100 rounded-full overflow-hidden flex">
+                <div class="bg-green-500 transition-all duration-500" style="width: {{ $pctTervalidasi }}%"></div>
+                <div class="bg-amber-400 transition-all duration-500" style="width: {{ $pctPending }}%"></div>
+                <div class="bg-red-400 transition-all duration-500" style="width: {{ $pctRevisi }}%"></div>
+            </div>
+        </div>
+
+        <!-- Detail per Jenis -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-3">
+            <div class="p-2.5 md:p-3 bg-gray-50 rounded-lg md:rounded-xl">
+                <div class="flex items-center justify-between mb-1.5 md:mb-2">
+                    <span class="text-[10px] md:text-xs font-medium text-gray-600">KHS</span>
+                    <i class="fas fa-file-pdf text-red-400 text-xs md:text-sm"></i>
+                </div>
+                <p class="text-base md:text-lg font-bold text-gray-800">{{ $stats['total_khs'] ?? 0 }}</p>
+                <div class="flex gap-1.5 md:gap-2 mt-0.5 md:mt-1 text-[9px] md:text-[10px]">
+                    <span class="text-green-600 flex items-center gap-0.5"><i class="fas fa-check text-[8px]"></i>{{ $stats['berkas_khs_tervalidasi'] ?? 0 }}</span>
+                    <span class="text-amber-600 flex items-center gap-0.5"><i class="fas fa-clock text-[8px]"></i>{{ $stats['berkas_khs_pending'] ?? 0 }}</span>
+                    <span class="text-red-600 flex items-center gap-0.5"><i class="fas fa-redo text-[8px]"></i>{{ $stats['berkas_khs_revisi'] ?? 0 }}</span>
+                </div>
+            </div>
+            <div class="p-2.5 md:p-3 bg-gray-50 rounded-lg md:rounded-xl">
+                <div class="flex items-center justify-between mb-1.5 md:mb-2">
+                    <span class="text-[10px] md:text-xs font-medium text-gray-600">Surat Balasan</span>
+                    <i class="fas fa-envelope text-blue-400 text-xs md:text-sm"></i>
+                </div>
+                <p class="text-base md:text-lg font-bold text-gray-800">{{ $stats['total_surat_balasan'] ?? 0 }}</p>
+                <div class="flex gap-1.5 md:gap-2 mt-0.5 md:mt-1 text-[9px] md:text-[10px]">
+                    <span class="text-green-600 flex items-center gap-0.5"><i class="fas fa-check text-[8px]"></i>{{ $stats['berkas_surat_balasan_tervalidasi'] ?? 0 }}</span>
+                    <span class="text-amber-600 flex items-center gap-0.5"><i class="fas fa-clock text-[8px]"></i>{{ $stats['berkas_surat_balasan_pending'] ?? 0 }}</span>
+                </div>
+            </div>
+            <div class="p-2.5 md:p-3 bg-gray-50 rounded-lg md:rounded-xl">
+                <div class="flex items-center justify-between mb-1.5 md:mb-2">
+                    <span class="text-[10px] md:text-xs font-medium text-gray-600">Laporan</span>
+                    <i class="fas fa-file-alt text-purple-400 text-xs md:text-sm"></i>
+                </div>
+                <p class="text-base md:text-lg font-bold text-gray-800">{{ $stats['total_laporan'] ?? 0 }}</p>
+                <div class="flex gap-1.5 md:gap-2 mt-0.5 md:mt-1 text-[9px] md:text-[10px]">
+                    <span class="text-green-600 flex items-center gap-0.5"><i class="fas fa-check text-[8px]"></i>{{ $stats['berkas_laporan_tervalidasi'] ?? 0 }}</span>
+                    <span class="text-amber-600 flex items-center gap-0.5"><i class="fas fa-clock text-[8px]"></i>{{ $stats['berkas_laporan_pending'] ?? 0 }}</span>
+                </div>
+            </div>
+            <div class="p-2.5 md:p-3 bg-gray-50 rounded-lg md:rounded-xl">
+                <div class="flex items-center justify-between mb-1.5 md:mb-2">
+                    <span class="text-[10px] md:text-xs font-medium text-gray-600">Surat Pengantar</span>
+                    <i class="fas fa-paper-plane text-green-400 text-xs md:text-sm"></i>
+                </div>
+                <p class="text-base md:text-lg font-bold text-gray-800">{{ $stats['total_surat_pengantar'] ?? 0 }}</p>
+                <div class="flex gap-1.5 md:gap-2 mt-0.5 md:mt-1 text-[9px] md:text-[10px]">
+                    <span class="text-green-600 flex items-center gap-0.5"><i class="fas fa-check text-[8px]"></i>{{ $stats['berkas_surat_pengantar_tervalidasi'] ?? 0 }}</span>
+                    <span class="text-amber-600 flex items-center gap-0.5"><i class="fas fa-clock text-[8px]"></i>{{ $stats['berkas_surat_pengantar_pending'] ?? 0 }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Mahasiswa & Mitra Statistics -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 mb-6">
+    <!-- Status Mahasiswa -->
+    <div class="bg-white rounded-xl md:rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        <div class="p-4 md:p-5 border-b border-gray-100">
+            <div class="flex items-center gap-2 md:gap-3">
+                <div class="h-8 w-8 md:h-10 md:w-10 rounded-lg md:rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center">
+                    <i class="fas fa-users text-white text-sm md:text-base"></i>
+                </div>
+                <div>
+                    <h3 class="font-semibold text-gray-900 text-sm md:text-base">Status Mahasiswa</h3>
+                    <p class="text-[10px] md:text-xs text-gray-500">Kelengkapan data</p>
+                </div>
+            </div>
+        </div>
+        <div class="p-4 md:p-5 space-y-3 md:space-y-4">
+            <!-- IPK Stats -->
+            <div class="p-3 md:p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg md:rounded-xl">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-[10px] md:text-xs text-gray-500">Rata-rata IPK</p>
+                        <p class="text-xl md:text-2xl font-bold text-blue-600">{{ number_format($stats['avg_ipk'] ?? 0, 2) }}</p>
+                    </div>
+                    <div class="text-right text-[10px] md:text-xs">
+                        <p class="text-gray-500">Min: <span class="font-semibold text-gray-700">{{ number_format($stats['min_ipk'] ?? 0, 2) }}</span></p>
+                        <p class="text-gray-500">Max: <span class="font-semibold text-gray-700">{{ number_format($stats['max_ipk'] ?? 0, 2) }}</span></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Status Bars -->
+            @php
+                $pctDospem = ($stats['total_mahasiswa'] ?? 0) > 0 ? round(($stats['mahasiswa_dengan_dospem'] / $stats['total_mahasiswa']) * 100) : 0;
+                $pctMitra = ($stats['total_mahasiswa'] ?? 0) > 0 ? round(($stats['mahasiswa_dengan_mitra'] / $stats['total_mahasiswa']) * 100) : 0;
+                $pctLayak = ($stats['total_mahasiswa'] ?? 0) > 0 ? round(($stats['mahasiswa_layak'] / $stats['total_mahasiswa']) * 100) : 0;
+            @endphp
+            <div class="space-y-2.5 md:space-y-3">
+                <div>
+                    <div class="flex justify-between text-[10px] md:text-xs mb-1">
+                        <span class="text-gray-600">Memiliki Dospem</span>
+                        <span class="font-semibold">{{ $stats['mahasiswa_dengan_dospem'] ?? 0 }}/{{ $stats['total_mahasiswa'] ?? 0 }}</span>
+                    </div>
+                    <div class="h-1.5 md:h-2 bg-gray-100 rounded-full overflow-hidden">
+                        <div class="h-full bg-emerald-500 rounded-full transition-all" style="width: {{ $pctDospem }}%"></div>
+                    </div>
+                </div>
+                <div>
+                    <div class="flex justify-between text-[10px] md:text-xs mb-1">
+                        <span class="text-gray-600">Memilih Mitra</span>
+                        <span class="font-semibold">{{ $stats['mahasiswa_dengan_mitra'] ?? 0 }}/{{ $stats['total_mahasiswa'] ?? 0 }}</span>
+                    </div>
+                    <div class="h-1.5 md:h-2 bg-gray-100 rounded-full overflow-hidden">
+                        <div class="h-full bg-violet-500 rounded-full transition-all" style="width: {{ $pctMitra }}%"></div>
+                    </div>
+                </div>
+                <div>
+                    <div class="flex justify-between text-[10px] md:text-xs mb-1">
+                        <span class="text-gray-600">Layak PKL</span>
+                        <span class="font-semibold">{{ $stats['mahasiswa_layak'] ?? 0 }}/{{ $stats['total_mahasiswa'] ?? 0 }}</span>
+                    </div>
+                    <div class="h-1.5 md:h-2 bg-gray-100 rounded-full overflow-hidden">
+                        <div class="h-full bg-blue-500 rounded-full transition-all" style="width: {{ $pctLayak }}%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Status Mitra & Kuota -->
+    <div class="bg-white rounded-xl md:rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        <div class="p-4 md:p-5 border-b border-gray-100">
+            <div class="flex items-center gap-2 md:gap-3">
+                <div class="h-8 w-8 md:h-10 md:w-10 rounded-lg md:rounded-xl bg-gradient-to-br from-violet-500 to-purple-500 flex items-center justify-center">
+                    <i class="fas fa-building text-white text-sm md:text-base"></i>
+                </div>
+                <div>
+                    <h3 class="font-semibold text-gray-900 text-sm md:text-base">Status Mitra & Kuota</h3>
+                    <p class="text-[10px] md:text-xs text-gray-500">Ketersediaan instansi</p>
+                </div>
+            </div>
+        </div>
+        <div class="p-4 md:p-5">
+            <!-- Kuota Overview -->
+            <div class="p-3 md:p-4 bg-gradient-to-r from-violet-50 to-purple-50 rounded-lg md:rounded-xl mb-3 md:mb-4">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-[10px] md:text-xs text-gray-500">Total Kuota</p>
+                        <p class="text-xl md:text-2xl font-bold text-violet-600">{{ $stats['total_kuota_mitra'] ?? 0 }}</p>
+                    </div>
+                    <div class="text-right text-xs md:text-sm">
+                        <p><span class="text-green-600 font-semibold">{{ $stats['kuota_terisi'] ?? 0 }}</span> terisi</p>
+                        <p><span class="text-gray-600 font-semibold">{{ $stats['kuota_tersisa'] ?? 0 }}</span> tersisa</p>
+                    </div>
+                </div>
+                @php $pctKuota = ($stats['total_kuota_mitra'] ?? 0) > 0 ? round(($stats['kuota_terisi'] / $stats['total_kuota_mitra']) * 100) : 0; @endphp
+                <div class="mt-2 md:mt-3">
+                    <div class="h-1.5 md:h-2 bg-white rounded-full overflow-hidden">
+                        <div class="h-full bg-violet-500 rounded-full transition-all" style="width: {{ $pctKuota }}%"></div>
+                    </div>
+                    <p class="text-[10px] md:text-xs text-gray-500 mt-1 text-right">{{ $pctKuota }}% terisi</p>
+                </div>
+            </div>
+
+            <!-- Mitra Stats -->
+            <div class="grid grid-cols-3 gap-2 md:gap-3">
+                <div class="text-center p-2.5 md:p-3 bg-blue-50 rounded-lg md:rounded-xl">
+                    <p class="text-lg md:text-xl font-bold text-blue-600">{{ $stats['mitra_aktif'] ?? 0 }}</p>
+                    <p class="text-[10px] md:text-xs text-gray-500">Aktif</p>
+                </div>
+                <div class="text-center p-2.5 md:p-3 bg-green-50 rounded-lg md:rounded-xl">
+                    <p class="text-lg md:text-xl font-bold text-green-600">{{ $stats['mitra_tersedia'] ?? 0 }}</p>
+                    <p class="text-[10px] md:text-xs text-gray-500">Tersedia</p>
+                </div>
+                <div class="text-center p-2.5 md:p-3 bg-red-50 rounded-lg md:rounded-xl">
+                    <p class="text-lg md:text-xl font-bold text-red-600">{{ $stats['mitra_penuh'] ?? 0 }}</p>
+                    <p class="text-[10px] md:text-xs text-gray-500">Penuh</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Rankings Section -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 mb-6">
+    <!-- Top Mitra -->
+    <div class="bg-white rounded-xl md:rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        <div class="p-4 md:p-5 border-b border-gray-100">
+            <div class="flex items-center gap-2 md:gap-3">
+                <div class="h-8 w-8 md:h-10 md:w-10 rounded-lg md:rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center">
+                    <i class="fas fa-trophy text-white text-sm md:text-base"></i>
+                </div>
+                <h3 class="font-semibold text-gray-900 text-sm md:text-base">Top 5 Mitra</h3>
+            </div>
+        </div>
+        <div class="divide-y divide-gray-50">
+            @if(isset($stats['mitra_populer']) && $stats['mitra_populer']->count() > 0)
+                @foreach($stats['mitra_populer'] as $index => $mitra)
+                <div class="px-4 md:px-5 py-2.5 md:py-3 flex items-center gap-2 md:gap-3 hover:bg-gray-50 transition">
+                    <span class="h-6 w-6 md:h-7 md:w-7 rounded-full flex items-center justify-center text-[10px] md:text-xs font-bold
+                        {{ $index === 0 ? 'bg-amber-400 text-white' : ($index === 1 ? 'bg-gray-300 text-gray-700' : ($index === 2 ? 'bg-orange-300 text-white' : 'bg-gray-100 text-gray-600')) }}">
+                        {{ $index + 1 }}
+                    </span>
+                    <div class="flex-1 min-w-0">
+                        <p class="text-xs md:text-sm font-medium text-gray-900 truncate">{{ $mitra->nama }}</p>
+                    </div>
+                    <span class="text-xs md:text-sm font-bold {{ $mitra->mahasiswa_terpilih_count >= $mitra->max_mahasiswa ? 'text-red-600' : 'text-blue-600' }}">
+                        {{ $mitra->mahasiswa_terpilih_count }}/{{ $mitra->max_mahasiswa }}
+                    </span>
+                </div>
+                @endforeach
+            @else
+                <div class="p-6 md:p-8 text-center text-gray-400">
+                    <i class="fas fa-inbox text-2xl md:text-3xl mb-2"></i>
+                    <p class="text-xs md:text-sm">Belum ada data</p>
+                </div>
+            @endif
+        </div>
+    </div>
+
+    <!-- Top Dospem -->
+    <div class="bg-white rounded-xl md:rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        <div class="p-4 md:p-5 border-b border-gray-100">
+            <div class="flex items-center gap-2 md:gap-3">
+                <div class="h-8 w-8 md:h-10 md:w-10 rounded-lg md:rounded-xl bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center">
+                    <i class="fas fa-medal text-white text-sm md:text-base"></i>
+                </div>
+                <h3 class="font-semibold text-gray-900 text-sm md:text-base">Top 5 Dospem</h3>
+            </div>
+        </div>
+        <div class="divide-y divide-gray-50">
+            @if(isset($stats['dospem_populer']) && $stats['dospem_populer']->count() > 0)
+                @foreach($stats['dospem_populer'] as $index => $dospem)
+                <div class="px-4 md:px-5 py-2.5 md:py-3 flex items-center gap-2 md:gap-3 hover:bg-gray-50 transition">
+                    <span class="h-6 w-6 md:h-7 md:w-7 rounded-full flex items-center justify-center text-[10px] md:text-xs font-bold
+                        {{ $index === 0 ? 'bg-emerald-500 text-white' : ($index === 1 ? 'bg-teal-400 text-white' : ($index === 2 ? 'bg-cyan-400 text-white' : 'bg-gray-100 text-gray-600')) }}">
+                        {{ $index + 1 }}
+                    </span>
+                    <div class="flex-1 min-w-0">
+                        <p class="text-xs md:text-sm font-medium text-gray-900 truncate">{{ $dospem->name }}</p>
+                    </div>
+                    <span class="text-xs md:text-sm font-bold text-emerald-600">{{ $dospem->mahasiswa_bimbingan_count }}</span>
+                </div>
+                @endforeach
+            @else
+                <div class="p-6 md:p-8 text-center text-gray-400">
+                    <i class="fas fa-inbox text-2xl md:text-3xl mb-2"></i>
+                    <p class="text-xs md:text-sm">Belum ada data</p>
+                </div>
+            @endif
+        </div>
+    </div>
+</div>
+
+<!-- Distribution & Recent -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 mb-6">
+    <!-- Distribusi per Semester -->
+    <div class="bg-white rounded-xl md:rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        <div class="p-4 md:p-5 border-b border-gray-100">
+            <div class="flex items-center gap-2 md:gap-3">
+                <div class="h-8 w-8 md:h-10 md:w-10 rounded-lg md:rounded-xl bg-gradient-to-br from-cyan-500 to-blue-500 flex items-center justify-center">
+                    <i class="fas fa-chart-bar text-white text-sm md:text-base"></i>
+                </div>
+                <h3 class="font-semibold text-gray-900 text-sm md:text-base">Distribusi Semester</h3>
+            </div>
+        </div>
+        <div class="p-4 md:p-5">
+            @if(isset($stats['mahasiswa_per_semester']) && $stats['mahasiswa_per_semester']->count() > 0)
+            <div class="space-y-2 md:space-y-3">
+                @foreach($stats['mahasiswa_per_semester'] as $item)
+                @php
+                    $maxSem = $stats['mahasiswa_per_semester']->max('total');
+                    $semPct = $maxSem > 0 ? ($item->total / $maxSem) * 100 : 0;
+                @endphp
+                <div class="flex items-center gap-2 md:gap-3">
+                    <span class="text-[10px] md:text-xs w-12 md:w-16 text-gray-600">Sem {{ $item->semester }}</span>
+                    <div class="flex-1">
+                        <div class="h-5 md:h-6 bg-gray-100 rounded-md md:rounded-lg overflow-hidden">
+                            <div class="h-full bg-gradient-to-r from-cyan-500 to-blue-500 rounded-md md:rounded-lg flex items-center justify-end pr-1.5 md:pr-2 transition-all" style="width: {{ max($semPct, 15) }}%">
+                                <span class="text-[9px] md:text-xs font-bold text-white">{{ $item->total }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                @endforeach
+            </div>
+            @else
+            <p class="text-center text-gray-400 py-4 text-xs md:text-sm">Belum ada data</p>
+            @endif
+        </div>
+    </div>
+
+    <!-- Mahasiswa Terbaru -->
+    <div class="bg-white rounded-xl md:rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        <div class="p-4 md:p-5 border-b border-gray-100 flex items-center justify-between">
+            <div class="flex items-center gap-2 md:gap-3">
+                <div class="h-8 w-8 md:h-10 md:w-10 rounded-lg md:rounded-xl bg-gradient-to-br from-pink-500 to-rose-500 flex items-center justify-center">
+                    <i class="fas fa-user-plus text-white text-sm md:text-base"></i>
+                </div>
+                <h3 class="font-semibold text-gray-900 text-sm md:text-base">Mahasiswa Terbaru</h3>
+            </div>
+            <a href="{{ route('admin.kelola-akun') }}" class="text-[10px] md:text-xs text-pink-600 hover:text-pink-700 font-medium">
+                Semua →
+            </a>
+        </div>
+        <div class="divide-y divide-gray-50">
+            @if(isset($stats['mahasiswa_terbaru']) && $stats['mahasiswa_terbaru']->count() > 0)
+                @foreach($stats['mahasiswa_terbaru'] as $mhs)
+                <div class="px-4 md:px-5 py-2.5 md:py-3 flex items-center gap-2 md:gap-3 hover:bg-gray-50 transition">
+                    @if($mhs->photo && $mhs->google_linked)
+                        <img src="{{ $mhs->photo }}" 
+                             alt="{{ $mhs->name }}" 
+                             class="h-7 w-7 md:h-9 md:w-9 rounded-full object-cover ring-2 ring-pink-200"
+                             onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                        <div class="h-7 w-7 md:h-9 md:w-9 rounded-full bg-gradient-to-br from-pink-500 to-rose-500 items-center justify-center text-white font-bold text-[10px] md:text-sm hidden">
+                            {{ strtoupper(substr($mhs->name, 0, 1)) }}
+                        </div>
+                    @else
+                        <div class="h-7 w-7 md:h-9 md:w-9 rounded-full bg-gradient-to-br from-pink-500 to-rose-500 flex items-center justify-center text-white font-bold text-[10px] md:text-sm">
+                            {{ strtoupper(substr($mhs->name, 0, 1)) }}
+                        </div>
+                    @endif
+                    <div class="flex-1 min-w-0">
+                        <p class="text-xs md:text-sm font-medium text-gray-900 truncate">{{ $mhs->name }}</p>
+                        <p class="text-[10px] md:text-xs text-gray-500">{{ $mhs->profilMahasiswa->nim ?? 'N/A' }}</p>
+                    </div>
+                    <span class="text-[10px] md:text-xs text-gray-400">{{ $mhs->created_at->diffForHumans() }}</span>
+                </div>
+                @endforeach
+            @else
+                <div class="p-6 md:p-8 text-center text-gray-400">
+                    <i class="fas fa-inbox text-2xl md:text-3xl mb-2"></i>
+                    <p class="text-xs md:text-sm">Belum ada</p>
+                </div>
+            @endif
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions & Activities -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
+    <!-- Quick Actions -->
+    <div class="bg-white rounded-xl md:rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        <div class="p-4 md:p-5 border-b border-gray-100">
+            <div class="flex items-center gap-2 md:gap-3">
+                <div class="h-8 w-8 md:h-10 md:w-10 rounded-lg md:rounded-xl bg-gradient-to-br from-gray-700 to-gray-800 flex items-center justify-center">
+                    <i class="fas fa-bolt text-white text-sm md:text-base"></i>
+                </div>
+                <h3 class="font-semibold text-gray-900 text-sm md:text-base">Aksi Cepat</h3>
+            </div>
+        </div>
+        <div class="p-3 md:p-4 space-y-1.5 md:space-y-2">
+            <a href="{{ route('admin.kelola-data') }}" class="flex items-center justify-between p-2.5 md:p-3 bg-gray-50 hover:bg-blue-50 rounded-lg md:rounded-xl transition group">
+                <div class="flex items-center gap-2 md:gap-3">
+                    <i class="fas fa-cogs text-blue-500 text-sm md:text-base"></i>
+                    <span class="text-xs md:text-sm font-medium text-gray-700">Kelola Data</span>
+                </div>
+                <i class="fas fa-chevron-right text-gray-300 group-hover:text-blue-500 transition text-xs"></i>
+            </a>
+            <a href="{{ route('admin.validation') }}" class="flex items-center justify-between p-2.5 md:p-3 bg-gray-50 hover:bg-purple-50 rounded-lg md:rounded-xl transition group">
+                <div class="flex items-center gap-2 md:gap-3">
+                    <i class="fas fa-clipboard-check text-purple-500 text-sm md:text-base"></i>
+                    <span class="text-xs md:text-sm font-medium text-gray-700">Validasi</span>
+                </div>
+                @if(($stats['berkas_pending'] ?? 0) > 0)
+                    <span class="bg-red-500 text-white text-[10px] md:text-xs px-1.5 md:px-2 py-0.5 rounded-full">{{ $stats['berkas_pending'] }}</span>
+                @else
+                    <i class="fas fa-chevron-right text-gray-300 group-hover:text-purple-500 transition text-xs"></i>
+                @endif
+            </a>
+            <a href="{{ route('admin.kelola-akun') }}" class="flex items-center justify-between p-2.5 md:p-3 bg-gray-50 hover:bg-green-50 rounded-lg md:rounded-xl transition group">
+                <div class="flex items-center gap-2 md:gap-3">
+                    <i class="fas fa-users-cog text-green-500 text-sm md:text-base"></i>
+                    <span class="text-xs md:text-sm font-medium text-gray-700">Kelola Akun</span>
+                </div>
+                <i class="fas fa-chevron-right text-gray-300 group-hover:text-green-500 transition text-xs"></i>
+            </a>
+            <a href="{{ route('admin.kelola-mitra') }}" class="flex items-center justify-between p-2.5 md:p-3 bg-gray-50 hover:bg-violet-50 rounded-lg md:rounded-xl transition group">
+                <div class="flex items-center gap-2 md:gap-3">
+                    <i class="fas fa-building text-violet-500 text-sm md:text-base"></i>
+                    <span class="text-xs md:text-sm font-medium text-gray-700">Kelola Mitra</span>
+                </div>
+                <i class="fas fa-chevron-right text-gray-300 group-hover:text-violet-500 transition text-xs"></i>
+            </a>
+            <a href="{{ route('activity') }}" class="flex items-center justify-between p-2.5 md:p-3 bg-gray-50 hover:bg-indigo-50 rounded-lg md:rounded-xl transition group">
+                <div class="flex items-center gap-2 md:gap-3">
+                    <i class="fas fa-history text-indigo-500 text-sm md:text-base"></i>
+                    <span class="text-xs md:text-sm font-medium text-gray-700">Log Aktivitas</span>
+                </div>
+                <i class="fas fa-chevron-right text-gray-300 group-hover:text-indigo-500 transition text-xs"></i>
+            </a>
+        </div>
+    </div>
+
+    <!-- Recent Activities -->
+    <div class="lg:col-span-2 bg-white rounded-xl md:rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        <div class="p-4 md:p-5 border-b border-gray-100 flex items-center justify-between">
+            <div class="flex items-center gap-2 md:gap-3">
+                <div class="h-8 w-8 md:h-10 md:w-10 rounded-lg md:rounded-xl bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center">
+                    <i class="fas fa-stream text-white text-sm md:text-base"></i>
+                </div>
+                <h3 class="font-semibold text-gray-900 text-sm md:text-base">Aktivitas Terbaru</h3>
+            </div>
+            <a href="{{ route('activity') }}" class="text-[10px] md:text-xs text-indigo-600 hover:text-indigo-700 font-medium">
+                Semua →
+            </a>
+        </div>
+        <div class="max-h-[280px] md:max-h-[350px] overflow-y-auto">
+            @if(isset($stats['recent_activities']) && $stats['recent_activities']->count() > 0)
+            <div class="divide-y divide-gray-50">
+                @foreach($stats['recent_activities'] as $activity)
+                <div class="px-4 md:px-5 py-2.5 md:py-3 flex items-start gap-2 md:gap-3 hover:bg-gray-50 transition">
+                    <div class="h-6 w-6 md:h-8 md:w-8 rounded-full flex items-center justify-center flex-shrink-0
+                        @if($activity->tipe === 'upload_dokumen') bg-blue-100
+                        @elseif($activity->tipe === 'validasi_dokumen') bg-green-100
+                        @elseif($activity->tipe === 'login') bg-purple-100
+                        @elseif($activity->tipe === 'logout') bg-red-100
+                        @else bg-gray-100 @endif">
+                        <i class="fas text-[10px] md:text-xs
+                            @if($activity->tipe === 'upload_dokumen') fa-upload text-blue-600
+                            @elseif($activity->tipe === 'validasi_dokumen') fa-check text-green-600
+                            @elseif($activity->tipe === 'login') fa-sign-in-alt text-purple-600
+                            @elseif($activity->tipe === 'logout') fa-sign-out-alt text-red-600
+                            @else fa-info text-gray-600 @endif"></i>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <p class="text-xs md:text-sm text-gray-900">
+                            <span class="font-medium">{{ $activity->user->name ?? 'Unknown' }}</span>
+                            @if($activity->tipe === 'upload_dokumen')
+                                mengupload {{ $activity->pesan['document_type'] ?? 'dokumen' }}
+                            @elseif($activity->tipe === 'validasi_dokumen')
+                                memvalidasi dokumen
+                            @elseif($activity->tipe === 'login')
+                                login
+                            @elseif($activity->tipe === 'logout')
+                                logout
+                            @else
+                                {{ $activity->pesan['action'] ?? '' }}
+                            @endif
+                        </p>
+                        <p class="text-[10px] md:text-xs text-gray-400 mt-0.5">{{ $activity->tanggal_dibuat->diffForHumans() }}</p>
+                    </div>
+                </div>
+                @endforeach
+            </div>
+            @else
+            <div class="p-6 md:p-8 text-center text-gray-400">
+                <i class="fas fa-inbox text-2xl md:text-3xl mb-2"></i>
+                <p class="text-xs md:text-sm">Belum ada aktivitas</p>
+            </div>
+            @endif
+        </div>
+    </div>
+</div>
