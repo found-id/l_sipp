@@ -74,22 +74,23 @@
                                         </div>
                                         <h4 class="text-sm font-semibold text-gray-900">Pratinjau Gambar</h4>
                                     </div>
-                                    @if($fileExists)
-                                        <a href="{{ $url }}" target="_blank" class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-all duration-200 text-sm font-medium">
-                                            <i class="fas fa-external-link-alt mr-2"></i>
-                                            Lihat Penuh
-                                        </a>
-                                    @else
-                                        <button disabled class="inline-flex items-center px-4 py-2 bg-gray-100 text-gray-400 border border-gray-200 rounded-lg cursor-not-allowed text-sm font-medium">
-                                            <i class="fas fa-external-link-alt mr-2"></i>
-                                            Lihat Penuh
-                                        </button>
-                                    @endif
+                                    <a href="{{ $url }}" target="_blank" class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-all duration-200 text-sm font-medium" id="view-full-btn-{{ $j->id }}">
+                                        <i class="fas fa-external-link-alt mr-2"></i>
+                                        Lihat Penuh
+                                    </a>
                                 </div>
-                                <div class="bg-gray-50 rounded-lg p-4 border border-gray-100">
+                                <div class="bg-gray-50 rounded-lg p-4 border border-gray-100" id="image-wrapper-{{ $j->id }}">
+                                    <!-- Loading Indicator -->
+                                    <div id="loading-{{ $j->id }}" class="flex flex-col items-center justify-center py-12">
+                                        <div class="animate-spin rounded-full h-12 w-12 border-4 border-blue-200 border-t-blue-600 mb-4"></div>
+                                        <p class="text-gray-500 text-sm">Memuat gambar...</p>
+                                    </div>
+                                    <!-- Image -->
                                     <img src="{{ $url }}"
                                          alt="Jadwal"
-                                         class="max-w-full h-auto rounded-lg mx-auto block shadow-sm"
+                                         class="max-w-full h-auto rounded-lg mx-auto block shadow-sm hidden"
+                                         id="image-{{ $j->id }}"
+                                         onload="handleImageLoad({{ $j->id }})"
                                          onerror="handleImageError(this, {{ $j->id }})">
                                 </div>
                                 <div id="error-message-{{ $j->id }}" class="hidden text-center py-12">
@@ -199,9 +200,39 @@
 </div>
 
 <script>
+    // Handle successful image load
+    function handleImageLoad(jadwalId) {
+        // Hide loading indicator
+        const loading = document.getElementById('loading-' + jadwalId);
+        if (loading) {
+            loading.classList.add('hidden');
+        }
+        
+        // Show the image
+        const img = document.getElementById('image-' + jadwalId);
+        if (img) {
+            img.classList.remove('hidden');
+        }
+    }
+
     // Handle image loading error
     function handleImageError(img, jadwalId) {
-        img.style.display = 'none';
+        // Hide loading indicator
+        const loading = document.getElementById('loading-' + jadwalId);
+        if (loading) {
+            loading.classList.add('hidden');
+        }
+        
+        // Hide the image
+        img.classList.add('hidden');
+        
+        // Hide the image wrapper
+        const wrapper = document.getElementById('image-wrapper-' + jadwalId);
+        if (wrapper) {
+            wrapper.classList.add('hidden');
+        }
+        
+        // Show error message
         document.getElementById('error-message-' + jadwalId).classList.remove('hidden');
     }
 

@@ -88,17 +88,42 @@ Route::middleware(['auth'])->group(function () {
     
     // Serve jadwal seminar files
     Route::get('/jadwal/{filename}', function ($filename) {
-        $path = storage_path('app/public/jadwal/' . $filename);
+        // Sanitize filename to prevent directory traversal
+        $filename = basename($filename);
         
-        \Log::info('Trying to serve file: ' . $path);
-        \Log::info('File exists: ' . (file_exists($path) ? 'yes' : 'no'));
+        // Try multiple possible paths
+        $paths = [
+            storage_path('app/public/jadwal/' . $filename),
+            public_path('storage/jadwal/' . $filename),
+            base_path('storage/app/public/jadwal/' . $filename),
+        ];
         
-        if (!file_exists($path)) {
-            \Log::error('File not found: ' . $path);
-            abort(404);
+        $foundPath = null;
+        foreach ($paths as $path) {
+            if (file_exists($path)) {
+                $foundPath = $path;
+                break;
+            }
         }
         
-        return response()->file($path);
+        \Log::info('Jadwal file request', [
+            'filename' => $filename,
+            'tried_paths' => $paths,
+            'found_path' => $foundPath,
+        ]);
+        
+        if (!$foundPath) {
+            \Log::error('Jadwal file not found: ' . $filename);
+            abort(404, 'File not found');
+        }
+        
+        // Get mime type
+        $mimeType = mime_content_type($foundPath);
+        
+        return response()->file($foundPath, [
+            'Content-Type' => $mimeType,
+            'Cache-Control' => 'public, max-age=86400', // Cache for 1 day
+        ]);
     })->name('jadwal.file');
 
     // Profile routes
