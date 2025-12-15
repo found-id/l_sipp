@@ -20,7 +20,7 @@
         </div>
     </div>
 
-    <!-- Search and Sort -->
+    <!-- Search and -->
     <div class="bg-white shadow rounded-lg p-6">
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
             <!-- Search -->
