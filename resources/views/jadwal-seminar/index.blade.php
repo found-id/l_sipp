@@ -113,25 +113,34 @@
                                         </div>
                                         <h4 class="text-sm font-semibold text-gray-900">Pratinjau Dokumen PDF</h4>
                                     </div>
-                                    @if($fileExists)
-                                        <a href="{{ $url }}" target="_blank" class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-all duration-200 text-sm font-medium">
-                                            <i class="fas fa-external-link-alt mr-2"></i>
-                                            Lihat Penuh
-                                        </a>
-                                    @else
-                                        <button disabled class="inline-flex items-center px-4 py-2 bg-gray-100 text-gray-400 border border-gray-200 rounded-lg cursor-not-allowed text-sm font-medium">
-                                            <i class="fas fa-external-link-alt mr-2"></i>
-                                            Lihat Penuh
-                                        </button>
-                                    @endif
+                                    <a href="{{ $url }}" target="_blank" class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-all duration-200 text-sm font-medium">
+                                        <i class="fas fa-external-link-alt mr-2"></i>
+                                        Lihat Penuh
+                                    </a>
                                 </div>
-                                <div class="bg-gray-50 rounded-lg border border-gray-200 overflow-hidden">
+                                
+                                <!-- Desktop: Show iframe preview -->
+                                <div class="hidden md:block bg-gray-50 rounded-lg border border-gray-200 overflow-hidden">
                                     <iframe src="{{ $url }}"
                                             class="w-full h-96 border-0"
                                             frameborder="0"
                                             onload="checkPdfLoaded(this, {{ $j->id }})"
                                             id="pdf-iframe-{{ $j->id }}"></iframe>
                                 </div>
+                                
+                                <!-- Mobile: Show card with open button -->
+                                <div class="md:hidden bg-gradient-to-br from-red-50 to-orange-50 rounded-xl border border-red-100 p-6 text-center">
+                                    <div class="inline-flex items-center justify-center w-16 h-16 bg-white rounded-full shadow-sm mb-4">
+                                        <i class="fas fa-file-pdf text-red-500 text-3xl"></i>
+                                    </div>
+                                    <p class="text-gray-700 font-medium mb-2">{{ basename($j->lokasi_file) }}</p>
+                                    <p class="text-gray-500 text-sm mb-4">Ketuk tombol di bawah untuk membuka dokumen PDF</p>
+                                    <a href="{{ $url }}" target="_blank" class="inline-flex items-center justify-center w-full px-6 py-3 bg-red-500 text-white rounded-xl hover:bg-red-600 transition-all duration-200 font-medium shadow-sm">
+                                        <i class="fas fa-external-link-alt mr-2"></i>
+                                        Buka Dokumen PDF
+                                    </a>
+                                </div>
+                                
                                 <div id="pdf-error-message-{{ $j->id }}" class="hidden text-center py-12">
                                     <div class="inline-flex items-center justify-center w-16 h-16 bg-red-50 rounded-full mb-4">
                                         <i class="fas fa-exclamation-triangle text-red-500 text-2xl"></i>
