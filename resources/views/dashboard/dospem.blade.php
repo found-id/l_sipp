@@ -152,6 +152,8 @@
                         <td class="px-4 py-4 whitespace-nowrap">
                             @php
                                 $dbStatusPkl = $profil->status_pkl ?? 'siap';
+                                $ipkTranskrip = $profil->ipk_transkrip ?? 0;
+
                                 if ($dbStatusPkl === 'selesai') {
                                     $statusPKL = 'Selesai PKL';
                                     $statusColor = 'green';
@@ -160,6 +162,11 @@
                                     $statusPKL = 'Aktif PKL';
                                     $statusColor = 'blue';
                                     $statusIcon = 'fa-building';
+                                } elseif ($ipkTranskrip > 0 && $ipkTranskrip < 2.5) {
+                                    // IPK from transkrip is below 2.5 - Not eligible
+                                    $statusPKL = 'Tidak Layak';
+                                    $statusColor = 'red';
+                                    $statusIcon = 'fa-times-circle';
                                 } else {
                                     $statusPKL = 'Menyiapkan Berkas';
                                     $statusColor = 'gray';
@@ -172,9 +179,9 @@
                             </span>
                         </td>
                         <td class="px-4 py-4 whitespace-nowrap">
-                            @if($profil->ipk)
-                                <span class="text-sm font-semibold {{ $profil->ipk >= 3.0 ? 'text-green-600' : 'text-orange-600' }}">
-                                    {{ number_format($profil->ipk, 2) }}
+                            @if($profil->ipk_transkrip)
+                                <span class="text-sm font-semibold {{ $profil->ipk_transkrip >= 3.0 ? 'text-green-600' : 'text-orange-600' }}">
+                                    {{ number_format($profil->ipk_transkrip, 2) }}
                                 </span>
                             @else
                                 <span class="text-sm text-gray-400">-</span>

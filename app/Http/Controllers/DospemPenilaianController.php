@@ -212,4 +212,49 @@ class DospemPenilaianController extends Controller
             'gpa' => $grade['gpa_point'],
         ];
     }
+
+    public function destroy($mahasiswaId)
+    {
+        $user = Auth::user();
+        
+        if ($user->role !== 'dospem') {
+            abort(403, 'Unauthorized');
+        }
+
+        // Cast to integer for proper comparison
+        $mahasiswaId = (int) $mahasiswaId;
+
+        // Check if mahasiswa is under this dospem
+        $mahasiswaIds = \App\Models\ProfilMahasiswa::where('id_dospem', $user->id)
+            ->pluck('id_mahasiswa')
+            ->toArray();
+        
+        if (!in_array($mahasiswaId, $mahasiswaIds)) {
+            abort(403, 'Unauthorized');
+        }
+
+        // Get all responses for this student first
+        $responses = AssessmentResponse::where('mahasiswa_user_id', $mahasiswaId)->get();
+        
+        // Delete response items for each response
+        foreach ($responses as $response) {
+            AssessmentResponseItem::where('response_id', $response->id)->delete();
+        }
+
+        // Delete assessment responses for this student
+        AssessmentResponse::where('mahasiswa_user_id', $mahasiswaId)->delete();
+
+        // Delete assessment result for this student
+        AssessmentResult::where('mahasiswa_user_id', $mahasiswaId)->delete();
+
+        return redirect()->route('dospem.penilaian', [
+                'm' => $mahasiswaId,
+                '_t' => time(),
+                '_r' => rand(1000, 9999)
+            ])
+            ->with('success', 'Penilaian berhasil dihapus/reset!')
+            ->header('Cache-Control', 'no-cache, no-store, must-revalidate, max-age=0')
+            ->header('Pragma', 'no-cache')
+            ->header('Expires', '0');
+    }
 }

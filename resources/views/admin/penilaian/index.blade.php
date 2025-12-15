@@ -300,6 +300,12 @@
                                 </div>
 
                                 <div class="mt-6 flex justify-end space-x-3">
+                                    @if($allResults && $allResults->has($selectedStudent->id))
+                                        <button type="button" onclick="if(confirm('Apakah Anda yakin ingin menghapus/reset penilaian mahasiswa ini?')) { document.getElementById('deletePenilaianForm').submit(); }" class="px-4 py-2 text-sm border border-red-300 rounded-lg text-red-600 hover:bg-red-50 transition inline-flex items-center">
+                                            <i class="fas fa-trash-alt mr-2"></i>
+                                            Hapus
+                                        </button>
+                                    @endif
                                     @php
                                         // Build URL without 'm' parameter for cancel button
                                         $cancelParams = request()->query->all();
@@ -319,6 +325,14 @@
                         </div>
                     </div>
                     
+                    <!-- Hidden form for delete action -->
+                    @if($allResults && $allResults->has($selectedStudent->id))
+                        <form id="deletePenilaianForm" action="{{ route('admin.penilaian.destroy', $selectedStudent->id) }}" method="POST" style="display: none;">
+                            @csrf
+                            @method('DELETE')
+                        </form>
+                    @endif
+
                     <!-- Hasil Akhir Section -->
                     @if($allResults && $allResults->has($selectedStudent->id))
                         @php
@@ -329,7 +343,7 @@
                                 <h3 class="text-base font-semibold text-gray-900">Hasil Penilaian</h3>
                             </div>
                             <div class="p-6">
-                                <div class="grid grid-cols-3 gap-4">
+                                <div class="grid grid-cols-2 gap-4">
                                     <div class="text-center p-4 bg-blue-50 rounded-lg">
                                         <div class="text-2xl font-bold text-blue-600">
                                             {{ $studentResult->total_percent ?? 0 }}%
@@ -341,12 +355,6 @@
                                             {{ $studentResult->letter_grade ?? 'N/A' }}
                                         </div>
                                         <div class="text-xs text-gray-600 mt-1">Grade</div>
-                                    </div>
-                                    <div class="text-center p-4 bg-purple-50 rounded-lg">
-                                        <div class="text-2xl font-bold text-purple-600">
-                                            {{ $studentResult->gpa_point ?? 'N/A' }}
-                                        </div>
-                                        <div class="text-xs text-gray-600 mt-1">Poin</div>
                                     </div>
                                 </div>
                                 <div class="mt-4 text-xs text-gray-500 text-center">

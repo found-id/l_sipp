@@ -214,6 +214,44 @@ class RubrikController extends Controller
         ];
     }
 
+    public function destroy($mahasiswaId)
+    {
+        $user = Auth::user();
+
+        if ($user->role !== 'admin') {
+            abort(403, 'Unauthorized');
+        }
+
+        // Cast to integer for proper comparison
+        $mahasiswaId = (int) $mahasiswaId;
+
+        // Get all responses for this student first
+        $responses = AssessmentResponse::where('mahasiswa_user_id', $mahasiswaId)->get();
+        
+        // Delete response items for each response
+        foreach ($responses as $response) {
+            AssessmentResponseItem::where('response_id', $response->id)->delete();
+        }
+
+        // Delete assessment responses for this student
+        AssessmentResponse::where('mahasiswa_user_id', $mahasiswaId)->delete();
+
+        // Delete assessment result for this student
+        AssessmentResult::where('mahasiswa_user_id', $mahasiswaId)->delete();
+
+        // Build redirect URL with current query params
+        $queryParams = request()->query->all();
+        $queryParams['m'] = $mahasiswaId;
+        $queryParams['_t'] = time();
+        $queryParams['_r'] = rand(1000, 9999);
+
+        return redirect()->route('admin.rubrik.index', $queryParams)
+            ->with('success', 'Penilaian berhasil dihapus/reset!')
+            ->header('Cache-Control', 'no-cache, no-store, must-revalidate, max-age=0')
+            ->header('Pragma', 'no-cache')
+            ->header('Expires', '0');
+    }
+
     // Form management methods removed - form is now hardcoded in AssessmentService
     // Grade scale management methods removed - grade scale is now hardcoded in AssessmentService
 }

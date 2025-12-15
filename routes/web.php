@@ -143,6 +143,7 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/rubrik/update-order', [\App\Http\Controllers\RubrikController::class, 'updateOrder'])->name('rubrik.update-order');
         Route::delete('/rubrik/item/{id}', [\App\Http\Controllers\RubrikController::class, 'deleteItem'])->name('rubrik.delete-item');
         Route::post('penilaian/store', [\App\Http\Controllers\RubrikController::class, 'store'])->name('penilaian.store');
+        Route::delete('penilaian/{mahasiswaId}', [\App\Http\Controllers\RubrikController::class, 'destroy'])->name('penilaian.destroy');
         Route::get('/validation', [\App\Http\Controllers\AdminController::class, 'validation'])->name('validation');
         Route::post('/validation/khs/{id}', [\App\Http\Controllers\AdminController::class, 'validateKhs'])->name('validation.khs');
         Route::post('/validation/surat-balasan/{id}', [\App\Http\Controllers\AdminController::class, 'validateSuratBalasan'])->name('validation.surat-balasan');
@@ -195,6 +196,7 @@ Route::middleware(['auth'])->group(function () {
         // Penilaian routes
         Route::get('/penilaian', [\App\Http\Controllers\DospemPenilaianController::class, 'index'])->name('penilaian');
         Route::post('/penilaian', [\App\Http\Controllers\DospemPenilaianController::class, 'store'])->name('penilaian.store');
+        Route::delete('/penilaian/{mahasiswaId}', [\App\Http\Controllers\DospemPenilaianController::class, 'destroy'])->name('penilaian.destroy');
     });
     
     // Mahasiswa routes

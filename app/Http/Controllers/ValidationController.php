@@ -311,6 +311,7 @@ class ValidationController extends Controller
             'user.khs',
             'user.suratBalasan',
             'user.laporanPkl',
+            'user.khsManualTranskrip',
             'dosenPembimbing'
         ]);
 
@@ -366,6 +367,11 @@ class ValidationController extends Controller
 
         $mahasiswa = $query->get();
 
+        // Calculate IPK from transkrip for each mahasiswa
+        foreach ($mahasiswa as $m) {
+            $m->ipk_transkrip = $this->calculateIpkFromTranskrip($m->user);
+        }
+
         // Get recent activities (3 latest) - include upload and validation activities
         $recentActivities = HistoryAktivitas::with(['user', 'mahasiswa'])
             ->whereIn('tipe', ['validasi_dokumen', 'upload_dokumen']);
@@ -384,6 +390,32 @@ class ValidationController extends Controller
             ->get();
 
         return view('validation.mahasiswa-list', compact('mahasiswa', 'recentActivities'));
+    }
+
+    /**
+     * Calculate IPK from transkrip data using weighted average
+     */
+    private function calculateIpkFromTranskrip($user)
+    {
+        if (!$user || !$user->khsManualTranskrip) {
+            return 0;
+        }
+
+        $totalCreditPoints = 0;
+        $totalSksAll = 0;
+
+        foreach ($user->khsManualTranskrip as $transkrip) {
+            // Use stored IPS and total_sks from the transkrip record
+            $ips = floatval($transkrip->ips ?? 0);
+            $sks = intval($transkrip->total_sks ?? 0);
+
+            if ($ips > 0 && $sks > 0) {
+                $totalCreditPoints += ($ips * $sks);
+                $totalSksAll += $sks;
+            }
+        }
+
+        return $totalSksAll > 0 ? round($totalCreditPoints / $totalSksAll, 2) : 0;
     }
 
     /**

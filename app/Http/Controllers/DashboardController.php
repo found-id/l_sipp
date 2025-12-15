@@ -214,15 +214,51 @@ class DashboardController extends Controller
         $user = Auth::user();
         $mahasiswaIds = $user->mahasiswaBimbingan()->pluck('id_mahasiswa');
         
+        // Get mahasiswa list with eager loading for IPK transkrip
+        $mahasiswaBimbinganList = $user->mahasiswaBimbingan()
+            ->with(['user', 'user.khsManualTranskrip'])
+            ->get();
+        
+        // Calculate IPK from transkrip for each mahasiswa
+        foreach ($mahasiswaBimbinganList as $profil) {
+            $profil->ipk_transkrip = $this->calculateIpkFromTranskrip($profil->user);
+        }
+        
         $stats = [
             'mahasiswa_bimbingan' => $user->mahasiswaBimbingan()->count(),
             'berkas_perlu_validasi' => $this->getBerkasPerluValidasi($user),
             'berkas_tervalidasi' => $this->getBerkasTervalidasi($user),
             'total_mitra' => \App\Models\Mitra::count(),
-            'mahasiswa_bimbingan_list' => $user->mahasiswaBimbingan()->with('user')->get(),
+            'mahasiswa_bimbingan_list' => $mahasiswaBimbinganList,
         ];
 
         return view('dashboard.index', compact('stats'));
+    }
+
+    /**
+     * Calculate IPK from transkrip data using weighted average
+     */
+    private function calculateIpkFromTranskrip($user)
+    {
+        if (!$user || !$user->khsManualTranskrip) {
+            return 0;
+        }
+
+        $totalCreditPoints = 0;
+        $totalSksAll = 0;
+
+        foreach ($user->khsManualTranskrip as $transkrip) {
+            // Use stored IPS and total_sks from the transkrip record
+            $ips = floatval($transkrip->ips ?? 0);
+            $sks = intval($transkrip->total_sks ?? 0);
+
+            if ($ips > 0 && $sks > 0) {
+                $totalCreditPoints += ($ips * $sks);
+                $totalSksAll += $sks;
+            }
+        }
+
+        return $totalSksAll > 0 ? round($totalCreditPoints / $totalSksAll, 2) : 0;
     }
 
     public function mahasiswa()

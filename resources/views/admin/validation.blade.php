@@ -310,6 +310,7 @@
                             @php
                                 // Determine PKL Status from database
                                 $dbStatusPkl = $m->status_pkl ?? 'siap';
+                                $ipkTranskrip = $m->ipk_transkrip ?? 0;
 
                                 if ($dbStatusPkl === 'selesai') {
                                     $statusPKL = 'Selesai PKL';
@@ -319,6 +320,11 @@
                                     $statusPKL = 'Aktif PKL';
                                     $statusColor = 'blue';
                                     $statusIcon = 'fa-building';
+                                } elseif ($ipkTranskrip > 0 && $ipkTranskrip < 2.5) {
+                                    // IPK from transkrip is below 2.5 - Not eligible
+                                    $statusPKL = 'Tidak Layak';
+                                    $statusColor = 'red';
+                                    $statusIcon = 'fa-times-circle';
                                 } else {
                                     // Check if eligible for PKL
                                     $user = $m->user;
@@ -329,7 +335,7 @@
                                         $hasDokumenPendukung = $hasPkkmb && $hasEcourse;
 
                                         $isEligible = $khsCount >= 4 &&
-                                                      ($m->ipk ?? 0) >= 2.5 &&
+                                                      $ipkTranskrip >= 2.5 &&
                                                       $m->cek_min_semester &&
                                                       $m->cek_ipk_nilaisks &&
                                                       $m->cek_valid_biodata &&
@@ -357,9 +363,9 @@
                             </span>
                         </td>
                         <td class="px-4 py-4 whitespace-nowrap">
-                            @if($m->ipk)
-                                <span class="text-sm font-semibold {{ $m->ipk >= 3.0 ? 'text-green-600' : 'text-orange-600' }}">
-                                    {{ number_format($m->ipk, 2) }}
+                            @if($m->ipk_transkrip)
+                                <span class="text-sm font-semibold {{ $m->ipk_transkrip >= 3.0 ? 'text-green-600' : 'text-orange-600' }}">
+                                    {{ number_format($m->ipk_transkrip, 2) }}
                                 </span>
                             @else
                                 <span class="text-sm text-gray-400">-</span>
