@@ -347,24 +347,39 @@
         $hasSuratPengantarUploaded = $suratPengantar && is_object($suratPengantar);
         $hasMitraSelectedCheck = $hasMitraSelected ?? false;
         $hasSuratBalasanUploaded = $suratBalasan && is_object($suratBalasan);
-        $canActivatePkl = $hasSuratPengantarUploaded && $hasMitraSelectedCheck && $hasSuratBalasanUploaded && $pklStatus === 'siap';
-        $canDeactivatePkl = $pklStatus === 'aktif';
+        $hasPkkmbAndEcourseCheck = $hasPkkmbAndEcourse ?? false;
+        $canActivatePkl = $hasSuratPengantarUploaded && $hasMitraSelectedCheck && $hasSuratBalasanUploaded && ($statusPkl ?? 'siap') === 'siap';
+        $canClickActivateButton = $canActivatePkl && $hasPkkmbAndEcourseCheck;
+        $canDeactivatePkl = ($statusPkl ?? 'siap') === 'aktif';
     @endphp
 
     @if($canActivatePkl)
     <div class="bg-gradient-to-r from-blue-50 to-blue-100 border border-blue-200 rounded-xl p-4 mb-4">
-        <div class="flex items-center justify-between">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-3">
             <div class="flex items-center">
                 <i class="fas fa-info-circle text-blue-600 text-xl mr-3"></i>
                 <div>
                     <h4 class="text-blue-800 font-semibold">Dokumen Instansi Mitra Lengkap</h4>
                     <p class="text-blue-600 text-sm">Surat Pengantar, Instansi Mitra, dan Surat Balasan telah tersedia. Anda dapat mengaktifkan status PKL Anda.</p>
+                    @if(!$hasPkkmbAndEcourseCheck)
+                    <p class="text-orange-600 text-xs mt-1 flex items-center">
+                        <i class="fas fa-exclamation-triangle mr-1"></i>
+                        <span>Lengkapi <strong>Sertifikat PKKMB</strong> dan <strong>English Course</strong> di tab Dokumen Pendukung untuk mengaktifkan tombol.</span>
+                    </p>
+                    @endif
                 </div>
             </div>
-            <button onclick="activatePklStatus()" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 px-6 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg flex items-center">
+            @if($canClickActivateButton)
+            <button onclick="activatePklStatus()" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 px-6 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg flex items-center whitespace-nowrap">
                 <i class="fas fa-check-circle mr-2"></i>
                 Aktifkan Status Aktif PKL Saya
             </button>
+            @else
+            <button disabled title="Lengkapi PKKMB dan English Course terlebih dahulu" class="bg-gray-400 cursor-not-allowed text-white font-semibold py-2.5 px-6 rounded-lg flex items-center whitespace-nowrap opacity-60">
+                <i class="fas fa-lock mr-2"></i>
+                Aktifkan Status Aktif PKL Saya
+            </button>
+            @endif
         </div>
     </div>
     @elseif($canDeactivatePkl)
@@ -943,9 +958,17 @@
                             <div class="space-y-3">
                                 <div>
                                     <label for="link_pkkmb" class="block text-sm font-medium text-gray-700 mb-2">Link Google Drive</label>
-                                    <input type="url" id="link_pkkmb" name="link_pkkmb" placeholder="https://drive.google.com/..." 
-                                           class="block w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:text-gray-500"
-                                           {{ $isLockedGeneral ? 'disabled' : '' }}>
+                                    <div class="relative flex items-center">
+                                        <input type="url" id="link_pkkmb" name="link_pkkmb" placeholder="https://drive.google.com/..." 
+                                               class="block w-full px-3 py-2 pr-10 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:text-gray-500"
+                                               {{ $isLockedGeneral ? 'disabled' : '' }}>
+                                        @if(!$isLockedGeneral)
+                                        <button type="button" onclick="clearDokumenInput('link_pkkmb')" title="Hapus link" 
+                                                class="absolute right-2 p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-all duration-200">
+                                            <i class="fas fa-times text-sm"></i>
+                                        </button>
+                                        @endif
+                                    </div>
                                 </div>
                                 <p class="text-xs text-gray-500 flex items-center">
                                     <i class="fas fa-info-circle mr-1"></i>
@@ -968,9 +991,17 @@
                             <div class="space-y-3">
                                 <div>
                                     <label for="link_english" class="block text-sm font-medium text-gray-700 mb-2">Link Google Drive</label>
-                                    <input type="url" id="link_english" name="link_english" placeholder="https://drive.google.com/..." 
-                                           class="block w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:text-gray-500"
-                                           {{ $isLockedGeneral ? 'disabled' : '' }}>
+                                    <div class="relative flex items-center">
+                                        <input type="url" id="link_english" name="link_english" placeholder="https://drive.google.com/..." 
+                                               class="block w-full px-3 py-2 pr-10 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:text-gray-500"
+                                               {{ $isLockedGeneral ? 'disabled' : '' }}>
+                                        @if(!$isLockedGeneral)
+                                        <button type="button" onclick="clearDokumenInput('link_english')" title="Hapus link" 
+                                                class="absolute right-2 p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-all duration-200">
+                                            <i class="fas fa-times text-sm"></i>
+                                        </button>
+                                        @endif
+                                    </div>
                                 </div>
                                 <p class="text-xs text-gray-500 flex items-center">
                                     <i class="fas fa-info-circle mr-1"></i>
@@ -993,9 +1024,17 @@
                             <div class="space-y-3">
                                 <div>
                                     <label for="link_semasa" class="block text-sm font-medium text-gray-700 mb-2">Link Google Drive</label>
-                                    <input type="url" id="link_semasa" name="link_semasa" placeholder="https://drive.google.com/..." 
-                                           class="block w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:text-gray-500"
-                                           {{ $isLockedGeneral ? 'disabled' : '' }}>
+                                    <div class="relative flex items-center">
+                                        <input type="url" id="link_semasa" name="link_semasa" placeholder="https://drive.google.com/..." 
+                                               class="block w-full px-3 py-2 pr-10 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:text-gray-500"
+                                               {{ $isLockedGeneral ? 'disabled' : '' }}>
+                                        @if(!$isLockedGeneral)
+                                        <button type="button" onclick="clearDokumenInput('link_semasa')" title="Hapus link" 
+                                                class="absolute right-2 p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-all duration-200">
+                                            <i class="fas fa-times text-sm"></i>
+                                        </button>
+                                        @endif
+                                    </div>
                                 </div>
                                 <p class="text-xs text-gray-500 flex items-center">
                                     <i class="fas fa-info-circle mr-1"></i>
@@ -1024,6 +1063,16 @@
     </div>
 
 <script>
+// Clear document input field function
+function clearDokumenInput(inputId) {
+    const input = document.getElementById(inputId);
+    if (input) {
+        input.value = '';
+        input.focus();
+        console.log(`Cleared input: ${inputId}`);
+    }
+}
+
 // IPK Tooltip toggle function
 function toggleIpkTooltip(event) {
     event.stopPropagation();
@@ -1800,8 +1849,10 @@ function autoAnalyzeSemester(semester) {
                 `;
             }
             
-            // Recalculate final IPK
-            calculateFinalIpk();
+                // Recalculate final IPK after table is rendered
+                setTimeout(() => {
+                    calculateFinalIpk();
+                }, 150);
         } else {
             console.log(`Analysis failed for semester ${semester}:`, analysis);
             if (result) {
@@ -2264,37 +2315,73 @@ function calculateFinalIpk() {
         return;
     }
     
-    // Calculate using actual Total Bobot from transcripts: Σ(Total Bobot) / Σ(Total SKS)
-    let totalBobot = 0;
+    // Calculate IPK using IPS from rendered tables (if edited) or fallback to bobot/sks
+    let totalWeightedIps = 0; // Σ(IPS × SKS)
     let totalSks = 0;
+    let totalBobot = 0; // Keep for tooltip display
     let totalSksD = 0;
     let totalE = 0;
-    console.log('IPK calculation breakdown (using actual Total Bobot from transcript):');
+    console.log('IPK calculation breakdown (using IPS from table if available):');
+    
     activeSemesters.forEach(sem => {
-        const bobot = semesterData[sem].total_bobot || 0;
         const sks = semesterData[sem].total_sks || 0;
+        const bobot = semesterData[sem].total_bobot || 0;
         const sksD = semesterData[sem].total_sks_d || 0;
         const hasE = semesterData[sem].has_e || false;
         
-        totalBobot += bobot;
+        // Try to get IPS from rendered table first
+        let ips = 0;
+        const preview = document.getElementById(`preview${sem}`);
+        if (preview) {
+            const table = preview.querySelector('table');
+            if (table) {
+                const tableRows = table.querySelectorAll('tr');
+                for (let tr of tableRows) {
+                    const rowText = tr.textContent.toLowerCase();
+                    if (rowText.includes('indeks prestasi semester')) {
+                        const cells = tr.querySelectorAll('td, th');
+                        if (cells.length >= 2) {
+                            const ipsText = cells[1].textContent.trim();
+                            const parsedIps = parseFloat(ipsText);
+                            if (!isNaN(parsedIps) && parsedIps > 0 && parsedIps <= 4) {
+                                ips = parsedIps;
+                                console.log(`  Semester ${sem}: IPS from table = ${ips}`);
+                            }
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+        
+        // Fallback: calculate IPS from bobot/sks
+        if (ips === 0 && sks > 0) {
+            ips = bobot / sks;
+            console.log(`  Semester ${sem}: IPS calculated = ${ips.toFixed(2)} (${bobot}/${sks})`);
+        }
+        
+        // Add to weighted total
+        totalWeightedIps += ips * sks;
         totalSks += sks;
+        totalBobot += bobot; // Keep original bobot for tooltip
         totalSksD += sksD;
         if (hasE) totalE += 1;
         
-        console.log(`  Semester ${sem}: Total Bobot = ${bobot}, Total SKS = ${sks}, SKS D = ${sksD}, Has E = ${hasE}`);
+        console.log(`  Semester ${sem}: SKS = ${sks}, IPS = ${ips.toFixed(2)}, Weighted = ${(ips * sks).toFixed(2)}, SKS D = ${sksD}, Has E = ${hasE}`);
     });
     
-    const finalIpk = totalSks > 0 ? totalBobot / totalSks : 0;
+    // Calculate final IPK as weighted average of IPS: Σ(IPS × SKS) / Σ(SKS)
+    const finalIpk = totalSks > 0 ? totalWeightedIps / totalSks : 0;
     const isEligible = finalIpk >= 2.5;
     
-    console.log(`Total Bobot: ${totalBobot}`);
+    console.log(`Total Weighted IPS: ${totalWeightedIps.toFixed(2)}`);
     console.log(`Total SKS: ${totalSks}`);
     console.log(`Total SKS D: ${totalSksD}`);
     console.log(`Total E: ${totalE}`);
-    console.log(`Final IPK: ${finalIpk.toFixed(6)} (${totalBobot} / ${totalSks})`);
+    console.log(`Final IPK: ${finalIpk.toFixed(6)} (${totalWeightedIps.toFixed(2)} / ${totalSks})`);
     
-    // Update display values with 6 decimal places
-    document.getElementById('finalIpk').textContent = finalIpk.toFixed(2); //0,000000000000000000000
+    // Update display values
+    document.getElementById('finalIpk').textContent = finalIpk.toFixed(2);
     document.getElementById('totalSemester').textContent = `${totalSemester}/4`;
     document.getElementById('totalSksD').textContent = totalSksD;
     document.getElementById('totalE').textContent = totalE;
@@ -2306,17 +2393,59 @@ function calculateFinalIpk() {
     if (tooltipSks) tooltipSks.textContent = totalSks;
     if (tooltipBobot) tooltipBobot.textContent = totalBobot.toFixed(2);
     
-    // Update per-semester breakdown in tooltip
+    // Update per-semester breakdown in tooltip (with IPS from table or calculation)
     for (let sem = 1; sem <= 4; sem++) {
         const semRow = document.getElementById(`semRow${sem}`);
         const semSks = document.getElementById(`semSks${sem}`);
         const semBobot = document.getElementById(`semBobot${sem}`);
+        const semIps = document.getElementById(`semIps${sem}`);
         
         if (semesterData[sem] && (semesterData[sem].total_sks > 0 || semesterData[sem].total_bobot > 0)) {
             // Show row and populate values
             if (semRow) semRow.classList.remove('hidden');
-            if (semSks) semSks.textContent = semesterData[sem].total_sks || 0;
-            if (semBobot) semBobot.textContent = (semesterData[sem].total_bobot || 0).toFixed(2);
+            
+            const sks = semesterData[sem].total_sks || 0;
+            const bobot = semesterData[sem].total_bobot || 0;
+            
+            // Try to get IPS from the rendered table first (in case user edited it)
+            let ips = 0;
+            const preview = document.getElementById(`preview${sem}`);
+            if (preview) {
+                const table = preview.querySelector('table');
+                if (table) {
+                    const tableRows = table.querySelectorAll('tr');
+                    for (let tr of tableRows) {
+                        const rowText = tr.textContent.toLowerCase();
+                        if (rowText.includes('indeks prestasi semester')) {
+                            const cells = tr.querySelectorAll('td, th');
+                            // IPS value is typically in the second cell (index 1)
+                            if (cells.length >= 2) {
+                                const ipsText = cells[1].textContent.trim();
+                                const parsedIps = parseFloat(ipsText);
+                                if (!isNaN(parsedIps) && parsedIps > 0 && parsedIps <= 4) {
+                                    ips = parsedIps;
+                                    console.log(`IPS for semester ${sem} extracted from table:`, ips);
+                                }
+                            }
+                            break;
+                        }
+                    }
+                }
+            }
+            
+            // Fallback: calculate IPS from bobot/sks if not found in table
+            if (ips === 0 && sks > 0) {
+                ips = bobot / sks;
+                console.log(`IPS for semester ${sem} calculated from bobot/sks:`, ips);
+            }
+            
+            if (semSks) semSks.textContent = sks;
+            if (semBobot) semBobot.textContent = bobot.toFixed(2);
+            if (semIps) {
+                semIps.textContent = ips > 0 ? ips.toFixed(2) : '-';
+                // Color based on IPS value
+                semIps.className = 'font-semibold ' + (ips >= 3.0 ? 'text-green-600' : (ips > 0 ? 'text-blue-600' : 'text-gray-400'));
+            }
         } else {
             // Hide row if no data
             if (semRow) semRow.classList.add('hidden');
@@ -3868,14 +3997,22 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Function to save dokumen pendukung links
 function saveDokumenPendukung() {
-    const linkPkkmb = document.getElementById('link_pkkmb').value;
-    const linkEnglish = document.getElementById('link_english').value;
-    const linkSemasa = document.getElementById('link_semasa').value;
+    const linkPkkmb = document.getElementById('link_pkkmb').value.trim();
+    const linkEnglish = document.getElementById('link_english').value.trim();
+    const linkSemasa = document.getElementById('link_semasa').value.trim();
 
-    // Validation: PKKMB dan English Course wajib diisi
-    if (!linkPkkmb || !linkEnglish) {
-        alert('Sertifikat PKKMB dan English Course wajib diisi!');
-        return;
+    // Build warning message if required fields are empty
+    let emptyFields = [];
+    if (!linkPkkmb) emptyFields.push('Sertifikat PKKMB');
+    if (!linkEnglish) emptyFields.push('Sertifikat English Course');
+
+    // If any required fields are empty, show confirmation
+    if (emptyFields.length > 0) {
+        const confirmMessage = `Anda yakin ingin menyimpan perubahan?\n\nAnda belum mengisi:\n• ${emptyFields.join('\n• ')}\n\nField yang kosong akan dihapus dari database.`;
+        
+        if (!confirm(confirmMessage)) {
+            return; // User cancelled
+        }
     }
 
     // Show loading state
@@ -3892,9 +4029,9 @@ function saveDokumenPendukung() {
             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
         },
         body: JSON.stringify({
-            gdrive_pkkmb: linkPkkmb,
-            gdrive_ecourse: linkEnglish,
-            gdrive_more: linkSemasa
+            gdrive_pkkmb: linkPkkmb || null,
+            gdrive_ecourse: linkEnglish || null,
+            gdrive_more: linkSemasa || null
         })
     })
     .then(response => response.json())
@@ -4231,41 +4368,45 @@ function revertPklStatus() {
 @endif
 
 <!-- Fixed IPK Tooltip (outside all containers, below header layer) -->
-<div id="ipkTooltip" class="fixed hidden bg-white text-gray-800 text-xs rounded-lg py-3 px-4 shadow-2xl border border-gray-200" style="z-index: 40; min-width: 220px;">
-    <div class="font-semibold mb-2 text-gray-900 border-b border-gray-200 pb-2">Detail Perhitungan IPK</div>
-    
-    <!-- Per Semester Breakdown -->
-    <div class="mb-2 text-[10px]">
-        <div class="grid grid-cols-3 gap-1 font-semibold text-gray-500 mb-1">
-            <span>Semester</span>
-            <span class="text-right">SKS</span>
-            <span class="text-right">Bobot</span>
-        </div>
-        <div id="semesterBreakdown">
-            @for($i = 1; $i <= 4; $i++)
-            <div id="semRow{{ $i }}" class="grid grid-cols-3 gap-1 text-gray-600 hidden">
-                <span>Semester {{ $i }}</span>
-                <span id="semSks{{ $i }}" class="text-right text-blue-600">-</span>
-                <span id="semBobot{{ $i }}" class="text-right text-green-600">-</span>
-            </div>
-            @endfor
-        </div>
+<div id="ipkTooltip" class="fixed hidden bg-white text-gray-800 text-xs rounded-lg py-3 px-4 shadow-2xl border border-gray-200" style="z-index: 40; min-width: 300px;">
+    <div class="font-semibold mb-3 text-gray-900 border-b border-gray-200 pb-2">
+        <i class="fas fa-calculator mr-1 text-blue-500"></i>Detail Perhitungan IPK
     </div>
     
-    <!-- Total -->
-    <div class="border-t border-gray-200 pt-2 mt-2">
-        <div class="flex justify-between gap-6 mb-1">
-            <span class="text-gray-600 font-semibold">Total SKS:</span>
-            <span id="tooltipTotalSks" class="font-bold text-blue-600">{{ $totalSksAll ?? '-' }}</span>
-        </div>
-        <div class="flex justify-between gap-6">
-            <span class="text-gray-600 font-semibold">Total Bobot:</span>
-            <span id="tooltipTotalBobot" class="font-bold text-green-600">{{ number_format($totalQualityPoints ?? 0, 2) }}</span>
-        </div>
+    <!-- Table format for Per Semester Breakdown with IPS -->
+    <div class="overflow-x-auto mb-2">
+        <table class="w-full text-xs">
+            <thead>
+                <tr class="border-b border-gray-200">
+                    <th class="text-left py-1.5 text-gray-500 font-medium">Semester</th>
+                    <th class="text-right py-1.5 text-gray-500 font-medium">SKS</th>
+                    <th class="text-right py-1.5 text-gray-500 font-medium">Bobot</th>
+                    <th class="text-right py-1.5 text-gray-500 font-medium">IPS</th>
+                </tr>
+            </thead>
+            <tbody id="semesterBreakdown">
+                @for($i = 1; $i <= 4; $i++)
+                <tr id="semRow{{ $i }}" class="hidden border-b border-gray-50">
+                    <td class="py-1.5 text-gray-600">Semester {{ $i }}</td>
+                    <td class="py-1.5 text-right"><span id="semSks{{ $i }}" class="text-gray-700">-</span></td>
+                    <td class="py-1.5 text-right"><span id="semBobot{{ $i }}" class="text-green-600">-</span></td>
+                    <td class="py-1.5 text-right"><span id="semIps{{ $i }}" class="font-semibold text-blue-600">-</span></td>
+                </tr>
+                @endfor
+            </tbody>
+            <tfoot>
+                <tr class="border-t border-gray-200 bg-gray-50">
+                    <td class="py-2 font-semibold text-gray-700">Total</td>
+                    <td class="py-2 text-right font-semibold"><span id="tooltipTotalSks" class="text-gray-700">{{ $totalSksAll ?? '-' }}</span></td>
+                    <td class="py-2 text-right font-semibold"><span id="tooltipTotalBobot" class="text-green-600">{{ number_format($totalQualityPoints ?? 0, 2) }}</span></td>
+                    <td class="py-2 text-right font-bold text-blue-600">-</td>
+                </tr>
+            </tfoot>
+        </table>
     </div>
     
-    <div class="border-t border-gray-200 mt-2 pt-2 text-[10px] text-gray-500 text-center">
-        <i class="fas fa-calculator mr-1"></i>IPK = Total Bobot / Total SKS
+    <div class="border-t border-gray-200 pt-2 text-[10px] text-gray-500 text-center">
+        <i class="fas fa-info-circle mr-1"></i>IPK = Total Bobot / Total SKS | IPS = Bobot Semester / SKS Semester
     </div>
 </div>
 @endsection

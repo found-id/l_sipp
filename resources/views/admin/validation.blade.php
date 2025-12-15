@@ -372,24 +372,24 @@
                             @php
                                 $user = $m->user;
 
-                                // Dokumen Pendukung Check (Needed for Eligibility)
+                                // Dokumen Pendukung Check (for Dokumen Pendukung icon only)
                                 $hasPkkmb = !empty($m->gdrive_pkkmb ?? '');
                                 $hasEcourse = !empty($m->gdrive_ecourse ?? '');
                                 $dokPendukungComplete = $hasPkkmb && $hasEcourse;
 
-                                // 1. Pemberkasan Kelayakan (Based on Eligibility/Layak)
+                                // 1. Pemberkasan Kelayakan (Based on KHS, IPK, Semester, Biodata - WITHOUT Dokumen Pendukung)
                                 $khsCount = $user ? $user->khs()->whereBetween('semester', [1, 4])->distinct()->count('semester') : 0;
                                 
-                                $isEligible = $khsCount >= 4 &&
+                                // Kelayakan eligibility: KHS >= 4, IPK >= 2.5, semester check, ipk check, biodata valid
+                                $isKelayakanEligible = $khsCount >= 4 &&
                                               ($m->ipk ?? 0) >= 2.5 &&
                                               $m->cek_min_semester &&
                                               $m->cek_ipk_nilaisks &&
-                                              $m->cek_valid_biodata &&
-                                              $dokPendukungComplete;
+                                              $m->cek_valid_biodata;
 
                                 $hasValidatedKhs = $user ? $user->khs()->where('status_validasi', 'tervalidasi')->exists() : false;
                                 // Hijau jika Layak (Eligible), Biru jika Tervalidasi
-                                $kelayakanStatus = $hasValidatedKhs ? 'validated' : ($isEligible ? 'complete' : 'incomplete');
+                                $kelayakanStatus = $hasValidatedKhs ? 'validated' : ($isKelayakanEligible ? 'complete' : 'incomplete');
 
                                 // 2. Dokumen Pendukung Status
                                 $statusDokPendukung = $m->status_dokumen_pendukung ?? 'menunggu';
