@@ -51,7 +51,7 @@
                     <label class="flex items-center">
                         <input type="radio" name="jenis" value="file" {{ old('jenis', 'file') === 'file' ? 'checked' : '' }} 
                                class="mr-2 text-blue-600 focus:ring-blue-500" onchange="toggleFileInput()">
-                        <span class="text-sm text-gray-700">File (PDF/Excel/Gambar)</span>
+                        <span class="text-sm text-gray-700">File (Format PDF)</span>
                     </label>
                     <label class="flex items-center">
                         <input type="radio" name="jenis" value="link" {{ old('jenis') === 'link' ? 'checked' : '' }} 
