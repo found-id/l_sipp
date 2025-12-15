@@ -100,17 +100,11 @@
                         <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-32">
                             Semester
                         </th>
-                        <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-36">
-                            Status PKL
-                        </th>
                         <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-20">
                             IPK
                         </th>
                         <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-40">
                             Status
-                        </th>
-                        <th scope="col" class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider w-24">
-                            Aksi
                         </th>
                     </tr>
                 </thead>
@@ -148,36 +142,6 @@
                                 <i class="fas fa-graduation-cap mr-1"></i>
                                 Semester {{ $profil->semester ?? '-' }}
                             </span>
-                        </td>
-                        <td class="px-4 py-4 whitespace-nowrap">
-                            @php
-                                $dbStatusPkl = $profil->status_pkl ?? 'siap';
-                                $ipkTranskrip = $profil->ipk_transkrip ?? 0;
-
-                                if ($dbStatusPkl === 'selesai') {
-                                    $statusPKL = 'Selesai PKL';
-                                    $statusColor = 'green';
-                                    $statusIcon = 'fa-check-circle';
-                                } elseif ($dbStatusPkl === 'aktif') {
-                                    $statusPKL = 'Aktif PKL';
-                                    $statusColor = 'blue';
-                                    $statusIcon = 'fa-building';
-                                } elseif ($ipkTranskrip > 0 && $ipkTranskrip < 2.5) {
-                                    // IPK from transkrip is below 2.5 - Not eligible
-                                    $statusPKL = 'Tidak Layak';
-                                    $statusColor = 'red';
-                                    $statusIcon = 'fa-times-circle';
-                                } else {
-                                    $statusPKL = 'Menyiapkan Berkas';
-                                    $statusColor = 'gray';
-                                    $statusIcon = 'fa-file-alt';
-                                }
-                            @endphp
-                            <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-{{ $statusColor }}-100 text-{{ $statusColor }}-800">
-                                <i class="fas {{ $statusIcon }} mr-1"></i>
-                                {{ $statusPKL }}
-                            </span>
-                        </td>
                         <td class="px-4 py-4 whitespace-nowrap">
                             @if($profil->ipk_transkrip)
                                 <span class="text-sm font-semibold {{ $profil->ipk_transkrip >= 3.0 ? 'text-green-600' : 'text-orange-600' }}">
@@ -239,16 +203,10 @@
                                 <i class="fas fa-book text-lg @if($akhirStatus === 'validated') text-blue-600 @elseif($akhirStatus === 'complete') text-green-600 @else text-gray-400 @endif" title="Pemberkasan Akhir"></i>
                             </div>
                         </td>
-                        <td class="px-4 py-4 whitespace-nowrap text-center">
-                            <a href="{{ route('dospem.mahasiswa.detail', $profil->user->id ?? 0) }}" class="inline-flex items-center px-3 py-1.5 bg-blue-600 text-white text-xs rounded-lg hover:bg-blue-700 transition">
-                                <i class="fas fa-eye mr-1"></i>
-                                Detail
-                            </a>
-                        </td>
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="7" class="px-6 py-8 text-center text-gray-500">
+                        <td colspan="5" class="px-6 py-8 text-center text-gray-500">
                             <i class="fas fa-users text-gray-300 text-4xl mb-3"></i>
                             <p>Tidak ada mahasiswa bimbingan</p>
                         </td>
