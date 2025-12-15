@@ -52,7 +52,7 @@
                     </p>
                 </div>
             </div>
-            <a href="{{ route('dospem.validation') }}" class="inline-flex items-center px-5 py-3 bg-white text-blue-700 rounded-lg hover:bg-blue-50 transition shadow-md font-medium">
+            <a href="{{ auth()->user()->role === 'admin' ? route('admin.validation') : route('dospem.validation') }}" class="inline-flex items-center px-5 py-3 bg-white text-blue-700 rounded-lg hover:bg-blue-50 transition shadow-md font-medium">
                 <i class="fas fa-arrow-left mr-2"></i>
                 Kembali
             </a>

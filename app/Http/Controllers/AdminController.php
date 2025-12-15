@@ -643,41 +643,66 @@ class AdminController extends Controller
     public function validation(Request $request)
     {
         // Get all mahasiswa with their related data
-        $query = ProfilMahasiswa::with(['user', 'dosenPembimbing']);
+        $query = ProfilMahasiswa::with([
+            'user',
+            'user.khs',
+            'user.suratBalasan',
+            'user.laporanPkl',
+            'dosenPembimbing'
+        ]);
 
         // Search functionality
-        if ($request->has('search') && $request->search) {
-            $searchTerm = $request->search;
-            $query->whereHas('user', function($q) use ($searchTerm) {
-                $q->where('name', 'like', '%' . $searchTerm . '%');
-            })->orWhere('nim', 'like', '%' . $searchTerm . '%');
+        if ($request->has('search') && $request->search != '') {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->whereHas('user', function($uq) use ($search) {
+                    $uq->where('name', 'like', '%' . $search . '%');
+                })
+                ->orWhere('nim', 'like', '%' . $search . '%')
+                ->orWhere('prodi', 'like', '%' . $search . '%');
+            });
         }
 
         // Sort functionality
         $sortBy = $request->get('sort', 'name');
         $sortOrder = $request->get('order', 'asc');
 
-        if ($sortBy === 'name') {
-            $query->join('users', 'profil_mahasiswa.id_mahasiswa', '=', 'users.id')
-                  ->orderBy('users.name', $sortOrder)
-                  ->select('profil_mahasiswa.*');
-        } elseif ($sortBy === 'nim') {
-            $query->orderBy('nim', $sortOrder);
-        } elseif ($sortBy === 'semester') {
-            $query->orderBy('semester', $sortOrder);
-        } elseif ($sortBy === 'ipk') {
-            $query->orderBy('ipk', $sortOrder);
+        switch($sortBy) {
+            case 'name':
+                $query->join('users', 'profil_mahasiswa.id_mahasiswa', '=', 'users.id')
+                      ->orderBy('users.name', $sortOrder)
+                      ->select('profil_mahasiswa.*');
+                break;
+            case 'prodi':
+                $query->orderBy('prodi', $sortOrder);
+                break;
+            case 'semester':
+                $query->orderBy('semester', $sortOrder);
+                break;
+            case 'ipk':
+                // IPK: jika asc, tampilkan dari tertinggi (desc), jika desc tampilkan dari terendah (asc)
+                $ipkOrder = $sortOrder === 'asc' ? 'desc' : 'asc';
+                $query->orderBy('ipk', $ipkOrder);
+                break;
+            case 'nim':
+                $query->orderBy('nim', $sortOrder);
+                break;
+            default:
+                $query->join('users', 'profil_mahasiswa.id_mahasiswa', '=', 'users.id')
+                      ->orderBy('users.name', $sortOrder)
+                      ->select('profil_mahasiswa.*');
         }
 
         $mahasiswa = $query->get();
 
-        // Legacy data for backward compatibility (if needed)
-        $khs = \App\Models\Khs::with(['mahasiswa.profilMahasiswa.dosenPembimbing'])->get();
-        $suratBalasan = \App\Models\SuratBalasan::with(['mahasiswa.profilMahasiswa.dosenPembimbing'])->get();
-        $laporanPkl = \App\Models\LaporanPkl::with(['mahasiswa.profilMahasiswa.dosenPembimbing'])->get();
-        $suratPengantar = \App\Models\SuratPengantar::with(['mahasiswa.profilMahasiswa.dosenPembimbing'])->get();
+        // Get recent activities (3 latest) - include upload and validation activities
+        $recentActivities = \App\Models\HistoryAktivitas::with(['user', 'mahasiswa'])
+            ->whereIn('tipe', ['validasi_dokumen', 'upload_dokumen'])
+            ->orderBy('tanggal_dibuat', 'desc')
+            ->limit(3)
+            ->get();
 
-        return view('admin.validation', compact('mahasiswa', 'khs', 'suratBalasan', 'laporanPkl', 'suratPengantar'));
+        return view('admin.validation', compact('mahasiswa', 'recentActivities'));
     }
 
     public function validateKhs(Request $request, $id)
