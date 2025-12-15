@@ -182,7 +182,7 @@
             @endforeach
         </div>
 
-        <!-- Pagination -->
+        <!-- Paginatin -->
         <div class="mt-6">
             {{ $jadwal->links() }}
         </div>
