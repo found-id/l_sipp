@@ -72,8 +72,8 @@ class Mitra extends Model
      */
     public function getHonorLabelAttribute()
     {
-        // Honor hanya memiliki 2 nilai: Tidak Ada (1) atau Ada (5)
-        return $this->honor >= 5 ? 'Ada' : 'Tidak Ada';
+        // Honor: Tidak Ada (0) atau Ada (1)
+        return $this->honor == 1 ? 'Ada' : 'Tidak Ada';
     }
 
     /**

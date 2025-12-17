@@ -97,7 +97,11 @@ class SawCalculationService
         foreach ($mitras as $index => $mitra) {
             $score = 0;
             foreach ($this->criteria as $criterion => $type) {
-                $score += $normalizedMatrix[$index][$criterion] * $this->weights[$criterion];
+                $normalizedValue = $normalizedMatrix[$index][$criterion];
+                $score += $normalizedValue * $this->weights[$criterion];
+
+                // Menyimpan nilai normalisasi ke objek mitra
+                $mitra->{'normalized_' . $criterion} = round($normalizedValue, 4);
             }
             $mitra->saw_score = round($score, 4);
         }

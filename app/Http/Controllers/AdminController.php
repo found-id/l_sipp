@@ -12,6 +12,9 @@ use App\Models\Mitra;
 use App\Models\Dospem;
 use App\Services\SawCalculationService;
 
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Collection;
+
 class AdminController extends Controller
 {
     public function index()
@@ -520,70 +523,73 @@ class AdminController extends Controller
 
     public function kelolaMitra(Request $request)
     {
-        $query = Mitra::query();
-        
+        $query = Mitra::withCount('mahasiswaTerpilih as mahasiswa_count');
+
         // Search functionality
         if ($request->filled('search')) {
             $search = $request->search;
-            $query->where(function($q) use ($search) {
+            $query->where(function ($q) use ($search) {
                 $q->where('nama', 'like', "%{$search}%")
-                  ->orWhere('alamat', 'like', "%{$search}%")
-                  ->orWhere('kontak', 'like', "%{$search}%");
+                    ->orWhere('alamat', 'like', "%{$search}%")
+                    ->orWhere('kontak', 'like', "%{$search}%");
             });
         }
-        
-        // Sort functionality - default to rekomendasi
+
+        // Get all mitras that match the search to perform calculation
+        $allMitras = $query->get();
+
+        // Calculate SAW score for all mitras if the collection is not empty
+        if ($allMitras->isNotEmpty()) {
+            $saw = new SawCalculationService($allMitras);
+            $calculatedMitras = $saw->calculate(); // This collection has saw_score
+        } else {
+            $calculatedMitras = $allMitras;
+        }
+
+        // Sort functionality on the collection
         $sortBy = $request->get('sort_by', 'rekomendasi');
         $sortOrder = $request->get('sort_order', 'desc');
-        $isRankingSort = false;
+        $isRankingSort = ($sortBy === 'rekomendasi');
 
-        if ($sortBy === 'rekomendasi') {
-            $mitrasToRank = $query->withCount(['mahasiswaTerpilih as mahasiswa_count'])->get();
-            if ($mitrasToRank->isNotEmpty()) {
-                $saw = new SawCalculationService($mitrasToRank);
-                $mitra = $saw->calculate();
-                $rank = 1;
-                foreach ($mitra as $m) {
-                    $m->rank = $rank++;
-                }
-            } else {
-                $mitra = $mitrasToRank;
+        $sortedMitras = $calculatedMitras; // Start with the calculated collection
+
+        if ($isRankingSort) {
+            // Already sorted by saw_score desc by the service
+            $rank = 1;
+            foreach ($sortedMitras as $m) {
+                $m->rank = $rank++;
             }
-            $isRankingSort = true;
         } else {
-            // Handle different sort options
-            switch ($sortBy) {
-                case 'terbaru':
-                    $query->orderBy('created_at', 'desc');
-                    break;
-                case 'nama':
-                    $query->orderBy('nama', $sortOrder);
-                    break;
-                case 'jarak':
-                    $query->orderBy('jarak', $sortOrder);
-                    break;
-                case 'honor':
-                    $query->orderBy('honor', $sortOrder);
-                    break;
-                case 'fasilitas':
-                    $query->orderBy('fasilitas', $sortOrder);
-                    break;
-                case 'kesesuaian':
-                    $query->orderBy('kesesuaian_jurusan', $sortOrder);
-                    break;
-                case 'kebersihan':
-                    $query->orderBy('tingkat_kebersihan', $sortOrder);
-                    break;
-                case 'kuota':
-                    $query->orderBy('max_mahasiswa', $sortOrder);
-                    break;
-                default:
-                    $query->orderBy('nama', 'asc');
-                    break;
+            // Map sort_by to the actual column name
+            $sortColumnMap = [
+                'terbaru' => 'created_at',
+                'nama' => 'nama',
+                'jarak' => 'jarak',
+                'honor' => 'honor',
+                'fasilitas' => 'fasilitas',
+                'kesesuaian' => 'kesesuaian_jurusan',
+                'kebersihan' => 'tingkat_kebersihan',
+                'kuota' => 'max_mahasiswa',
+                'rekomendasi' => 'saw_score',
+            ];
+            $sortColumn = $sortColumnMap[$sortBy] ?? 'nama';
+            
+            if ($sortOrder === 'desc') {
+                $sortedMitras = $sortedMitras->sortByDesc($sortColumn);
+            } else {
+                $sortedMitras = $sortedMitras->sortBy($sortColumn);
             }
-            $mitra = $query->paginate(15)->withQueryString();
         }
         
+        // Manual Pagination
+        $perPage = 15;
+        $currentPage = LengthAwarePaginator::resolveCurrentPage();
+        $currentPageItems = $sortedMitras->slice(($currentPage - 1) * $perPage, $perPage)->all();
+        $mitra = new LengthAwarePaginator($currentPageItems, count($sortedMitras), $perPage, $currentPage, [
+            'path' => LengthAwarePaginator::resolveCurrentPath(),
+            'query' => $request->query(),
+        ]);
+
         return view('admin.kelola-mitra', compact('mitra', 'isRankingSort'));
     }
 
@@ -594,7 +600,7 @@ class AdminController extends Controller
             'alamat' => 'nullable|string',
             'kontak' => 'nullable|string|max:100',
             'jarak' => 'required|numeric|min:0',
-            'honor' => 'required|integer|in:1,5', // Hanya Tidak Ada (1) atau Ada (5)
+            'honor' => 'required|integer|in:0,1',
             'fasilitas' => 'required|integer|in:1,2,3,4,5',
             'kesesuaian_jurusan' => 'required|integer|in:1,2,3,4,5',
             'tingkat_kebersihan' => 'required|integer|in:1,2,3,4,5',
@@ -615,7 +621,7 @@ class AdminController extends Controller
             'alamat' => 'nullable|string',
             'kontak' => 'nullable|string|max:100',
             'jarak' => 'required|numeric|min:0',
-            'honor' => 'required|integer|in:1,5', // Hanya Tidak Ada (1) atau Ada (5)
+            'honor' => 'required|integer|in:0,1',
             'fasilitas' => 'required|integer|in:1,2,3,4,5',
             'kesesuaian_jurusan' => 'required|integer|in:1,2,3,4,5',
             'tingkat_kebersihan' => 'required|integer|in:1,2,3,4,5',
