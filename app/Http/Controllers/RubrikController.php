@@ -4,11 +4,13 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use App\Models\User;
 use App\Models\AssessmentResponse;
 use App\Models\AssessmentResult;
 use App\Models\AssessmentResponseItem;
 use App\Services\AssessmentService;
+use App\Services\FonnteService;
 
 class RubrikController extends Controller
 {
@@ -173,6 +175,9 @@ class RubrikController extends Controller
             ]
         );
 
+        // Send WhatsApp notifications to mahasiswa and dospem
+        $this->sendAdminAssessmentNotification($mahasiswaId, $totalScore, $grade);
+
         // Redirect back to the same student with success message
         return redirect()->route('admin.rubrik.index', array_merge(
             $request->query(),
@@ -182,6 +187,78 @@ class RubrikController extends Controller
         ->header('Cache-Control', 'no-cache, no-store, must-revalidate')
         ->header('Pragma', 'no-cache')
         ->header('Expires', '0');
+    }
+    
+    /**
+     * Send WhatsApp notification to mahasiswa and dospem when admin submits assessment
+     */
+    private function sendAdminAssessmentNotification($mahasiswaId, $totalScore, $grade)
+    {
+        try {
+            $mahasiswa = User::with(['profilMahasiswa.dosenPembimbing.dospem'])->find($mahasiswaId);
+            
+            if (!$mahasiswa || !$mahasiswa->profilMahasiswa) {
+                Log::info('Admin assessment notification skipped - no profil', ['mahasiswa_id' => $mahasiswaId]);
+                return;
+            }
+            
+            $fonnte = new FonnteService();
+            
+            // 1. Send notification to Mahasiswa
+            $mahasiswaWhatsapp = $mahasiswa->profilMahasiswa->no_whatsapp;
+            if ($mahasiswaWhatsapp) {
+                $message = "🎓 *Notifikasi Penilaian PKL*\n\n";
+                $message .= "Halo *{$mahasiswa->name}*,\n\n";
+                $message .= "Penilaian PKL Anda telah dilakukan oleh Admin.\n\n";
+                $message .= "📊 *Hasil Penilaian:*\n";
+                $message .= "• Nilai: *{$totalScore}*\n";
+                $message .= "• Grade: *{$grade['letter']}*\n";
+                $message .= "• Huruf Mutu: *{$grade['gpa']}*\n\n";
+                $message .= "Silakan cek hasil lengkap di dashboard Anda.\n\n";
+                $message .= "Terima kasih atas kerja keras Anda! 🙏";
+                
+                $fonnte->sendMessage($mahasiswaWhatsapp, $message);
+                
+                Log::info('Admin assessment notification sent to mahasiswa', [
+                    'mahasiswa_id' => $mahasiswaId,
+                    'phone' => $mahasiswaWhatsapp,
+                    'score' => $totalScore,
+                    'grade' => $grade['letter']
+                ]);
+            }
+            
+            // 2. Send notification to Dospem
+            $dospem = $mahasiswa->profilMahasiswa->dosenPembimbing;
+            if ($dospem && $dospem->dospem && $dospem->dospem->no_telepon) {
+                $dospemWhatsapp = $dospem->dospem->no_telepon;
+                
+                $message = "📋 *Notifikasi Penilaian Mahasiswa Bimbingan*\n\n";
+                $message .= "Halo *{$dospem->name}*,\n\n";
+                $message .= "Mahasiswa bimbingan Anda telah dinilai oleh Admin:\n\n";
+                $message .= "👤 *Mahasiswa:* {$mahasiswa->name}\n";
+                $message .= "📝 *NIM:* {$mahasiswa->profilMahasiswa->nim}\n\n";
+                $message .= "📊 *Hasil Penilaian:*\n";
+                $message .= "• Nilai: *{$totalScore}*\n";
+                $message .= "• Grade: *{$grade['letter']}*\n";
+                $message .= "• Huruf Mutu: *{$grade['gpa']}*\n\n";
+                $message .= "Terima kasih! 🙏";
+                
+                $fonnte->sendMessage($dospemWhatsapp, $message);
+                
+                Log::info('Admin assessment notification sent to dospem', [
+                    'dospem_id' => $dospem->id,
+                    'phone' => $dospemWhatsapp,
+                    'mahasiswa_name' => $mahasiswa->name,
+                    'score' => $totalScore
+                ]);
+            }
+            
+        } catch (\Exception $e) {
+            Log::error('Failed to send admin assessment WhatsApp notification', [
+                'mahasiswa_id' => $mahasiswaId,
+                'error' => $e->getMessage()
+            ]);
+        }
     }
 
     private function calculateTotalScore($response)
