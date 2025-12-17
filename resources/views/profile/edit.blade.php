@@ -151,6 +151,27 @@
                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror
                 </div>
+                
+                <div>
+                    <label for="no_telepon" class="block text-sm font-semibold text-gray-700 mb-2">
+                        <i class="fas fa-phone text-gray-400 mr-2"></i>Nomor Telepon / WhatsApp
+                    </label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                            <span class="text-gray-700 font-medium">+62</span>
+                        </div>
+                        <input type="text" id="no_telepon" name="no_telepon"
+                               value="{{ old('no_telepon', $dospem->no_telepon ?? '') }}"
+                               class="block w-full pl-14 pr-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                               placeholder="8xxxxxxxxxx"
+                               oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+                               maxlength="13">
+                    </div>
+                    <p class="mt-2 text-xs text-gray-500">Format: +62 8xxxxxxxxxx (tanpa 0 di depan)</p>
+                    @error('no_telepon')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
             </div>
         </div>
         @endif

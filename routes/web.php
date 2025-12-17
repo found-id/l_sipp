@@ -176,6 +176,13 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/validation/surat-pengantar/{id}', [\App\Http\Controllers\AdminController::class, 'validateSuratPengantar'])->name('validation.surat-pengantar');
         Route::get('/mahasiswa/{id}/detail', [\App\Http\Controllers\ValidationController::class, 'mahasiswaDetail'])->name('mahasiswa.detail');
         
+        // Admin validation routes for 4 categories
+        Route::put('/validate/{mahasiswaId}/kelayakan', [\App\Http\Controllers\ValidationController::class, 'validateKelayakan'])->name('validate.kelayakan');
+        Route::put('/validate/{mahasiswaId}/dokumen-pendukung', [\App\Http\Controllers\ValidationController::class, 'validateDokumenPendukung'])->name('validate.dokumen_pendukung');
+        Route::put('/validate/{mahasiswaId}/instansi-mitra', [\App\Http\Controllers\ValidationController::class, 'validateInstansiMitra'])->name('validate.instansi_mitra');
+        Route::put('/validate/{mahasiswaId}/akhir', [\App\Http\Controllers\ValidationController::class, 'validateAkhir'])->name('validate.akhir');
+        Route::get('/mahasiswa/{mahasiswaId}/preview/{type}/{filename}', [\App\Http\Controllers\ValidationController::class, 'previewMahasiswaFile'])->name('mahasiswa.preview');
+        
         // Penilaian dan Nilai Akhir
         Route::get('/penilaian-dosen', [\App\Http\Controllers\AdminController::class, 'penilaianDosen'])->name('penilaian-dosen');
         Route::get('/nilai-akhir', [\App\Http\Controllers\AdminController::class, 'nilaiAkhir'])->name('nilai-akhir');

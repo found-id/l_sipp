@@ -110,7 +110,7 @@ class FonnteService
         $message .= "📱 *Akses Dashboard:*\n";
         $message .= "Silakan login ke dashboard untuk mulai menggunakan sistem.\n\n";
         $message .= "🔗 *Link Dashboard:*\n";
-        $message .= "http://localhost:8000/dashboard\n\n";
+        $message .= "https://sippkl-a.tefa-it.com/dashboard\n\n";
         $message .= "📞 *Bantuan:*\n";
         $message .= "Jika ada pertanyaan, silakan hubungi admin.\n\n";
         $message .= "Terima kasih! 🙏";

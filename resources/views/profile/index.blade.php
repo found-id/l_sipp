@@ -114,6 +114,20 @@
                     </div>
                 </div>
                 @endif
+                
+                @if($user->role === 'dospem' && $user->dospem && $user->dospem->no_telepon)
+                <div class="bg-gray-50 p-5 rounded-xl border border-gray-200">
+                    <div class="flex items-start">
+                        <div class="w-6 h-6 bg-gray-200 rounded-md flex items-center justify-center mr-3 mt-1 flex-shrink-0">
+                            <i class="fas fa-phone text-gray-600 text-xs"></i>
+                        </div>
+                        <div class="flex-1">
+                            <p class="text-sm font-semibold text-gray-700">Nomor Telepon</p>
+                            <p class="text-base text-gray-900 font-medium mt-1">+62{{ $user->dospem->no_telepon }}</p>
+                        </div>
+                    </div>
+                </div>
+                @endif
             </div>
         </div>
 
@@ -131,10 +145,20 @@
                     <div class="h-16 w-16 rounded-full bg-white border border-gray-200 flex items-center justify-center shadow-sm">
                         <i class="fas fa-chalkboard-teacher text-gray-400 text-2xl"></i>
                     </div>
-                    <div class="ml-4">
+                    <div class="ml-4 flex-1">
                         <div class="text-lg font-bold text-gray-900">{{ $dosenPembimbing->name }}</div>
                         @if($dosenPembimbing->dospem && $dosenPembimbing->dospem->nip)
                         <div class="text-sm text-gray-700 mt-1">NIP: {{ $dosenPembimbing->dospem->nip }}</div>
+                        @endif
+                        @if($dosenPembimbing->dospem && $dosenPembimbing->dospem->no_telepon)
+                        <div class="flex items-center text-sm text-gray-700 mt-1">
+                            <i class="fas fa-phone text-gray-400 mr-2"></i>
+                            <span>+62{{ $dosenPembimbing->dospem->no_telepon }}</span>
+                            <a href="https://wa.me/62{{ $dosenPembimbing->dospem->no_telepon }}" target="_blank" 
+                               class="ml-2 inline-flex items-center text-green-600 hover:text-green-700">
+                                <i class="fab fa-whatsapp"></i>
+                            </a>
+                        </div>
                         @endif
                         <div class="text-sm text-gray-500 mt-1">Dosen Pembimbing PKL Anda</div>
                     </div>

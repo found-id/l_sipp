@@ -11,6 +11,7 @@ class Dospem extends Model
     protected $fillable = [
         'user_id',
         'nip',
+        'no_telepon',
     ];
 
     public function user()

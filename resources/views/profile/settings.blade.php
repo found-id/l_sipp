@@ -247,9 +247,24 @@
         </div>
 
         <!-- Modal Body -->
-        <form method="POST" action="{{ route('profile.password') }}" class="p-4 md:p-6">
+        <form id="passwordForm" method="POST" action="{{ route('profile.password') }}" class="p-4 md:p-6">
             @csrf
             @method('PUT')
+            
+            <!-- Error Display -->
+            @if($errors->any())
+            <div class="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                <div class="flex items-center text-red-700">
+                    <i class="fas fa-exclamation-circle mr-2"></i>
+                    <ul class="text-sm">
+                        @foreach($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            </div>
+            @endif
+            
             <div class="space-y-4 md:space-y-5">
                 <div>
                     <label for="current_password" class="block text-sm font-semibold text-gray-700 mb-2">
@@ -271,7 +286,7 @@
                         <i class="fas fa-key text-gray-400 mr-2"></i>Password Baru
                     </label>
                     <div class="relative">
-                        <input type="password" id="new_password" name="password" required
+                        <input type="password" id="new_password" name="password" required minlength="8"
                                class="block w-full px-3 md:px-4 py-2.5 md:py-3 border border-gray-300 rounded-lg md:rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 pr-10 text-sm md:text-base"
                                placeholder="Masukkan password baru">
                         <button type="button" onclick="togglePasswordVisibility('new_password', 'icon_new')" 
@@ -287,7 +302,7 @@
                         <i class="fas fa-check-double text-gray-400 mr-2"></i>Konfirmasi
                     </label>
                     <div class="relative">
-                        <input type="password" id="new_password_confirmation" name="password_confirmation" required
+                        <input type="password" id="new_password_confirmation" name="password_confirmation" required minlength="8"
                                class="block w-full px-3 md:px-4 py-2.5 md:py-3 border border-gray-300 rounded-lg md:rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 pr-10 text-sm md:text-base"
                                placeholder="Konfirmasi password baru">
                         <button type="button" onclick="togglePasswordVisibility('new_password_confirmation', 'icon_confirm')" 
@@ -398,6 +413,13 @@ document.addEventListener('DOMContentLoaded', function() {
     if (logoutModal) {
         document.body.appendChild(logoutModal);
     }
+    
+    // Auto-open password modal if there are validation errors
+    @if($errors->any())
+    setTimeout(function() {
+        openPasswordModal();
+    }, 100);
+    @endif
     
     // Close modal when clicking outside
     if (passwordModal) {

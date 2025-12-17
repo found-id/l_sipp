@@ -1191,10 +1191,17 @@ const validationTitles = {
 };
 
 const validationRoutes = {
+    @if(Auth::user()->role === 'admin')
+    'kelayakan': '{{ route("admin.validate.kelayakan", $mahasiswa->id) }}',
+    'dokumen_pendukung': '{{ route("admin.validate.dokumen_pendukung", $mahasiswa->id) }}',
+    'instansi_mitra': '{{ route("admin.validate.instansi_mitra", $mahasiswa->id) }}',
+    'akhir': '{{ route("admin.validate.akhir", $mahasiswa->id) }}'
+    @else
     'kelayakan': '{{ route("dospem.validate.kelayakan", $mahasiswa->id) }}',
     'dokumen_pendukung': '{{ route("dospem.validate.dokumen_pendukung", $mahasiswa->id) }}',
     'instansi_mitra': '{{ route("dospem.validate.instansi_mitra", $mahasiswa->id) }}',
     'akhir': '{{ route("dospem.validate.akhir", $mahasiswa->id) }}'
+    @endif
 };
 
 function openValidationModal(category) {

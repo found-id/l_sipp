@@ -73,9 +73,10 @@ class ProfileController extends Controller
             ];
 
             if ($user->role === 'dospem') {
-                // Only validate NIP for dospem
+                // Validate NIP and phone for dospem
                 $ignoreId = optional($user->dospem)->id;
                 $rules['nip'] = 'nullable|string|max:50|unique:dospem,nip,' . ($ignoreId ?? 'NULL') . ',id';
+                $rules['no_telepon'] = 'nullable|string|max:30';
             } elseif ($user->role === 'mahasiswa') {
                 // Mahasiswa-specific validations
                 $rules = array_merge($rules, [
@@ -145,7 +146,10 @@ class ProfileController extends Controller
         if ($user->role === 'dospem') {
             $user->dospem()->updateOrCreate(
                 ['user_id' => $user->id],
-                ['nip' => $request->nip]
+                [
+                    'nip' => $request->nip,
+                    'no_telepon' => $request->no_telepon,
+                ]
             );
         }
 
@@ -206,13 +210,11 @@ class ProfileController extends Controller
         if ($user->role === 'mahasiswa' && $user->profilMahasiswa && $user->profilMahasiswa->no_whatsapp) {
             try {
                 $fonnte = new FonnteService();
-                $phone = '+62' . $user->profilMahasiswa->no_whatsapp;
+                $phone = $user->profilMahasiswa->no_whatsapp;
                 
                 $message = "📝 *Notifikasi Perubahan Profil*\n\n";
                 $message .= "Halo *{$user->name}*,\n\n";
                 $message .= "Profil Anda telah berhasil diperbarui di *SIP PKL*.\n\n";
-                $message .= "🔗 *Akses Profil:*\n";
-                $message .= "http://localhost:8000/profile\n\n";
                 $message .= "Jika ini bukan Anda, segera hubungi admin.\n\n";
                 $message .= "Terima kasih! 🙏";
                 
@@ -225,6 +227,33 @@ class ProfileController extends Controller
                 ]);
             } catch (\Exception $e) {
                 Log::error('Failed to send WhatsApp profile update notification', [
+                    'user_id' => $user->id,
+                    'error' => $e->getMessage()
+                ]);
+            }
+        }
+        
+        // Send WhatsApp notification for dospem profile changes
+        if ($user->role === 'dospem' && $user->dospem && $request->no_telepon) {
+            try {
+                $fonnte = new FonnteService();
+                $phone = $request->no_telepon;
+                
+                $message = "📝 *Notifikasi Perubahan Profil Dosen*\n\n";
+                $message .= "Halo *{$user->name}*,\n\n";
+                $message .= "Profil Anda telah berhasil diperbarui di *SIP PKL*.\n\n";
+                $message .= "Jika ini bukan Anda, segera hubungi admin.\n\n";
+                $message .= "Terima kasih! 🙏";
+                
+                $fonnte->sendMessage($phone, $message);
+                
+                Log::info('WhatsApp dospem profile update notification sent', [
+                    'user_id' => $user->id,
+                    'phone' => $phone,
+                    'name' => $user->name
+                ]);
+            } catch (\Exception $e) {
+                Log::error('Failed to send WhatsApp dospem profile update notification', [
                     'user_id' => $user->id,
                     'error' => $e->getMessage()
                 ]);
@@ -256,10 +285,19 @@ class ProfileController extends Controller
     {
         $request->validate([
             'current_password' => 'required',
-            'password' => 'required|string|min:6|confirmed',
+            'password' => 'required|string|min:8|confirmed',
+        ], [
+            'current_password.required' => 'Password lama harus diisi.',
+            'password.required' => 'Password baru harus diisi.',
+            'password.min' => 'Password baru minimal 8 karakter.',
+            'password.confirmed' => 'Konfirmasi password tidak cocok.',
         ]);
 
-        $user = Auth::user();
+        $user = User::find(Auth::id());
+
+        if (!$user) {
+            return back()->withErrors(['error' => 'User tidak ditemukan.']);
+        }
 
         // Check current password
         if (!Hash::check($request->current_password, $user->password)) {
@@ -267,11 +305,104 @@ class ProfileController extends Controller
         }
 
         // Update password
-        $user->update([
-            'password' => Hash::make($request->password),
-        ]);
+        $user->password = Hash::make($request->password);
+        $user->save();
+
+        Log::info('Password changed successfully', ['user_id' => $user->id]);
+
+        // Send WhatsApp security notification
+        $this->sendPasswordChangeNotification($user, $request);
 
         return redirect()->route('profile.settings')->with('success', 'Password berhasil diubah!');
+    }
+
+    /**
+     * Send WhatsApp notification when password is changed
+     */
+    private function sendPasswordChangeNotification($user, $request)
+    {
+        try {
+            Log::info('sendPasswordChangeNotification called', [
+                'user_id' => $user->id,
+                'user_name' => $user->name,
+                'user_role' => $user->role
+            ]);
+
+            // Ambil nomor WA dari profil mahasiswa (sama seperti validasi)
+            $whatsappNumber = optional($user->profilMahasiswa)->no_whatsapp;
+
+            Log::info('WhatsApp number check for password change', [
+                'user_id' => $user->id,
+                'whatsapp_number' => $whatsappNumber,
+                'has_profil' => $user->profilMahasiswa ? 'yes' : 'no'
+            ]);
+
+            if ($whatsappNumber) {
+                $fonnte = new FonnteService();
+                
+                // Get current timestamp
+                $timestamp = now()->setTimezone('Asia/Jakarta')->format('d M Y, H:i:s') . ' WIB';
+                
+                // Get IP address
+                $ipAddress = $request->ip();
+                
+                // Get user agent/device
+                $userAgent = $request->userAgent();
+                $device = $this->parseUserAgent($userAgent);
+
+                $message = "🔐 *PERINGATAN KEAMANAN*\n\n";
+                $message .= "Halo *{$user->name}*,\n\n";
+                $message .= "Password akun SIP PKL Anda telah *berhasil diubah*.\n\n";
+                $message .= "📅 *Waktu:* {$timestamp}\n";
+                $message .= "📱 *Perangkat:* {$device}\n";
+                $message .= "🌐 *IP Address:* {$ipAddress}\n\n";
+                $message .= "⚠️ *Jika ini BUKAN Anda:*\n";
+                $message .= "Segera hubungi administrator dan amankan akun Anda!\n\n";
+                $message .= "Terima kasih telah menjaga keamanan akun Anda. 🙏";
+
+                // Kirim (biarkan FonnteService yang normalisasi nomor ke +62)
+                $result = $fonnte->sendMessage($whatsappNumber, $message);
+
+                Log::info('Password change WhatsApp notification sent', [
+                    'user_id' => $user->id,
+                    'phone' => $whatsappNumber,
+                    'timestamp' => $timestamp,
+                    'ip' => $ipAddress,
+                    'result' => $result
+                ]);
+            } else {
+                Log::info('Password change notification skipped - no WhatsApp number', [
+                    'user_id' => $user->id
+                ]);
+            }
+        } catch (\Exception $e) {
+            Log::error('Failed to send password change WhatsApp notification', [
+                'user_id' => $user->id,
+                'error' => $e->getMessage()
+            ]);
+        }
+    }
+
+    /**
+     * Parse user agent to get device info
+     */
+    private function parseUserAgent($userAgent)
+    {
+        if (stripos($userAgent, 'Windows') !== false) {
+            return 'Windows PC';
+        } elseif (stripos($userAgent, 'Macintosh') !== false) {
+            return 'Mac';
+        } elseif (stripos($userAgent, 'Linux') !== false && stripos($userAgent, 'Android') === false) {
+            return 'Linux PC';
+        } elseif (stripos($userAgent, 'Android') !== false) {
+            return 'Android';
+        } elseif (stripos($userAgent, 'iPhone') !== false) {
+            return 'iPhone';
+        } elseif (stripos($userAgent, 'iPad') !== false) {
+            return 'iPad';
+        } else {
+            return 'Unknown Device';
+        }
     }
 
     /**
